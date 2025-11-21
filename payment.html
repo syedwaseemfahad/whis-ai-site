@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>whis.ai – Secure Checkout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { 'whis-bg': '#eef2f7', 'whis-blue': '#2563eb', } } } }
+  </script>
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+</head>
+<body class="bg-whis-bg text-slate-900 antialiased min-h-screen flex flex-col">
+
+  <!-- Nav -->
+  <nav class="w-full flex items-center justify-between px-6 md:px-12 py-4 bg-white border-b border-slate-200">
+    <a href="index.html" class="flex items-center gap-2">
+      <span class="text-lg font-semibold">whis.ai</span>
+    </a>
+    <div class="text-slate-500 text-sm flex items-center gap-2">Secure Checkout</div>
+  </nav>
+
+  <main class="flex-grow flex items-center justify-center p-4">
+    <!-- Payment Card -->
+    <div id="paymentCard" class="max-w-xl w-full bg-white p-8 rounded-3xl shadow-lg border border-slate-100 text-center">
+      
+      <h1 class="text-2xl font-bold mb-2">Complete your subscription</h1>
+      <p class="text-slate-500 mb-8">
+        You are subscribing to the <span id="planName" class="font-bold text-slate-900">Pro</span> plan 
+        <span id="cycleName" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ml-2">Monthly</span>.
+      </p>
+
+      <div class="bg-slate-50 p-4 rounded-xl mb-8 flex justify-between items-center">
+        <span class="text-slate-600">Total Amount</span>
+        <span id="amountDisplay" class="text-2xl font-bold">₹399.00</span>
+      </div>
+
+      <button id="payBtn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-black transition">
+        Pay Now
+      </button>
+
+      <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden"></p>
+    </div>
+
+    <!-- Success Card -->
+    <div id="successCard" class="max-w-xl w-full bg-white p-8 rounded-3xl shadow-lg border border-emerald-100 text-center hidden">
+      <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 text-4xl">✓</div>
+      <h1 class="text-2xl font-bold mb-2">Payment Successful!</h1>
+      <p class="text-slate-500 mb-8">Your subscription is now active.</p>
+      <button onclick="window.location.href='index.html'" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-emerald-700 transition">
+        Return to Dashboard
+      </button>
+    </div>
+    
+    <!-- Verifying Loader -->
+    <div id="verifyingCard" class="max-w-xl w-full bg-white p-8 rounded-3xl shadow-lg border border-slate-100 text-center hidden">
+      <h1 class="text-xl font-bold mb-2">Verifying Payment...</h1>
+      <p class="text-slate-500">Please wait a moment.</p>
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:4000"; 
+    const cashfree = Cashfree({ mode: "sandbox" });
+
+    const paymentCard = document.getElementById('paymentCard');
+    const successCard = document.getElementById('successCard');
+    const verifyingCard = document.getElementById('verifyingCard');
+    const planNameEl = document.getElementById('planName');
+    const cycleNameEl = document.getElementById('cycleName');
+    const amountEl = document.getElementById('amountDisplay');
+    const payBtn = document.getElementById('payBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    // Get Data
+    const currentUser = JSON.parse(localStorage.getItem('whisUser'));
+    const selectedPlan = localStorage.getItem('selectedPlan') || 'pro';
+    const selectedCycle = localStorage.getItem('selectedCycle') || 'monthly';
+
+    // UI Setup
+    cycleNameEl.innerText = selectedCycle === 'annual' ? 'Annually' : 'Monthly';
+
+    let displayAmount = "0";
+    
+    if (selectedPlan === 'pro_plus') {
+        planNameEl.innerText = "Pro Plus";
+        // Logic: If annual, 599*12 = 7188. If monthly, 999.
+        if (selectedCycle === 'annual') displayAmount = "7188.00";
+        else displayAmount = "999.00";
+    } else {
+        planNameEl.innerText = "Pro";
+        // Logic: If annual, 299*12 = 3588. If monthly, 399.
+        if (selectedCycle === 'annual') displayAmount = "3588.00";
+        else displayAmount = "399.00";
+    }
+    amountEl.innerText = "₹" + displayAmount;
+
+    // Redirect Verification
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderIdParam = urlParams.get('order_id');
+    if (orderIdParam) verifyPayment(orderIdParam);
+
+    async function verifyPayment(orderId) {
+        paymentCard.classList.add('hidden');
+        verifyingCard.classList.remove('hidden');
+        try {
+            const res = await fetch(`${API_BASE}/api/payment/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                verifyingCard.classList.add('hidden');
+                successCard.classList.remove('hidden');
+            } else {
+                alert("Payment failed. Status: " + data.status);
+                window.location.href = "payment.html";
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error verifying payment.");
+            window.location.href = "index.html";
+        }
+    }
+
+    payBtn.addEventListener('click', async () => {
+        if (!currentUser) {
+            alert("Please log in first.");
+            window.location.href = "index.html";
+            return;
+        }
+
+        payBtn.disabled = true;
+        payBtn.innerText = "Initializing...";
+        errorMsg.classList.add('hidden');
+
+        try {
+            const res = await fetch(`${API_BASE}/api/payment/create-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    googleId: currentUser.googleId, 
+                    tier: selectedPlan,
+                    cycle: selectedCycle // Sending cycle info!
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.payment_session_id) {
+                throw new Error(data.error || "Failed to create order");
+            }
+
+            cashfree.checkout({
+                paymentSessionId: data.payment_session_id,
+                redirectTarget: "_self"
+            });
+
+        } catch (err) {
+            console.error(err);
+            errorMsg.innerText = err.message;
+            errorMsg.classList.remove('hidden');
+            payBtn.disabled = false;
+            payBtn.innerText = "Pay Now";
+        }
+    });
+  </script>
+</body>
+</html>
