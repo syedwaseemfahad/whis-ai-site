@@ -31,9 +31,9 @@
       <a href="blog.html" class="hover:text-slate-900">Blog</a>
     </div>
 
-    <a href="index.html" class="bg-whis-blue text-white text-sm md:text-base px-4 md:px-5 py-2 rounded-xl shadow hover:shadow-md hover:bg-blue-700 transition">
-      Back to Home
-    </a>
+    <button onclick="openDownloadModal()" class="bg-whis-blue text-white text-sm md:text-base px-4 md:px-5 py-2 rounded-xl shadow hover:shadow-md hover:bg-blue-700 transition">
+      Get App
+    </button>
   </nav>
 
   <!-- MAIN -->
@@ -70,9 +70,11 @@
         <h2 class="text-lg md:text-xl font-bold">Starter</h2>
         <p class="mt-1 text-slate-500 text-sm">All essential features.</p>
         <div class="mt-5 text-4xl font-extrabold">Free</div>
-        <button onclick="window.location.href='index.html'" class="mt-6 bg-whis-blue text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
-          Get for Mac
+        
+        <button onclick="openDownloadModal()" class="mt-6 bg-whis-blue text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
+          Download App
         </button>
+
         <ul class="mt-6 space-y-2 text-sm text-slate-700">
           <li>✔ Limited AI responses</li>
           <li>✔ Limited meeting notes</li>
@@ -112,9 +114,76 @@
     </section>
   </main>
 
+  <!-- DOWNLOAD MODAL -->
+  <div id="downloadModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-opacity opacity-0">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95 transition-transform relative">
+      
+      <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
+
+      <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-whis-blue text-3xl shadow-sm border border-blue-100">
+        <i class="fa-solid fa-download"></i>
+      </div>
+      
+      <h2 class="text-2xl font-bold mb-2">Download whis.ai</h2>
+      <p class="text-slate-500 mb-8 text-sm">Choose your platform to start.</p>
+
+      <div class="space-y-3">
+        <!-- macOS Download -->
+        <a href="path/to/whis-mac.dmg" class="flex items-center justify-between w-full px-6 py-4 border border-slate-200 rounded-2xl hover:border-whis-blue hover:bg-blue-50 transition group text-left">
+          <div class="flex items-center gap-4">
+            <i class="fa-brands fa-apple text-2xl text-slate-800 group-hover:text-whis-blue"></i>
+            <div>
+              <div class="font-bold text-slate-900">Download for Mac</div>
+              <div class="text-xs text-slate-500">macOS 10.15+ (.dmg)</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-down text-slate-400 group-hover:text-whis-blue"></i>
+        </a>
+
+        <!-- Windows Download -->
+        <a href="path/to/whis-win.exe" class="flex items-center justify-between w-full px-6 py-4 border border-slate-200 rounded-2xl hover:border-whis-blue hover:bg-blue-50 transition group text-left">
+          <div class="flex items-center gap-4">
+            <i class="fa-brands fa-windows text-2xl text-slate-800 group-hover:text-whis-blue"></i>
+            <div>
+              <div class="font-bold text-slate-900">Download for Windows</div>
+              <div class="text-xs text-slate-500">Windows 10/11 (.exe)</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-down text-slate-400 group-hover:text-whis-blue"></i>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
   <script>
-    // Global State
-    let currentCycle = 'monthly'; // Default
+    let currentCycle = 'monthly'; 
+
+    const downloadModal = document.getElementById('downloadModal');
+
+    function openDownloadModal() {
+      downloadModal.classList.remove('hidden');
+      setTimeout(() => {
+        downloadModal.classList.remove('opacity-0');
+        downloadModal.querySelector('div').classList.remove('scale-95');
+        downloadModal.querySelector('div').classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeDownloadModal() {
+      downloadModal.classList.add('opacity-0');
+      downloadModal.querySelector('div').classList.add('scale-95');
+      downloadModal.querySelector('div').classList.remove('scale-100');
+      setTimeout(() => {
+        downloadModal.classList.add('hidden');
+      }, 300);
+    }
+
+    downloadModal.addEventListener('click', (e) => {
+      if (e.target === downloadModal) closeDownloadModal();
+    });
 
     function executeSubscribe(planName, btnElement) {
         const originalText = btnElement.innerText;
@@ -126,9 +195,8 @@
                 alert("Please sign in on the home page first.");
                 window.location.href = "index.html";
             } else {
-                // SAVE PLAN & CYCLE
                 localStorage.setItem('selectedPlan', planName);
-                localStorage.setItem('selectedCycle', currentCycle); // Saving Cycle!
+                localStorage.setItem('selectedCycle', currentCycle);
                 window.location.href = "payment.html";
             }
             btnElement.innerText = originalText;
@@ -151,7 +219,7 @@
         const labelAnnual = document.getElementById("labelAnnual");
 
         function setMonthly() {
-            currentCycle = 'monthly'; // Update state
+            currentCycle = 'monthly';
             if(proPrice) proPrice.textContent = "₹399";
             if(proPlusPrice) proPlusPrice.textContent = "₹999";
             if(proNote) proNote.classList.add("hidden");
@@ -167,9 +235,9 @@
         }
 
         function setAnnual() {
-            currentCycle = 'annual'; // Update state
-            if(proPrice) proPrice.textContent = "₹299"; // Discounted display
-            if(proPlusPrice) proPlusPrice.textContent = "₹599"; // Discounted display
+            currentCycle = 'annual';
+            if(proPrice) proPrice.textContent = "₹299";
+            if(proPlusPrice) proPlusPrice.textContent = "₹599";
             if(proNote) proNote.classList.remove("hidden");
             if(proPlusNote) proPlusNote.classList.remove("hidden");
             if(labelAnnual) {
