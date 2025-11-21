@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>whis.ai  #1 AI assistant for meetings</title>
+  <title>whis.ai – #1 AI assistant for meetings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Tailwind CDN -->
@@ -19,12 +19,16 @@
       }
     }
   </script>
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  
+  <!-- 1. LOAD GOOGLE LIBRARY -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-whis-bg text-slate-900 antialiased">
 
   <!-- HERO + NAV WRAPPED INSIDE GRADIENT SECTION -->
-  <section
-    class="relative bg-gradient-to-b from-sky-500 via-sky-400 to-orange-200 text-white pb-40 overflow-hidden">
+  <section class="relative bg-gradient-to-b from-sky-500 via-sky-400 to-orange-200 text-white pb-40 overflow-hidden">
 
     <!-- soft sun / mountain blobs -->
     <div class="pointer-events-none absolute inset-0 opacity-60">
@@ -37,13 +41,9 @@
     <nav class="relative z-10 w-full flex items-center justify-between px-6 md:px-12 py-4">
       <!-- Logo -->
       <a href="index.html" class="flex items-center gap-2">
-        <div
-          class="w-9 h-9 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/40">
-          <div
-            class="w-7 h-7 rounded-xl bg-gradient-to-tr from-whis-blue to-sky-300 flex items-center justify-center border border-sky-200/60">
-            <span class="text-[11px] font-semibold tracking-[0.18em] uppercase">
-              wh
-            </span>
+        <div class="w-9 h-9 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/40">
+          <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-whis-blue to-sky-300 flex items-center justify-center border border-sky-200/60">
+            <span class="text-[11px] font-semibold tracking-[0.18em] uppercase">wh</span>
           </div>
         </div>
         <span class="text-xl md:text-2xl font-semibold tracking-tight text-white">whis.ai</span>
@@ -56,12 +56,23 @@
         <a href="blog.html" class="hover:text-white">Blog</a>
       </div>
 
-      <!-- Changed: no longer "Get for Mac" to avoid duplicate -->
-      <a
-        href="#contact-sales"
-        class="bg-white/10 border border-white/30 text-sm md:text-base px-4 md:px-5 py-2 rounded-xl shadow-lg shadow-sky-900/30 hover:bg-white/20 transition">
-        Talk to sales
-      </a>
+      <div class="flex items-center gap-4">
+        <!-- User Profile / Sign In -->
+        <div id="userSection" class="hidden md:flex items-center gap-3">
+          <button onclick="openLoginModal()" id="signInBtn" class="text-sm font-medium text-white hover:text-sky-100 transition">
+            Sign in
+          </button>
+          <div id="userProfile" class="hidden items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-md">
+            <img id="userAvatar" src="" class="w-6 h-6 rounded-full bg-slate-300" />
+            <span id="userName" class="text-xs font-semibold text-white"></span>
+            <button onclick="logout()" class="ml-2 text-xs text-white/60 hover:text-white"><i class="fa-solid fa-sign-out-alt"></i></button>
+          </div>
+        </div>
+
+        <a href="#contact-sales" class="bg-white/10 border border-white/30 text-sm md:text-base px-4 md:px-5 py-2 rounded-xl shadow-lg shadow-sky-900/30 hover:bg-white/20 transition">
+          Talk to sales
+        </a>
+      </div>
     </nav>
 
     <!-- HERO CONTENT -->
@@ -78,19 +89,22 @@
         <span class="font-semibold">completely invisible on screen share.</span>
       </p>
 
-      <div class="mt-8 flex justify-center">
-        <a
-          href="pricing.html"
-          class="bg-whis-blue px-6 py-2.5 rounded-2xl text-white font-semibold text-sm md:text-base shadow-xl shadow-blue-900/40 hover:bg-blue-700 transition">
+      <div class="mt-8 flex flex-col items-center gap-3">
+        <a href="pricing.html" class="bg-whis-blue px-6 py-2.5 rounded-2xl text-white font-semibold text-sm md:text-base shadow-xl shadow-blue-900/40 hover:bg-blue-700 transition">
            Get for Mac
         </a>
+        
+        <!-- Connection Status Indicator -->
+        <div id="connectionStatus" class="text-xs text-sky-200/80 flex items-center gap-1.5 opacity-0 transition-opacity">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Backend Connected
+        </div>
       </div>
     </div>
 
-    <!-- HERO “APP WINDOW” WITH VIDEO -->
+    <!-- APP WINDOW (Video Placeholder) -->
     <div class="relative z-10 max-w-5xl mx-auto mt-16 px-6">
-      <div
-        class="relative rounded-[32px] bg-gradient-to-tr from-orange-400 via-orange-300 to-purple-400 shadow-[0_30px_80px_rgba(15,23,42,0.55)] overflow-hidden border border-white/20">
+      <div class="relative rounded-[32px] bg-gradient-to-tr from-orange-400 via-orange-300 to-purple-400 shadow-[0_30px_80px_rgba(15,23,42,0.55)] overflow-hidden border border-white/20">
         <!-- top bar -->
         <div class="flex items-center justify-between px-4 py-3 text-white/80 text-xs">
           <div class="flex items-center gap-2">
@@ -135,22 +149,12 @@
           <p class="leading-relaxed text-slate-100">
             “Ask what success would look like for them this quarter, then propose a short pilot.”
           </p>
-          <div class="space-y-1 pt-2 border-t border-slate-700/60 text-[13px]">
-            <p><span class="text-sky-400 font-semibold">Prospect:</span> We’re exploring tools like this for our sales team.</p>
-            <p><span class="text-emerald-400 font-semibold">whis.ai:</span> Ask how they coach reps on live calls today.</p>
-            <p><span class="text-sky-400 font-semibold">You:</span> How are you coaching reps during live calls right now?</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 pt-2">
-            <span>👂 Meeting audio</span>
-            <span>🖥 Screen context</span>
-            <span>🕵 Undetectable overlay</span>
-          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- HOW IT WORKS – SIMPLE STEPS WITH BIG NUMBERS -->
+  <!-- HOW IT WORKS -->
   <section class="bg-white py-16 md:py-20">
     <div class="max-w-6xl mx-auto px-6">
       <h2 class="text-2xl md:text-3xl font-semibold text-center mb-10">
@@ -167,7 +171,6 @@
             watching the active meeting window.
           </p>
         </div>
-
         <!-- Step 2 -->
         <div>
           <div class="text-4xl font-semibold text-slate-900 mb-2">2</div>
@@ -177,7 +180,6 @@
             questions in real time.
           </p>
         </div>
-
         <!-- Step 3 -->
         <div>
           <div class="text-4xl font-semibold text-slate-900 mb-2">3</div>
@@ -191,113 +193,162 @@
     </div>
   </section>
 
-  <!-- REAL-TIME ANSWERS FEATURE SECTION (SHORTER TRANSCRIPT) -->
+  <!-- REAL-TIME ANSWERS -->
   <section class="bg-whis-bg py-16 md:py-20">
     <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
       <!-- Left “screen” card -->
-      <div
-        class="rounded-[28px] bg-white shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-100 overflow-hidden">
+      <div class="rounded-[28px] bg-white shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-100 overflow-hidden">
         <div class="bg-slate-50 px-4 py-3 flex items-center justify-between text-xs text-slate-500">
           <span>Live meeting transcript</span>
           <span class="flex gap-2">
-            <span
-              class="px-2 py-0.5 rounded-full bg-slate-200 text-[11px] font-medium text-slate-700">Real-time</span>
+            <span class="px-2 py-0.5 rounded-full bg-slate-200 text-[11px] font-medium text-slate-700">Real-time</span>
             <span>● Recording</span>
           </span>
         </div>
         <div class="px-5 py-4 text-sm space-y-2">
-          <p>
-            <span class="font-semibold text-sky-700">Prospect</span>
-            <span class="text-slate-400 text-xs">&nbsp;12:03 PM</span>
-            &nbsp;Hi, this is Neesh from TechSolutions.
-          </p>
-          <p>
-            <span class="font-semibold text-sky-700">You</span>
-            <span class="text-slate-400 text-xs">&nbsp;12:03 PM</span>
-            &nbsp;Hi Neesh, great to meet you.
-          </p>
-          <p>
-            <span class="font-semibold text-sky-700">Prospect</span>
-            <span class="text-slate-400 text-xs">&nbsp;12:04 PM</span>
-            &nbsp;We’re reviewing tools to speed up follow-ups.
-          </p>
-          <p>
-            <span class="font-semibold text-emerald-700">whis.ai</span>
-            <span class="text-slate-400 text-xs">&nbsp;12:04 PM</span>
-            &nbsp;Ask how they capture action items today.
-          </p>
-          <p>
-            <span class="font-semibold text-sky-700">You</span>
-            <span class="text-slate-400 text-xs">&nbsp;12:05 PM</span>
-            &nbsp;How are you tracking action items from calls right now?
-          </p>
-
-          <p class="text-xs text-slate-400 pt-3 border-t border-slate-100">
-            Audio + screen understanding, processed locally. No extra meeting bots or tiles.
-          </p>
+          <p><span class="font-semibold text-sky-700">Prospect</span> <span class="text-slate-400 text-xs">12:03 PM</span> Hi, this is Neesh from TechSolutions.</p>
+          <p><span class="font-semibold text-sky-700">You</span> <span class="text-slate-400 text-xs">12:03 PM</span> Hi Neesh, great to meet you.</p>
+          <p><span class="font-semibold text-emerald-700">whis.ai</span> <span class="text-slate-400 text-xs">12:04 PM</span> Ask how they capture action items today.</p>
         </div>
       </div>
-
       <!-- Right copy + metrics -->
       <div>
-        <h2 class="text-2xl md:text-3xl font-semibold mb-4">
-          Real-time answers,
-          <span class="text-slate-500">without being noticed.</span>
-        </h2>
+        <h2 class="text-2xl md:text-3xl font-semibold mb-4">Real-time answers, <span class="text-slate-500">without being noticed.</span></h2>
         <p class="text-sm md:text-base text-slate-600 mb-6">
           whis.ai focuses on one thing: <span class="font-medium">helping you in the moment.</span>
-          It listens to the conversation, reads what’s on screen, and gives instant suggestions through a private
-          overlay.
+          It listens to the conversation, reads what’s on screen, and gives instant suggestions through a private overlay.
         </p>
-
-        <div class="grid grid-cols-2 gap-y-6 gap-x-8 text-sm">
-          <div>
-            <div class="text-3xl font-semibold text-slate-900">12+</div>
-            <div class="mt-1 text-slate-500">Languages</div>
-            <p class="mt-1 text-xs text-slate-500">
-              Built for global teams, starting with English and expanding outward.
-            </p>
-          </div>
-          <div>
-            <div class="text-3xl font-semibold text-slate-900">300&nbsp;ms</div>
-            <div class="mt-1 text-slate-500">Response time</div>
-            <p class="mt-1 text-xs text-slate-500">
-              Fast enough to keep pace with live objections and questions.
-            </p>
-          </div>
-          <div>
-            <div class="text-3xl font-semibold text-slate-900">100%</div>
-            <div class="mt-1 text-slate-500">Undetectable</div>
-            <p class="mt-1 text-xs text-slate-500">
-              Nothing new appears in the meeting. Only your screen shows whis.ai.
-            </p>
-          </div>
-          <div>
-            <div class="text-3xl font-semibold text-slate-900">1</div>
-            <div class="mt-1 text-slate-500">Core focus</div>
-            <p class="mt-1 text-xs text-slate-500">
-              We obsess over in-meeting answers instead of doing everything.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- Simple anchor for navbar "Talk to sales" -->
-  <section id="contact-sales" class="bg-white py-12">
-    <div class="max-w-4xl mx-auto px-6 text-center">
-      <h2 class="text-2xl md:text-3xl font-semibold mb-3">Talk to sales</h2>
-      <p class="text-sm md:text-base text-slate-600 mb-4">
-        Planning a rollout for your team? Share a few details and we’ll follow up with a short call.
-      </p>
-      <a
-        href="mailto:sales@whis.ai"
-        class="inline-block bg-whis-blue text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow hover:bg-blue-700 transition">
-        Email sales@whis.ai
-      </a>
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center relative">
+      <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-times"></i>
+      </button>
+      
+      <h3 class="text-xl font-bold mb-4">Sign in to whis.ai</h3>
+      <p class="text-slate-500 text-sm mb-6">Sign in with Google to sync your meetings and subscription status.</p>
+      
+      <!-- GOOGLE BUTTON CONTAINER -->
+      <div id="googleBtnContainer" class="flex justify-center"></div>
+      
     </div>
-  </section>
+  </div>
 
+  <!-- Script for Auth & Backend Connection -->
+  <script>
+    const BACKEND_URL = "http://localhost:4000";
+    // =====================================================
+    // TODO: PASTE YOUR CLIENT ID HERE
+    // =====================================================
+    const GOOGLE_CLIENT_ID = "91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
+
+    const loginModal = document.getElementById('loginModal');
+    const signInBtn = document.getElementById('signInBtn');
+    const userProfile = document.getElementById('userProfile');
+    const userNameSpan = document.getElementById('userName');
+    const userAvatarImg = document.getElementById('userAvatar');
+    const connectionStatus = document.getElementById('connectionStatus');
+
+    // 1. Check if user is already logged in (via LocalStorage)
+    const storedUser = localStorage.getItem('whisUser');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      updateUI(user);
+      checkBackendStatus(user.googleId);
+    }
+
+    // 2. Open Login Modal & Render Google Button
+    function openLoginModal() {
+      loginModal.classList.remove('hidden');
+      loginModal.classList.add('flex');
+
+      // Initialize Google Sign In
+      if (window.google) {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("googleBtnContainer"),
+          { theme: "outline", size: "large", width: "250" } // Customization attributes
+        );
+      } else {
+        console.error("Google Library not loaded");
+      }
+    }
+
+    function closeLoginModal() {
+      loginModal.classList.add('hidden');
+      loginModal.classList.remove('flex');
+    }
+
+    // 3. Handle the Google Response (The Real Login)
+    async function handleGoogleResponse(response) {
+      console.log("Encoded JWT ID token: " + response.credential);
+
+      // Send this token to your backend to verify & save user
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: response.credential }) // Sending the JWT
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+             localStorage.setItem('whisUser', JSON.stringify(data.user));
+             updateUI(data.user);
+             closeLoginModal();
+          }
+        } else {
+          console.error("Backend failed to verify token");
+          alert("Login failed. Check console.");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Server connection error.");
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('whisUser');
+      location.reload();
+    }
+
+    // 4. Update UI Elements
+    function updateUI(user) {
+      signInBtn.classList.add('hidden');
+      userProfile.classList.remove('hidden');
+      userProfile.classList.add('flex');
+      userNameSpan.textContent = user.name.split(' ')[0]; 
+      userAvatarImg.src = user.avatarUrl;
+      checkBackendStatus(user.googleId);
+    }
+
+    // 5. Check Subscription Status API
+    async function checkBackendStatus(googleId) {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/user/status`, {
+          headers: { 'x-google-id': googleId }
+        });
+        const data = await res.json();
+        
+        if(data.active) {
+           connectionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Pro Plan Active';
+           connectionStatus.classList.remove('opacity-0');
+        } else {
+           connectionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-yellow-400"></span> Free Plan';
+           connectionStatus.classList.remove('opacity-0');
+        }
+      } catch(e) {
+        console.log("Backend not reachable yet");
+      }
+    }
+  </script>
 </body>
 </html>
