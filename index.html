@@ -90,9 +90,10 @@
       </p>
 
       <div class="mt-8 flex flex-col items-center gap-3">
-        <a href="pricing.html" class="bg-whis-blue px-6 py-2.5 rounded-2xl text-white font-semibold text-sm md:text-base shadow-xl shadow-blue-900/40 hover:bg-blue-700 transition">
-           Get for Mac
-        </a>
+        <!-- GET APP BUTTON (Opens Modal) -->
+        <button onclick="openDownloadModal()" class="bg-whis-blue px-6 py-2.5 rounded-2xl text-white font-semibold text-sm md:text-base shadow-xl shadow-blue-900/40 hover:bg-blue-700 transition">
+          Get App
+        </button>
         
         <!-- Connection Status Indicator -->
         <div id="connectionStatus" class="text-xs text-sky-200/80 flex items-center gap-1.5 opacity-0 transition-opacity">
@@ -193,70 +194,68 @@
     </div>
   </section>
 
-  <!-- REAL-TIME ANSWERS -->
-  <section class="bg-whis-bg py-16 md:py-20">
-    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-      <!-- Left “screen” card -->
-      <div class="rounded-[28px] bg-white shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-100 overflow-hidden">
-        <div class="bg-slate-50 px-4 py-3 flex items-center justify-between text-xs text-slate-500">
-          <span>Live meeting transcript</span>
-          <span class="flex gap-2">
-            <span class="px-2 py-0.5 rounded-full bg-slate-200 text-[11px] font-medium text-slate-700">Real-time</span>
-            <span>● Recording</span>
-          </span>
-        </div>
-        <div class="px-5 py-4 text-sm space-y-2">
-          <p><span class="font-semibold text-sky-700">Prospect</span> <span class="text-slate-400 text-xs">12:03 PM</span> Hi, this is Neesh from TechSolutions.</p>
-          <p><span class="font-semibold text-sky-700">You</span> <span class="text-slate-400 text-xs">12:03 PM</span> Hi Neesh, great to meet you.</p>
-          <p><span class="font-semibold text-emerald-700">whis.ai</span> <span class="text-slate-400 text-xs">12:04 PM</span> Ask how they capture action items today.</p>
-        </div>
-      </div>
-      <!-- Right copy + metrics -->
-      <div>
-        <h2 class="text-2xl md:text-3xl font-semibold mb-4">Real-time answers, <span class="text-slate-500">without being noticed.</span></h2>
-        <p class="text-sm md:text-base text-slate-600 mb-6">
-          whis.ai focuses on one thing: <span class="font-medium">helping you in the moment.</span>
-          It listens to the conversation, reads what’s on screen, and gives instant suggestions through a private overlay.
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center relative">
       <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
         <i class="fa-solid fa-times"></i>
       </button>
-      
       <h3 class="text-xl font-bold mb-4">Sign in to whis.ai</h3>
       <p class="text-slate-500 text-sm mb-6">Sign in with Google to sync your meetings and subscription status.</p>
-      
-      <!-- GOOGLE BUTTON CONTAINER -->
       <div id="googleBtnContainer" class="flex justify-center"></div>
-      
     </div>
   </div>
 
-  <!-- Script for Auth & Backend Connection -->
+  <!-- DOWNLOAD MODAL (NEW) -->
+  <div id="downloadModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-opacity opacity-0">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95 transition-transform relative">
+      <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
+      <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-whis-blue text-3xl shadow-sm border border-blue-100">
+        <i class="fa-solid fa-download"></i>
+      </div>
+      <h2 class="text-2xl font-bold mb-2">Download whis.ai</h2>
+      <p class="text-slate-500 mb-8 text-sm">Choose your platform to start your free trial.</p>
+      <div class="space-y-3">
+        <a href="YOUR_DMG_LINK_HERE" class="flex items-center justify-between w-full px-6 py-4 border border-slate-200 rounded-2xl hover:border-whis-blue hover:bg-blue-50 transition group text-left">
+          <div class="flex items-center gap-4">
+            <i class="fa-brands fa-apple text-2xl text-slate-800 group-hover:text-whis-blue"></i>
+            <div>
+              <div class="font-bold text-slate-900">Download for Mac</div>
+              <div class="text-xs text-slate-500">macOS 10.15+ (.dmg)</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-down text-slate-400 group-hover:text-whis-blue"></i>
+        </a>
+        <a href="YOUR_EXE_LINK_HERE" class="flex items-center justify-between w-full px-6 py-4 border border-slate-200 rounded-2xl hover:border-whis-blue hover:bg-blue-50 transition group text-left">
+          <div class="flex items-center gap-4">
+            <i class="fa-brands fa-windows text-2xl text-slate-800 group-hover:text-whis-blue"></i>
+            <div>
+              <div class="font-bold text-slate-900">Download for Windows</div>
+              <div class="text-xs text-slate-500">Windows 10/11 (.exe)</div>
+            </div>
+          </div>
+          <i class="fa-solid fa-arrow-down text-slate-400 group-hover:text-whis-blue"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script>
-    // >>>>> IMPORTANT: CHANGE THIS TO YOUR LIVE RENDER BACKEND URL <<<<<
-    // Example: "https://whis-backend.onrender.com"
     const BACKEND_URL = "https://whis-backend.onrender.com";
-    
-    // =====================================================
-    // TODO: PASTE YOUR CLIENT ID HERE
-    // =====================================================
-    const GOOGLE_CLIENT_ID = "91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
+    const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
 
     const loginModal = document.getElementById('loginModal');
+    const downloadModal = document.getElementById('downloadModal');
     const signInBtn = document.getElementById('signInBtn');
     const userProfile = document.getElementById('userProfile');
     const userNameSpan = document.getElementById('userName');
     const userAvatarImg = document.getElementById('userAvatar');
     const connectionStatus = document.getElementById('connectionStatus');
 
-    // 1. Check if user is already logged in (via LocalStorage)
+    // --- Check Auth on Load ---
     const storedUser = localStorage.getItem('whisUser');
     if (storedUser) {
       const user = JSON.parse(storedUser);
@@ -264,12 +263,10 @@
       checkBackendStatus(user.googleId);
     }
 
-    // 2. Open Login Modal & Render Google Button
+    // --- Modal Logic ---
     function openLoginModal() {
       loginModal.classList.remove('hidden');
       loginModal.classList.add('flex');
-
-      // Initialize Google Sign In
       if (window.google) {
         google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
@@ -279,8 +276,6 @@
           document.getElementById("googleBtnContainer"),
           { theme: "outline", size: "large", width: "250" } 
         );
-      } else {
-        console.error("Google Library not loaded");
       }
     }
 
@@ -289,11 +284,31 @@
       loginModal.classList.remove('flex');
     }
 
-    // 3. Handle the Google Response (The Real Login)
+    function openDownloadModal() {
+      downloadModal.classList.remove('hidden');
+      setTimeout(() => {
+        downloadModal.classList.remove('opacity-0');
+        downloadModal.querySelector('div').classList.remove('scale-95');
+        downloadModal.querySelector('div').classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeDownloadModal() {
+      downloadModal.classList.add('opacity-0');
+      downloadModal.querySelector('div').classList.add('scale-95');
+      downloadModal.querySelector('div').classList.remove('scale-100');
+      setTimeout(() => {
+        downloadModal.classList.add('hidden');
+      }, 300);
+    }
+
+    downloadModal.addEventListener('click', (e) => {
+      if (e.target === downloadModal) closeDownloadModal();
+    });
+
+    // --- Auth Logic ---
     async function handleGoogleResponse(response) {
       console.log("Google ID Token received. Sending to backend...");
-
-      // Send this token to your backend to verify & save user
       try {
         const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
           method: "POST",
@@ -323,7 +338,6 @@
       location.reload();
     }
 
-    // 4. Update UI Elements
     function updateUI(user) {
       signInBtn.classList.add('hidden');
       userProfile.classList.remove('hidden');
@@ -333,7 +347,6 @@
       checkBackendStatus(user.googleId);
     }
 
-    // 5. Check Subscription Status API
     async function checkBackendStatus(googleId) {
       try {
         const res = await fetch(`${BACKEND_URL}/api/user/status`, {
