@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pricing - Whis</title>
+  <title>Upgrade Plan – Whis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -10,119 +10,101 @@
       theme: {
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: { 'whis-dark': '#0B0F19', 'whis-panel': '#151B2B' }
+          colors: { 'whis-dark': '#030712' }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #0B0F19; color: white; }
-    .glass-nav { background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .glass-panel { background: #151B2B; border: 1px solid rgba(255,255,255,0.08); }
-    /* Fix overlap by setting stacking context */
-    .pricing-card { position: relative; z-index: 10; transition: transform 0.3s; }
-    .pricing-card:hover { transform: translateY(-5px); z-index: 20; }
+    body { background-color: #030712; color: white; font-family: 'Inter', sans-serif; }
+    .glass-nav { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .card-base { background: #0f131f; border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s; position: relative; z-index: 10; }
+    .card-popular { background: linear-gradient(145deg, #1e3a8a 0%, #172554 100%); border: 1px solid #3b82f6; box-shadow: 0 0 40px rgba(37,99,235,0.2); transform: scale(1.05); z-index: 20; }
+    /* Fix overlap */
+    .modal-layer { z-index: 9999 !important; }
   </style>
 </head>
 <body class="antialiased">
 
-  <nav class="fixed top-0 w-full z-40 glass-nav h-20">
+  <nav class="fixed top-0 w-full z-50 glass-nav h-[72px]">
     <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
       <a href="/" class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-bold">WH</div>
-        <span class="text-lg font-bold">whis.ai</span>
+        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-bold text-white">WH</div>
+        <span class="text-lg font-bold tracking-tight">whis.ai</span>
       </a>
       <div class="flex items-center gap-6 text-sm font-medium">
-          <a href="/support" class="text-slate-400 hover:text-white">Support</a>
-          <div id="userSection" class="hidden md:flex">
-             <button onclick="openLoginModal()" id="signInBtn" class="text-slate-300 hover:text-white">Sign In</button>
-             <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden w-8 h-8 rounded-full bg-blue-600 overflow-hidden"><img id="navUserAvatar" class="w-full h-full object-cover"></button>
-          </div>
+          <a href="support.html" class="text-slate-400 hover:text-white transition">Support</a>
+          <button onclick="openLoginModal()" class="text-slate-300 hover:text-white transition">Sign In</button>
       </div>
     </div>
   </nav>
 
   <section class="pt-40 pb-20 px-6 text-center">
-    <h1 class="text-4xl md:text-5xl font-bold mb-6">Transparent Pricing</h1>
-    <p class="text-slate-400 text-lg mb-10">Upgrade to remove limits and unlock stealth mode.</p>
+    <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">Invest in your career.</h1>
+    <p class="text-slate-400 text-lg mb-12">One offer letter pays for a lifetime of Whis.</p>
     
-    <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-16">
-      <button id="btnMonthly" class="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg" onclick="setCycle('monthly')">Monthly</button>
-      <button id="btnAnnual" class="px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-xs ml-1">-50%</span></button>
+    <div class="inline-flex bg-white/5 p-1.5 rounded-full border border-white/10 mb-16 relative z-30">
+      <button id="btnMonthly" class="px-6 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-lg transition-all" onclick="setCycle('monthly')">Monthly</button>
+      <button id="btnAnnual" class="px-6 py-2 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-[10px] ml-1 uppercase tracking-wider">Save 50%</span></button>
     </div>
 
-    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 items-start">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 items-center">
       
-      <div class="pricing-card glass-panel rounded-3xl p-8 text-left">
-        <h3 class="text-xl font-bold text-slate-200">Starter</h3>
+      <div class="card-base rounded-3xl p-8 text-left">
+        <h3 class="text-lg font-bold text-slate-300">Starter</h3>
         <div class="mt-4 mb-6"><span class="text-4xl font-extrabold text-white">Free</span></div>
-        <button onclick="window.location.href='/'" class="w-full py-3 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-semibold transition">Get App</button>
-        <div class="mt-8 space-y-4 text-sm text-slate-400">
-          <p><i class="fa-solid fa-check text-slate-600 w-6"></i> 5 AI Responses / day</p>
-          <p><i class="fa-solid fa-check text-slate-600 w-6"></i> Basic Transcription</p>
+        <button onclick="window.location.href='/'" class="w-full py-3 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-bold transition">Download</button>
+        <div class="mt-8 space-y-4 text-sm text-slate-500">
+          <p class="flex items-center gap-3"><i class="fa-solid fa-check text-slate-600"></i> 5 Responses / day</p>
+          <p class="flex items-center gap-3"><i class="fa-solid fa-check text-slate-600"></i> Basic Speed</p>
         </div>
       </div>
 
-      <div class="pricing-card rounded-3xl p-8 text-left bg-blue-600 border border-blue-400 relative shadow-[0_0_40px_rgba(37,99,235,0.3)]">
-        <div class="absolute top-0 right-0 bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">MOST POPULAR</div>
+      <div class="card-popular rounded-3xl p-10 text-left relative">
+        <div class="absolute top-0 right-0 bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl backdrop-blur-md">POPULAR</div>
         <h3 class="text-xl font-bold text-white">Pro</h3>
         <div class="mt-4 mb-6 flex items-baseline gap-1">
-           <span class="text-4xl font-extrabold text-white" id="pricePro">₹799</span><span class="text-blue-200">/mo</span>
+           <span class="text-5xl font-extrabold text-white" id="pricePro">₹799</span><span class="text-blue-200 font-medium">/mo</span>
         </div>
-        <button onclick="initiatePayment('pro')" class="w-full py-3 rounded-xl bg-white text-blue-600 font-bold hover:bg-blue-50 transition">Subscribe Pro</button>
-        <div class="mt-8 space-y-4 text-sm text-blue-100">
-          <p><i class="fa-solid fa-infinity w-6"></i> <strong>Unlimited</strong> Responses</p>
-          <p><i class="fa-solid fa-bolt w-6"></i> Faster Processing</p>
-          <p><i class="fa-solid fa-clock-rotate-left w-6"></i> Unlimited History</p>
+        <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-blue-900 font-bold hover:bg-blue-50 transition shadow-lg">Upgrade Now</button>
+        <div class="mt-8 space-y-4 text-sm text-blue-100 font-medium">
+          <p class="flex items-center gap-3"><i class="fa-solid fa-infinity"></i> <strong>Unlimited</strong> Responses</p>
+          <p class="flex items-center gap-3"><i class="fa-solid fa-bolt"></i> Turbo Processing</p>
+          <p class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left"></i> Unlimited History</p>
         </div>
       </div>
 
-      <div class="pricing-card glass-panel rounded-3xl p-8 text-left relative overflow-hidden">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/20 blur-3xl rounded-full"></div>
-        <h3 class="text-xl font-bold text-white flex items-center gap-2">Stealth <i class="fa-solid fa-mask text-purple-400"></i></h3>
+      <div class="card-base rounded-3xl p-8 text-left relative overflow-hidden group hover:border-purple-500/50 transition duration-500">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/20 blur-3xl rounded-full group-hover:bg-purple-600/40 transition duration-500"></div>
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">Stealth <i class="fa-solid fa-mask text-purple-400"></i></h3>
         <div class="mt-4 mb-6 flex items-baseline gap-1">
            <span class="text-4xl font-extrabold text-white" id="priceStealth">₹1999</span><span class="text-slate-500">/mo</span>
         </div>
-        <button onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-xl bg-white/10 text-white border border-white/20 font-bold hover:bg-white/20 transition">Get Stealth Access</button>
+        <button onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-xl bg-white/10 text-white border border-white/20 font-bold hover:bg-white/20 transition backdrop-blur-sm">Get Stealth Access</button>
         <div class="mt-8 space-y-4 text-sm text-slate-400 relative z-10">
-          <p class="text-xs font-bold text-slate-500 uppercase">Everything in Pro, plus:</p>
-          <p class="text-purple-300"><i class="fa-solid fa-eye-slash w-6"></i> <strong>100% Undetectable</strong></p>
-          <p><i class="fa-solid fa-ghost w-6"></i> Ghost Window Overlay</p>
-          <p><i class="fa-solid fa-shield w-6"></i> No Admin/Log Traces</p>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Everything in Pro, plus:</p>
+          <p class="flex items-center gap-3 text-purple-300"><i class="fa-solid fa-eye-slash"></i> <strong>100% Undetectable</strong></p>
+          <p class="flex items-center gap-3"><i class="fa-solid fa-ghost"></i> Ghost Window Overlay</p>
+          <p class="flex items-center gap-3"><i class="fa-solid fa-shield"></i> No Admin/Log Traces</p>
         </div>
       </div>
 
     </div>
   </section>
 
-  <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4">
-    <div class="bg-[#151B2B] border border-white/10 rounded-2xl p-8 max-w-sm w-full text-center relative shadow-2xl">
+  <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-md modal-layer hidden items-center justify-center p-4">
+    <div class="bg-[#111827] border border-white/10 rounded-2xl p-8 max-w-sm w-full text-center relative shadow-2xl">
         <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-xl font-bold text-white mb-6">Sign in</h3>
+        <h3 class="text-xl font-bold text-white mb-6">Sign in to Upgrade</h3>
         <div id="googleBtnContainer" class="flex justify-center"></div>
     </div>
   </div>
 
-  <div id="profileModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4">
-    <div class="bg-[#151B2B] border border-white/10 rounded-2xl p-8 max-w-sm w-full relative shadow-2xl">
-       <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-       <div class="flex items-center gap-4 mb-6">
-         <img id="modalUserAvatar2" class="w-12 h-12 rounded-full bg-slate-700"/>
-         <div><h3 id="modalUserName2" class="font-bold text-white"></h3><p id="modalUserEmail2" class="text-xs text-slate-500"></p></div>
-       </div>
-       <div class="bg-white/5 rounded-xl p-4 mb-4">
-         <div class="flex justify-between"><span class="text-sm text-slate-400">Plan</span><span id="modalPlanName2" class="font-bold text-white"></span></div>
-       </div>
-       <button onclick="logout()" class="w-full py-2 text-sm text-slate-400 hover:text-white">Log Out</button>
-    </div>
-  </div>
-
   <script>
-    // Simplified Logic for Pricing Page
     const BACKEND_URL = "https://whis-backend.onrender.com";
     const GOOGLE_CLIENT_ID = "91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     let currentCycle = 'monthly'; let currentUser = null;
@@ -131,10 +113,12 @@
         currentCycle = c;
         const btnM = document.getElementById('btnMonthly'); const btnA = document.getElementById('btnAnnual');
         if(c==='monthly'){ 
-            btnM.className="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg"; btnA.className="px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white";
+            btnM.className="px-6 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-lg transition-all"; 
+            btnA.className="px-6 py-2 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all";
             document.getElementById('pricePro').innerText='₹999'; document.getElementById('priceStealth').innerText='₹1999';
         } else {
-            btnA.className="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg"; btnM.className="px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white";
+            btnA.className="px-6 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-lg transition-all"; 
+            btnM.className="px-6 py-2 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all";
             document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
         }
     }
@@ -151,15 +135,11 @@
         btn.innerText = orig;
     }
 
-    const loginModal=document.getElementById('loginModal'),profileModal=document.getElementById('profileModal');
+    const loginModal=document.getElementById('loginModal');
     function openLoginModal(){ loginModal.classList.remove('hidden'); loginModal.classList.add('flex'); if(window.google) { google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleRes }); google.accounts.id.renderButton(document.getElementById("googleBtnContainer"), {theme:"filled_black", size:"large"}); }}
     function closeLoginModal(){ loginModal.classList.add('hidden'); loginModal.classList.remove('flex'); }
-    function openProfileModal(){ profileModal.classList.remove('hidden'); profileModal.classList.add('flex'); if(currentUser){ document.getElementById('modalUserAvatar2').src=currentUser.avatarUrl; document.getElementById('modalUserName2').innerText=currentUser.name; document.getElementById('modalUserEmail2').innerText=currentUser.email; } }
-    function closeProfileModal(){ profileModal.classList.add('hidden'); profileModal.classList.remove('flex'); }
-    async function handleGoogleRes(res){ const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d = await r.json(); if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateUI(); closeLoginModal(); } }
-    function updateUI(){ if(!currentUser)return; document.getElementById('signInBtn').classList.add('hidden'); document.getElementById('userProfileTrigger').classList.remove('hidden'); document.getElementById('userProfileTrigger').classList.add('block'); document.getElementById('navUserAvatar').src = currentUser.avatarUrl; }
-    function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
-    const uStr = localStorage.getItem('whisUser'); if(uStr) { currentUser=JSON.parse(uStr); updateUI(); }
+    async function handleGoogleRes(res){ const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d = await r.json(); if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; closeLoginModal(); } }
+    const uStr = localStorage.getItem('whisUser'); if(uStr) { currentUser=JSON.parse(uStr); }
   </script>
 </body>
 </html>
