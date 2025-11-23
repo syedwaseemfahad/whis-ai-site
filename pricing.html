@@ -71,7 +71,7 @@
       <div class="flex items-center gap-4 md:gap-6">
           <a href="support.html" class="text-sm font-medium text-slate-500 hover:text-white transition">Support</a>
           
-          <div id="authSection">
+          <div id="authSection" class="flex items-center">
             <button id="signInBtn" onclick="openLoginModal()" class="text-sm font-medium text-slate-300 hover:text-white transition">Sign In</button>
             
             <button id="userProfileTrigger" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/5 hover:border-white/20 transition">
@@ -265,8 +265,15 @@
 
     async function handleGoogleRes(res){const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchUserStatus();closeLoginModal();}}
     
-    // Check Auth on Load
-    const uStr=localStorage.getItem('whisUser');if(uStr){currentUser=JSON.parse(uStr);updateNavUI(currentUser);fetchUserStatus();}
+    // Check Auth on Load - THIS FIXES THE ISSUE
+    document.addEventListener("DOMContentLoaded", () => {
+        const uStr = localStorage.getItem('whisUser');
+        if (uStr) {
+            currentUser = JSON.parse(uStr);
+            updateNavUI(currentUser);
+            fetchUserStatus();
+        }
+    });
   </script>
 </body>
 </html>
