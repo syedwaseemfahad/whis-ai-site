@@ -12,11 +12,21 @@
           fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
           colors: { page: '#050505', card: '#0A0A0A', stroke: '#1F1F1F', accent: '#3B82F6' },
           backgroundImage: {
-            'glow-conic': 'conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a853ba 180deg, #e92a67 360deg)',
-            'subtle-grid': 'radial-gradient(#1f1f1f 1px, transparent 1px)'
+            'subtle-grid': 'radial-gradient(#1f1f1f 1px, transparent 1px)',
+            'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
           },
-          animation: { 'float': 'float 8s ease-in-out infinite' },
-          keyframes: { float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } } }
+          animation: { 
+            'float': 'float 8s ease-in-out infinite',
+            'type': 'type 3s steps(40, end)',
+            'pop-in': 'popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pulse-glow': 'pulseGlow 2s infinite'
+          },
+          keyframes: {
+            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
+            type: { '0%': { width: '0' }, '100%': { width: '100%' } },
+            popIn: { '0%': { opacity: '0', transform: 'translateY(10px) scale(0.95)' }, '100%': { opacity: '1', transform: 'translateY(0) scale(1)' } },
+            pulseGlow: { '0%, 100%': { opacity: '0.5' }, '50%': { opacity: '1' } }
+          }
         }
       }
     }
@@ -30,11 +40,19 @@
     .glass-nav { background: rgba(5, 5, 5, 0.7); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.05); }
     .glass-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); }
     .grid-bg { background-size: 40px 40px; mask-image: linear-gradient(to bottom, transparent, 10%, black, 90%, transparent); opacity: 0.2; position: absolute; inset: 0; pointer-events: none; }
-    /* Laptop Frame */
-    .macbook { width: 100%; max-width: 1000px; margin: 0 auto; position: relative; perspective: 2000px; }
+    
+    /* Device Frames */
+    .macbook { width: 100%; max-width: 900px; margin: 0 auto; position: relative; perspective: 2000px; }
     .lid { background: #0d0d0d; border-radius: 20px 20px 0 0; border: 1px solid #333; position: relative; transform-style: preserve-3d; }
     .screen { overflow: hidden; border-radius: 16px 16px 0 0; position: relative; aspect-ratio: 16/10; background: #000; border: 1px solid #222; }
     .base { background: #1a1a1a; height: 16px; border-radius: 0 0 20px 20px; border-top: 1px solid #333; margin-top: -1px; position: relative; z-index: 20; }
+    
+    /* Code Editor Simulation CSS */
+    .code-line { height: 8px; margin-bottom: 8px; border-radius: 4px; }
+    .w-short { width: 30%; } .w-med { width: 60%; } .w-long { width: 90%; }
+    .bg-code-1 { background: rgba(59, 130, 246, 0.2); }
+    .bg-code-2 { background: rgba(168, 85, 247, 0.2); }
+    .bg-code-3 { background: rgba(255, 255, 255, 0.1); }
   </style>
 </head>
 <body class="selection:bg-blue-500/30">
@@ -46,9 +64,9 @@
         <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition">whis.ai</span>
       </a>
       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500">
-        <a href="#features" class="hover:text-white transition">Capabilities</a>
+        <a href="#how-it-works" class="hover:text-white transition">How it Works</a>
+        <a href="#comparison" class="hover:text-white transition">Compare Plans</a>
         <a href="pricing.html" class="hover:text-white transition">Pricing</a>
-        <a href="support.html" class="hover:text-white transition">Support</a>
       </div>
       <div class="flex items-center gap-4">
         <div id="userSection" class="flex items-center gap-3">
@@ -65,13 +83,15 @@
 
   <section class="relative pt-40 pb-20 overflow-hidden flex flex-col items-center">
     <div class="grid-bg bg-subtle-grid"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+
     <div class="relative z-10 text-center max-w-4xl px-6 mb-16">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-medium uppercase tracking-widest mb-8">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Undetectable v1.0
       </div>
       <h1 class="text-5xl md:text-7xl font-medium tracking-tight leading-[1.1] mb-8 text-white">Ace the interview.<br /><span class="text-slate-500">Leave no trace.</span></h1>
       <p class="text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed font-light">
-        The only AI copilot that combines <strong>System Audio</strong>, <strong>Screenshare Analysis</strong>, and <strong>Stealth Text</strong> to give you the perfect answer instantly.
+        The only AI copilot that floats over your apps. It listens to audio, reads your screen, and gives you the answer. Invisible to screenshare.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
         <button id="smartDownloadBtn" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition flex items-center gap-2 text-sm"><i id="osIcon" class="fa-brands fa-apple"></i> <span id="osText">Download for macOS</span></button>
@@ -83,78 +103,134 @@
     <div class="macbook animate-float px-4">
         <div class="lid"><div class="screen relative"><img src="app_preview.jpg" onerror="this.src='https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2940&auto=format&fit=crop'" class="w-full h-full object-cover opacity-90 transition duration-700" alt="Whis App Interface"><div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none"></div></div></div><div class="base"></div>
     </div>
+
+    <div class="mt-20 pt-10 border-t border-white/5 w-full">
+        <p class="text-center text-xs font-bold text-slate-600 uppercase tracking-widest mb-8">Trusted by Engineers at</p>
+        <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-30 grayscale hover:grayscale-0 transition duration-700">
+            <i class="fa-brands fa-google text-2xl text-white"></i>
+            <i class="fa-brands fa-amazon text-2xl text-white"></i>
+            <i class="fa-brands fa-meta text-2xl text-white"></i>
+            <i class="fa-brands fa-microsoft text-2xl text-white"></i>
+            <i class="fa-brands fa-uber text-2xl text-white"></i>
+        </div>
+    </div>
   </section>
 
-  <section id="features" class="py-32 relative border-t border-white/5 bg-page">
+  <section id="how-it-works" class="py-24 bg-[#080808] border-y border-white/5">
+      <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-16">
+              <h2 class="text-3xl font-medium text-white mb-4">How It Works</h2>
+              <p class="text-slate-500">Three steps to securing your dream offer.</p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-8">
+              <div class="p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition">
+                  <div class="absolute -top-4 -left-4 w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">1</div>
+                  <h3 class="text-xl font-medium text-white mb-3 mt-4">Connect Audio</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Whis taps into your system audio loopback. It hears exactly what you hear—whether it's Zoom, Teams, or Meet—without joining the call as a bot.</p>
+              </div>
+              <div class="p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition">
+                  <div class="absolute -top-4 -left-4 w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">2</div>
+                  <h3 class="text-xl font-medium text-white mb-3 mt-4">Capture Context</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Stuck on a diagram? Use the <strong>Snipping Tool</strong> to capture the screen. Need to add details? Type stealthily into the ghost overlay.</p>
+              </div>
+              <div class="p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition">
+                  <div class="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">3</div>
+                  <h3 class="text-xl font-medium text-white mb-3 mt-4">Get Answers</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">The AI analyzes the inputs and displays the answer in a <strong>Ghost Window</strong> that floats over your code editor but is invisible to screenshare.</p>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="py-32 relative bg-page">
     <div class="max-w-7xl mx-auto px-6">
        <div class="mb-16">
-          <h2 class="text-3xl font-medium text-white mb-4">Total Context Awareness.</h2>
-          <p class="text-slate-500 text-lg">Three inputs working in harmony.</p>
+          <h2 class="text-3xl font-medium text-white mb-4">Invisible Overlay.</h2>
+          <p class="text-slate-500 text-lg">See exactly what the interviewer <i>doesn't</i> see.</p>
        </div>
+       
        <div class="grid md:grid-cols-3 gap-6 h-auto md:h-[500px]">
           <div class="md:col-span-2 glass-card rounded-2xl p-10 relative overflow-hidden group hover:border-blue-500/30 transition duration-500">
              <div class="absolute inset-0 bg-gradient-to-b from-transparent to-blue-900/10 opacity-0 group-hover:opacity-100 transition"></div>
-             <div class="relative z-10 h-full flex flex-col justify-between">
+             <div class="relative z-20 h-full flex flex-col justify-between">
                  <div>
-                    <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 mb-6"><i class="fa-solid fa-ghost"></i></div>
-                    <h3 class="text-2xl font-medium text-white mb-2">Ghost Overlay</h3>
-                    <p class="text-slate-400 max-w-sm">An invisible layer that sits on top of VS Code. Use the <strong>Stealth Text Input</strong> to type details or let the AI read your screen via <strong>OCR/Screenshare</strong>.</p>
+                    <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400"><i class="fa-solid fa-ghost"></i></div><span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Interactive Preview</span></div>
+                    <h3 class="text-2xl font-medium text-white mb-2">The "Ghost" Window</h3>
+                    <p class="text-slate-400 max-w-sm text-sm leading-relaxed">This window floats on top of your VS Code. To you, it's visible. To the interviewer's screenshare, it simply doesn't exist.</p>
                  </div>
-                 <div class="mt-8 h-48 w-full bg-card border border-white/5 rounded-lg overflow-hidden relative flex items-center justify-center text-xs text-slate-600">Interactive Preview</div>
+
+                 <div class="mt-8 h-56 w-full bg-[#1e1e1e] border border-white/10 rounded-xl overflow-hidden relative shadow-2xl">
+                    <div class="absolute inset-0 p-4 opacity-40">
+                        <div class="flex gap-1.5 mb-4"><div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div><div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div><div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div></div>
+                        <div class="code-line w-long bg-code-2"></div><div class="code-line w-med bg-code-3"></div><div class="code-line w-short bg-code-3"></div><div class="code-line w-long bg-code-1"></div>
+                    </div>
+                    
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] z-30">
+                        <div class="bg-black/90 backdrop-blur-xl border border-white/20 rounded-lg p-3 shadow-2xl flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse-glow shadow-[0_0_10px_#3b82f6]"></div>
+                            <div class="text-xs font-mono text-slate-200 overflow-hidden whitespace-nowrap animate-type border-r-2 border-transparent pr-1" style="width:0; animation: type 2s steps(30, end) forwards 0.5s;">Reverse a linked list...</div>
+                        </div>
+                        <div class="mt-2 bg-[#0A0A0A] border border-blue-500/20 rounded-lg p-3 shadow-xl opacity-0 animate-pop-in" style="animation-delay: 2.8s;">
+                            <div class="flex justify-between items-center mb-2"><span class="text-[10px] text-blue-400 font-bold uppercase">Suggestion</span><i class="fa-solid fa-copy text-slate-600 text-[10px]"></i></div>
+                            <div class="space-y-1.5"><div class="h-1.5 w-3/4 bg-slate-700 rounded-full"></div><div class="h-1.5 w-1/2 bg-slate-800 rounded-full"></div></div>
+                        </div>
+                    </div>
+                 </div>
              </div>
           </div>
+
           <div class="flex flex-col gap-6">
-              <div class="glass-card rounded-2xl p-8 flex-1 hover:bg-white/5 transition"><i class="fa-solid fa-microphone-lines text-slate-400 text-xl mb-4"></i><h3 class="text-lg font-medium text-white mb-1">System Audio</h3><p class="text-sm text-slate-500">Loopback capture hears the interviewer instantly.</p></div>
-              <div class="glass-card rounded-2xl p-8 flex-1 hover:bg-white/5 transition"><i class="fa-solid fa-crop-simple text-slate-400 text-xl mb-4"></i><h3 class="text-lg font-medium text-white mb-1">Screenshare Context</h3><p class="text-sm text-slate-500">Snip diagrams or share your screen window for instant analysis.</p></div>
+              <div class="glass-card rounded-2xl p-8 flex-1 hover:bg-white/5 transition"><i class="fa-solid fa-microphone-lines text-slate-400 text-xl mb-4"></i><h3 class="text-lg font-medium text-white mb-1">System Audio</h3><p class="text-sm text-slate-500">Capture internal audio loopback directly.</p></div>
+              <div class="glass-card rounded-2xl p-8 flex-1 hover:bg-white/5 transition"><i class="fa-solid fa-crop-simple text-slate-400 text-xl mb-4"></i><h3 class="text-lg font-medium text-white mb-1">Screenshare Context</h3><p class="text-sm text-slate-500">Snip a problem area for instant OCR analysis.</p></div>
           </div>
        </div>
     </div>
+  </section>
+
+  <section id="comparison" class="py-24 px-6 bg-[#080808] border-t border-white/5">
+      <div class="max-w-5xl mx-auto">
+          <h2 class="text-3xl font-medium text-white mb-12 text-center">Compare Editions</h2>
+          <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left">
+                  <thead class="text-xs text-slate-500 uppercase bg-white/5">
+                      <tr>
+                          <th class="px-6 py-4 rounded-tl-lg font-medium">Feature</th>
+                          <th class="px-6 py-4 font-medium">Free</th>
+                          <th class="px-6 py-4 font-medium text-blue-400">Pro</th>
+                          <th class="px-6 py-4 rounded-tr-lg font-medium text-purple-400">Stealth</th>
+                      </tr>
+                  </thead>
+                  <tbody class="text-slate-400 divide-y divide-white/5">
+                      <tr class="bg-card"><td class="px-6 py-4 text-white font-medium">Daily Responses</td><td class="px-6 py-4">10</td><td class="px-6 py-4 text-white">Unlimited</td><td class="px-6 py-4 text-white">Unlimited</td></tr>
+                      <tr class="bg-card"><td class="px-6 py-4 text-white font-medium">Audio Input</td><td class="px-6 py-4"><i class="fa-solid fa-check text-blue-600"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-blue-600"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-blue-600"></i></td></tr>
+                      <tr class="bg-card"><td class="px-6 py-4 text-white font-medium">Screenshot OCR</td><td class="px-6 py-4 text-xs">Limited</td><td class="px-6 py-4"><i class="fa-solid fa-check text-blue-600"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-blue-600"></i></td></tr>
+                      <tr class="bg-card"><td class="px-6 py-4 text-white font-medium">Ghost Overlay</td><td class="px-6 py-4"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-6 py-4"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-purple-500"></i></td></tr>
+                      <tr class="bg-card"><td class="px-6 py-4 text-white font-medium">Stealth Text Input</td><td class="px-6 py-4"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-6 py-4"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-purple-500"></i></td></tr>
+                  </tbody>
+              </table>
+          </div>
+          <div class="mt-10 text-center">
+              <a href="pricing.html" class="px-8 py-3 bg-white text-black rounded-lg font-bold hover:bg-slate-200 transition">View Full Pricing</a>
+          </div>
+      </div>
   </section>
 
   <footer class="border-t border-white/5 py-12 bg-page"><div class="max-w-7xl mx-auto px-6 flex justify-between items-center"><span class="text-xs text-slate-600">&copy; 2025 Whis AI.</span><div class="flex gap-6 text-xs text-slate-500"><a href="pricing.html" class="hover:text-white">Pricing</a><a href="support.html" class="hover:text-white">Legal</a></div></div></footer>
 
   <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
     <div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl">
-        <div class="p-6 border-b border-white/5 flex justify-between items-center">
-            <div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div>
-            <button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        </div>
+        <div class="p-6 border-b border-white/5 flex justify-between items-center"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div>
         <div class="p-6 space-y-6">
-            <div class="bg-white/5 border border-white/5 rounded-lg p-5">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p>
-                        <h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3>
-                    </div>
-                    <span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span>
-                </div>
-                <div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3">
-                    <span>Valid Until:</span>
-                    <span id="modalExpiryDate" class="text-white font-mono">--</span>
-                </div>
-            </div>
-
-            <div>
-                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Payment History</h4>
-                <div class="max-h-40 overflow-y-auto border border-white/5 rounded-lg">
-                    <table class="w-full text-left text-xs text-slate-400">
-                        <thead class="bg-white/5 text-slate-300"><tr><th class="p-2">Date</th><th class="p-2">Plan</th><th class="p-2 text-right">Amt</th></tr></thead>
-                        <tbody id="paymentHistoryBody"></tbody>
-                    </table>
-                    <div id="noPaymentsMsg" class="p-4 text-center text-[10px] text-slate-600 hidden">No payment history found.</div>
-                </div>
-            </div>
-
+            <div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div>
+            <div><h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Payment History</h4><div class="max-h-40 overflow-y-auto border border-white/5 rounded-lg"><table class="w-full text-left text-xs text-slate-400"><thead class="bg-white/5 text-slate-300"><tr><th class="p-2">Date</th><th class="p-2">Plan</th><th class="p-2 text-right">Amt</th></tr></thead><tbody id="paymentHistoryBody"></tbody></table><div id="noPaymentsMsg" class="p-4 text-center text-[10px] text-slate-600 hidden">No payment history found.</div></div></div>
             <button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button>
         </div>
     </div>
   </div>
-
   <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl p-8 max-w-sm w-full text-center shadow-2xl relative"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-lg font-medium text-white mb-6">Welcome Back</h3><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
   <div id="downloadModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl p-8 max-w-md w-full shadow-2xl relative"><button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button><h2 class="text-xl font-medium text-white mb-6">Get Whis</h2><div class="space-y-3"><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-apple mr-3"></i> macOS</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.windows/Whis.Setup.1.0.0.exe" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-windows mr-3"></i> Windows</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a></div></div></div>
 
   <script>
-    // OS Detection & Auth
     const BACKEND_URL="https://whis-backend.onrender.com";const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     const loginModal=document.getElementById('loginModal'),downloadModal=document.getElementById('downloadModal'),profileModal=document.getElementById('profileModal');
     let currentUser=null;const storedUser=localStorage.getItem('whisUser');if(storedUser){try{currentUser=JSON.parse(storedUser);updateNavUI(currentUser);fetchFullUserData(currentUser.googleId);}catch(e){localStorage.removeItem('whisUser');}}
@@ -165,23 +241,23 @@
         if (p.includes('win')||ua.includes('win')) { text.innerText="Download for Windows"; icon.className="fa-brands fa-windows"; sub.innerText="Windows 10 & 11 Supported"; btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.windows/Whis.Setup.1.0.0.exe"; }
         else { text.innerText="Download for macOS"; icon.className="fa-brands fa-apple"; sub.innerText="Apple Silicon & Intel Supported"; btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg"; }
     });
-
+    
+    // Auth & Modals
     function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill"});}}
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
     function openProfileModal(){if(currentUser)fetchFullUserData(currentUser.googleId);profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
-    async function handleGoogleResponse(res){try{const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});if(r.ok){const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchFullUserData(currentUser.googleId);closeLoginModal();}}}catch(e){}}
     function logout(){localStorage.removeItem('whisUser');location.reload();}
+    
+    async function handleGoogleResponse(res){try{const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});if(r.ok){const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchFullUserData(currentUser.googleId);closeLoginModal();}}}catch(e){}}
     function updateNavUI(u){document.getElementById('signInBtn').classList.add('hidden');document.getElementById('userProfileTrigger').classList.remove('hidden');document.getElementById('userProfileTrigger').classList.add('flex');document.getElementById('navUserAvatar').src=u.avatarUrl;}
     
     async function fetchFullUserData(gid){
         try{
             const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});const d=await r.json();
             const badge=document.getElementById('navPlanBadge'); const modalBadge=document.getElementById('modalPlanStatus');
-            const planName = d.tier==='pro_plus'?'Pro + Stealth':(d.tier==='pro'?'Pro Plan':'Starter Free');
-            
             if(d.active){
                 badge.textContent=(d.tier==='pro_plus'?'STEALTH':'PRO'); badge.className="text-[9px] font-bold text-emerald-400 uppercase tracking-wide";
                 modalBadge.textContent="ACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
@@ -191,20 +267,9 @@
                 modalBadge.textContent="INACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/20";
                 document.getElementById('modalExpiryDate').textContent = "Forever";
             }
-            
-            document.getElementById('modalUserName').textContent=currentUser.name; document.getElementById('modalPlanName').textContent=planName;
-            
-            // Payment History
-            const tbody = document.getElementById('paymentHistoryBody'); tbody.innerHTML = '';
-            if(d.orders && d.orders.length > 0) {
-                document.getElementById('noPaymentsMsg').classList.add('hidden');
-                d.orders.forEach(o => {
-                    const row = `<tr><td class="p-2 border-b border-white/5">${new Date(o.date).toLocaleDateString()}</td><td class="p-2 border-b border-white/5">${o.tier==='pro_plus'?'Stealth':'Pro'}</td><td class="p-2 border-b border-white/5 text-right">₹${o.amount}</td></tr>`;
-                    tbody.innerHTML += row;
-                });
-            } else {
-                document.getElementById('noPaymentsMsg').classList.remove('hidden');
-            }
+            document.getElementById('modalUserName').textContent=currentUser.name; document.getElementById('modalPlanName').textContent=d.tier==='pro_plus'?'Pro + Stealth':(d.tier==='pro'?'Pro Plan':'Starter Free');
+            const tbody=document.getElementById('paymentHistoryBody'); tbody.innerHTML='';
+            if(d.orders && d.orders.length > 0) { document.getElementById('noPaymentsMsg').classList.add('hidden'); d.orders.forEach(o=>{ tbody.innerHTML+=`<tr><td class="p-2 border-b border-white/5">${new Date(o.date).toLocaleDateString()}</td><td class="p-2 border-b border-white/5">${o.tier==='pro_plus'?'Stealth':'Pro'}</td><td class="p-2 border-b border-white/5 text-right">₹${o.amount}</td></tr>`; }); } else { document.getElementById('noPaymentsMsg').classList.remove('hidden'); }
         }catch(e){}
     }
   </script>
