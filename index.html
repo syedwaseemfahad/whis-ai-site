@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>whis.ai – #1 AI assistant for meetings</title>
+  <title>whis.ai – Your Invisible Meeting Assistant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,215 +11,397 @@
       theme: {
         extend: {
           colors: {
-            'whis-bg': '#eef2f7',
+            'whis-bg': '#f8fafc',
             'whis-blue': '#2563eb',
+            'whis-dark': '#0f172a',
+          },
+          animation: {
+            'blob': 'blob 7s infinite',
+            'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+          },
+          keyframes: {
+            blob: {
+              '0%': { transform: 'translate(0px, 0px) scale(1)' },
+              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+              '100%': { transform: 'translate(0px, 0px) scale(1)' },
+            },
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
           }
         }
       }
     }
   </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <style>
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .text-gradient {
+      background: linear-gradient(to right, #60a5fa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
 </head>
-<body class="bg-whis-bg text-slate-900 antialiased">
+<body class="bg-whis-bg text-slate-900 antialiased font-sans">
 
-  <section class="relative bg-gradient-to-b from-sky-500 via-sky-400 to-orange-200 text-white pb-40 overflow-hidden">
-
-    <div class="pointer-events-none absolute inset-0 opacity-60">
-      <div class="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[120%] h-64 bg-gradient-to-tr from-orange-300 via-orange-200 to-yellow-100 rounded-[40%] blur-3xl"></div>
-      <div class="absolute bottom-4 left-10 w-32 h-16 bg-white/30 rounded-full blur-xl"></div>
-      <div class="absolute bottom-10 right-10 w-20 h-20 bg-white/40 rounded-full blur-lg"></div>
+  <section class="relative bg-whis-dark text-white overflow-hidden pb-24">
+    
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[100px] animate-blob"></div>
+      <div class="absolute top-[10%] -right-[10%] w-[40%] h-[60%] bg-purple-600/20 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
     </div>
 
-    <nav class="relative z-10 w-full flex items-center justify-between px-6 md:px-12 py-4">
-      <a href="index.html" class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/40">
-          <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-whis-blue to-sky-300 flex items-center justify-center border border-sky-200/60">
-            <span class="text-[11px] font-semibold tracking-[0.18em] uppercase">wh</span>
+    <nav class="fixed top-0 w-full z-50 glass-nav border-b border-white/10 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition">
+            <span class="text-xs font-bold tracking-widest text-white uppercase">wh</span>
           </div>
-        </div>
-        <span class="text-xl md:text-2xl font-semibold tracking-tight text-white">whis.ai</span>
-      </a>
-
-      <div class="hidden md:flex items-center gap-6 text-sm text-sky-100">
-        <a href="pricing.html" class="hover:text-white">Pricing</a>
-        <a href="enterprise.html" class="hover:text-white">Enterprise</a>
-        <a href="careers.html" class="hover:text-white">Careers</a>
-        <a href="contact.html" class="hover:text-white">Contact Us</a>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <div id="userSection" class="hidden md:flex items-center gap-3">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-sm font-medium text-white hover:text-sky-100 transition">
-            Sign in
-          </button>
-          <div id="userProfile" class="hidden items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-md">
-            <img id="userAvatar" src="" class="w-6 h-6 rounded-full bg-slate-300" />
-            <span id="userName" class="text-xs font-semibold text-white"></span>
-            <button onclick="logout()" class="ml-2 text-xs text-white/60 hover:text-white"><i class="fa-solid fa-sign-out-alt"></i></button>
-          </div>
-        </div>
-
-        <a href="contact.html" class="bg-white/10 border border-white/30 text-sm md:text-base px-4 md:px-5 py-2 rounded-xl shadow-lg shadow-sky-900/30 hover:bg-white/20 transition">
-          Talk to sales
+          <span class="text-xl font-bold tracking-tight text-white">whis.ai</span>
         </a>
+
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+          <a href="#features" class="hover:text-white transition">Features</a>
+          <a href="#use-cases" class="hover:text-white transition">Use Cases</a>
+          <a href="pricing.html" class="hover:text-white transition">Pricing</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div id="userSection" class="hidden md:flex items-center gap-3">
+            <button onclick="openLoginModal()" id="signInBtn" class="text-sm font-medium text-slate-300 hover:text-white transition">
+              Sign in
+            </button>
+            <div id="userProfile" class="hidden items-center gap-3 bg-white/10 pl-2 pr-4 py-1.5 rounded-full border border-white/10">
+              <img id="userAvatar" src="" class="w-7 h-7 rounded-full bg-slate-700 object-cover border border-white/20" />
+              <div class="flex flex-col leading-none">
+                <span id="userName" class="text-xs font-bold text-white"></span>
+                <span id="connectionStatus" class="text-[10px] text-emerald-400">● Active</span>
+              </div>
+              <button onclick="logout()" class="ml-2 text-slate-400 hover:text-white"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+          </div>
+
+          <button onclick="openDownloadModal()" class="hidden md:block bg-white text-slate-900 px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-50 transition shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+            Download Free
+          </button>
+        </div>
       </div>
     </nav>
 
-    <div class="relative z-10 max-w-4xl mx-auto mt-12 md:mt-16 px-6 text-center">
-      <h1 class="text-4xl md:text-6xl font-semibold leading-tight drop-shadow-sm">
-        #1 AI assistant
-        <br class="hidden md:block" />
-        for meetings
+    <div class="relative z-10 max-w-5xl mx-auto mt-32 md:mt-40 px-6 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium mb-6 animate-fade-in-up">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+        </span>
+        v1.0 is now live for Mac & Windows
+      </div>
+
+      <h1 class="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up" style="animation-delay: 100ms;">
+        Ace every meeting.<br />
+        <span class="text-gradient">Without getting caught.</span>
       </h1>
 
-      <p class="mt-5 text-base md:text-lg text-sky-100 max-w-2xl mx-auto">
-        whis.ai listens to your calls and gives <span class="font-semibold">instant answers</span>
-        on what to say next — while staying
-        <span class="font-semibold">completely invisible on screen share.</span>
+      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 animate-fade-in-up" style="animation-delay: 200ms;">
+        The AI copilot that listens to your meetings and gives you instant answers, talking points, and data—while staying <strong class="text-white">completely invisible</strong> to screen sharing.
       </p>
 
-      <div class="mt-8 flex flex-col items-center gap-3">
-        <button onclick="openDownloadModal()" class="bg-whis-blue px-6 py-2.5 rounded-2xl text-white font-semibold text-sm md:text-base shadow-xl shadow-blue-900/40 hover:bg-blue-700 transition">
-          Get App
+      <div class="flex flex-col md:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 300ms;">
+        <button onclick="openDownloadModal()" class="w-full md:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold text-lg shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-1">
+          <i class="fa-brands fa-apple mr-2"></i> Download for macOS
         </button>
+        <button onclick="openDownloadModal()" class="w-full md:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-2xl font-semibold text-lg backdrop-blur-sm transition">
+          View Demo
+        </button>
+      </div>
+      
+      <p class="mt-4 text-xs text-slate-500 animate-fade-in-up" style="animation-delay: 400ms;">
+        Free forever plan available • No credit card required
+      </p>
+    </div>
+
+    <div class="relative max-w-6xl mx-auto mt-20 px-4 animate-fade-in-up" style="animation-delay: 500ms;">
+      <div class="relative rounded-t-3xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden aspect-video md:aspect-[16/9]">
+        <div class="h-10 bg-slate-800 border-b border-slate-700 flex items-center px-4 gap-2">
+            <div class="flex gap-1.5">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div class="mx-auto bg-slate-900 px-32 py-1 rounded-md text-xs text-slate-500 font-mono">meet.google.com/abc-xyz</div>
+        </div>
         
-        <div id="connectionStatus" class="text-xs text-sky-200/80 flex items-center gap-1.5 opacity-0 transition-opacity">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Backend Connected
+        <div class="relative w-full h-full bg-slate-900">
+             <video class="w-full h-full object-cover opacity-90" autoplay muted loop playsinline>
+                <source src="assets/whis-meeting-demo.mp4" type="video/mp4" />
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop" class="w-full h-full object-cover opacity-50" />
+            </video>
+            
+            <div class="absolute top-20 right-10 w-80 bg-slate-950/90 border border-slate-700 rounded-xl shadow-2xl backdrop-blur-xl p-4 transform transition hover:scale-105 duration-300">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Whis Assistant</span>
+                    </div>
+                    <i class="fa-solid fa-eye-slash text-slate-500 text-xs" title="Invisible to others"></i>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                        <p class="text-[10px] text-slate-400 uppercase mb-1">Interviewer asked:</p>
+                        <p class="text-sm text-slate-200 font-medium">"How would you handle a sudden drop in system latency?"</p>
+                    </div>
+                    <div class="bg-blue-900/20 p-3 rounded-lg border border-blue-500/30">
+                        <p class="text-[10px] text-blue-400 uppercase mb-1">Suggested Answer:</p>
+                        <p class="text-sm text-white leading-relaxed">
+                            Start by verifying metrics. Mention using <strong>distributed tracing</strong> to identify the bottleneck (DB vs App). Propose implementing <strong>caching (Redis)</strong> or horizontal scaling.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
+      <div class="absolute -inset-4 bg-blue-500/20 blur-3xl -z-10 rounded-[3rem]"></div>
     </div>
+  </section>
 
-    <div class="relative z-10 max-w-5xl mx-auto mt-16 px-6">
-      <div class="relative rounded-[32px] bg-gradient-to-tr from-orange-400 via-orange-300 to-purple-400 shadow-[0_30px_80px_rgba(15,23,42,0.55)] overflow-hidden border border-white/20">
-        <div class="flex items-center justify-between px-4 py-3 text-white/80 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="inline-flex w-2.5 h-2.5 rounded-full bg-red-400"></span>
-            <span class="inline-flex w-2.5 h-2.5 rounded-full bg-yellow-300"></span>
-            <span class="inline-flex w-2.5 h-2.5 rounded-full bg-green-400"></span>
-            <span class="ml-3 text-[11px] uppercase tracking-wide">Live meeting • Discovery call</span>
-          </div>
-          <div class="flex items-center gap-3 text-[11px]">
-            <span class="opacity-80">HD</span>
-            <span class="opacity-80">Wi-Fi</span>
-          </div>
+  <section class="border-y border-slate-200 bg-white py-10">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-6">Empowering candidates at top companies</p>
+      <div class="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+        <i class="fa-brands fa-google text-3xl"></i>
+        <i class="fa-brands fa-microsoft text-3xl"></i>
+        <i class="fa-brands fa-amazon text-3xl"></i>
+        <i class="fa-brands fa-meta text-3xl"></i>
+        <i class="fa-brands fa-stripe text-4xl"></i>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="py-24 bg-whis-bg">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-3xl md:text-5xl font-bold text-slate-900 mb-6">Superpowers for your meetings.</h2>
+        <p class="text-lg text-slate-600">Whis isn't just a transcriber. It's a real-time intelligence engine that tells you exactly what to say when it matters most.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition group">
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition">
+                <i class="fa-solid fa-bolt text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-3">Real-time Intelligence</h3>
+            <p class="text-slate-600 mb-6">
+                Whis listens to the conversation audio and reads the screen context instantly. It processes questions and generates concise, high-impact answers in milliseconds.
+            </p>
+            <div class="h-48 bg-slate-50 rounded-2xl border border-slate-100 relative overflow-hidden flex items-center justify-center">
+                <div class="absolute inset-0 bg-grid-slate-200 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
+                <div class="text-center relative z-10">
+                    <span class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm font-semibold text-slate-700 animate-pulse">
+                        <i class="fa-solid fa-microphone mr-2 text-red-500"></i> Listening...
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <div class="relative h-52 md:h-72 bg-black/60 overflow-hidden">
-          <video
-            class="w-full h-full object-cover opacity-80"
-            autoplay
-            muted
-            loop
-            playsinline>
-            <source src="assets/whis-meeting-demo.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
+        <div class="bg-slate-900 text-white rounded-3xl p-8 border border-slate-800 shadow-xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-purple-400 mb-6">
+                    <i class="fa-solid fa-ghost text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3">Stealth Mode</h3>
+                <p class="text-slate-400">
+                    The "Ghost Window" overlay is technically invisible to screen-sharing software like Zoom, Teams, and Google Meet.
+                </p>
+                <div class="mt-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700 text-xs font-mono text-emerald-400">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-check"></i> Zoom Share: Clean
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-check"></i> Teams Share: Clean
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Recording: Clean
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="relative">
-          <div
-            class="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-700 text-white text-sm md:text-base px-5 py-2 rounded-full shadow-lg shadow-blue-900/60">
-            What should I say?
-          </div>
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition">
+            <div class="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 mb-6">
+                <i class="fa-solid fa-file-code text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Live Coding Aid</h3>
+            <p class="text-slate-600 text-sm">
+                Paste a coding problem or let Whis read your IDE. It suggests optimal algorithms and syntax fixes instantly.
+            </p>
         </div>
 
-        <div class="mt-6 bg-slate-950/75 text-slate-50 px-6 py-5 text-sm md:text-[15px] space-y-3">
-          <div class="text-xs uppercase tracking-wide text-slate-400">
-            Live suggestion from whis.ai
-          </div>
-          <p class="leading-relaxed text-slate-100">
-            “Ask what success would look like for them this quarter, then propose a short pilot.”
-          </p>
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition">
+             <div class="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 mb-6">
+                <i class="fa-solid fa-brain text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Context Aware</h3>
+            <p class="text-slate-600 text-sm">
+                Whis remembers what was said 10 minutes ago. It references previous context to make your answers coherent.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg transition">
+             <div class="w-12 h-12 rounded-2xl bg-pink-100 flex items-center justify-center text-pink-600 mb-6">
+                <i class="fa-solid fa-language text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Multi-Language</h3>
+            <p class="text-slate-600 text-sm">
+                Interviewing in English but thinking in another language? Whis translates and refines effortlessly.
+            </p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="bg-white py-16 md:py-20">
-    <div class="max-w-6xl mx-auto px-6">
-      <h2 class="text-2xl md:text-3xl font-semibold text-center mb-10">
-        How whis.ai works
-      </h2>
-
-      <div class="grid md:grid-cols-3 gap-10">
-        <div>
-          <div class="text-4xl font-semibold text-slate-900 mb-2">1</div>
-          <h3 class="text-lg font-semibold mb-1">Start before your meeting</h3>
-          <p class="text-sm text-slate-600">
-            Open whis.ai on your Mac and press <span class="font-medium">Start</span>. It begins listening to audio and
-            watching the active meeting window.
-          </p>
-        </div>
-        <div>
-          <div class="text-4xl font-semibold text-slate-900 mb-2">2</div>
-          <h3 class="text-lg font-semibold mb-1">Ask in the moment</h3>
-          <p class="text-sm text-slate-600">
-            Trigger a shortcut or type a question — whis.ai responds with talking points, clarifications, or next
-            questions in real time.
-          </p>
-        </div>
-        <div>
-          <div class="text-4xl font-semibold text-slate-900 mb-2">3</div>
-          <h3 class="text-lg font-semibold mb-1">See answers only you can see</h3>
-          <p class="text-sm text-slate-600">
-            Replies appear in a subtle overlay on your screen. Screen share, recordings, and participants never see
-            whis.ai.
-          </p>
-        </div>
+  <section id="use-cases" class="py-20 bg-white border-t border-slate-200">
+      <div class="max-w-6xl mx-auto px-6">
+          <div class="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                  <span class="text-blue-600 font-bold tracking-wider uppercase text-sm">For Job Seekers</span>
+                  <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2 mb-4">Never freeze in an interview again.</h2>
+                  <p class="text-slate-600 text-lg mb-6">
+                      Whether it's a System Design round or a behavioral check, Whis acts as your senior mentor sitting right next to you.
+                  </p>
+                  <ul class="space-y-3">
+                      <li class="flex items-center gap-3 text-slate-700">
+                          <i class="fa-solid fa-circle-check text-green-500"></i> Instant LLD/HLD suggestions
+                      </li>
+                      <li class="flex items-center gap-3 text-slate-700">
+                          <i class="fa-solid fa-circle-check text-green-500"></i> STAR method behavioral answers
+                      </li>
+                      <li class="flex items-center gap-3 text-slate-700">
+                          <i class="fa-solid fa-circle-check text-green-500"></i> Live code debugging
+                      </li>
+                  </ul>
+              </div>
+              <div class="relative">
+                  <div class="absolute inset-0 bg-blue-600/5 rounded-3xl transform rotate-3"></div>
+                  <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop" class="relative rounded-3xl shadow-xl border border-slate-100" alt="Interview success">
+              </div>
+          </div>
       </div>
-    </div>
   </section>
 
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center relative">
-      <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+  <section class="py-24 bg-slate-900 text-white relative overflow-hidden">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+      
+      <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+          <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to ace your next call?</h2>
+          <p class="text-xl text-slate-400 mb-10">
+              Join thousands of engineers and professionals securing their dream offers with Whis.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button onclick="openDownloadModal()" class="px-8 py-4 bg-white text-slate-900 rounded-xl font-bold hover:bg-slate-100 transition shadow-lg shadow-white/10">
+                  Download Now
+              </button>
+              <a href="pricing.html" class="px-8 py-4 bg-slate-800 text-white border border-slate-700 rounded-xl font-bold hover:bg-slate-700 transition">
+                  View Pricing
+              </a>
+          </div>
+          <p class="mt-6 text-sm text-slate-500">Works on macOS 10.15+ and Windows 10/11</p>
+      </div>
+  </section>
+
+  <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+      <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-8">
+          <div class="col-span-2">
+              <div class="flex items-center gap-2 mb-4">
+                 <div class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">WH</div>
+                 <span class="text-white font-bold text-lg">whis.ai</span>
+              </div>
+              <p class="text-sm max-w-xs">
+                  The undetectable AI copilot for meetings, interviews, and sales calls.
+              </p>
+          </div>
+          <div>
+              <h4 class="text-white font-bold mb-4">Product</h4>
+              <ul class="space-y-2 text-sm">
+                  <li><a href="pricing.html" class="hover:text-blue-400">Pricing</a></li>
+                  <li><a href="#" class="hover:text-blue-400">Download</a></li>
+                  <li><a href="#" class="hover:text-blue-400">Changelog</a></li>
+              </ul>
+          </div>
+          <div>
+              <h4 class="text-white font-bold mb-4">Company</h4>
+              <ul class="space-y-2 text-sm">
+                  <li><a href="contact.html" class="hover:text-blue-400">Contact</a></li>
+                  <li><a href="#" class="hover:text-blue-400">Privacy Policy</a></li>
+                  <li><a href="#" class="hover:text-blue-400">Terms of Service</a></li>
+              </ul>
+          </div>
+      </div>
+      <div class="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-slate-900 text-xs text-center">
+          &copy; 2025 Whis AI Inc. All rights reserved.
+      </div>
+  </footer>
+
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center relative animate-fade-in-up">
+      <button onclick="closeLoginModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition">
         <i class="fa-solid fa-times"></i>
       </button>
-      <h3 class="text-xl font-bold mb-4">Sign in to whis.ai</h3>
-      <p class="text-slate-500 text-sm mb-6">Sign in with Google to sync your meetings and subscription status.</p>
-      <div id="googleBtnContainer" class="flex justify-center"></div>
-    </div>
+      <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-600">
+          <i class="fa-solid fa-user-lock text-xl"></i>
+      </div>
+      <h3 class="text-xl font-bold mb-2 text-slate-900">Welcome Back</h3>
+      <p class="text-slate-500 text-sm mb-6">Sign in to sync your Pro plan and history.</p>
+      <div id="googleBtnContainer" class="flex justify-center h-[44px]"></div> </div>
   </div>
 
-  <div id="downloadModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-opacity opacity-0">
+  <div id="downloadModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-opacity opacity-0">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95 transition-transform relative">
-      <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-        <i class="fa-solid fa-times text-xl"></i>
+      <button onclick="closeDownloadModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition">
+        <i class="fa-solid fa-times"></i>
       </button>
       <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-whis-blue text-3xl shadow-sm border border-blue-100">
-        <i class="fa-solid fa-download"></i>
+        <i class="fa-solid fa-cloud-arrow-down"></i>
       </div>
-      <h2 class="text-2xl font-bold mb-2">Download whis.ai</h2>
-      <p class="text-slate-500 mb-8 text-sm">Choose your platform to start your free trial.</p>
+      <h2 class="text-2xl font-bold mb-2 text-slate-900">Get the App</h2>
+      <p class="text-slate-500 mb-8 text-sm">Select your OS to start the download.</p>
       
       <div class="space-y-3">
         <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between w-full px-6 py-4 border border-slate-200 rounded-2xl hover:border-whis-blue hover:bg-blue-50 transition group text-left">
           <div class="flex items-center gap-4">
-            <i class="fa-brands fa-apple text-2xl text-slate-800 group-hover:text-whis-blue"></i>
+            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-white transition">
+                <i class="fa-brands fa-apple text-xl text-slate-800"></i>
+            </div>
             <div>
-              <div class="font-bold text-slate-900">Download for Mac</div>
-              <div class="text-xs text-slate-500">macOS 10.15+ (.dmg)</div>
+              <div class="font-bold text-slate-900">macOS</div>
+              <div class="text-xs text-slate-500">Apple Silicon & Intel</div>
             </div>
           </div>
-          <i class="fa-solid fa-arrow-down text-slate-400 group-hover:text-whis-blue"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 group-hover:text-whis-blue"></i>
         </a>
 
         <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.windows/Whis.Setup.1.0.0.exe" class="flex items-center justify-between w-full px-6 py-4 border border-slate-200 rounded-2xl hover:border-whis-blue hover:bg-blue-50 transition group text-left">
           <div class="flex items-center gap-4">
-            <i class="fa-brands fa-windows text-2xl text-slate-800 group-hover:text-whis-blue"></i>
+             <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-white transition">
+                <i class="fa-brands fa-windows text-xl text-slate-800"></i>
+            </div>
             <div>
-              <div class="font-bold text-slate-900">Download for Windows</div>
-              <div class="text-xs text-slate-500">Windows 10/11 (.exe)</div>
+              <div class="font-bold text-slate-900">Windows</div>
+              <div class="text-xs text-slate-500">Win 10/11 (.exe)</div>
             </div>
           </div>
-          <i class="fa-solid fa-arrow-down text-slate-400 group-hover:text-whis-blue"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 group-hover:text-whis-blue"></i>
         </a>
       </div>
-
     </div>
   </div>
 
@@ -238,9 +420,14 @@
     // --- Check Auth on Load ---
     const storedUser = localStorage.getItem('whisUser');
     if (storedUser) {
-      const user = JSON.parse(storedUser);
-      updateUI(user);
-      checkBackendStatus(user.googleId);
+      try {
+          const user = JSON.parse(storedUser);
+          updateUI(user);
+          checkBackendStatus(user.googleId);
+      } catch(e) {
+          console.error("Error parsing user data", e);
+          localStorage.removeItem('whisUser');
+      }
     }
 
     // --- Modal Logic ---
@@ -254,7 +441,7 @@
         });
         google.accounts.id.renderButton(
           document.getElementById("googleBtnContainer"),
-          { theme: "outline", size: "large", width: "250" } 
+          { theme: "outline", size: "large", width: "250", type: "standard" } 
         );
       }
     }
@@ -284,6 +471,10 @@
 
     downloadModal.addEventListener('click', (e) => {
       if (e.target === downloadModal) closeDownloadModal();
+    });
+    
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) closeLoginModal();
     });
 
     // --- Auth Logic ---
@@ -335,16 +526,18 @@
         const data = await res.json();
         
         if(data.active) {
-           connectionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Pro Plan Active';
-           connectionStatus.classList.remove('opacity-0');
+           connectionStatus.innerHTML = '● Pro Plan';
+           connectionStatus.classList.remove('text-yellow-400');
+           connectionStatus.classList.add('text-emerald-400');
         } else {
-           connectionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-yellow-400"></span> Free Plan';
-           connectionStatus.classList.remove('opacity-0');
+           connectionStatus.innerHTML = '● Free Plan';
+           connectionStatus.classList.add('text-yellow-400');
+           connectionStatus.classList.remove('text-emerald-400');
         }
       } catch(e) {
         console.log("Backend not reachable yet");
-        connectionStatus.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span> Offline';
-        connectionStatus.classList.remove('opacity-0');
+        connectionStatus.innerHTML = '● Offline';
+        connectionStatus.classList.add('text-red-500');
       }
     }
   </script>
