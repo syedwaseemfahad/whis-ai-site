@@ -52,6 +52,15 @@
     }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Smooth fade in for video */
+    #heroVideo {
+      transition: opacity 1.5s ease-in-out;
+      opacity: 0; /* Starts hidden to show poster */
+    }
+    #heroVideo.loaded {
+      opacity: 0.9; /* Fades in to target opacity */
+    }
   </style>
 </head>
 <body class="bg-whis-bg text-slate-900 antialiased font-sans">
@@ -143,10 +152,16 @@
         </div>
         
         <div class="relative w-full h-full bg-slate-900">
-             <video class="w-full h-full object-cover opacity-90" autoplay muted loop playsinline>
-                <source src="assets/whis-meeting-demo.mp4" type="video/mp4" />
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop" class="w-full h-full object-cover opacity-50" />
-            </video>
+             <video 
+                id="heroVideo"
+                class="w-full h-full object-cover" 
+                poster="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
+                muted 
+                loop 
+                playsinline
+                preload="none" 
+                >
+                </video>
             
             <div class="absolute top-20 right-10 w-80 bg-slate-950/90 border border-slate-700 rounded-xl shadow-2xl backdrop-blur-xl p-4 transform transition hover:scale-105 duration-300">
                 <div class="flex justify-between items-center mb-3">
@@ -511,6 +526,19 @@
         } else { noOrdersMsg.classList.remove('hidden'); }
       } catch(e) { console.log("Backend offline"); }
     }
+
+    // --- LAZY LOAD VIDEO SCRIPT ---
+    // This ensures the rest of the page loads first, fixing the "hang"
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const v = document.getElementById('heroVideo');
+        if(v) {
+          v.src = "assets/whis-meeting-demo.mp4"; // Set source only after page load
+          v.load();
+          v.classList.add('loaded');
+        }
+      }, 100); // Tiny delay to let UI breathe
+    });
   </script>
 </body>
 </html>
