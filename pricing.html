@@ -9,160 +9,222 @@
     tailwind.config = {
       theme: {
         extend: {
-          colors: { 'whis-bg': '#f8fafc', 'whis-blue': '#2563eb', 'whis-dark': '#0f172a' },
-          animation: { 'fade-in-up': 'fadeInUp 0.8s ease-out forwards' },
-          keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+          colors: { 'whis-dark': '#0f172a', 'whis-blue': '#3b82f6', 'whis-purple': '#8b5cf6' },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
         }
       }
     }
   </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-  <style>.glass-nav { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }.scrollbar-hide::-webkit-scrollbar { display: none; }</style>
+  <style>
+    body { background-color: #0f172a; color: white; }
+    .glass-nav { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+  </style>
 </head>
-<body class="bg-whis-bg text-slate-900 antialiased font-sans">
+<body class="antialiased font-sans">
 
-  <nav class="fixed top-0 w-full z-50 glass-nav border-b border-white/10">
+  <nav class="fixed top-0 w-full z-50 glass-nav">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2 group">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg"><span class="text-xs font-bold text-white uppercase tracking-widest">wh</span></div>
-        <span class="text-xl font-bold tracking-tight text-white">whis.ai</span>
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg"><span class="text-[10px] font-bold text-white tracking-widest">WH</span></div>
+        <span class="text-lg font-bold tracking-tight">whis.ai</span>
       </a>
-      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-        <a href="index.html#features" class="hover:text-white transition">Features</a>
-        <a href="pricing.html" class="text-white">Pricing</a>
-        <a href="contact.html" class="hover:text-white transition">Contact</a>
-      </div>
       <div class="flex items-center gap-4">
         <div id="userSection" class="hidden md:flex items-center gap-3">
             <button onclick="openLoginModal()" id="signInBtn" class="text-sm font-medium text-slate-300 hover:text-white">Sign in</button>
             <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/10 pl-2 pr-4 py-1.5 rounded-full border border-white/10 hover:bg-white/20 transition cursor-pointer">
               <img id="navUserAvatar" src="" class="w-7 h-7 rounded-full bg-slate-700 object-cover" />
-              <div class="flex flex-col leading-none text-left"><span id="navUserName" class="text-xs font-bold text-white"></span><span id="navPlanBadge" class="text-[10px] text-emerald-400">Loading...</span></div>
+              <div class="flex flex-col leading-none text-left"><span id="navUserName" class="text-xs font-bold text-white"></span><span class="text-[10px] text-emerald-400">Manage</span></div>
             </button>
         </div>
       </div>
     </div>
   </nav>
 
-  <section class="relative bg-whis-dark text-white pt-40 pb-20 px-6 text-center">
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div class="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[100px]"></div>
-    </div>
-    
-    <h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">Simple, transparent pricing</h1>
-    <p class="text-slate-400 text-lg max-w-xl mx-auto mb-10 animate-fade-in-up delay-100">
-      Start for free. Upgrade to remove limits and unlock stealth mode.
-    </p>
+  <section class="pt-40 pb-20 px-6 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-6">Simple, transparent pricing</h1>
+    <p class="text-slate-400 text-lg max-w-xl mx-auto mb-10">Start for free. Upgrade to remove limits and unlock stealth mode.</p>
 
-    <div class="inline-flex items-center gap-4 bg-white/5 border border-white/10 p-1.5 rounded-full animate-fade-in-up delay-200 backdrop-blur-md">
+    <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 p-1 rounded-full backdrop-blur-md">
       <button id="btnMonthly" class="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg transition-all" onclick="setCycle('monthly')">Monthly</button>
       <button id="btnAnnual" class="px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-xs ml-1 font-bold">SAVE 50%</span></button>
     </div>
   </section>
 
-  <section class="py-20 px-6 -mt-10">
-    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+  <section class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8 pb-24">
       
-      <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl flex flex-col relative z-10 animate-fade-in-up delay-300">
-        <h3 class="text-xl font-bold text-slate-900">Starter</h3>
+      <div class="glass-card rounded-3xl p-8 flex flex-col">
+        <h3 class="text-xl font-bold text-white">Starter</h3>
         <div class="mt-4 mb-6"><span class="text-4xl font-extrabold">Free</span></div>
-        <button onclick="openDownloadModal()" class="w-full py-3 rounded-xl border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 transition">Download App</button>
-        <div class="mt-8 space-y-4 text-sm text-slate-600">
-          <p class="flex gap-3"><i class="fa-solid fa-hourglass-half text-orange-500"></i> 5 AI Responses / day</p>
-          <p class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> Basic Live Transcription</p>
-          <p class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> Screenshot Context</p>
+        <button class="w-full py-3 rounded-xl border border-white/10 font-semibold text-white hover:bg-white/5 transition">Current Plan</button>
+        <div class="mt-8 space-y-4 text-sm text-slate-400">
+          <p class="flex gap-3"><i class="fa-solid fa-check text-emerald-400"></i> 10 AI Responses / day</p>
+          <p class="flex gap-3"><i class="fa-solid fa-check text-emerald-400"></i> Basic Transcription</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-3xl p-8 border-2 border-blue-600 shadow-2xl shadow-blue-900/10 flex flex-col relative z-20 scale-105 animate-fade-in-up delay-400">
+      <div class="glass-card rounded-3xl p-8 border-blue-500/50 shadow-lg shadow-blue-500/10 flex flex-col relative scale-105 bg-blue-900/10">
         <div class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">POPULAR</div>
-        <h3 class="text-xl font-bold text-blue-600">Pro</h3>
+        <h3 class="text-xl font-bold text-blue-400">Pro</h3>
         <div class="mt-4 mb-6 flex items-baseline gap-1">
-           <span class="text-4xl font-extrabold text-slate-900" id="pricePro">₹799</span>
+           <span class="text-4xl font-extrabold text-white" id="pricePro">₹799</span>
            <span class="text-slate-500">/mo</span>
         </div>
-        <button onclick="initiatePayment('pro')" class="w-full py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Subscribe Pro</button>
-        <div class="mt-8 space-y-4 text-sm text-slate-600">
-          <p class="flex gap-3"><i class="fa-solid fa-infinity text-blue-600"></i> <strong>Unlimited</strong> Responses</p>
-          <p class="flex gap-3"><i class="fa-solid fa-bolt text-blue-600"></i> Faster Processing</p>
-          <p class="flex gap-3"><i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Unlimited History</p>
+        <button id="btnBuyPro" onclick="initiatePayment('pro')" class="w-full py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Subscribe Pro</button>
+        <div class="mt-8 space-y-4 text-sm text-slate-300">
+          <p class="flex gap-3"><i class="fa-solid fa-infinity text-blue-400"></i> <strong>Unlimited</strong> Responses</p>
+          <p class="flex gap-3"><i class="fa-solid fa-bolt text-blue-400"></i> Faster Processing</p>
         </div>
       </div>
 
-      <div class="bg-slate-900 text-white rounded-3xl p-8 border border-slate-700 shadow-2xl flex flex-col relative z-10 animate-fade-in-up delay-500 overflow-hidden">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/20 blur-3xl rounded-full"></div>
-        <h3 class="text-xl font-bold flex items-center gap-2">Stealth <i class="fa-solid fa-mask text-purple-400"></i></h3>
+      <div class="glass-card rounded-3xl p-8 border-purple-500/30 shadow-lg shadow-purple-500/10 flex flex-col">
+        <h3 class="text-xl font-bold flex items-center gap-2 text-purple-400">Stealth <i class="fa-solid fa-mask"></i></h3>
         <div class="mt-4 mb-6 flex items-baseline gap-1">
-           <span class="text-4xl font-extrabold text-white" id="priceStealth">₹1999</span>
+           <span class="text-4xl font-extrabold text-white" id="priceStealth">₹2499</span>
            <span class="text-slate-500">/mo</span>
         </div>
-        <button onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition shadow-lg relative z-10">Get Stealth Access</button>
-        <div class="mt-8 space-y-4 text-sm text-slate-300 relative z-10">
-          <p class="text-xs font-bold text-slate-500 uppercase">Everything in Pro, plus:</p>
+        <button id="btnBuyStealth" onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-500 transition shadow-lg shadow-purple-500/30">Get Stealth Access</button>
+        <div class="mt-8 space-y-4 text-sm text-slate-300">
+          <p class="text-xs font-bold text-purple-400 uppercase">Everything in Pro, plus:</p>
           <p class="flex gap-3"><i class="fa-solid fa-eye-slash text-purple-400"></i> <strong>100% Undetectable</strong></p>
-          <p class="flex gap-3"><i class="fa-solid fa-check text-purple-400"></i> Ghost Window Overlay</p>
-          <p class="flex gap-3"><i class="fa-solid fa-shield text-purple-400"></i> No Admin/Log Traces</p>
+          <p class="flex gap-3"><i class="fa-solid fa-ghost text-purple-400"></i> Ghost Window Overlay</p>
         </div>
       </div>
-    </div>
   </section>
 
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center relative"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-times"></i></button><h3 class="text-xl font-bold mb-6">Sign in</h3><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
-  <div id="downloadModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center relative"><button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-times"></i></button><h2 class="text-2xl font-bold mb-6">Download</h2><div class="space-y-3"><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="block w-full px-6 py-4 border rounded-2xl hover:border-blue-500 hover:bg-blue-50 font-bold">Download for Mac</a><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.windows/Whis.Setup.1.0.0.exe" class="block w-full px-6 py-4 border rounded-2xl hover:border-blue-500 hover:bg-blue-50 font-bold">Download for Windows</a></div></div></div>
-  <div id="profileModal" class="fixed inset-0 bg-slate-900/80 hidden items-center justify-center p-4"><div class="bg-white rounded-3xl max-w-md w-full overflow-hidden"><div class="bg-slate-900 p-6 text-white relative"><button onclick="closeProfileModal()" class="absolute top-4 right-4"><i class="fa-solid fa-times"></i></button><div class="flex items-center gap-4"><img id="modalUserAvatar" class="w-16 h-16 rounded-full" /><div><h2 id="modalUserName" class="text-xl font-bold"></h2><p id="modalUserEmail"></p></div></div></div><div class="p-6 space-y-6"><div class="bg-blue-50 border border-blue-100 rounded-2xl p-5"><div class="flex justify-between"><div><p class="text-xs font-bold">Current Plan</p><h3 id="modalPlanName" class="text-xl font-bold"></h3></div><div id="modalPlanBadge"></div></div><div class="mt-4 pt-4 border-t border-blue-100 flex justify-between"><span id="modalExpiryLabel">Validity</span><span id="modalExpiryDate" class="font-bold"></span></div></div><div id="freeUsageSection" class="hidden"><div class="flex justify-between"><span>Limit</span><span id="usageText"></span></div><div class="bg-slate-100 h-2 rounded-full"><div id="usageBar" class="bg-blue-500 h-2 rounded-full"></div></div></div><div><h4 class="font-bold mb-2">History</h4><tbody id="orderHistoryBody"></tbody><div id="noOrdersMsg"></div></div></div></div></div>
+  <div id="profileModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
+      <div class="glass-card rounded-2xl max-w-md w-full overflow-hidden relative">
+          <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-times"></i></button>
+          <div class="p-8">
+              <div class="flex items-center gap-4 mb-6">
+                  <img id="modalUserAvatar" class="w-16 h-16 rounded-full border-2 border-blue-500" />
+                  <div><h2 id="modalUserName" class="text-xl font-bold"></h2><p id="modalUserEmail" class="text-sm text-slate-400"></p></div>
+              </div>
+              <div class="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+                  <p class="text-xs font-bold text-slate-400 uppercase mb-1">Current Plan</p>
+                  <div class="flex justify-between items-center">
+                      <h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3>
+                      <span id="modalPlanBadge" class="text-xs font-bold px-2 py-1 rounded bg-white/10"></span>
+                  </div>
+                  <div id="freeUsageSection" class="mt-3 hidden">
+                      <div class="flex justify-between text-xs mb-1"><span>Daily Usage</span><span id="usageText">0/10</span></div>
+                      <div class="bg-white/10 h-1.5 rounded-full"><div id="usageBar" class="bg-blue-500 h-1.5 rounded-full" style="width:0%"></div></div>
+                  </div>
+              </div>
+              <div class="border-t border-white/10 pt-4">
+                  <h4 class="font-bold mb-3 text-sm">Recent Orders</h4>
+                  <div id="orderHistoryBody" class="text-sm text-slate-400 space-y-2 max-h-32 overflow-y-auto"></div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div id="loginModal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4"><div class="glass-card p-8 rounded-2xl max-w-sm w-full text-center relative"><button onclick="document.getElementById('loginModal').classList.add('hidden');document.getElementById('loginModal').classList.remove('flex');" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-xl font-bold mb-6">Sign in</h3><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
 
   <script>
     const BACKEND_URL = "https://whis-backend.onrender.com";
     const GOOGLE_CLIENT_ID = "91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-    let currentCycle = 'monthly'; let currentUser = null;
+    let currentCycle='monthly'; let currentUser=null;
 
-    function setCycle(c) { 
-        currentCycle = c; 
-        const btnM = document.getElementById('btnMonthly');
-        const btnA = document.getElementById('btnAnnual');
-        
-        if (c === 'monthly') {
-            btnM.className = "px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg transition-all";
-            btnA.className = "px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all";
-            document.getElementById('pricePro').innerText = '₹999'; 
-            document.getElementById('priceStealth').innerText = '₹1999';
+    function setCycle(c){ 
+        currentCycle=c;
+        const btnM=document.getElementById('btnMonthly'), btnA=document.getElementById('btnAnnual');
+        if(c==='monthly'){
+            btnM.className="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg transition-all";
+            btnA.className="px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all";
+            document.getElementById('pricePro').innerText='₹799'; document.getElementById('priceStealth').innerText='₹2499';
         } else {
-            btnA.className = "px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg transition-all";
-            btnM.className = "px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all";
-            document.getElementById('pricePro').innerText = '₹499'; 
-            document.getElementById('priceStealth').innerText = '₹999';
+            btnA.className="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-lg transition-all";
+            btnM.className="px-6 py-2 rounded-full text-sm font-semibold text-slate-400 hover:text-white transition-all";
+            document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
         }
     }
 
     async function initiatePayment(tier) {
-        if(!currentUser) { alert("Please sign in first."); openLoginModal(); return; }
-        const btn = event.target; const txt = btn.innerText; btn.innerText = "Processing...";
+        if(!currentUser) { openLoginModal(); return; }
+        // Pre-check disabled buttons
+        const btn = document.getElementById(tier==='pro'?'btnBuyPro':'btnBuyStealth');
+        if(btn.disabled) return;
+
+        const txt = btn.innerText; btn.innerText = "Processing...";
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ googleId: currentUser.googleId, tier, cycle: currentCycle }) });
             const data = await res.json();
             if(data.payment_session_id) { const cf = Cashfree({ mode: "sandbox" }); cf.checkout({ paymentSessionId: data.payment_session_id }); }
-            else { alert("Error: " + data.error); }
+            else { alert(data.error); }
         } catch(e) { alert("Server Error"); }
         btn.innerText = txt;
     }
 
-    // Reuse Logic
-    const loginModal=document.getElementById('loginModal'),profileModal=document.getElementById('profileModal'),downloadModal=document.getElementById('downloadModal');
+    // Modal & Auth Logic
+    const loginModal=document.getElementById('loginModal'), profileModal=document.getElementById('profileModal');
     function openLoginModal(){ loginModal.classList.remove('hidden'); loginModal.classList.add('flex'); if(window.google) { google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleRes }); google.accounts.id.renderButton(document.getElementById("googleBtnContainer"), {theme:"outline", size:"large"}); }}
-    function closeLoginModal(){ loginModal.classList.add('hidden'); loginModal.classList.remove('flex'); }
     function openProfileModal(){ if(currentUser) fetchFullData(currentUser.googleId); profileModal.classList.remove('hidden'); profileModal.classList.add('flex'); }
     function closeProfileModal(){ profileModal.classList.add('hidden'); profileModal.classList.remove('flex'); }
-    function openDownloadModal(){ downloadModal.classList.remove('hidden'); downloadModal.classList.add('flex'); }
-    function closeDownloadModal(){ downloadModal.classList.add('hidden'); downloadModal.classList.remove('flex'); }
-    async function handleGoogleRes(res){ const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d = await r.json(); if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateUI(); closeLoginModal(); } }
-    function updateUI(){ if(!currentUser)return; document.getElementById('signInBtn').classList.add('hidden'); document.getElementById('userProfileTrigger').classList.remove('hidden'); document.getElementById('userProfileTrigger').classList.add('flex'); document.getElementById('navUserName').innerText = currentUser.name.split(' ')[0]; document.getElementById('navUserAvatar').src = currentUser.avatarUrl; fetchFullData(currentUser.googleId); }
+    async function handleGoogleRes(res){ const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d = await r.json(); if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateUI(); loginModal.classList.add('hidden'); } }
+    
+    function updateUI(){ 
+        if(!currentUser)return; 
+        document.getElementById('signInBtn').classList.add('hidden'); 
+        document.getElementById('userProfileTrigger').classList.remove('hidden'); document.getElementById('userProfileTrigger').classList.add('flex');
+        document.getElementById('navUserName').innerText = currentUser.name.split(' ')[0];
+        document.getElementById('navUserAvatar').src = currentUser.avatarUrl;
+        fetchFullData(currentUser.googleId);
+    }
+
     async function fetchFullData(gid){ 
-        try { const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});const d=await r.json();
-        document.getElementById('navPlanBadge').innerText="● "+(d.active?(d.tier==='pro_plus'?'Stealth':'Pro'):'Free'); document.getElementById('navPlanBadge').className=d.active?"text-[10px] text-emerald-400 font-bold":"text-[10px] text-slate-400";
-        document.getElementById('modalUserAvatar').src=currentUser.avatarUrl; document.getElementById('modalUserName').innerText=currentUser.name; document.getElementById('modalUserEmail').innerText=currentUser.email; document.getElementById('modalPlanName').innerText=d.tier==='pro_plus'?'Pro + Stealth':(d.tier==='pro'?'Pro Plan':'Starter Free');
-        if(d.active){document.getElementById('modalPlanBadge').innerText="ACTIVE";document.getElementById('modalPlanBadge').className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600";document.getElementById('modalExpiryDate').innerText=new Date(d.validUntil).toLocaleDateString();}else{document.getElementById('modalPlanBadge').innerText="FREE";document.getElementById('modalPlanBadge').className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600";document.getElementById('freeUsageSection').classList.remove('hidden');const u=d.freeUsage?.count||0;document.getElementById('usageBar').style.width=((u/5)*100)+"%";document.getElementById('usageText').innerText=u+"/5";}
+        try { 
+            const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});
+            const d=await r.json();
+            
+            // Modal Data
+            document.getElementById('modalUserAvatar').src=currentUser.avatarUrl; 
+            document.getElementById('modalUserName').innerText=currentUser.name; 
+            document.getElementById('modalUserEmail').innerText=currentUser.email;
+            
+            const tier = d.active ? d.tier : 'free';
+            document.getElementById('modalPlanName').innerText = tier==='pro_plus'?'Stealth':(tier==='pro'?'Pro':'Free Starter');
+            document.getElementById('modalPlanBadge').innerText = d.active ? 'ACTIVE' : 'FREE';
+            
+            if(!d.active) {
+                document.getElementById('freeUsageSection').classList.remove('hidden');
+                const u = d.freeUsage?.count || 0;
+                document.getElementById('usageBar').style.width = ((u/10)*100)+"%";
+                document.getElementById('usageText').innerText = u+"/10";
+            } else {
+                document.getElementById('freeUsageSection').classList.add('hidden');
+            }
+
+            // Order History
+            const histDiv = document.getElementById('orderHistoryBody');
+            histDiv.innerHTML = d.orders && d.orders.length ? d.orders.map(o => `<div class="flex justify-between"><span>${new Date(o.date).toLocaleDateString()}</span><span>₹${o.amount}</span></div>`).join('') : 'No orders yet.';
+
+            // BUTTON LOGIC: Disable if already on tier
+            const btnPro = document.getElementById('btnBuyPro');
+            const btnStealth = document.getElementById('btnBuyStealth');
+            
+            btnPro.disabled = false; btnStealth.disabled = false;
+            btnPro.innerText = "Subscribe Pro"; btnStealth.innerText = "Get Stealth Access";
+            btnPro.className = "w-full py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30";
+            
+            if(d.active) {
+                if(tier === 'pro') {
+                    btnPro.disabled = true; 
+                    btnPro.innerText = "Current Plan";
+                    btnPro.className = "w-full py-3 rounded-xl bg-white/10 text-slate-400 font-bold cursor-not-allowed";
+                }
+                if(tier === 'pro_plus') {
+                    btnPro.disabled = true; btnPro.innerText = "Included in Stealth";
+                    btnPro.className = "w-full py-3 rounded-xl bg-white/10 text-slate-400 font-bold cursor-not-allowed";
+                    btnStealth.disabled = true; btnStealth.innerText = "Current Plan";
+                    btnStealth.className = "w-full py-3 rounded-xl bg-white/10 text-slate-400 font-bold cursor-not-allowed";
+                }
+            }
+
         } catch(e){}
     }
     const uStr = localStorage.getItem('whisUser'); if(uStr) { currentUser=JSON.parse(uStr); updateUI(); }
