@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Upgrade Plan – Whis</title>
+  <title>Pricing – Whis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -10,136 +10,102 @@
       theme: {
         extend: {
           fontFamily: { sans: ['Inter', 'sans-serif'] },
-          colors: { 'whis-dark': '#030712' }
+          colors: { 'whis-dark': '#020408' }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <style>
-    body { background-color: #030712; color: white; font-family: 'Inter', sans-serif; }
-    .glass-nav { background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .card-base { background: #0f131f; border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s; position: relative; z-index: 10; }
-    .card-popular { background: linear-gradient(145deg, #1e3a8a 0%, #172554 100%); border: 1px solid #3b82f6; box-shadow: 0 0 40px rgba(37,99,235,0.2); transform: scale(1.05); z-index: 20; }
-    /* Fix overlap */
-    .modal-layer { z-index: 9999 !important; }
+    body { background-color: #020408; color: white; font-family: 'Inter', sans-serif; }
+    .glass-nav { background: rgba(2, 4, 8, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    
+    /* Monolith Cards */
+    .glass-card { 
+        background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); 
+        border: 1px solid rgba(255,255,255,0.08); 
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s, border-color 0.3s;
+    }
+    .glass-card:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateY(-5px); }
+    
+    /* Popular Card Glow */
+    .card-glow { 
+        background: linear-gradient(180deg, rgba(99,102,241,0.1) 0%, rgba(2,4,8,0.5) 100%);
+        border: 1px solid rgba(99,102,241,0.5);
+        box-shadow: 0 0 50px rgba(99,102,241,0.15);
+        position: relative;
+        z-index: 10;
+        transform: scale(1.05);
+    }
   </style>
 </head>
 <body class="antialiased">
 
   <nav class="fixed top-0 w-full z-50 glass-nav h-[72px]">
     <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-bold text-white">WH</div>
-        <span class="text-lg font-bold tracking-tight">whis.ai</span>
-      </a>
-      <div class="flex items-center gap-6 text-sm font-medium">
-          <a href="support.html" class="text-slate-400 hover:text-white transition">Support</a>
-          <button onclick="openLoginModal()" class="text-slate-300 hover:text-white transition">Sign In</button>
-      </div>
+      <a href="/" class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-xs font-bold">WH</div><span class="text-lg font-bold">whis.ai</span></a>
+      <div class="flex items-center gap-6 text-sm font-medium"><a href="support.html" class="text-slate-400 hover:text-white transition">Support</a><button onclick="openLoginModal()" class="text-slate-300 hover:text-white transition">Sign In</button></div>
     </div>
   </nav>
 
-  <section class="pt-40 pb-20 px-6 text-center">
-    <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">Invest in your career.</h1>
+  <section class="pt-48 pb-24 px-6 text-center">
+    <h1 class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-500">Invest in your career.</h1>
     <p class="text-slate-400 text-lg mb-12">One offer letter pays for a lifetime of Whis.</p>
     
-    <div class="inline-flex bg-white/5 p-1.5 rounded-full border border-white/10 mb-16 relative z-30">
-      <button id="btnMonthly" class="px-6 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-lg transition-all" onclick="setCycle('monthly')">Monthly</button>
-      <button id="btnAnnual" class="px-6 py-2 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-[10px] ml-1 uppercase tracking-wider">Save 50%</span></button>
+    <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-20">
+      <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-sm font-bold bg-indigo-600 text-white shadow-lg transition-all" onclick="setCycle('monthly')">Monthly</button>
+      <button id="btnAnnual" class="px-8 py-2.5 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-[10px] ml-1 uppercase tracking-wider">Save 50%</span></button>
     </div>
 
-    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 items-center">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 items-stretch">
       
-      <div class="card-base rounded-3xl p-8 text-left">
+      <div class="glass-card rounded-3xl p-10 text-left flex flex-col">
         <h3 class="text-lg font-bold text-slate-300">Starter</h3>
-        <div class="mt-4 mb-6"><span class="text-4xl font-extrabold text-white">Free</span></div>
-        <button onclick="window.location.href='/'" class="w-full py-3 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-bold transition">Download</button>
-        <div class="mt-8 space-y-4 text-sm text-slate-500">
-          <p class="flex items-center gap-3"><i class="fa-solid fa-check text-slate-600"></i> 5 Responses / day</p>
-          <p class="flex items-center gap-3"><i class="fa-solid fa-check text-slate-600"></i> Basic Speed</p>
+        <div class="mt-4 mb-8"><span class="text-4xl font-bold text-white">Free</span></div>
+        <button onclick="window.location.href='/'" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 font-bold transition mb-8">Download</button>
+        <div class="space-y-4 text-sm text-slate-500 flex-grow">
+          <p class="flex gap-3"><i class="fa-solid fa-check"></i> 5 Responses / day</p>
+          <p class="flex gap-3"><i class="fa-solid fa-check"></i> Basic Speed</p>
         </div>
       </div>
 
-      <div class="card-popular rounded-3xl p-10 text-left relative">
-        <div class="absolute top-0 right-0 bg-white/20 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl backdrop-blur-md">POPULAR</div>
-        <h3 class="text-xl font-bold text-white">Pro</h3>
-        <div class="mt-4 mb-6 flex items-baseline gap-1">
-           <span class="text-5xl font-extrabold text-white" id="pricePro">₹799</span><span class="text-blue-200 font-medium">/mo</span>
-        </div>
-        <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-blue-900 font-bold hover:bg-blue-50 transition shadow-lg">Upgrade Now</button>
-        <div class="mt-8 space-y-4 text-sm text-blue-100 font-medium">
-          <p class="flex items-center gap-3"><i class="fa-solid fa-infinity"></i> <strong>Unlimited</strong> Responses</p>
-          <p class="flex items-center gap-3"><i class="fa-solid fa-bolt"></i> Turbo Processing</p>
-          <p class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left"></i> Unlimited History</p>
+      <div class="card-glow rounded-3xl p-10 text-left flex flex-col">
+        <div class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">MOST POPULAR</div>
+        <h3 class="text-xl font-bold text-indigo-300">Pro</h3>
+        <div class="mt-4 mb-8 flex items-baseline gap-1"><span class="text-5xl font-bold text-white" id="pricePro">₹799</span><span class="text-indigo-200">/mo</span></div>
+        <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black font-bold hover:bg-slate-200 transition shadow-lg mb-8">Upgrade Now</button>
+        <div class="space-y-4 text-sm text-indigo-100 flex-grow font-medium">
+          <p class="flex gap-3"><i class="fa-solid fa-infinity"></i> Unlimited Responses</p>
+          <p class="flex gap-3"><i class="fa-solid fa-bolt"></i> Turbo Processing</p>
+          <p class="flex gap-3"><i class="fa-solid fa-clock-rotate-left"></i> Unlimited History</p>
         </div>
       </div>
 
-      <div class="card-base rounded-3xl p-8 text-left relative overflow-hidden group hover:border-purple-500/50 transition duration-500">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/20 blur-3xl rounded-full group-hover:bg-purple-600/40 transition duration-500"></div>
+      <div class="glass-card rounded-3xl p-10 text-left flex flex-col relative overflow-hidden group">
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-purple-600/20 blur-[80px] group-hover:bg-purple-600/30 transition duration-700"></div>
         <h3 class="text-lg font-bold text-white flex items-center gap-2">Stealth <i class="fa-solid fa-mask text-purple-400"></i></h3>
-        <div class="mt-4 mb-6 flex items-baseline gap-1">
-           <span class="text-4xl font-extrabold text-white" id="priceStealth">₹1999</span><span class="text-slate-500">/mo</span>
-        </div>
-        <button onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-xl bg-white/10 text-white border border-white/20 font-bold hover:bg-white/20 transition backdrop-blur-sm">Get Stealth Access</button>
-        <div class="mt-8 space-y-4 text-sm text-slate-400 relative z-10">
-          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Everything in Pro, plus:</p>
-          <p class="flex items-center gap-3 text-purple-300"><i class="fa-solid fa-eye-slash"></i> <strong>100% Undetectable</strong></p>
-          <p class="flex items-center gap-3"><i class="fa-solid fa-ghost"></i> Ghost Window Overlay</p>
-          <p class="flex items-center gap-3"><i class="fa-solid fa-shield"></i> No Admin/Log Traces</p>
+        <div class="mt-4 mb-8 flex items-baseline gap-1"><span class="text-4xl font-bold text-white" id="priceStealth">₹1999</span><span class="text-slate-500">/mo</span></div>
+        <button onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-white/10 text-white border border-white/20 font-bold hover:bg-white/20 transition backdrop-blur-sm mb-8">Get Stealth</button>
+        <div class="space-y-4 text-sm text-slate-400 relative z-10 flex-grow">
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Everything in Pro, plus:</p>
+          <p class="flex gap-3 text-purple-300"><i class="fa-solid fa-eye-slash"></i> 100% Undetectable</p>
+          <p class="flex gap-3"><i class="fa-solid fa-ghost"></i> Ghost Window Overlay</p>
+          <p class="flex gap-3"><i class="fa-solid fa-shield"></i> No Admin/Log Traces</p>
         </div>
       </div>
 
     </div>
   </section>
 
-  <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-md modal-layer hidden items-center justify-center p-4">
-    <div class="bg-[#111827] border border-white/10 rounded-2xl p-8 max-w-sm w-full text-center relative shadow-2xl">
-        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-xl font-bold text-white mb-6">Sign in to Upgrade</h3>
-        <div id="googleBtnContainer" class="flex justify-center"></div>
-    </div>
-  </div>
+  <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4"><div class="glass-card rounded-2xl p-8 max-w-sm w-full text-center relative shadow-2xl"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-xl font-bold text-white mb-6">Sign in to Upgrade</h3><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
 
   <script>
-    const BACKEND_URL = "https://whis-backend.onrender.com";
-    const GOOGLE_CLIENT_ID = "91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-    let currentCycle = 'monthly'; let currentUser = null;
-    
-    function setCycle(c) {
-        currentCycle = c;
-        const btnM = document.getElementById('btnMonthly'); const btnA = document.getElementById('btnAnnual');
-        if(c==='monthly'){ 
-            btnM.className="px-6 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-lg transition-all"; 
-            btnA.className="px-6 py-2 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all";
-            document.getElementById('pricePro').innerText='₹999'; document.getElementById('priceStealth').innerText='₹1999';
-        } else {
-            btnA.className="px-6 py-2 rounded-full text-sm font-bold bg-blue-600 text-white shadow-lg transition-all"; 
-            btnM.className="px-6 py-2 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all";
-            document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
-        }
-    }
-
-    async function initiatePayment(tier) {
-        if(!currentUser) { openLoginModal(); return; }
-        const btn = event.target; const orig = btn.innerText; btn.innerText = "Processing...";
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ googleId: currentUser.googleId, tier, cycle: currentCycle }) });
-            const data = await res.json();
-            if(data.payment_session_id) { const cf = Cashfree({ mode: "sandbox" }); cf.checkout({ paymentSessionId: data.payment_session_id }); }
-            else { alert("Error: " + data.error); }
-        } catch(e) { alert("Server Error"); }
-        btn.innerText = orig;
-    }
-
-    const loginModal=document.getElementById('loginModal');
-    function openLoginModal(){ loginModal.classList.remove('hidden'); loginModal.classList.add('flex'); if(window.google) { google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleRes }); google.accounts.id.renderButton(document.getElementById("googleBtnContainer"), {theme:"filled_black", size:"large"}); }}
-    function closeLoginModal(){ loginModal.classList.add('hidden'); loginModal.classList.remove('flex'); }
-    async function handleGoogleRes(res){ const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d = await r.json(); if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; closeLoginModal(); } }
-    const uStr = localStorage.getItem('whisUser'); if(uStr) { currentUser=JSON.parse(uStr); }
-  </script>
-</body>
-</html>
+    const BACKEND_URL="https://whis-backend.onrender.com";const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
+    let currentCycle='monthly';let currentUser=null;
+    function setCycle(c){currentCycle=c;const btnM=document.getElementById('btnMonthly');const btnA=document.getElementById('btnAnnual');if(c==='monthly'){btnM.className="px-8 py-2.5 rounded-full text-sm font-bold bg-indigo-600 text-white shadow-lg transition-all";btnA.className="px-8 py-2.5 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all";document.getElementById('pricePro').innerText='₹799';document.getElementById('priceStealth').innerText='₹1999';}else{btnA.className="px-8 py-2.5 rounded-full text-sm font-bold bg-indigo-600 text-white shadow-lg transition-all";btnM.className="px-8 py-2.5 rounded-full text-sm font-bold text-slate-400 hover:text-white transition-all";document.getElementById('pricePro').innerText='₹399';document.getElementById('priceStealth').innerText='₹999';}}
+    async function initiatePayment(tier){if(!currentUser){openLoginModal();return;}const btn=event.target;const orig=btn.innerText;btn.innerText="Processing...";try{const res=await fetch(`${BACKEND_URL}/api/payment/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({googleId:currentUser.googleId,tier,cycle:currentCycle})});const data=await res.json();if(data.payment_session_id){const cf=Cashfree({mode:"sandbox"});cf.checkout({paymentSessionId:data.payment_session_id});}else{alert("Error: "+data.error);}}catch(e){alert("Server Error");}btn.innerText=orig;}
+    const loginModal=document.getElementById('loginModal');function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large"});}}function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}async function handleGoogleRes(res){const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;closeLoginModal();}}const uStr=localStorage.getItem('whisUser
