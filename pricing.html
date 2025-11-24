@@ -113,7 +113,7 @@
       <div class="popular-card rounded-2xl p-8 text-left flex flex-col relative">
         <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full border border-blue-400 shadow-lg shadow-blue-900/50 tracking-wide">MOST POPULAR</div>
         <h3 class="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-2">Pro</h3>
-        <div class="mb-6 flex items-baseline gap-1"><span class="text-5xl font-medium text-white" id="pricePro">₹1</span><span class="text-slate-600">/mo</span></div>
+        <div class="mb-6 flex items-baseline gap-1"><span class="text-5xl font-medium text-white" id="pricePro">₹999</span><span class="text-slate-600 price-period">/mo</span></div>
         <p class="text-sm text-slate-400 mb-8 min-h-[40px]">For serious candidates actively interviewing at top tier companies.</p>
         <button onclick="initiatePayment('pro')" class="w-full py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 transition shadow-lg shadow-blue-900/20 mb-8">Upgrade to Pro</button>
         <div class="space-y-3 text-xs text-slate-300 font-medium">
@@ -126,7 +126,7 @@
       <div class="pricing-card rounded-2xl p-8 text-left flex flex-col h-full relative overflow-hidden group">
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-900/20 blur-[80px] group-hover:bg-purple-800/30 transition duration-700"></div>
         <h3 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-2">Stealth <i class="fa-solid fa-mask"></i></h3>
-        <div class="mb-6 flex items-baseline gap-1"><span class="text-4xl font-medium text-white" id="priceStealth">₹1</span><span class="text-slate-600">/mo</span></div>
+        <div class="mb-6 flex items-baseline gap-1"><span class="text-4xl font-medium text-white" id="priceStealth">₹2499</span><span class="text-slate-600 price-period">/mo</span></div>
         <p class="text-sm text-slate-500 mb-8 min-h-[40px]">Maximum security and undetectability for high-stakes roles.</p>
         <button onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-lg bg-white/5 text-white border border-white/10 font-medium hover:bg-white/10 transition mb-8">Get Stealth</button>
         <div class="space-y-3 text-xs text-slate-400 relative z-10 font-medium">
@@ -197,22 +197,28 @@
     let currentUser=null; 
     let currentTier = 'free';
 
-    // UPDATED: FORCE PRICE TO ₹1 VISUALLY FOR TESTING
     function setCycle(c){
         currentCycle=c;
         const btnM=document.getElementById('btnMonthly');const btnA=document.getElementById('btnAnnual');
         if(c==='monthly'){
             btnM.className="px-6 py-2 rounded-md text-sm font-medium bg-white text-black shadow-xl transition-all";
             btnA.className="px-6 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-white transition-all";
-            // Hardcoded to ₹1
-            document.getElementById('pricePro').innerText='₹1';
-            document.getElementById('priceStealth').innerText='₹1';
+            
+            document.getElementById('pricePro').innerText='₹999';
+            document.getElementById('priceStealth').innerText='₹2499';
+            
+            // Show '/mo'
+            document.querySelectorAll('.price-period').forEach(el => el.innerText = '/mo');
         }else{
             btnA.className="px-6 py-2 rounded-md text-sm font-medium bg-white text-black shadow-xl transition-all";
             btnM.className="px-6 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-white transition-all";
-            // Hardcoded to ₹1
-            document.getElementById('pricePro').innerText='₹1';
-            document.getElementById('priceStealth').innerText='₹1';
+            
+            // Show monthly equivalent for annual
+            document.getElementById('pricePro').innerText='₹499';
+            document.getElementById('priceStealth').innerText='₹999';
+            
+            // Keep '/mo' because it's "499/mo" billed annually
+            document.querySelectorAll('.price-period').forEach(el => el.innerText = '/mo');
         }
     }
 
