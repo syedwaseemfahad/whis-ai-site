@@ -26,7 +26,7 @@
     <div id="failure" class="hidden py-6">
         <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-times text-4xl"></i></div>
         <h2 class="text-2xl font-bold text-slate-900 mb-2">Payment Failed</h2>
-        <p class="text-slate-500 mb-8">We couldn't confirm your transaction.</p>
+        <p class="text-slate-500 mb-8">We couldn't confirm your transaction signature.</p>
         <a href="pricing.html" class="block w-full bg-slate-100 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Try Again</a>
     </div>
 
@@ -35,16 +35,35 @@
     const BACKEND_URL = "https://whis-backend.onrender.com";
     async function verify() {
         const params = new URLSearchParams(window.location.search);
-        const orderId = params.get("order_id");
-        if (!orderId) { showFailure(); return; }
+        
+        // Razorpay Params
+        const razorpay_order_id = params.get("razorpay_order_id");
+        const razorpay_payment_id = params.get("razorpay_payment_id");
+        const razorpay_signature = params.get("razorpay_signature");
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+             showFailure(); 
+             return; 
+        }
+
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) });
+            const res = await fetch(`${BACKEND_URL}/api/payment/verify`, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    razorpay_order_id, 
+                    razorpay_payment_id, 
+                    razorpay_signature 
+                }) 
+            });
             const data = await res.json();
-            if (data.status === "PAID") showSuccess(); else showFailure();
+            if (data.success) showSuccess(); else showFailure();
         } catch (e) { showFailure(); }
     }
+    
     function showSuccess() { document.getElementById('loading').classList.add('hidden'); document.getElementById('success').classList.remove('hidden'); }
     function showFailure() { document.getElementById('loading').classList.add('hidden'); document.getElementById('failure').classList.remove('hidden'); }
+    
     verify();
   </script>
 </body>
