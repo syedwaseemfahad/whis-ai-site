@@ -26,7 +26,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   
   <style>
     body { background-color: #030303; color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -190,8 +191,11 @@
   <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl"><div class="p-6 border-b border-white/5 flex justify-between items-center"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div class="p-6 space-y-6"><div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div><button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button></div></div></div>
 
   <script>
-    const BACKEND_URL="https://whis-backend.onrender.com";const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-    let currentCycle='monthly';let currentUser=null; let currentTier = 'free';
+    const BACKEND_URL="https://whis-backend.onrender.com";
+    const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
+    let currentCycle='monthly';
+    let currentUser=null; 
+    let currentTier = 'free';
 
     function setCycle(c){
         currentCycle=c;
@@ -234,17 +238,55 @@
     async function initiatePayment(targetTier){
         if(!currentUser){openLoginModal();return;}
         
-        // Subscription Logic Checks
         if(currentTier === 'pro_plus') { alert("You are already on the highest plan (Stealth)."); return; }
         if(currentTier === 'pro' && targetTier === 'pro') { alert("You already have an active Pro subscription."); return; }
 
         const btn=event.target;const orig=btn.innerText;btn.innerText="Processing...";
+        
         try{
-            const res=await fetch(`${BACKEND_URL}/api/payment/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({googleId:currentUser.googleId,tier:targetTier,cycle:currentCycle})});
-            const data=await res.json();
-            if(data.payment_session_id){const cf=Cashfree({mode:"sandbox"});cf.checkout({paymentSessionId:data.payment_session_id});}
-            else{alert("Error: "+data.error);}
-        }catch(e){alert("Server Error");}
+            // 1. Create Order
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({googleId:currentUser.googleId, tier:targetTier, cycle:currentCycle})
+            });
+            const data = await res.json();
+            
+            if(!data.order_id){ throw new Error("Order creation failed"); }
+
+            // 2. Open Razorpay Checkout
+            const options = {
+                "key": data.key_id,
+                "amount": data.amount,
+                "currency": data.currency,
+                "name": "Whis AI",
+                "description": targetTier === 'pro' ? "Pro Plan Upgrade" : "Stealth Plan Upgrade",
+                "image": "https://whis.ai/logo.png", // Replace with your actual logo URL if available
+                "order_id": data.order_id,
+                "handler": function (response){
+                    // 3. Redirect to Verification Page on Success
+                    window.location.href = `payment.html?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
+                },
+                "prefill": {
+                    "name": data.user_name,
+                    "email": data.user_email,
+                    "contact": data.user_contact
+                },
+                "theme": {
+                    "color": "#2563EB"
+                }
+            };
+            
+            const rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', function (response){
+                alert("Payment Failed: " + response.error.description);
+            });
+            rzp1.open();
+
+        } catch(e){
+            console.error(e);
+            alert("Unable to initiate payment. Please try again.");
+        }
         btn.innerText=orig;
     }
 
@@ -265,7 +307,6 @@
 
     async function handleGoogleRes(res){const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchUserStatus();closeLoginModal();}}
     
-    // Check Auth on Load - THIS FIXES THE ISSUE
     document.addEventListener("DOMContentLoaded", () => {
         const uStr = localStorage.getItem('whisUser');
         if (uStr) {
