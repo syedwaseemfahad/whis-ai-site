@@ -70,7 +70,7 @@
       </a>
       
       <div class="flex items-center gap-4 md:gap-6">
-          <a href="support.html" class="text-sm font-medium text-slate-500 hover:text-white transition">Support</a>
+          <a href="/support" class="text-sm font-medium text-slate-500 hover:text-white transition">Support</a>
           
           <div id="authSection" class="flex items-center">
             <button id="signInBtn" onclick="openLoginModal()" class="text-sm font-medium text-slate-300 hover:text-white transition">Sign In</button>
@@ -188,32 +188,7 @@
   </section>
 
   <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl p-8 max-w-sm w-full text-center relative shadow-2xl"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-lg font-medium text-white mb-6">Sign in to Upgrade</h3><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
-  <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
-    <div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl">
-        <div class="p-6 border-b border-white/5 flex justify-between items-center"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800 object-cover" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div>
-        <div class="p-6 space-y-6">
-            <div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div>
-            <div>
-                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Payment History</h4>
-                <div class="max-h-40 overflow-y-auto border border-white/5 rounded-lg">
-                    <table class="w-full text-left text-xs text-slate-400">
-                        <thead class="bg-white/5 text-slate-300">
-                            <tr>
-                                <th class="p-2">Date</th>
-                                <th class="p-2">Plan</th>
-                                <th class="p-2">Status</th> <!-- Added Status Column -->
-                                <th class="p-2 text-right">Amt</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentHistoryBody"></tbody>
-                    </table>
-                    <div id="noPaymentsMsg" class="p-4 text-center text-[10px] text-slate-600 hidden">No payment history found.</div>
-                </div>
-            </div>
-            <button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button>
-        </div>
-    </div>
-  </div>
+  <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl"><div class="p-6 border-b border-white/5 flex justify-between items-center"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div class="p-6 space-y-6"><div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div><button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button></div></div></div>
 
   <script>
     const BACKEND_URL="https://whis-backend.onrender.com";
@@ -265,30 +240,6 @@
                 document.getElementById('modalExpiryDate').textContent = "Forever";
             }
             document.getElementById('modalUserName').textContent=currentUser.name; document.getElementById('modalPlanName').textContent=planName;
-            
-            // Payment History Table Logic
-            const tbody=document.getElementById('paymentHistoryBody'); tbody.innerHTML='';
-            if(d.orders && d.orders.length > 0) { 
-                document.getElementById('noPaymentsMsg').classList.add('hidden'); 
-                d.orders.forEach(o=>{ 
-                    // FIX: Add Status Logic
-                    const isPaid = o.status === 'paid' || o.status === 'PAID';
-                    const statusColor = isPaid ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20';
-                    const statusText = isPaid ? 'PAID' : 'FAILED';
-                    
-                    tbody.innerHTML+=`
-                    <tr>
-                        <td class="p-2 border-b border-white/5">${new Date(o.date).toLocaleDateString()}</td>
-                        <td class="p-2 border-b border-white/5">${o.tier==='pro_plus'?'Stealth':'Pro'}</td>
-                        <td class="p-2 border-b border-white/5">
-                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${statusColor}">${statusText}</span>
-                        </td>
-                        <td class="p-2 border-b border-white/5 text-right">₹${o.amount}</td>
-                    </tr>`; 
-                }); 
-            } else { 
-                document.getElementById('noPaymentsMsg').classList.remove('hidden'); 
-            }
         } catch(e) {}
     }
 
@@ -321,8 +272,8 @@
                 "image": "https://whis.ai/logo.png",
                 "order_id": data.order_id,
                 "handler": function (response){
-                    // 3. Redirect to Verification Page on Success
-                    window.location.href = `payment.html?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
+                    // 3. Redirect to Verification Page on Success (Clean URL)
+                    window.location.href = `payment?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
                 },
                 "prefill": {
                     "name": data.user_name,
@@ -358,18 +309,7 @@
     const loginModal=document.getElementById('loginModal'),profileModal=document.getElementById('profileModal');
     function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large"});}}
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
-    
-    function openProfileModal(){
-        if(currentUser) {
-             // FIX: Explicitly set the avatar and name in the modal when opening
-            const modalAvatar = document.getElementById('modalUserAvatar');
-            if(modalAvatar) modalAvatar.src = currentUser.avatarUrl;
-            document.getElementById('modalUserName').innerText = currentUser.name;
-            fetchUserStatus();
-        }
-        profileModal.classList.remove('hidden');profileModal.classList.add('flex');
-    }
-    
+    function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
     function logout(){localStorage.removeItem('whisUser');location.reload();}
 
