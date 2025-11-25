@@ -107,24 +107,24 @@
 
     <div class="relative z-20 flex justify-center mb-6">
         <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
-            <button onclick="switchVideo('visual')" id="btn-visual" class="feature-btn active px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2"><i class="fa-solid fa-crop-simple"></i> Visual Context</button>
-            <button onclick="switchVideo('text')" id="btn-text" class="feature-btn px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2"><i class="fa-solid fa-keyboard"></i> Direct Input</button>
-            <button onclick="switchVideo('audio')" id="btn-audio" class="feature-btn px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2"><i class="fa-solid fa-microphone-lines"></i> Audio Sync</button>
+            <button onclick="setSequence(0)" id="btn-visual" class="feature-btn active px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2"><i class="fa-solid fa-crop-simple"></i> Visual Context</button>
+            <button onclick="setSequence(1)" id="btn-text" class="feature-btn px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2"><i class="fa-solid fa-keyboard"></i> Direct Input</button>
+            <button onclick="setSequence(2)" id="btn-audio" class="feature-btn px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2"><i class="fa-solid fa-microphone-lines"></i> Audio Sync</button>
         </div>
     </div>
 
     <div class="macbook animate-float px-4">
         <div class="lid">
             <div class="screen relative bg-black">
-                <video id="vid-visual" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10" autoplay loop muted playsinline>
+                <video id="vid-visual" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10" muted playsinline>
                     <source src="input_screenshot (online-video-cutter.com).mp4" type="video/mp4">
                 </video>
                 
-                <video id="vid-text" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 z-0" loop muted playsinline>
+                <video id="vid-text" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 z-0" muted playsinline>
                     <source src="input_text (online-video-cutter.com).mp4" type="video/mp4">
                 </video>
 
-                <video id="vid-audio" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 z-0" loop muted playsinline>
+                <video id="vid-audio" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 z-0" muted playsinline>
                     <source src="input_audio (online-video-cutter.com).mp4" type="video/mp4">
                 </video>
 
@@ -153,17 +153,17 @@
               <p class="text-slate-500">Three steps to effortless technical discussions.</p>
           </div>
           <div class="grid md:grid-cols-3 gap-8">
-              <div onclick="switchVideo('audio')" class="cursor-pointer p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition hover:bg-white/10">
+              <div onclick="setSequence(2)" class="cursor-pointer p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition hover:bg-white/10">
                   <div class="absolute -top-4 -left-4 w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">1</div>
                   <h3 class="text-xl font-medium text-white mb-3 mt-4">Sync Audio</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Whis taps into system audio to follow the conversation in real-time—whether it's Zoom, Teams, or Meet—serving as your silent partner.</p>
               </div>
-              <div onclick="switchVideo('visual')" class="cursor-pointer p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition hover:bg-white/10">
+              <div onclick="setSequence(0)" class="cursor-pointer p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition hover:bg-white/10">
                   <div class="absolute -top-4 -left-4 w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">2</div>
                   <h3 class="text-xl font-medium text-white mb-3 mt-4">Capture Context</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Need help with a visual diagram or code block? Use the **Smart Snipping Tool** to capture screen areas or type queries directly.</p>
               </div>
-              <div onclick="switchVideo('text')" class="cursor-pointer p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition hover:bg-white/10">
+              <div onclick="setSequence(1)" class="cursor-pointer p-8 rounded-2xl bg-white/5 border border-white/5 relative group hover:border-white/10 transition hover:bg-white/10">
                   <div class="absolute -top-4 -left-4 w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg">3</div>
                   <h3 class="text-xl font-medium text-white mb-3 mt-4">Instant Guidance</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">The AI analyzes the inputs and displays helpful insights in a **Private HUD** that overlays your workspace but remains hidden during screen sharing.</p>
@@ -300,28 +300,45 @@
         const btn = document.getElementById('smartDownloadBtn'); const icon = document.getElementById('osIcon'); const text = document.getElementById('osText'); const sub = document.getElementById('osSubtext');
         if (p.includes('win')||ua.includes('win')) { text.innerText="Download for Windows"; icon.className="fa-brands fa-windows"; sub.innerText="Windows 10 & 11 Supported"; btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe"; }
         else { text.innerText="Download for macOS"; icon.className="fa-brands fa-apple"; sub.innerText="Apple Silicon & Intel Supported"; btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg"; }
+        
+        // Start Video Sequence
+        setSequence(0);
     });
     
-    // Video Switcher Logic
-    function switchVideo(type) {
-        // Reset buttons
-        document.querySelectorAll('.feature-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`btn-${type}`).classList.add('active');
-        
-        // Hide all videos and reset
-        ['visual', 'text', 'audio'].forEach(t => {
-            const v = document.getElementById(`vid-${t}`);
+    // Video Sequencer
+    const videoData = ['visual', 'text', 'audio'];
+    let currentIndex = 0;
+
+    function setSequence(index) {
+        currentIndex = index; // Update global index for clicks
+
+        // Reset all videos
+        videoData.forEach(type => {
+            const v = document.getElementById(`vid-${type}`);
+            const b = document.getElementById(`btn-${type}`);
             v.style.opacity = '0';
             v.style.zIndex = '0';
             v.pause();
+            b.classList.remove('active');
         });
+
+        // Activate current video
+        const activeType = videoData[index];
+        const activeVid = document.getElementById(`vid-${activeType}`);
+        const activeBtn = document.getElementById(`btn-${activeType}`);
         
-        // Show active video
-        const active = document.getElementById(`vid-${type}`);
-        active.style.opacity = '1';
-        active.style.zIndex = '10';
-        active.currentTime = 0;
-        active.play();
+        activeVid.style.opacity = '1';
+        activeVid.style.zIndex = '10';
+        activeBtn.classList.add('active');
+        
+        activeVid.currentTime = 0;
+        activeVid.play().catch(e => console.log("Autoplay blocked (interaction required):", e));
+
+        // When this video ends, play the next one
+        activeVid.onended = () => {
+            const nextIndex = (index + 1) % videoData.length;
+            setSequence(nextIndex);
+        };
     }
 
     // Auth & Modals
