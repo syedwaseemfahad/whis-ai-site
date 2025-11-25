@@ -117,15 +117,16 @@
         <div class="lid">
             <div class="screen relative bg-black">
                 <video id="vid-visual" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10" muted playsinline>
-                    <source src="input_screenshot (online-video-cutter.com).mp4" type="video/mp4">
+                    <source src="visual.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
                 </video>
                 
                 <video id="vid-text" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 z-0" muted playsinline>
-                    <source src="input_text (online-video-cutter.com).mp4" type="video/mp4">
+                    <source src="text.mp4" type="video/mp4">
                 </video>
 
                 <video id="vid-audio" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 z-0" muted playsinline>
-                    <source src="input_audio (online-video-cutter.com).mp4" type="video/mp4">
+                    <source src="audio.mp4" type="video/mp4">
                 </video>
 
                 <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none z-20"></div>
@@ -332,7 +333,17 @@
         activeBtn.classList.add('active');
         
         activeVid.currentTime = 0;
-        activeVid.play().catch(e => console.log("Autoplay blocked (interaction required):", e));
+        
+        // Ensure promise is handled
+        const playPromise = activeVid.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                // Autoplay started!
+            })
+            .catch(error => {
+                console.log("Auto-play was prevented. Interaction needed.");
+            });
+        }
 
         // When this video ends, play the next one
         activeVid.onended = () => {
