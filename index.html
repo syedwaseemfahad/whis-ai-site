@@ -11,25 +11,18 @@
         extend: {
           fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
           colors: { 
-            page: '#020010', // Ultra dark navy/black
+            page: '#020005', // Absolute black/deep navy
             glass: 'rgba(255, 255, 255, 0.03)',
-            stroke: 'rgba(255, 255, 255, 0.06)',
-            'stroke-hover': 'rgba(255, 255, 255, 0.15)'
-          },
-          backgroundImage: {
-            'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-            'aurora': 'conic-gradient(from 180deg at 50% 50%, #1a1a40 0deg, #2a2a60 120deg, #020010 360deg)',
+            stroke: 'rgba(255, 255, 255, 0.08)',
           },
           animation: { 
             'float': 'float 8s ease-in-out infinite',
             'shimmer': 'shimmer 2.5s linear infinite',
-            'spotlight': 'spotlight 2s ease .75s 1 forwards',
-            'glow': 'glow 3s ease-in-out infinite alternate',
+            'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           },
           keyframes: {
-            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15px)' } },
-            shimmer: { from: { backgroundPosition: '0 0' }, to: { backgroundPosition: '-200% 0' } },
-            glow: { '0%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.1)' }, '100%': { boxShadow: '0 0 40px rgba(59, 130, 246, 0.3)' } }
+            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+            shimmer: { from: { backgroundPosition: '0 0' }, to: { backgroundPosition: '-200% 0' } }
           }
         }
       }
@@ -40,226 +33,233 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   
   <style>
-    body { background-color: #020010; color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body { background-color: #020005; color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     
-    /* Premium Utilities */
-    .glass-panel { 
-        background: rgba(10, 10, 20, 0.4); 
-        backdrop-filter: blur(24px); 
-        -webkit-backdrop-filter: blur(24px);
-        border: 1px solid rgba(255, 255, 255, 0.08); 
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2); 
+    /* 1. CAROUSEL STYLES (The Core Feature) */
+    .carousel-stage {
+        position: relative;
+        height: 500px; /* Adjust based on video aspect ratio */
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1200px;
+        overflow: visible;
     }
-    .glass-nav { background: rgba(2, 0, 16, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+    .carousel-item {
+        position: absolute;
+        width: 65%; /* Width of the MacBook */
+        max-width: 800px;
+        aspect-ratio: 16/10;
+        transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
     
-    .bento-card {
+    /* Center Position (Active) - Looks like a MacBook */
+    .pos-center {
+        z-index: 30;
+        transform: translateX(0) scale(1);
+        opacity: 1;
+        border: 1px solid #333;
+        box-shadow: 0 0 0 1px #111, 0 30px 60px -10px rgba(0,0,0,0.8), 0 0 100px rgba(59, 130, 246, 0.15);
+    }
+    /* Add MacBook Bezel to Center Item Only */
+    .pos-center::after {
+        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 24px;
+        background: #1a1a1a; border-top: 1px solid #333; z-index: 40;
+    }
+    .pos-center::before {
+        content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 16px;
+        background: #0d0d0d; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; z-index: 40;
+    }
+
+    /* Left Position (Preview) */
+    .pos-left {
+        z-index: 10;
+        transform: translateX(-65%) scale(0.75) rotateY(25deg);
+        opacity: 0.3;
+        filter: blur(2px) grayscale(100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+    }
+    .pos-left:hover { opacity: 0.5; filter: blur(0px) grayscale(50%); }
+
+    /* Right Position (Preview) */
+    .pos-right {
+        z-index: 10;
+        transform: translateX(65%) scale(0.75) rotateY(-25deg);
+        opacity: 0.3;
+        filter: blur(2px) grayscale(100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+    }
+    .pos-right:hover { opacity: 0.5; filter: blur(0px) grayscale(50%); }
+
+
+    /* 2. GLASS UI */
+    .glass-nav { background: rgba(2, 0, 5, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .glass-card { 
         background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-        border: 1px solid rgba(255,255,255,0.06);
-        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05); 
+        transition: all 0.4s ease;
     }
-    .bento-card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+    .glass-card:hover { 
+        border-color: rgba(255,255,255,0.1); 
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); 
+    }
     
-    /* Text Gradients */
-    .text-glow { text-shadow: 0 0 30px rgba(255,255,255,0.3); }
-    .gradient-text-hero { background: linear-gradient(to bottom, #ffffff 30%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    
-    /* Device Frames */
-    .macbook { width: 100%; max-width: 900px; margin: 0 auto; position: relative; perspective: 2000px; z-index: 20; }
-    .lid { background: #0d0d0d; border-radius: 20px 20px 0 0; border: 1px solid #333; position: relative; transform-style: preserve-3d; }
-    .screen { overflow: hidden; border-radius: 16px 16px 0 0; position: relative; aspect-ratio: 16/10; background: #000; border: 1px solid #222; }
-    .base { background: #1a1a1a; height: 16px; border-radius: 0 0 20px 20px; border-top: 1px solid #333; margin-top: -1px; position: relative; z-index: 20; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8); }
-    
-    /* Button Effects */
-    .btn-shine { background: linear-gradient(110deg, #000103 45%, #334155 55%, #000103); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
-    .feature-btn.active { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
-    .feature-btn { color: #64748b; border: 1px solid transparent; }
+    /* 3. BUTTONS & TEXT */
+    .gradient-text { background: linear-gradient(to bottom, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .btn-shine { background: linear-gradient(110deg, #0f172a 45%, #334155 55%, #0f172a); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
   </style>
 </head>
 <body>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
-    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-150 contrast-150"></div>
-    <div class="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-blue-700/10 blur-[150px] rounded-full mix-blend-screen animate-pulse-slow"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-700/10 blur-[150px] rounded-full mix-blend-screen"></div>
+    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-900/10 blur-[150px] rounded-full mix-blend-screen animate-pulse-slow"></div>
   </div>
 
   <nav class="fixed top-0 w-full z-50 glass-nav h-[72px] flex items-center justify-center">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)] group-hover:border-blue-500/30 transition duration-300">
-            <span class="text-xs font-bold text-white tracking-widest">WH</span>
-        </div>
+        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-white/30 transition"><span class="text-xs font-bold text-white tracking-widest">WH</span></div>
         <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition">whis.ai</span>
       </a>
       
-      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
-        <a href="#capabilities" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Capabilities</a>
+      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md absolute left-1/2 -translate-x-1/2">
+        <a href="#features" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Features</a>
         <a href="#comparison" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Comparison</a>
         <a href="/pricing" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Pricing</a>
       </div>
 
       <div class="flex items-center gap-4">
-        <div id="userSection" class="flex items-center gap-3">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-medium text-slate-400 hover:text-white px-4 py-2 transition">Sign In</button>
-          <button onclick="openDownloadModal()" class="group relative inline-flex h-9 items-center justify-center overflow-hidden rounded-full bg-white px-6 font-medium text-neutral-950 transition-all hover:bg-slate-200">
-             <span class="mr-2 text-xs font-bold">Get App</span>
-             <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
-          </button>
-          
+          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-medium text-slate-400 hover:text-white transition">Sign In</button>
+          <button onclick="openDownloadModal()" class="px-5 py-2 rounded-full bg-white text-black text-xs font-bold hover:bg-slate-200 transition">Get App</button>
           <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/5 hover:border-white/20 transition group">
-            <img id="navUserAvatar" src="" class="w-7 h-7 rounded-full bg-slate-800 object-cover" />
-            <div class="flex flex-col items-start leading-none">
-                <span class="text-[9px] font-medium text-slate-400 group-hover:text-white">Account</span>
-                <span id="navPlanBadge" class="text-[9px] font-bold text-blue-400 uppercase tracking-wide">PRO</span>
-            </div>
+            <img id="navUserAvatar" src="" class="w-6 h-6 rounded-full bg-slate-800 object-cover" />
+            <span id="navPlanBadge" class="text-[9px] font-bold text-blue-400 uppercase tracking-wide">PRO</span>
           </button>
-        </div>
       </div>
     </div>
   </nav>
 
-  <section class="relative pt-44 pb-20 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-16">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-widest mb-8 backdrop-blur-md hover:bg-white/10 transition cursor-default shadow-lg">
-        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-        Stealth Mode v1.2 Active
+  <section class="relative pt-40 pb-20 overflow-hidden flex flex-col items-center">
+    
+    <div class="relative z-10 text-center max-w-4xl px-6 mb-20">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-8 cursor-default">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Stealth Mode v1.2
       </div>
-      
-      <h1 class="text-6xl md:text-8xl font-semibold tracking-tight leading-[1.05] mb-8 gradient-text-hero drop-shadow-2xl">
+      <h1 class="text-6xl md:text-8xl font-semibold tracking-tight leading-[1.05] mb-8 gradient-text">
         Intelligence that<br />leaves no trace.
       </h1>
-      
-      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-        The only AI copilot engineered for absolute discretion. It sees what you see, hears what you hear, and speaks only to you—completely invisible to everyone else.
+      <p class="text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed font-light">
+        The AI copilot engineered for absolute discretion. It sees what you see, hears what you hear, and speaks only to you.
       </p>
-      
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
-        <button id="smartDownloadBtn" class="btn-shine relative inline-flex h-12 overflow-hidden rounded-lg p-[1px] focus:outline-none shadow-2xl shadow-blue-900/20">
-            <span class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]"></span>
-            <span class="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-[#05050A] px-8 py-1 text-sm font-medium text-white backdrop-blur-3xl gap-2 hover:bg-slate-900 transition border border-white/10">
-                <i id="osIcon" class="fa-brands fa-apple text-lg"></i> <span id="osText">Download for macOS</span>
-            </span>
+      <div class="flex items-center justify-center gap-4">
+        <button id="smartDownloadBtn" class="btn-shine inline-flex items-center justify-center rounded-lg border border-white/10 px-8 py-3 text-sm font-medium text-white transition hover:scale-105">
+           <i id="osIcon" class="fa-brands fa-apple mr-2 text-lg"></i> <span id="osText">Download for macOS</span>
         </button>
-        <a href="/pricing" class="px-8 py-3.5 text-slate-400 hover:text-white text-sm font-medium transition hover:bg-white/5 rounded-lg border border-transparent hover:border-white/5">View Membership</a>
       </div>
       <p id="osSubtext" class="mt-4 text-[10px] text-slate-600 font-mono uppercase tracking-widest opacity-60">Apple Silicon & Intel Supported</p>
     </div>
 
-    <div class="relative z-30 flex justify-center mb-12">
-        <div class="inline-flex bg-black/40 p-1.5 rounded-full border border-white/10 backdrop-blur-xl shadow-2xl">
-            <button onclick="setSequence(0)" id="btn-visual" class="feature-btn active px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all">
-                <i class="fa-solid fa-crop-simple text-blue-400"></i> Visual Context
-            </button>
-            <button onclick="setSequence(1)" id="btn-text" class="feature-btn px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all">
-                <i class="fa-solid fa-keyboard text-purple-400"></i> Direct Input
-            </button>
-            <button onclick="setSequence(2)" id="btn-audio" class="feature-btn px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-2.5 transition-all">
-                <i class="fa-solid fa-microphone-lines text-emerald-400"></i> Audio Sync
-            </button>
+    <div class="w-full max-w-[1400px] mx-auto px-6 relative z-20 mb-32">
+        <div class="carousel-stage" id="carouselStage">
+            </div>
+        
+        <div class="flex justify-center mt-12 gap-2">
+            <button onclick="manualSet(0)" id="ind-0" class="w-2 h-2 rounded-full bg-white transition-all"></button>
+            <button onclick="manualSet(1)" id="ind-1" class="w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all"></button>
+            <button onclick="manualSet(2)" id="ind-2" class="w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all"></button>
         </div>
     </div>
 
-    <div class="macbook animate-float px-4">
-        <div class="lid">
-            <div class="screen relative bg-black">
-                <video id="vid-visual" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 z-10" muted playsinline>
-                    <source src="visual.mp4" type="video/mp4">
-                </video>
-                <video id="vid-text" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-0 z-0" muted playsinline>
-                    <source src="text.mp4" type="video/mp4">
-                </video>
-                <video id="vid-audio" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-0 z-0" muted playsinline>
-                    <source src="audio.mp4" type="video/mp4">
-                </video>
-                <div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent pointer-events-none z-20"></div>
-            </div>
+    <div class="w-full max-w-4xl px-6 text-center">
+        <p class="text-xs font-bold text-slate-700 uppercase tracking-[0.2em] mb-8">Trusted by Engineers at</p>
+        <div class="flex justify-between items-center opacity-30 grayscale hover:grayscale-0 transition duration-700">
+            <i class="fa-brands fa-google text-xl hover:text-white transition"></i>
+            <i class="fa-brands fa-amazon text-xl hover:text-white transition"></i>
+            <i class="fa-brands fa-meta text-xl hover:text-white transition"></i>
+            <i class="fa-brands fa-microsoft text-xl hover:text-white transition"></i>
+            <i class="fa-brands fa-uber text-xl hover:text-white transition"></i>
         </div>
-        <div class="base"></div>
     </div>
   </section>
 
-  <section id="capabilities" class="py-32 relative border-t border-white/5 bg-[#030012]">
+  <section id="features" class="py-32 relative border-t border-white/5 bg-[#03000a]">
       <div class="max-w-7xl mx-auto px-6">
-          <div class="text-center mb-20">
-              <h2 class="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight">Capabilities</h2>
-              <p class="text-slate-500 text-lg">Six reasons why Whis is the ultimate unfair advantage.</p>
+          <div class="text-center mb-24">
+              <h2 class="text-4xl font-medium text-white mb-6">Capabilities</h2>
+              <p class="text-slate-500 text-lg">Six reasons why Whis is the ultimate advantage.</p>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(250px,auto)]">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              <div onclick="setSequence(0)" class="bento-card md:col-span-2 rounded-3xl p-10 relative overflow-hidden group cursor-pointer">
-                  <div class="absolute top-0 right-0 p-10 opacity-20 group-hover:opacity-40 transition transform group-hover:scale-110 duration-700">
-                      <i class="fa-solid fa-eye-slash text-9xl text-white"></i>
-                  </div>
-                  <div class="relative z-10 h-full flex flex-col justify-end">
-                      <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 mb-6 text-blue-400"><i class="fa-solid fa-ghost"></i></div>
-                      <h3 class="text-2xl font-semibold text-white mb-3">Phantom Layer</h3>
-                      <p class="text-slate-400 leading-relaxed max-w-md">Our proprietary overlay technology renders perfectly for you, but is completely invisible to screen sharing software like Zoom, Teams, or Google Meet.</p>
-                  </div>
+              <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
+                  <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 mb-6 text-blue-400"><i class="fa-solid fa-ghost"></i></div>
+                  <h3 class="text-lg font-medium text-white mb-3">Phantom Layer</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">The overlay renders perfectly for you, but is completely invisible to Zoom, Teams, or Meet screenshares.</p>
               </div>
 
-              <div class="bento-card rounded-3xl p-8 relative overflow-hidden group">
-                  <div class="absolute inset-0 bg-gradient-to-b from-transparent to-red-900/10 opacity-0 group-hover:opacity-100 transition"></div>
-                  <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-6 text-red-400"><i class="fa-solid fa-ban"></i></div>
-                  <h3 class="text-xl font-medium text-white mb-2">Zero Footprint</h3>
+              <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
+                  <div class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-6 text-red-400"><i class="fa-solid fa-ban"></i></div>
+                  <h3 class="text-lg font-medium text-white mb-3">Zero Footprint</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Runs purely in the background. No Dock icon. No Taskbar item. No Alt-Tab presence. Total stealth.</p>
               </div>
 
-              <div onclick="setSequence(2)" class="bento-card rounded-3xl p-8 relative overflow-hidden group cursor-pointer">
-                   <div class="absolute inset-0 bg-gradient-to-b from-transparent to-emerald-900/10 opacity-0 group-hover:opacity-100 transition"></div>
-                   <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-6 text-emerald-400"><i class="fa-solid fa-wave-square"></i></div>
-                   <h3 class="text-xl font-medium text-white mb-2">Sonic Sync</h3>
-                   <p class="text-sm text-slate-400 leading-relaxed">Whis listens to your system audio loopback. It hears the question in real-time and prepares the answer before the speaker finishes.</p>
+              <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
+                  <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-6 text-emerald-400"><i class="fa-solid fa-wave-square"></i></div>
+                  <h3 class="text-lg font-medium text-white mb-3">Sonic Sync</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Listens to system audio loopback. It hears the technical question and prepares the answer instantly.</p>
               </div>
 
-              <div onclick="setSequence(0)" class="bento-card rounded-3xl p-8 relative overflow-hidden group cursor-pointer">
-                   <div class="absolute inset-0 bg-gradient-to-b from-transparent to-purple-900/10 opacity-0 group-hover:opacity-100 transition"></div>
-                   <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20 mb-6 text-purple-400"><i class="fa-solid fa-expand"></i></div>
-                   <h3 class="text-xl font-medium text-white mb-2">Visual Context</h3>
-                   <p class="text-sm text-slate-400 leading-relaxed">Complex diagram? Coding challenge? Use the snipping tool to capture any region. Instant OCR and logic parsing.</p>
+              <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
+                  <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 mb-6 text-purple-400"><i class="fa-solid fa-expand"></i></div>
+                  <h3 class="text-lg font-medium text-white mb-3">Visual Context</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Use the snip tool to capture coding challenges or diagrams. Instant OCR and logic parsing.</p>
               </div>
 
-              <div class="bento-card md:col-span-1 md:row-span-1 rounded-3xl p-8 relative overflow-hidden group">
-                  <div class="absolute -right-4 -top-4 text-slate-800 opacity-20 rotate-12 group-hover:rotate-0 transition duration-500 text-8xl font-serif">Aa</div>
-                  <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/20 mb-6 text-orange-400"><i class="fa-solid fa-globe"></i></div>
-                  <h3 class="text-xl font-medium text-white mb-2">Universal Translator</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Speak in any language. Whis auto-detects, translates to English for processing, and delivers the optimal technical response.</p>
+              <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 mb-6 text-indigo-400"><i class="fa-solid fa-terminal"></i></div>
+                  <h3 class="text-lg font-medium text-white mb-3">Direct Command</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Type complex queries directly into the overlay. Get code snippets and architectural advice instantly.</p>
               </div>
-              
-              <div onclick="setSequence(1)" class="bento-card md:col-span-2 rounded-3xl p-8 flex flex-col justify-center relative overflow-hidden group cursor-pointer">
-                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition duration-1000"></div>
-                  <div class="flex items-start gap-6">
-                      <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex flex-shrink-0 items-center justify-center border border-indigo-500/20 text-indigo-400"><i class="fa-solid fa-terminal"></i></div>
-                      <div>
-                          <h3 class="text-xl font-medium text-white mb-2">Direct Command Mode</h3>
-                          <p class="text-sm text-slate-400 leading-relaxed max-w-lg">For nuanced queries, bypass the audio/visual inputs and type directly into the stealth overlay. Get code snippets, architectural advice, or data structures instantly.</p>
-                      </div>
-                  </div>
+
+              <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
+                  <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 mb-6 text-orange-400"><i class="fa-solid fa-globe"></i></div>
+                  <h3 class="text-lg font-medium text-white mb-3">Universal Translator</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Speak in any language. Whis auto-detects, translates to English, and processes the answer.</p>
               </div>
 
           </div>
       </div>
   </section>
 
-  <section id="comparison" class="py-32 bg-black/40 border-t border-white/5">
+  <section id="comparison" class="py-32 border-t border-white/5 bg-[#020005]">
       <div class="max-w-5xl mx-auto px-6">
           <h2 class="text-3xl font-medium text-white mb-16 text-center">Plan Comparison</h2>
-          <div class="glass-panel rounded-2xl overflow-hidden">
+          <div class="glass-card rounded-2xl overflow-hidden">
               <table class="w-full text-sm text-left">
                   <thead class="text-xs text-slate-500 uppercase bg-white/5 border-b border-white/5">
                       <tr>
-                          <th class="px-8 py-6 font-semibold tracking-wider">Feature</th>
-                          <th class="px-8 py-6 font-semibold tracking-wider text-slate-400">Starter</th>
-                          <th class="px-8 py-6 font-semibold tracking-wider text-blue-400">Pro</th>
-                          <th class="px-8 py-6 font-semibold tracking-wider text-purple-400 bg-purple-500/5">Elite</th>
+                          <th class="px-8 py-6 font-semibold tracking-wider text-center">Feature</th>
+                          <th class="px-8 py-6 font-semibold tracking-wider text-center text-slate-400">Starter</th>
+                          <th class="px-8 py-6 font-semibold tracking-wider text-center text-blue-400">Pro</th>
+                          <th class="px-8 py-6 font-semibold tracking-wider text-center text-purple-400 bg-purple-500/5">Elite</th>
                       </tr>
                   </thead>
                   <tbody class="text-slate-400 divide-y divide-white/5">
-                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium">Daily Limit</td><td class="px-8 py-5">10 Queries</td><td class="px-8 py-5 text-white">Unlimited</td><td class="px-8 py-5 text-white bg-purple-500/5">Unlimited</td></tr>
-                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium">Sonic Sync (Audio)</td><td class="px-8 py-5"><i class="fa-solid fa-check text-emerald-500"></i></td><td class="px-8 py-5"><i class="fa-solid fa-check text-emerald-500"></i></td><td class="px-8 py-5 bg-purple-500/5"><i class="fa-solid fa-check text-emerald-500"></i></td></tr>
-                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium">Phantom Layer</td><td class="px-8 py-5"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5 bg-purple-500/5"><i class="fa-solid fa-check text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]"></i></td></tr>
-                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium">Zero Footprint (No Dock)</td><td class="px-8 py-5"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5 bg-purple-500/5"><i class="fa-solid fa-check text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]"></i></td></tr>
-                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium">Universal Translator</td><td class="px-8 py-5"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5"><i class="fa-solid fa-check text-blue-500"></i></td><td class="px-8 py-5 bg-purple-500/5"><i class="fa-solid fa-check text-purple-400"></i></td></tr>
+                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium text-center">Daily Limit</td><td class="px-8 py-5 text-center">10 Queries</td><td class="px-8 py-5 text-white text-center">Unlimited</td><td class="px-8 py-5 text-white bg-purple-500/5 text-center">Unlimited</td></tr>
+                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium text-center">Sonic Sync</td><td class="px-8 py-5 text-center"><i class="fa-solid fa-check text-emerald-500"></i></td><td class="px-8 py-5 text-center"><i class="fa-solid fa-check text-emerald-500"></i></td><td class="px-8 py-5 bg-purple-500/5 text-center"><i class="fa-solid fa-check text-emerald-500"></i></td></tr>
+                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium text-center">Phantom Layer</td><td class="px-8 py-5 text-center"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5 text-center"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5 bg-purple-500/5 text-center"><i class="fa-solid fa-check text-purple-400"></i></td></tr>
+                      <tr class="hover:bg-white/5 transition"><td class="px-8 py-5 text-white font-medium text-center">Zero Footprint</td><td class="px-8 py-5 text-center"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5 text-center"><i class="fa-solid fa-minus text-slate-700"></i></td><td class="px-8 py-5 bg-purple-500/5 text-center"><i class="fa-solid fa-check text-purple-400"></i></td></tr>
                   </tbody>
               </table>
           </div>
@@ -269,19 +269,14 @@
       </div>
   </section>
 
-  <footer class="border-t border-white/5 py-16 bg-[#010101] relative overflow-hidden">
-      <div class="max-w-7xl mx-auto px-6 relative z-10">
-          <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-              <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/5"><span class="text-[10px] font-bold text-white tracking-widest">WH</span></div>
-                  <div class="text-xs text-slate-500">&copy; 2025 Whis AI.</div>
-              </div>
-              <div class="flex flex-wrap gap-8 text-xs font-medium text-slate-500 justify-center">
-                  <a href="/pricing" class="hover:text-white transition">Pricing</a>
-                  <a href="/contact" class="hover:text-white transition">Contact</a>
-                  <a href="/terms" class="hover:text-white transition">Terms</a>
-                  <a href="/privacy" class="hover:text-white transition">Privacy</a>
-              </div>
+  <footer class="border-t border-white/5 py-12 bg-black">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+          <div class="text-xs text-slate-600 mb-4">&copy; 2025 Whis AI.</div>
+          <div class="flex justify-center gap-8 text-xs font-medium text-slate-500">
+              <a href="/pricing" class="hover:text-white transition">Pricing</a>
+              <a href="/contact" class="hover:text-white transition">Contact</a>
+              <a href="/terms" class="hover:text-white transition">Terms</a>
+              <a href="/privacy" class="hover:text-white transition">Privacy</a>
           </div>
       </div>
   </footer>
@@ -290,7 +285,7 @@
     <div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl ring-1 ring-white/10">
         <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800 object-cover" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div>
         <div class="p-6 space-y-6">
-            <div class="bg-gradient-to-br from-white/5 to-transparent border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div>
+            <div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div>
             <div>
                 <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Payment History</h4>
                 <div class="max-h-40 overflow-y-auto border border-white/5 rounded-lg bg-black/20">
@@ -305,34 +300,136 @@
         </div>
     </div>
   </div>
-  
-  <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass-panel rounded-2xl p-10 max-w-sm w-full text-center shadow-2xl relative"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-xl font-medium text-white mb-2">Welcome Back</h3><p class="text-sm text-slate-500 mb-8">Sign in to manage your Whis subscription.</p><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
-  
-  <div id="downloadModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass-panel rounded-2xl p-8 max-w-md w-full shadow-2xl relative"><button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button><h2 class="text-xl font-medium text-white mb-6">Download Whis</h2><div class="space-y-3"><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-apple mr-3"></i> macOS</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-windows mr-3"></i> Windows</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a></div></div></div>
+  <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass-card rounded-2xl p-10 max-w-sm w-full text-center shadow-2xl relative"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-xl font-medium text-white mb-2">Welcome Back</h3><p class="text-sm text-slate-500 mb-8">Sign in to manage your Whis subscription.</p><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
+  <div id="downloadModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass-card rounded-2xl p-8 max-w-md w-full shadow-2xl relative"><button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button><h2 class="text-xl font-medium text-white mb-6">Download Whis</h2><div class="space-y-3"><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-apple mr-3"></i> macOS</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a><a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-windows mr-3"></i> Windows</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a></div></div></div>
 
   <script>
     // Configuration
     const BACKEND_URL="https://whis-backend.onrender.com";
     const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     
-    // DOM Elements
+    // Auth vars
     const loginModal=document.getElementById('loginModal');
     const downloadModal=document.getElementById('downloadModal');
     const profileModal=document.getElementById('profileModal');
     let currentUser=null;
     
-    // Init
-    const storedUser=localStorage.getItem('whisUser');
-    if(storedUser){
-        try{
-            currentUser=JSON.parse(storedUser);
-            updateNavUI(currentUser);
-            fetchFullUserData(currentUser.googleId);
-        }catch(e){localStorage.removeItem('whisUser');}
-    }
+    // CAROUSEL LOGIC (3D SYMMETRICAL)
+    const videos = [
+        { src: 'visual.mp4', type: 'video/mp4' },
+        { src: 'text.mp4', type: 'video/mp4' },
+        { src: 'audio.mp4', type: 'video/mp4' }
+    ];
     
+    // Pointers to the 3 slots
+    let activeIndex = 0; // 0, 1, 2
+    
+    // Initialize
     document.addEventListener("DOMContentLoaded", () => {
-        // OS Detection for Download Button
+        initCarousel();
+        detectOS();
+        checkUser();
+    });
+
+    function initCarousel() {
+        const stage = document.getElementById('carouselStage');
+        stage.innerHTML = ''; // Clear
+        
+        // Create 3 video elements
+        videos.forEach((v, i) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item transition-all duration-700 ease-in-out';
+            div.id = `item-${i}`;
+            
+            const vid = document.createElement('video');
+            vid.src = v.src;
+            vid.muted = true; // Start muted
+            vid.playsInline = true;
+            vid.loop = false; // We handle loop manually
+            vid.className = "w-full h-full object-cover";
+            
+            // Event Listener for Autoplay Sequence
+            vid.onended = () => {
+                if(i === activeIndex) {
+                    rotateNext();
+                }
+            };
+
+            div.appendChild(vid);
+            stage.appendChild(div);
+        });
+        
+        updateCarouselPositions();
+    }
+
+    function updateCarouselPositions() {
+        const items = [
+            document.getElementById('item-0'),
+            document.getElementById('item-1'),
+            document.getElementById('item-2')
+        ];
+        
+        // Calculate positions based on activeIndex
+        // The active item gets .pos-center
+        // The one before gets .pos-left
+        // The one after gets .pos-right
+        
+        const prevIndex = (activeIndex - 1 + 3) % 3;
+        const nextIndex = (activeIndex + 1) % 3;
+        
+        // Reset classes
+        items.forEach(el => el.className = 'carousel-item transition-all duration-700 ease-in-out');
+        
+        // Apply classes
+        items[activeIndex].classList.add('pos-center');
+        items[prevIndex].classList.add('pos-left');
+        items[nextIndex].classList.add('pos-right');
+        
+        // Click handlers for manual navigation
+        items[prevIndex].onclick = () => manualSet(prevIndex);
+        items[nextIndex].onclick = () => manualSet(nextIndex);
+        items[activeIndex].onclick = null; // Center doesn't click to move
+
+        // Handle Playback
+        items.forEach((el, idx) => {
+            const v = el.querySelector('video');
+            if(idx === activeIndex) {
+                // Try to play active with sound (browser might block sound)
+                v.currentTime = 0;
+                v.muted = false; 
+                v.play().catch(e => {
+                    v.muted = true; // Fallback
+                    v.play();
+                });
+            } else {
+                v.pause();
+                v.currentTime = 0;
+            }
+        });
+
+        // Update Indicators
+        [0,1,2].forEach(i => {
+            const ind = document.getElementById(`ind-${i}`);
+            if(i === activeIndex) {
+                ind.className = "w-8 h-2 rounded-full bg-white transition-all";
+            } else {
+                ind.className = "w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all cursor-pointer";
+            }
+        });
+    }
+
+    function rotateNext() {
+        activeIndex = (activeIndex + 1) % 3;
+        updateCarouselPositions();
+    }
+
+    function manualSet(idx) {
+        activeIndex = idx;
+        updateCarouselPositions();
+    }
+
+    // --- STANDARD UTILS ---
+    function detectOS(){
         const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('smartDownloadBtn'); 
         const icon = document.getElementById('osIcon'); 
@@ -350,139 +447,47 @@
             sub.innerText="Apple Silicon & Intel Supported"; 
             btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg"; 
         }
-        
-        // Start Video Sequence
-        setSequence(0);
-    });
-    
-    // Video Logic (Preserved & Enhanced)
-    const videoData = ['visual', 'text', 'audio'];
-    let currentIndex = 0;
-
-    function setSequence(index) {
-        currentIndex = index;
-
-        // Reset all videos & buttons
-        videoData.forEach(type => {
-            const v = document.getElementById(`vid-${type}`);
-            const b = document.getElementById(`btn-${type}`);
-            v.style.opacity = '0';
-            v.style.zIndex = '0';
-            v.pause();
-            b.classList.remove('active');
-        });
-
-        // Activate current
-        const activeType = videoData[index];
-        const activeVid = document.getElementById(`vid-${activeType}`);
-        const activeBtn = document.getElementById(`btn-${activeType}`);
-        
-        activeVid.style.opacity = '1';
-        activeVid.style.zIndex = '10';
-        activeBtn.classList.add('active');
-        
-        activeVid.currentTime = 0;
-        
-        // Handle Autoplay Promise
-        const playPromise = activeVid.play();
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {}).catch(error => { console.log("Auto-play prevented."); });
-        }
-
-        // Sequential Loop
-        activeVid.onended = () => {
-            const nextIndex = (index + 1) % videoData.length;
-            setSequence(nextIndex);
-        };
     }
 
-    // Modal & Auth Logic
+    function checkUser(){
+        const storedUser=localStorage.getItem('whisUser');
+        if(storedUser){
+            try{
+                currentUser=JSON.parse(storedUser);
+                updateNavUI(currentUser);
+                fetchFullUserData(currentUser.googleId);
+            }catch(e){localStorage.removeItem('whisUser');}
+        }
+    }
+    
+    // Auth & UI
     function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill"});}}
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
-    
-    function openProfileModal(){
-        if(currentUser) {
-            const modalAvatar = document.getElementById('modalUserAvatar');
-            if(modalAvatar) modalAvatar.src = currentUser.avatarUrl;
-            document.getElementById('modalUserName').innerText = currentUser.name;
-            fetchFullUserData(currentUser.googleId);
-        }
-        profileModal.classList.remove('hidden');profileModal.classList.add('flex');
-    }
-    
+    function openProfileModal(){if(currentUser) {const modalAvatar = document.getElementById('modalUserAvatar');if(modalAvatar) modalAvatar.src = currentUser.avatarUrl;document.getElementById('modalUserName').innerText = currentUser.name;fetchFullUserData(currentUser.googleId);}profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
     function logout(){localStorage.removeItem('whisUser');location.reload();}
     
-    async function handleGoogleResponse(res){
-        try{
-            const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
-            if(r.ok){
-                const d=await r.json();
-                if(d.success){
-                    localStorage.setItem('whisUser',JSON.stringify(d.user));
-                    currentUser=d.user;
-                    updateNavUI(currentUser);
-                    fetchFullUserData(currentUser.googleId);
-                    closeLoginModal();
-                }
-            }
-        }catch(e){}
-    }
-    
-    function updateNavUI(u){
-        document.getElementById('signInBtn').classList.add('hidden');
-        document.getElementById('userProfileTrigger').classList.remove('hidden');
-        document.getElementById('userProfileTrigger').classList.add('flex');
-        document.getElementById('navUserAvatar').src=u.avatarUrl;
-    }
+    async function handleGoogleResponse(res){try{const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});if(r.ok){const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchFullUserData(currentUser.googleId);closeLoginModal();}}}catch(e){}}
+    function updateNavUI(u){document.getElementById('signInBtn').classList.add('hidden');document.getElementById('userProfileTrigger').classList.remove('hidden');document.getElementById('userProfileTrigger').classList.add('flex');document.getElementById('navUserAvatar').src=u.avatarUrl;}
     
     async function fetchFullUserData(gid){
         try{
-            const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});
-            const d=await r.json();
-            const badge=document.getElementById('navPlanBadge'); 
-            const modalBadge=document.getElementById('modalPlanStatus');
-            
+            const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});const d=await r.json();
+            const badge=document.getElementById('navPlanBadge'); const modalBadge=document.getElementById('modalPlanStatus');
             if(d.active){
-                badge.textContent=(d.tier==='pro_plus'?'ELITE':'PRO'); 
-                badge.className="text-[9px] font-bold text-emerald-400 uppercase tracking-wide";
-                modalBadge.textContent="ACTIVE"; 
-                modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
+                badge.textContent=(d.tier==='pro_plus'?'ELITE':'PRO'); badge.className="text-[9px] font-bold text-emerald-400 uppercase tracking-wide";
+                modalBadge.textContent="ACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
                 document.getElementById('modalExpiryDate').textContent = new Date(d.validUntil).toLocaleDateString();
             } else {
-                badge.textContent="FREE"; 
-                badge.className="text-[9px] font-bold text-slate-500 uppercase tracking-wide";
-                modalBadge.textContent="INACTIVE"; 
-                modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/20";
+                badge.textContent="FREE"; badge.className="text-[9px] font-bold text-slate-500 uppercase tracking-wide";
+                modalBadge.textContent="INACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/20";
                 document.getElementById('modalExpiryDate').textContent = "Forever";
             }
-            
-            document.getElementById('modalUserName').textContent=currentUser.name; 
-            document.getElementById('modalPlanName').textContent=d.tier==='pro_plus'?'Pro + Elite':(d.tier==='pro'?'Pro Plan':'Starter Free');
-            
-            const tbody=document.getElementById('paymentHistoryBody'); 
-            tbody.innerHTML='';
-            
-            if(d.orders && d.orders.length > 0) { 
-                document.getElementById('noPaymentsMsg').classList.add('hidden'); 
-                d.orders.forEach(o=>{ 
-                    const isPaid = o.status === 'paid' || o.status === 'PAID';
-                    const statusColor = isPaid ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20';
-                    const statusText = isPaid ? 'PAID' : 'FAILED';
-                    
-                    tbody.innerHTML+=`
-                    <tr class="border-b border-white/5 last:border-0">
-                        <td class="p-2">${new Date(o.date).toLocaleDateString()}</td>
-                        <td class="p-2">${o.tier==='pro_plus'?'Elite':'Pro'}</td>
-                        <td class="p-2"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${statusColor}">${statusText}</span></td>
-                        <td class="p-2 text-right">₹${o.amount}</td>
-                    </tr>`; 
-                }); 
-            } else { 
-                document.getElementById('noPaymentsMsg').classList.remove('hidden'); 
-            }
+            document.getElementById('modalUserName').textContent=currentUser.name; document.getElementById('modalPlanName').textContent=d.tier==='pro_plus'?'Pro + Elite':(d.tier==='pro'?'Pro Plan':'Starter Free');
+            const tbody=document.getElementById('paymentHistoryBody'); tbody.innerHTML='';
+            if(d.orders && d.orders.length > 0) { document.getElementById('noPaymentsMsg').classList.add('hidden'); d.orders.forEach(o=>{ const isPaid = o.status === 'paid' || o.status === 'PAID'; const statusColor = isPaid ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'; const statusText = isPaid ? 'PAID' : 'FAILED'; tbody.innerHTML+=`<tr class="border-b border-white/5 last:border-0"><td class="p-2">${new Date(o.date).toLocaleDateString()}</td><td class="p-2">${o.tier==='pro_plus'?'Elite':'Pro'}</td><td class="p-2"><span class="text-[9px] font-bold px-1.5 py-0.5 rounded border ${statusColor}">${statusText}</span></td><td class="p-2 text-right">₹${o.amount}</td></tr>`; }); } else { document.getElementById('noPaymentsMsg').classList.remove('hidden'); }
         }catch(e){}
     }
   </script>
