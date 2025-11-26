@@ -1,327 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pricing – Whis</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-          colors: { 
-            page: '#030303', 
-            card: '#0A0A0A', 
-            border: '#1A1A1A',
-            highlight: '#2563EB'
-          },
-          backgroundImage: {
-            'gradient-glow': 'conic-gradient(from 180deg at 50% 50%, #2563EB 0deg, #A855F7 180deg, #2563EB 360deg)',
-          }
+    <meta charset="UTF-8">
+    <title>Pricing Component</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Embed these styles in your main CSS file */
+        :root {
+            --primary: #8b5cf6;
+            --bg-dark: #050505;
         }
-      }
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  
-  <style>
-    body { background-color: #030303; color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-    
-    /* Navigation Glass */
-    .glass-nav { background: rgba(3, 3, 3, 0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-    
-    /* Card Styles */
-    .pricing-card { 
-        background: #0A0A0A; 
-        border: 1px solid #1A1A1A; 
-        transition: transform 0.2s, border-color 0.2s; 
-    }
-    .pricing-card:hover { border-color: #333; transform: translateY(-2px); }
-    
-    .popular-card {
-        background: #0E0E0E;
-        border: 1px solid rgba(37, 99, 235, 0.3);
-        box-shadow: 0 0 40px rgba(37, 99, 235, 0.08);
-        position: relative;
-        z-index: 10;
-    }
-    
-    /* Table Styles */
-    .feature-row { border-bottom: 1px solid #111; }
-    .feature-row:last-child { border-bottom: none; }
-    .check-icon { color: #2563EB; }
-    .dash-icon { color: #333; }
-  </style>
+        body { background: var(--bg-dark); font-family: 'Inter', sans-serif; color: white; margin: 0; }
+
+        .pricing-wrapper {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: flex;
+            flex-wrap: wrap; /* CRITICAL FIX */
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .price-card {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 30px;
+            flex: 1;
+            min-width: 300px; /* Prevents squishing on mobile */
+            max-width: 380px;
+            position: relative;
+        }
+
+        .price-card.elite {
+            border: 2px solid var(--primary);
+            background: #0f0a1e;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .plan-title { font-size: 1.2rem; font-weight: 600; color: #ccc; }
+        .price { font-size: 3rem; font-weight: 800; margin: 10px 0; }
+        .price span { font-size: 1rem; color: #666; font-weight: 400; }
+        
+        .feature-list { list-style: none; padding: 0; margin: 20px 0; }
+        .feature-list li { margin-bottom: 12px; display: flex; align-items: center; color: #bbb; }
+        .feature-list li svg { margin-right: 10px; width: 18px; }
+
+        .btn-price {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .btn-dark { background: #222; color: white; border: 1px solid #444; }
+        .btn-purple { background: var(--primary); color: white; }
+
+        /* Mobile Fix */
+        @media (max-width: 768px) {
+            .price-card.elite { transform: scale(1); margin-top: 20px; margin-bottom: 20px; }
+        }
+    </style>
 </head>
-<body class="selection:bg-blue-600/30">
+<body>
 
-  <nav class="fixed top-0 w-full z-50 glass-nav h-[70px] flex items-center justify-center">
-    <div class="max-w-7xl w-full px-6 flex justify-between items-center">
-      <a href="/" class="flex items-center gap-2 group">
-        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-blue-500/50 transition">
-            <span class="text-xs font-bold tracking-widest text-white">WH</span>
-        </div>
-        <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition">whis.ai</span>
-      </a>
-      
-      <div class="flex items-center gap-4 md:gap-6">
-          <a href="/support" class="text-sm font-medium text-slate-500 hover:text-white transition">Support</a>
-          
-          <div id="authSection" class="flex items-center">
-            <button id="signInBtn" onclick="openLoginModal()" class="text-sm font-medium text-slate-300 hover:text-white transition">Sign In</button>
-            
-            <button id="userProfileTrigger" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/5 hover:border-white/20 transition">
-                <img id="navUserAvatar" src="" class="w-6 h-6 rounded-full bg-slate-800 object-cover" />
-                <span id="navPlanBadge" class="text-[9px] font-bold text-blue-400 uppercase tracking-wide">PRO</span>
-            </button>
-          </div>
-      </div>
-    </div>
-  </nav>
-
-  <section class="pt-40 pb-16 px-6 text-center">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-6">
-        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> ROI Focused
-    </div>
-    <h1 class="text-4xl md:text-6xl font-medium mb-6 text-white tracking-tight">Invest in your productivity.</h1>
-    <p class="text-slate-400 text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">Secure your success. Master every technical meeting with confidence and precision.</p>
-    
-    <div class="inline-flex bg-[#111] p-1 rounded-lg border border-white/5 mb-16">
-      <button id="btnMonthly" class="px-6 py-2 rounded-md text-sm font-medium bg-white text-black shadow-xl transition-all" onclick="setCycle('monthly')">Monthly</button>
-      <button id="btnAnnual" class="px-6 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-[10px] ml-1 uppercase tracking-wider font-bold">SAVE 50%</span></button>
-    </div>
-
-    <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-6 items-start">
-      
-      <div class="pricing-card rounded-2xl p-8 text-left flex flex-col h-full">
-        <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">Starter</h3>
-        <div class="mb-6"><span class="text-4xl font-medium text-white">Free</span></div>
-        <p class="text-sm text-slate-500 mb-8 min-h-[40px]">Perfect for testing the waters and setting up your environment.</p>
-        <button onclick="window.location.href='/'" class="w-full py-3 rounded-lg border border-white/10 text-slate-300 hover:bg-white/5 text-sm font-medium transition mb-8">Download App</button>
-        <div class="space-y-3 text-xs text-slate-400 font-medium">
-          <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Responses / day</p>
-          <p class="flex gap-3"><i class="fa-solid fa-microphone"></i> Basic Audio Analysis</p>
-          <p class="flex gap-3"><i class="fa-solid fa-clock"></i> 3-Day History</p>
-        </div>
-      </div>
-
-      <div class="popular-card rounded-2xl p-8 text-left flex flex-col relative">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full border border-blue-400 shadow-lg shadow-blue-900/50 tracking-wide">MOST POPULAR</div>
-        <h3 class="text-sm font-semibold text-blue-400 uppercase tracking-wider mb-2">Pro</h3>
-        <div class="mb-6 flex items-baseline gap-1"><span class="text-5xl font-medium text-white" id="pricePro">₹999</span><span class="text-slate-600 price-period">/mo</span></div>
-        <p class="text-sm text-slate-400 mb-8 min-h-[40px]">For professionals managing frequent technical calls.</p>
-        <button onclick="initiatePayment('pro')" class="w-full py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 transition shadow-lg shadow-blue-900/20 mb-8">Upgrade to Pro</button>
-        <div class="space-y-3 text-xs text-slate-300 font-medium">
-          <p class="flex gap-3"><i class="fa-solid fa-infinity text-blue-500"></i> Unlimited Responses</p>
-          <p class="flex gap-3"><i class="fa-solid fa-desktop text-blue-500"></i> <strong>Visual Context</strong> Analysis</p>
-          <p class="flex gap-3"><i class="fa-solid fa-bolt text-blue-500"></i> Turbo Latency</p>
-        </div>
-      </div>
-
-      <div class="pricing-card rounded-2xl p-8 text-left flex flex-col h-full relative overflow-hidden group">
-        <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-900/20 blur-[80px] group-hover:bg-purple-800/30 transition duration-700"></div>
-        <h3 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-2">Elite <i class="fa-solid fa-shield-halved"></i></h3>
-        <div class="mb-6 flex items-baseline gap-1"><span class="text-4xl font-medium text-white" id="priceStealth">₹2499</span><span class="text-slate-600 price-period">/mo</span></div>
-        <p class="text-sm text-slate-500 mb-8 min-h-[40px]">Maximum privacy and seamless integration for high-stakes roles.</p>
-        <button onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-lg bg-white/5 text-white border border-white/10 font-medium hover:bg-white/10 transition mb-8">Get Elite</button>
-        <div class="space-y-3 text-xs text-slate-400 relative z-10 font-medium">
-          <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">Includes Pro, plus:</p>
-          <p class="flex gap-3 text-purple-400"><i class="fa-solid fa-eye-slash"></i> Fully Private Operation</p>
-          <p class="flex gap-3"><i class="fa-solid fa-layer-group"></i> Private HUD Overlay</p>
-          <p class="flex gap-3"><i class="fa-solid fa-keyboard"></i> <strong>Direct Input Mode</strong></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="py-20 px-6 bg-[#050505] border-t border-white/5">
-      <div class="max-w-4xl mx-auto">
-          <h2 class="text-2xl font-medium text-white mb-12 text-center">Compare Features</h2>
-          
-          <div class="overflow-x-auto">
-              <table class="w-full text-sm text-left">
-                  <thead class="text-xs text-slate-500 uppercase bg-white/5">
-                      <tr>
-                          <th class="px-6 py-4 rounded-tl-lg font-medium">Feature</th>
-                          <th class="px-6 py-4 font-medium">Starter</th>
-                          <th class="px-6 py-4 font-medium text-blue-400">Pro</th>
-                          <th class="px-6 py-4 rounded-tr-lg font-medium text-purple-400">Elite</th>
-                      </tr>
-                  </thead>
-                  <tbody class="text-slate-400">
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">System Audio Capture</td><td class="px-6 py-4"><i class="fa-solid fa-check check-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check check-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check check-icon"></i></td></tr>
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">Visual OCR</td><td class="px-6 py-4 text-xs">Limited (3/day)</td><td class="px-6 py-4"><i class="fa-solid fa-check check-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check check-icon"></i></td></tr>
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">Direct Input Mode</td><td class="px-6 py-4"><i class="fa-solid fa-minus dash-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-minus dash-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-purple-400"></i></td></tr>
-                      
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">Daily AI Responses</td><td class="px-6 py-4">10</td><td class="px-6 py-4 text-white font-bold">Unlimited</td><td class="px-6 py-4 text-white font-bold">Unlimited</td></tr>
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">History Retention</td><td class="px-6 py-4">3 Days</td><td class="px-6 py-4">Unlimited</td><td class="px-6 py-4">Unlimited</td></tr>
-                      
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">Private HUD Window</td><td class="px-6 py-4"><i class="fa-solid fa-minus dash-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-minus dash-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-purple-400"></i></td></tr>
-                      <tr class="feature-row bg-card"><td class="px-6 py-4 text-white font-medium">Admin Log Scrubbing</td><td class="px-6 py-4"><i class="fa-solid fa-minus dash-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-minus dash-icon"></i></td><td class="px-6 py-4"><i class="fa-solid fa-check text-purple-400"></i></td></tr>
-                  </tbody>
-              </table>
-          </div>
-      </div>
-  </section>
-
-  <section class="py-20 px-6 max-w-3xl mx-auto">
-      <h2 class="text-2xl font-medium text-white mb-8 text-center">Frequently Asked Questions</h2>
-      <div class="space-y-4">
-          <div class="bg-card border border-white/5 rounded-lg p-6">
-              <h3 class="text-white font-medium mb-2">Is the tool visible to others in meetings?</h3>
-              <p class="text-sm text-slate-400">No. Whis uses internal audio loopback, so it analyzes the conversation without joining the call as a bot. The "Elite" plan adds a Private HUD that does not appear in standard screen sharing contexts.</p>
-          </div>
-          <div class="bg-card border border-white/5 rounded-lg p-6">
-              <h3 class="text-white font-medium mb-2">How does the Visual Context feature work?</h3>
-              <p class="text-sm text-slate-400">Pro and Elite users can use the "Snip" tool to capture any part of their screen (diagrams, code, text). Whis extracts the text (OCR) instantly to provide relevant insights.</p>
-          </div>
-          <div class="bg-card border border-white/5 rounded-lg p-6">
-              <h3 class="text-white font-medium mb-2">Can I cancel anytime?</h3>
-              <p class="text-sm text-slate-400">Yes. You can cancel your subscription from your profile at any time. Your access will remain active until the end of the billing period.</p>
-          </div>
-      </div>
-  </section>
-
-  <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl p-8 max-w-sm w-full text-center relative shadow-2xl"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-lg font-medium text-white mb-6">Sign in to Upgrade</h3><div id="googleBtnContainer" class="flex justify-center"></div></div></div>
-  <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl"><div class="p-6 border-b border-white/5 flex justify-between items-center"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div class="p-6 space-y-6"><div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div><button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button></div></div></div>
-
-  <script>
-    const BACKEND_URL="https://whis-backend.onrender.com";
-    const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-    let currentCycle='monthly';
-    let currentUser=null; 
-    let currentTier = 'free';
-
-    function setCycle(c){
-        currentCycle=c;
-        const btnM=document.getElementById('btnMonthly');const btnA=document.getElementById('btnAnnual');
-        if(c==='monthly'){
-            btnM.className="px-6 py-2 rounded-md text-sm font-medium bg-white text-black shadow-xl transition-all";
-            btnA.className="px-6 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-white transition-all";
-            
-            document.getElementById('pricePro').innerText='₹999';
-            document.getElementById('priceStealth').innerText='₹2499';
-            
-            document.querySelectorAll('.price-period').forEach(el => el.innerText = '/mo');
-        }else{
-            btnA.className="px-6 py-2 rounded-md text-sm font-medium bg-white text-black shadow-xl transition-all";
-            btnM.className="px-6 py-2 rounded-md text-sm font-medium text-slate-500 hover:text-white transition-all";
-            
-            document.getElementById('pricePro').innerText='₹499';
-            document.getElementById('priceStealth').innerText='₹999';
-            
-            document.querySelectorAll('.price-period').forEach(el => el.innerText = '/mo');
-        }
-    }
-
-    async function fetchUserStatus() {
-        if(!currentUser) return;
-        try {
-            const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
-            const d = await r.json();
-            if(d.active) currentTier = d.tier; 
-            else currentTier = 'free';
-            
-            // Updates Profile Modal Data (hidden)
-            const planName = d.tier==='pro_plus'?'Pro + Elite':(d.tier==='pro'?'Pro Plan':'Starter Free');
-            const badge=document.getElementById('navPlanBadge'); const modalBadge=document.getElementById('modalPlanStatus');
-            if(d.active){
-                badge.textContent=(d.tier==='pro_plus'?'ELITE':'PRO'); badge.className="text-[9px] font-bold text-emerald-400 uppercase tracking-wide";
-                modalBadge.textContent="ACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
-                document.getElementById('modalExpiryDate').textContent = new Date(d.validUntil).toLocaleDateString();
-            } else {
-                badge.textContent="FREE"; badge.className="text-[9px] font-bold text-slate-500 uppercase tracking-wide";
-                modalBadge.textContent="INACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/20";
-                document.getElementById('modalExpiryDate').textContent = "Forever";
-            }
-            document.getElementById('modalUserName').textContent=currentUser.name; document.getElementById('modalPlanName').textContent=planName;
-        } catch(e) {}
-    }
-
-    async function initiatePayment(targetTier){
-        if(!currentUser){openLoginModal();return;}
+    <div class="pricing-wrapper">
+        <h2 style="text-align:center; font-size:2.5rem; margin-bottom:40px;">Pricing</h2>
         
-        if(currentTier === 'pro_plus') { alert("You are already on the highest plan (Elite)."); return; }
-        if(currentTier === 'pro' && targetTier === 'pro') { alert("You already have an active Pro subscription."); return; }
+        <div class="pricing-grid">
+            <div class="price-card">
+                <div class="plan-title">Basic</div>
+                <div class="price">Free</div>
+                <ul class="feature-list">
+                    <li><i data-lucide="check"></i> Standard Speed</li>
+                    <li><i data-lucide="check"></i> Manual Typing</li>
+                    <li style="color:#ef4444; background:rgba(239,68,68,0.1); padding:5px; border-radius:4px;">
+                        <i data-lucide="eye"></i> Visible on Screen
+                    </li>
+                </ul>
+                <a href="#" class="btn-price btn-dark">Get Basic</a>
+            </div>
 
-        const btn=event.target;const orig=btn.innerText;btn.innerText="Processing...";
-        
-        try{
-            // 1. Create Order
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({googleId:currentUser.googleId, tier:targetTier, cycle:currentCycle})
-            });
-            const data = await res.json();
-            
-            if(!data.order_id){ throw new Error("Order creation failed"); }
+            <div class="price-card elite">
+                <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--primary); color:white; padding:4px 12px; font-size:12px; border-radius:12px; font-weight:bold;">RECOMMENDED</div>
+                <div class="plan-title" style="color:var(--primary)">Elite Stealth</div>
+                <div class="price">$49<span>/mo</span></div>
+                <ul class="feature-list">
+                    <li><i data-lucide="zap" style="color:#fbbf24"></i> Instant GPT-4o</li>
+                    <li><i data-lucide="check" style="color:var(--primary)"></i> Real-time Audio</li>
+                    <li style="color:#4ade80; background:rgba(74,222,128,0.1); padding:5px; border-radius:4px; font-weight:bold;">
+                        <i data-lucide="ghost"></i> Ghost Mode (Invisible)
+                    </li>
+                </ul>
+                <a href="#" class="btn-price btn-purple">Get Elite</a>
+            </div>
 
-            // 2. Open Razorpay Checkout
-            const options = {
-                "key": data.key_id,
-                "amount": data.amount,
-                "currency": data.currency,
-                "name": "Whis AI",
-                "description": targetTier === 'pro' ? "Pro Plan Upgrade" : "Elite Plan Upgrade",
-                "image": "https://whis.ai/logo.png",
-                "order_id": data.order_id,
-                "handler": function (response){
-                    // 3. Redirect to Verification Page on Success (Clean URL)
-                    window.location.href = `payment?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
-                },
-                "prefill": {
-                    "name": data.user_name,
-                    "email": data.user_email,
-                    "contact": data.user_contact
-                },
-                "theme": {
-                    "color": "#2563EB"
-                }
-            };
-            
-            const rzp1 = new Razorpay(options);
-            rzp1.on('payment.failed', function (response){
-                alert("Payment Failed: " + response.error.description);
-            });
-            rzp1.open();
+            <div class="price-card">
+                <div class="plan-title">Pro</div>
+                <div class="price">$19<span>/mo</span></div>
+                <ul class="feature-list">
+                    <li><i data-lucide="check"></i> Fast Speed</li>
+                    <li><i data-lucide="check"></i> Audio Listening</li>
+                    <li style="color:#f87171; background:rgba(239,68,68,0.1); padding:5px; border-radius:4px;">
+                        <i data-lucide="alert-triangle"></i> Visible on Screen
+                    </li>
+                </ul>
+                <a href="#" class="btn-price btn-dark">Get Pro</a>
+            </div>
+        </div>
+    </div>
 
-        } catch(e){
-            console.error(e);
-            alert("Unable to initiate payment. Please try again.");
-        }
-        btn.innerText=orig;
-    }
-
-    // Auth & UI State Management
-    function updateNavUI(u){
-        document.getElementById('signInBtn').classList.add('hidden');
-        const p = document.getElementById('userProfileTrigger');
-        p.classList.remove('hidden'); p.classList.add('flex');
-        document.getElementById('navUserAvatar').src = u.avatarUrl;
-    }
-
-    const loginModal=document.getElementById('loginModal'),profileModal=document.getElementById('profileModal');
-    function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large"});}}
-    function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
-    function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
-    function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
-    function logout(){localStorage.removeItem('whisUser');location.reload();}
-
-    async function handleGoogleRes(res){const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchUserStatus();closeLoginModal();}}
-    
-    document.addEventListener("DOMContentLoaded", () => {
-        const uStr = localStorage.getItem('whisUser');
-        if (uStr) {
-            currentUser = JSON.parse(uStr);
-            updateNavUI(currentUser);
-            fetchUserStatus();
-        }
-    });
-  </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
