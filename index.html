@@ -19,10 +19,12 @@
             'float': 'float 8s ease-in-out infinite',
             'shimmer': 'shimmer 2.5s linear infinite',
             'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'scrolling': 'scrolling 40s linear infinite',
           },
           keyframes: {
             float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
-            shimmer: { from: { backgroundPosition: '0 0' }, to: { backgroundPosition: '-200% 0' } }
+            shimmer: { from: { backgroundPosition: '0 0' }, to: { backgroundPosition: '-200% 0' } },
+            scrolling: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } }
           }
         }
       }
@@ -35,10 +37,10 @@
   <style>
     body { background-color: #020005; color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     
-    /* 1. CAROUSEL STYLES (The Core Feature) */
+    /* CAROUSEL STYLES */
     .carousel-stage {
         position: relative;
-        height: 500px; /* Adjust based on video aspect ratio */
+        height: 500px;
         width: 100%;
         display: flex;
         justify-content: center;
@@ -49,7 +51,7 @@
 
     .carousel-item {
         position: absolute;
-        width: 65%; /* Width of the MacBook */
+        width: 65%;
         max-width: 800px;
         aspect-ratio: 16/10;
         transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -59,7 +61,6 @@
         box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
     
-    /* Center Position (Active) - Looks like a MacBook */
     .pos-center {
         z-index: 30;
         transform: translateX(0) scale(1);
@@ -67,54 +68,19 @@
         border: 1px solid #333;
         box-shadow: 0 0 0 1px #111, 0 30px 60px -10px rgba(0,0,0,0.8), 0 0 100px rgba(59, 130, 246, 0.15);
     }
-    /* Add MacBook Bezel to Center Item Only */
-    .pos-center::after {
-        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 24px;
-        background: #1a1a1a; border-top: 1px solid #333; z-index: 40;
-    }
-    .pos-center::before {
-        content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 16px;
-        background: #0d0d0d; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; z-index: 40;
-    }
+    .pos-center::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 24px; background: #1a1a1a; border-top: 1px solid #333; z-index: 40; }
+    .pos-center::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 120px; height: 16px; background: #0d0d0d; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; z-index: 40; }
 
-    /* Left Position (Preview) */
-    .pos-left {
-        z-index: 10;
-        transform: translateX(-65%) scale(0.75) rotateY(25deg);
-        opacity: 0.3;
-        filter: blur(2px) grayscale(100%);
-        border: 1px solid rgba(255,255,255,0.1);
-        cursor: pointer;
-    }
+    .pos-left { z-index: 10; transform: translateX(-65%) scale(0.75) rotateY(25deg); opacity: 0.3; filter: blur(2px) grayscale(100%); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
     .pos-left:hover { opacity: 0.5; filter: blur(0px) grayscale(50%); }
 
-    /* Right Position (Preview) */
-    .pos-right {
-        z-index: 10;
-        transform: translateX(65%) scale(0.75) rotateY(-25deg);
-        opacity: 0.3;
-        filter: blur(2px) grayscale(100%);
-        border: 1px solid rgba(255,255,255,0.1);
-        cursor: pointer;
-    }
+    .pos-right { z-index: 10; transform: translateX(65%) scale(0.75) rotateY(-25deg); opacity: 0.3; filter: blur(2px) grayscale(100%); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
     .pos-right:hover { opacity: 0.5; filter: blur(0px) grayscale(50%); }
 
-
-    /* 2. GLASS UI */
+    /* UTILS */
     .glass-nav { background: rgba(2, 0, 5, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .glass-card { 
-        background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.05); 
-        transition: all 0.4s ease;
-    }
-    .glass-card:hover { 
-        border-color: rgba(255,255,255,0.1); 
-        transform: translateY(-5px); 
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); 
-    }
-    
-    /* 3. BUTTONS & TEXT */
+    .glass-card { background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s ease; }
+    .glass-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-5px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); }
     .gradient-text { background: linear-gradient(to bottom, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .btn-shine { background: linear-gradient(110deg, #0f172a 45%, #334155 55%, #0f172a); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
   </style>
@@ -132,13 +98,11 @@
         <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-white/30 transition"><span class="text-xs font-bold text-white tracking-widest">WH</span></div>
         <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition">whis.ai</span>
       </a>
-      
       <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md absolute left-1/2 -translate-x-1/2">
         <a href="#features" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Features</a>
-        <a href="#comparison" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Comparison</a>
+        <a href="#security" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Security</a>
         <a href="/pricing" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Pricing</a>
       </div>
-
       <div class="flex items-center gap-4">
           <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-medium text-slate-400 hover:text-white transition">Sign In</button>
           <button onclick="openDownloadModal()" class="px-5 py-2 rounded-full bg-white text-black text-xs font-bold hover:bg-slate-200 transition">Get App</button>
@@ -170,18 +134,23 @@
       <p id="osSubtext" class="mt-4 text-[10px] text-slate-600 font-mono uppercase tracking-widest opacity-60">Apple Silicon & Intel Supported</p>
     </div>
 
-    <div class="w-full max-w-[1400px] mx-auto px-6 relative z-20 mb-32">
-        <div class="carousel-stage" id="carouselStage">
-            </div>
+    <div class="w-full max-w-[1400px] mx-auto px-6 relative z-20 mb-10">
+        <div class="carousel-stage" id="carouselStage"></div>
         
-        <div class="flex justify-center mt-12 gap-2">
-            <button onclick="manualSet(0)" id="ind-0" class="w-2 h-2 rounded-full bg-white transition-all"></button>
-            <button onclick="manualSet(1)" id="ind-1" class="w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all"></button>
-            <button onclick="manualSet(2)" id="ind-2" class="w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all"></button>
+        <div class="flex flex-col items-center mt-12 gap-4">
+            <div id="activeFeatureLabel" class="text-sm font-medium text-blue-400 uppercase tracking-widest bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full animate-pulse">
+                Initializing...
+            </div>
+            
+            <div class="flex justify-center gap-2">
+                <button onclick="manualSet(0)" id="ind-0" class="w-2 h-2 rounded-full bg-white transition-all"></button>
+                <button onclick="manualSet(1)" id="ind-1" class="w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all"></button>
+                <button onclick="manualSet(2)" id="ind-2" class="w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all"></button>
+            </div>
         </div>
     </div>
 
-    <div class="w-full max-w-4xl px-6 text-center">
+    <div class="w-full max-w-4xl px-6 text-center mt-20">
         <p class="text-xs font-bold text-slate-700 uppercase tracking-[0.2em] mb-8">Trusted by Engineers at</p>
         <div class="flex justify-between items-center opacity-30 grayscale hover:grayscale-0 transition duration-700">
             <i class="fa-brands fa-google text-xl hover:text-white transition"></i>
@@ -201,43 +170,157 @@
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
               <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
                   <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 mb-6 text-blue-400"><i class="fa-solid fa-ghost"></i></div>
                   <h3 class="text-lg font-medium text-white mb-3">Phantom Layer</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">The overlay renders perfectly for you, but is completely invisible to Zoom, Teams, or Meet screenshares.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed">Invisible to screenshare. Our overlay renders only for you.</p>
               </div>
-
               <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
                   <div class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20 mb-6 text-red-400"><i class="fa-solid fa-ban"></i></div>
                   <h3 class="text-lg font-medium text-white mb-3">Zero Footprint</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Runs purely in the background. No Dock icon. No Taskbar item. No Alt-Tab presence. Total stealth.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed">Runs purely in the background. No Dock icon. No Taskbar item.</p>
               </div>
-
               <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
                   <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 mb-6 text-emerald-400"><i class="fa-solid fa-wave-square"></i></div>
                   <h3 class="text-lg font-medium text-white mb-3">Sonic Sync</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Listens to system audio loopback. It hears the technical question and prepares the answer instantly.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed">Real-time audio loopback listening for instant context awareness.</p>
               </div>
-
               <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
                   <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 mb-6 text-purple-400"><i class="fa-solid fa-expand"></i></div>
                   <h3 class="text-lg font-medium text-white mb-3">Visual Context</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Use the snip tool to capture coding challenges or diagrams. Instant OCR and logic parsing.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed">Snip coding challenges or diagrams. Instant OCR and logic parsing.</p>
               </div>
-
               <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
                   <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 mb-6 text-indigo-400"><i class="fa-solid fa-terminal"></i></div>
                   <h3 class="text-lg font-medium text-white mb-3">Direct Command</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Type complex queries directly into the overlay. Get code snippets and architectural advice instantly.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed">Type complex queries directly. Get code snippets instantly.</p>
               </div>
-
               <div class="glass-card rounded-3xl p-8 text-center flex flex-col items-center">
                   <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 mb-6 text-orange-400"><i class="fa-solid fa-globe"></i></div>
                   <h3 class="text-lg font-medium text-white mb-3">Universal Translator</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Speak in any language. Whis auto-detects, translates to English, and processes the answer.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed">Speak in any language. Whis auto-detects and processes in English.</p>
               </div>
+          </div>
+      </div>
+  </section>
 
+  <section id="security" class="py-32 bg-[#020005] border-t border-white/5 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+      <div class="max-w-7xl mx-auto px-6">
+          <div class="flex flex-col md:flex-row items-center gap-16">
+              <div class="flex-1 space-y-8">
+                  <h2 class="text-3xl md:text-4xl font-medium text-white">The Architecture of Silence.</h2>
+                  <p class="text-slate-400 text-lg leading-relaxed">We understand the stakes. That's why Whis is built with a <strong>Local-First Privacy Architecture</strong>.</p>
+                  
+                  <div class="space-y-6">
+                      <div class="flex gap-4">
+                          <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10"><i class="fa-solid fa-shield-halved text-emerald-400 text-xs"></i></div>
+                          <div>
+                              <h4 class="text-white font-medium">Ephemeral Processing</h4>
+                              <p class="text-sm text-slate-500 mt-1">Audio and video data is processed in RAM and discarded immediately after inference. Nothing is written to disk.</p>
+                          </div>
+                      </div>
+                      <div class="flex gap-4">
+                          <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10"><i class="fa-solid fa-lock text-emerald-400 text-xs"></i></div>
+                          <div>
+                              <h4 class="text-white font-medium">No Training Loop</h4>
+                              <p class="text-sm text-slate-500 mt-1">Your data is never used to train our models. Your interview context remains strictly yours.</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="flex-1">
+                  <div class="glass-card p-1 rounded-2xl bg-gradient-to-br from-white/10 to-transparent">
+                      <div class="bg-black/80 rounded-xl p-8 border border-white/5">
+                          <div class="flex justify-between items-center mb-6 text-xs text-slate-500 uppercase tracking-widest font-mono">
+                              <span>System Status</span>
+                              <span class="text-emerald-500">● Secure</span>
+                          </div>
+                          <div class="space-y-3 font-mono text-xs">
+                              <div class="flex justify-between"><span class="text-slate-400">Audio Stream</span><span class="text-emerald-400">Encrypted (TLS 1.3)</span></div>
+                              <div class="flex justify-between"><span class="text-slate-400">Visual Buffer</span><span class="text-emerald-400">Local Memory Only</span></div>
+                              <div class="flex justify-between"><span class="text-slate-400">Cloud Logs</span><span class="text-red-400">Disabled</span></div>
+                              <div class="flex justify-between"><span class="text-slate-400">App Visibility</span><span class="text-purple-400">Hidden</span></div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+  
+  <section class="py-32 border-t border-white/5 bg-[#03000a]">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+          <h2 class="text-3xl font-medium text-white mb-16">Engineered for High-Stakes Roles</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="p-6 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition">
+                  <i class="fa-solid fa-code text-blue-400 text-2xl mb-4"></i>
+                  <h3 class="text-sm font-bold text-white">Software Engineers</h3>
+              </div>
+              <div class="p-6 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition">
+                  <i class="fa-solid fa-chart-line text-purple-400 text-2xl mb-4"></i>
+                  <h3 class="text-sm font-bold text-white">Product Managers</h3>
+              </div>
+              <div class="p-6 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition">
+                  <i class="fa-solid fa-database text-emerald-400 text-2xl mb-4"></i>
+                  <h3 class="text-sm font-bold text-white">Data Scientists</h3>
+              </div>
+              <div class="p-6 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition">
+                  <i class="fa-solid fa-server text-orange-400 text-2xl mb-4"></i>
+                  <h3 class="text-sm font-bold text-white">DevOps</h3>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="py-20 border-t border-white/5 overflow-hidden bg-black relative">
+      <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black to-transparent z-10"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black to-transparent z-10"></div>
+      
+      <div class="flex w-[200%] animate-scrolling">
+          <div class="flex gap-8 px-4">
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"The screenshare feature is actual magic. It saved me during a system design round at Meta."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— SDE II, Meta</p>
+              </div>
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"I was skeptical about the 'no dock icon' claim, but it really is invisible. Total peace of mind."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— Backend Lead, Uber</p>
+              </div>
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"English isn't my first language. The translator feature leveled the playing field for me."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— Full Stack Dev, Bangalore</p>
+              </div>
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"Worth every penny of the Elite plan. The latency is practically zero."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— DevOps Engineer, London</p>
+              </div>
+          </div>
+          <div class="flex gap-8 px-4">
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"The screenshare feature is actual magic. It saved me during a system design round at Meta."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— SDE II, Meta</p>
+              </div>
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"I was skeptical about the 'no dock icon' claim, but it really is invisible. Total peace of mind."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— Backend Lead, Uber</p>
+              </div>
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"English isn't my first language. The translator feature leveled the playing field for me."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— Full Stack Dev, Bangalore</p>
+              </div>
+              <div class="w-80 p-6 rounded-xl bg-white/5 border border-white/5 flex-shrink-0">
+                  <div class="flex text-emerald-400 text-xs mb-3"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 italic">"Worth every penny of the Elite plan. The latency is practically zero."</p>
+                  <p class="text-xs text-slate-500 mt-4 font-bold">— DevOps Engineer, London</p>
+              </div>
           </div>
       </div>
   </section>
@@ -314,17 +397,14 @@
     const profileModal=document.getElementById('profileModal');
     let currentUser=null;
     
-    // CAROUSEL LOGIC (3D SYMMETRICAL)
+    // CAROUSEL LOGIC
     const videos = [
-        { src: 'visual.mp4', type: 'video/mp4' },
-        { src: 'text.mp4', type: 'video/mp4' },
-        { src: 'audio.mp4', type: 'video/mp4' }
+        { src: 'visual.mp4', label: 'Now Playing: Visual Context Mode' },
+        { src: 'text.mp4', label: 'Now Playing: Direct Command Mode' },
+        { src: 'audio.mp4', label: 'Now Playing: Sonic Sync Mode' }
     ];
+    let activeIndex = 0;
     
-    // Pointers to the 3 slots
-    let activeIndex = 0; // 0, 1, 2
-    
-    // Initialize
     document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
         detectOS();
@@ -333,28 +413,17 @@
 
     function initCarousel() {
         const stage = document.getElementById('carouselStage');
-        stage.innerHTML = ''; // Clear
+        stage.innerHTML = ''; 
         
-        // Create 3 video elements
         videos.forEach((v, i) => {
             const div = document.createElement('div');
             div.className = 'carousel-item transition-all duration-700 ease-in-out';
             div.id = `item-${i}`;
-            
             const vid = document.createElement('video');
             vid.src = v.src;
-            vid.muted = true; // Start muted
-            vid.playsInline = true;
-            vid.loop = false; // We handle loop manually
+            vid.muted = true; vid.playsInline = true; vid.loop = false;
             vid.className = "w-full h-full object-cover";
-            
-            // Event Listener for Autoplay Sequence
-            vid.onended = () => {
-                if(i === activeIndex) {
-                    rotateNext();
-                }
-            };
-
+            vid.onended = () => { if(i === activeIndex) rotateNext(); };
             div.appendChild(vid);
             stage.appendChild(div);
         });
@@ -363,104 +432,52 @@
     }
 
     function updateCarouselPositions() {
-        const items = [
-            document.getElementById('item-0'),
-            document.getElementById('item-1'),
-            document.getElementById('item-2')
-        ];
-        
-        // Calculate positions based on activeIndex
-        // The active item gets .pos-center
-        // The one before gets .pos-left
-        // The one after gets .pos-right
-        
+        const items = [document.getElementById('item-0'), document.getElementById('item-1'), document.getElementById('item-2')];
         const prevIndex = (activeIndex - 1 + 3) % 3;
         const nextIndex = (activeIndex + 1) % 3;
         
-        // Reset classes
         items.forEach(el => el.className = 'carousel-item transition-all duration-700 ease-in-out');
-        
-        // Apply classes
         items[activeIndex].classList.add('pos-center');
         items[prevIndex].classList.add('pos-left');
         items[nextIndex].classList.add('pos-right');
         
-        // Click handlers for manual navigation
         items[prevIndex].onclick = () => manualSet(prevIndex);
         items[nextIndex].onclick = () => manualSet(nextIndex);
-        items[activeIndex].onclick = null; // Center doesn't click to move
+        items[activeIndex].onclick = null;
 
-        // Handle Playback
         items.forEach((el, idx) => {
             const v = el.querySelector('video');
             if(idx === activeIndex) {
-                // Try to play active with sound (browser might block sound)
-                v.currentTime = 0;
-                v.muted = false; 
-                v.play().catch(e => {
-                    v.muted = true; // Fallback
-                    v.play();
-                });
-            } else {
-                v.pause();
-                v.currentTime = 0;
-            }
+                v.currentTime = 0; v.muted = false; 
+                v.play().catch(e => { v.muted = true; v.play(); });
+            } else { v.pause(); v.currentTime = 0; }
         });
 
-        // Update Indicators
         [0,1,2].forEach(i => {
-            const ind = document.getElementById(`ind-${i}`);
-            if(i === activeIndex) {
-                ind.className = "w-8 h-2 rounded-full bg-white transition-all";
-            } else {
-                ind.className = "w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all cursor-pointer";
-            }
+            document.getElementById(`ind-${i}`).className = (i === activeIndex) ? "w-8 h-2 rounded-full bg-white transition-all" : "w-2 h-2 rounded-full bg-white/20 hover:bg-white/50 transition-all cursor-pointer";
         });
+        
+        // Update Label
+        const lbl = document.getElementById('activeFeatureLabel');
+        lbl.innerText = videos[activeIndex].label;
+        lbl.className = "text-sm font-medium text-blue-400 uppercase tracking-widest bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full animate-pulse transition-all duration-300";
     }
 
-    function rotateNext() {
-        activeIndex = (activeIndex + 1) % 3;
-        updateCarouselPositions();
-    }
+    function rotateNext() { activeIndex = (activeIndex + 1) % 3; updateCarouselPositions(); }
+    function manualSet(idx) { activeIndex = idx; updateCarouselPositions(); }
 
-    function manualSet(idx) {
-        activeIndex = idx;
-        updateCarouselPositions();
-    }
-
-    // --- STANDARD UTILS ---
     function detectOS(){
         const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('smartDownloadBtn'); 
         const icon = document.getElementById('osIcon'); 
         const text = document.getElementById('osText'); 
         const sub = document.getElementById('osSubtext');
-        
-        if (p.includes('win')||ua.includes('win')) { 
-            text.innerText="Download for Windows"; 
-            icon.className="fa-brands fa-windows"; 
-            sub.innerText="Windows 10 & 11 Supported"; 
-            btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe"; 
-        } else { 
-            text.innerText="Download for macOS"; 
-            icon.className="fa-brands fa-apple"; 
-            sub.innerText="Apple Silicon & Intel Supported"; 
-            btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg"; 
-        }
+        if (p.includes('win')||ua.includes('win')) { text.innerText="Download for Windows"; icon.className="fa-brands fa-windows"; sub.innerText="Windows 10 & 11 Supported"; btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe"; }
+        else { text.innerText="Download for macOS"; icon.className="fa-brands fa-apple"; sub.innerText="Apple Silicon & Intel Supported"; btn.onclick=()=>window.location.href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg"; }
     }
 
-    function checkUser(){
-        const storedUser=localStorage.getItem('whisUser');
-        if(storedUser){
-            try{
-                currentUser=JSON.parse(storedUser);
-                updateNavUI(currentUser);
-                fetchFullUserData(currentUser.googleId);
-            }catch(e){localStorage.removeItem('whisUser');}
-        }
-    }
+    function checkUser(){ const storedUser=localStorage.getItem('whisUser'); if(storedUser){ try{ currentUser=JSON.parse(storedUser); updateNavUI(currentUser); fetchFullUserData(currentUser.googleId); }catch(e){localStorage.removeItem('whisUser');} } }
     
-    // Auth & UI
     function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleResponse});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill"});}}
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
