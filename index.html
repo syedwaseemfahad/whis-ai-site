@@ -21,21 +21,18 @@
             },
             colors: { 
               void: '#000000', 
-              charcoal: '#0A0A0A',
-              plasma: '#3b82f6', /* Electric Blue */
-              volt: '#60a5fa',   /* Lighter Bolt Color */
-              emerald: '#10b981',
-              purple: '#8b5cf6',
+              charcoal: '#050505',
+              volt: '#3b82f6',   /* The Lightning Blue */
+              accent: '#6366f1',
             },
             backgroundImage: {
-              'aurora': 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 0% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)',
-              'glass-gradient': 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
-              'shimmer-gradient': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
+              'aurora': 'radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.2) 0%, transparent 60%)',
+              'glass': 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 100%)',
             },
             animation: { 
-              'blob': 'blob 20s infinite',
-              'pulse-fast': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'blob': 'blob 15s infinite',
               'ticker': 'ticker 40s linear infinite',
+              'float': 'float 6s ease-in-out infinite',
             },
             keyframes: {
               blob: {
@@ -45,6 +42,7 @@
                 '100%': { transform: 'translate(0px, 0px) scale(1)' },
               },
               ticker: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+              float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
             }
           }
         }
@@ -52,26 +50,28 @@
     </script>
       
     <style>
-      /* --- PHYSICS & RESET --- */
+      /* --- CORE PHYSICS --- */
       body { 
           background-color: #000; 
           color: white; 
           overflow-x: hidden; 
           -webkit-font-smoothing: antialiased; 
       }
-
-      /* --- AURORA FX --- */
-      .aurora-blob {
-          position: absolute;
-          filter: blur(100px);
-          z-index: 0;
-          opacity: 0.3;
-          animation: blob 20s infinite alternate;
+      
+      /* --- SCROLL REVEAL ANIMATIONS (THE "OUTSTANDING MOVEMENT") --- */
+      .reveal {
+          opacity: 0;
+          transform: translateY(40px);
+          transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
       }
-
+      .reveal.active {
+          opacity: 1;
+          transform: translateY(0);
+      }
+      
       /* --- GLASS ARCHITECTURE --- */
       .glass-panel {
-          background: rgba(10, 10, 10, 0.6);
+          background: rgba(10, 10, 10, 0.7);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
           border: 1px solid rgba(255,255,255,0.08);
@@ -79,65 +79,20 @@
       }
       
       .glass-card {
-          position: relative;
-          background: linear-gradient(180deg, rgba(20, 20, 20, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
+          background: linear-gradient(180deg, rgba(20, 20, 20, 0.5) 0%, rgba(0, 0, 0, 0.8) 100%);
           border: 1px solid rgba(255,255,255,0.08);
-          transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-          overflow: hidden;
-      }
-      .glass-card::before {
-          content: "";
-          position: absolute;
-          top: 0; left: 0; right: 0; height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-          opacity: 0.5;
+          transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
       .glass-card:hover {
-          border-color: rgba(96, 165, 250, 0.3);
-          transform: translateY(-5px);
-          box-shadow: 0 20px 50px -10px rgba(59, 130, 246, 0.1);
-      }
-
-      /* --- PRICING SPECIFIC --- */
-      .pricing-toggle-bg {
-          background: #0F0F0F;
-          border: 1px solid rgba(255,255,255,0.1);
-          box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-      }
-      .toggle-btn-active {
-          background: #FFF;
-          color: #000;
-          box-shadow: 0 4px 12px rgba(255,255,255,0.2);
-      }
-      .toggle-btn-inactive {
-          color: #666;
-      }
-      .toggle-btn-inactive:hover {
-          color: #FFF;
-      }
-
-      /* --- BUTTONS --- */
-      .btn-plasma {
-          background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-          color: white;
-          border: 1px solid rgba(255,255,255,0.1);
-          box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.2s;
-      }
-      .btn-plasma:active { transform: scale(0.98); }
-      .btn-plasma::after {
-          content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          transform: skewX(-20deg);
-          animation: ticker 3s infinite;
+          border-color: rgba(59, 130, 246, 0.4);
+          transform: translateY(-8px);
+          box-shadow: 0 20px 60px -10px rgba(59, 130, 246, 0.15);
       }
 
       /* --- 3D DECK (CAROUSEL) --- */
       .deck-stage {
-          perspective: 1500px;
-          height: 500px;
+          perspective: 2000px;
+          height: 600px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -146,119 +101,148 @@
       .deck-item {
           position: absolute;
           width: 80%;
-          max-width: 900px;
+          max-width: 1100px;
           aspect-ratio: 16/10;
-          border-radius: 20px;
+          border-radius: 24px;
           background: #000;
-          transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-          box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9);
+          transition: all 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+          box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
           overflow: hidden;
       }
       .deck-center { 
           transform: translate3d(0, 0, 0); 
           z-index: 20; 
-          border: 1px solid rgba(96, 165, 250, 0.3);
-          box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.1), 0 40px 80px -20px rgba(0,0,0,1);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1), 0 40px 120px -30px rgba(0,0,0,1);
       }
       .deck-left { 
-          transform: translate3d(-50%, 0, -300px) rotateY(20deg); 
+          transform: translate3d(-60%, 0, -500px) rotateY(25deg); 
           z-index: 10; 
-          opacity: 0.3; 
-          filter: blur(5px) grayscale(100%);
+          opacity: 0.2; 
+          filter: blur(8px) grayscale(100%);
+          pointer-events: none;
       }
       .deck-right { 
-          transform: translate3d(50%, 0, -300px) rotateY(-20deg); 
+          transform: translate3d(60%, 0, -500px) rotateY(-25deg); 
           z-index: 10; 
-          opacity: 0.3; 
-          filter: blur(5px) grayscale(100%);
+          opacity: 0.2; 
+          filter: blur(8px) grayscale(100%);
+          pointer-events: none;
       }
+
+      /* --- BUTTONS --- */
+      .btn-glowing {
+          background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+          color: white;
+          font-weight: 700;
+          border: 1px solid rgba(255,255,255,0.2);
+          box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+          transition: transform 0.2s;
+          position: relative;
+          overflow: hidden;
+      }
+      .btn-glowing:hover { transform: scale(1.02); box-shadow: 0 0 50px rgba(59, 130, 246, 0.7); }
+      .btn-glowing::after {
+          content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+          background: linear-gradient(transparent, rgba(255,255,255,0.3), transparent);
+          transform: rotate(45deg);
+          animation: shimmer 3s infinite;
+      }
+      @keyframes shimmer { 0% { transform: translateX(-150%) rotate(45deg); } 100% { transform: translateX(150%) rotate(45deg); } }
 
       /* --- TYPOGRAPHY --- */
       .text-gradient { background: linear-gradient(to bottom, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .text-glow { text-shadow: 0 0 30px rgba(255,255,255,0.15); }
+      .text-glow { text-shadow: 0 0 40px rgba(59, 130, 246, 0.3); }
+
+      /* --- PRICING TOGGLE --- */
+      .toggle-active { background: #fff; color: #000; box-shadow: 0 4px 10px rgba(255,255,255,0.2); }
+      .toggle-inactive { color: #888; }
     </style>
 </head>
 <body id="top">
 
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-        <div class="aurora-blob bg-blue-600 w-[600px] h-[600px] top-[-200px] left-[10%] rounded-full mix-blend-screen"></div>
-        <div class="aurora-blob bg-purple-600 w-[500px] h-[500px] bottom-[-200px] right-[10%] rounded-full mix-blend-screen"></div>
-        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]"></div>
+        <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-volt/10 blur-[150px] rounded-full"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[800px] h-[600px] bg-accent/10 blur-[150px] rounded-full"></div>
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04]"></div>
     </div>
 
     <nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl transition-all duration-300">
         <div class="glass-panel rounded-full px-6 py-3 flex items-center justify-between">
             <a href="#top" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition overflow-hidden relative">
-                    <div class="absolute inset-0 bg-blue-500/20 blur-md opacity-0 group-hover:opacity-100 transition"></div>
-                    <i class="fa-solid fa-bolt text-volt relative z-10"></i>
+                <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-volt/50 transition relative overflow-hidden">
+                    <div class="absolute inset-0 bg-volt/20 blur-md opacity-0 group-hover:opacity-100 transition"></div>
+                    <i class="fa-solid fa-bolt text-volt text-lg relative z-10"></i>
                 </div>
                 <div class="flex flex-col">
                     <span class="text-sm font-bold tracking-wide text-white">WHIS.AI</span>
-                    <span class="text-[9px] text-volt uppercase tracking-widest font-mono">Infinity Core</span>
+                    <span class="text-[9px] text-volt uppercase tracking-widest font-mono">Neural Core v3</span>
                 </div>
             </a>
 
             <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10">
-                <a href="#how" class="px-5 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-full transition hover:bg-white/5">Features</a>
-                <a href="#demo" class="px-5 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-full transition hover:bg-white/5">Live Demo</a>
+                <a href="#logic" class="px-5 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-full transition hover:bg-white/5">Logic</a>
+                <a href="#demo" class="px-5 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-full transition hover:bg-white/5">Simulation</a>
                 <a href="#pricing" class="px-5 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-full transition hover:bg-white/5">Pricing</a>
             </div>
 
             <div class="flex items-center gap-4">
-                <button id="signInBtn" onclick="openLoginModal()" class="text-xs font-medium text-slate-400 hover:text-white transition hidden sm:block">Log In</button>
-                
-                <button id="userProfileTrigger" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/5 hover:border-white/20 transition">
-                    <img id="navUserAvatar" src="" class="w-7 h-7 rounded-full bg-slate-800 object-cover" />
-                    <span id="navPlanBadge" class="text-[9px] font-bold text-blue-400 uppercase tracking-wide">PRO</span>
+                <div id="authContainer" class="flex items-center gap-4">
+                    <button id="navSignInBtn" onclick="openLoginModal()" class="text-xs font-medium text-slate-400 hover:text-white transition">Log In</button>
+                    <button id="navProfileBtn" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/10 hover:border-volt/50 transition">
+                        <img id="navAvatar" src="" class="w-7 h-7 rounded-full bg-slate-800 object-cover" />
+                        <span id="navBadge" class="text-[9px] font-bold text-volt uppercase tracking-wide">PRO</span>
+                    </button>
+                </div>
+                <button id="navDownloadBtn" onclick="handleDownload()" class="btn-glowing rounded-full px-5 py-2 text-xs font-bold uppercase tracking-wide">
+                    Get Whis
                 </button>
-
-                <button onclick="openDownloadModal()" class="btn-plasma rounded-full px-6 py-2.5 text-xs font-bold uppercase tracking-wide">Get Access</button>
             </div>
         </div>
     </nav>
 
-    <section class="relative pt-44 pb-20 flex flex-col items-center text-center px-4">
+    <section class="relative pt-44 pb-20 flex flex-col items-center text-center px-4 overflow-hidden">
         
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-volt/20 bg-volt/5 backdrop-blur-md mb-8 animate-fade-in-up">
+        <div class="reveal active inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-volt/20 bg-volt/5 backdrop-blur-md mb-8">
             <span class="relative flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-volt opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-volt"></span>
             </span>
-            <span class="text-[10px] font-bold text-volt tracking-[0.2em] uppercase">System Operational v4.0</span>
+            <span class="text-[10px] font-bold text-volt tracking-[0.2em] uppercase">Stealth Mode Active</span>
         </div>
 
-        <h1 class="text-5xl md:text-8xl font-black tracking-tighter mb-8 max-w-5xl leading-[0.95]">
+        <h1 class="reveal active text-6xl md:text-8xl font-black tracking-tighter mb-8 max-w-5xl leading-[0.95] delay-100">
             <span class="text-gradient">INTERVIEW</span>
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-white to-purple-400 text-glow">SUPERPOWERS</span>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-volt via-white to-accent text-glow">SUPERPOWERS</span>
         </h1>
 
-        <p class="text-lg text-slate-400 max-w-2xl mb-12 font-light leading-relaxed">
-            The world's most advanced AI copilot. 
+        <p class="reveal active text-lg text-slate-400 max-w-2xl mb-12 font-light leading-relaxed delay-200">
+            The world's most advanced AI copilot for software engineers. 
             <span class="text-white font-medium">Hear the question. See the code. Secure the offer.</span>
         </p>
 
-        <div class="flex flex-col sm:flex-row gap-4 mb-20 relative z-20">
-            <button onclick="openDownloadModal()" class="btn-plasma rounded-xl px-10 py-4 text-sm font-bold flex items-center gap-3 group">
-                <i class="fa-brands fa-apple text-lg"></i>
-                <span>Download for macOS</span>
+        <div class="reveal active flex flex-col sm:flex-row gap-4 mb-24 relative z-20 delay-300">
+            <button id="heroDownloadBtn" onclick="handleDownload()" class="btn-glowing rounded-xl px-10 py-4 text-sm font-bold flex items-center gap-3 group">
+                <i class="fa-solid fa-download text-lg"></i>
+                <span>Download App</span>
             </button>
+            
             <button onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})" class="px-10 py-4 rounded-xl border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white text-sm font-bold transition flex items-center gap-2">
                 <i class="fa-solid fa-play text-xs text-volt"></i>
                 Watch Simulation
             </button>
         </div>
 
-        <div class="w-full max-w-7xl relative z-10">
+        <div class="reveal w-full max-w-7xl relative z-10 delay-500">
             <div class="deck-stage" id="deckStage"></div>
             
-            <div class="flex flex-col items-center mt-8 gap-4">
+            <div class="flex flex-col items-center mt-10 gap-4">
                 <div class="flex items-center gap-2 text-xs font-mono text-volt">
                     <i class="fa-solid fa-bolt animate-pulse"></i>
                     <span id="deckLabel">SYSTEM: INITIALIZING</span>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="setDeck(0)" id="pip-0" class="w-8 h-1 bg-volt rounded-full transition-all"></button>
+                    <button onclick="setDeck(0)" id="pip-0" class="w-10 h-1 bg-volt rounded-full transition-all"></button>
                     <button onclick="setDeck(1)" id="pip-1" class="w-2 h-1 bg-white/20 hover:bg-white rounded-full transition-all"></button>
                     <button onclick="setDeck(2)" id="pip-2" class="w-2 h-1 bg-white/20 hover:bg-white rounded-full transition-all"></button>
                 </div>
@@ -267,50 +251,72 @@
     </section>
 
     <div class="border-y border-white/5 bg-black/40 backdrop-blur-md py-8 overflow-hidden">
-        <div class="flex animate-ticker gap-20 opacity-40 whitespace-nowrap">
-            <div class="flex gap-20 items-center">
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-google mr-3"></i>GOOGLE</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-meta mr-3"></i>META</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-amazon mr-3"></i>AMAZON</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-uber mr-3"></i>UBER</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-stripe mr-3"></i>STRIPE</span>
+        <div class="flex animate-ticker gap-24 opacity-40 whitespace-nowrap">
+            <div class="flex gap-24 items-center text-lg font-bold tracking-widest text-white">
+                <span><i class="fa-brands fa-google mr-3"></i>GOOGLE</span>
+                <span><i class="fa-brands fa-meta mr-3"></i>META</span>
+                <span><i class="fa-brands fa-amazon mr-3"></i>AMAZON</span>
+                <span><i class="fa-brands fa-uber mr-3"></i>UBER</span>
+                <span><i class="fa-brands fa-stripe mr-3"></i>STRIPE</span>
+                <span><i class="fa-brands fa-airbnb mr-3"></i>AIRBNB</span>
             </div>
-            <div class="flex gap-20 items-center">
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-google mr-3"></i>GOOGLE</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-meta mr-3"></i>META</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-amazon mr-3"></i>AMAZON</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-uber mr-3"></i>UBER</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-stripe mr-3"></i>STRIPE</span>
-            </div>
-             <div class="flex gap-20 items-center">
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-google mr-3"></i>GOOGLE</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-meta mr-3"></i>META</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-amazon mr-3"></i>AMAZON</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-uber mr-3"></i>UBER</span>
-                <span class="text-lg font-bold tracking-widest"><i class="fa-brands fa-stripe mr-3"></i>STRIPE</span>
+             <div class="flex gap-24 items-center text-lg font-bold tracking-widest text-white">
+                <span><i class="fa-brands fa-google mr-3"></i>GOOGLE</span>
+                <span><i class="fa-brands fa-meta mr-3"></i>META</span>
+                <span><i class="fa-brands fa-amazon mr-3"></i>AMAZON</span>
+                <span><i class="fa-brands fa-uber mr-3"></i>UBER</span>
+                <span><i class="fa-brands fa-stripe mr-3"></i>STRIPE</span>
+                <span><i class="fa-brands fa-airbnb mr-3"></i>AIRBNB</span>
             </div>
         </div>
     </div>
 
-    <section id="how" class="py-32 relative z-10 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-6xl font-black mb-4 tracking-tighter">ENGINEERED FOR <span class="text-volt">SPEED</span></h2>
+    <section class="py-32 px-4 border-b border-white/5 bg-charcoal">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="reveal text-4xl font-black text-center mb-16">The Old Way <span class="text-slate-600">vs</span> <span class="text-volt">The Whis Way</span></h2>
+            
+            <div class="reveal grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="p-8 rounded-3xl border border-white/5 bg-white/[0.02] opacity-60">
+                    <h3 class="text-xl font-bold text-slate-400 mb-6">Without Whis</h3>
+                    <ul class="space-y-6 text-sm text-slate-500">
+                        <li class="flex gap-4"><i class="fa-solid fa-xmark text-red-900 mt-1"></i> <div><strong>Panic Mode:</strong> Forgetting algorithms under pressure.</div></li>
+                        <li class="flex gap-4"><i class="fa-solid fa-xmark text-red-900 mt-1"></i> <div><strong>Tab Switching:</strong> Risking detection by searching Google.</div></li>
+                        <li class="flex gap-4"><i class="fa-solid fa-xmark text-red-900 mt-1"></i> <div><strong>Slow Typing:</strong> Wasting time on syntax instead of logic.</div></li>
+                        <li class="flex gap-4"><i class="fa-solid fa-xmark text-red-900 mt-1"></i> <div><strong>Rejection:</strong> "We decided to move forward with another candidate."</div></li>
+                    </ul>
+                </div>
+
+                <div class="p-8 rounded-3xl border border-volt/30 bg-volt/5 shadow-[0_0_50px_rgba(59,130,246,0.1)] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-volt/20 blur-[60px]"></div>
+                    <h3 class="text-xl font-bold text-white mb-6">With Whis AI</h3>
+                    <ul class="space-y-6 text-sm text-slate-300">
+                        <li class="flex gap-4"><i class="fa-solid fa-check text-volt mt-1"></i> <div><strong>Total Recall:</strong> Instant answers for any question type.</div></li>
+                        <li class="flex gap-4"><i class="fa-solid fa-check text-volt mt-1"></i> <div><strong>Stealth Overlay:</strong> Answers appear <i>on top</i> of your IDE.</div></li>
+                        <li class="flex gap-4"><i class="fa-solid fa-check text-volt mt-1"></i> <div><strong>Live Code Gen:</strong> Production-ready code in 12ms.</div></li>
+                        <li class="flex gap-4"><i class="fa-solid fa-check text-volt mt-1"></i> <div><strong>Offer Secured:</strong> "When can you start?"</div></li>
+                    </ul>
+                </div>
             </div>
+        </div>
+    </section>
+
+    <section id="logic" class="py-32 px-4 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="reveal text-center text-4xl md:text-6xl font-black mb-20 tracking-tighter">ENGINEERED FOR <span class="text-volt">SPEED</span></h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="md:col-span-2 glass-card rounded-3xl p-10 relative overflow-hidden group">
+                <div class="reveal md:col-span-2 glass-card rounded-3xl p-10 relative overflow-hidden group">
                     <div class="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition transform group-hover:scale-110">
                         <i class="fa-solid fa-bolt text-9xl text-volt"></i>
                     </div>
-                    <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20 mb-6">
+                    <div class="w-14 h-14 bg-volt/10 rounded-2xl flex items-center justify-center border border-volt/20 mb-6">
                         <i class="fa-solid fa-bolt text-2xl text-volt"></i>
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-white">Zero-Day Latency</h3>
                     <p class="text-slate-400 text-lg mb-8 max-w-md">Proprietary audio pipeline processes voice data in 12ms. Answers appear before the question ends.</p>
                 </div>
 
-                <div class="glass-card rounded-3xl p-10 flex flex-col justify-between group">
+                <div class="reveal glass-card rounded-3xl p-10 flex flex-col justify-between group">
                     <div>
                         <div class="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20 mb-6">
                             <i class="fa-solid fa-ghost text-2xl text-red-400"></i>
@@ -318,14 +324,39 @@
                         <h3 class="text-xl font-bold mb-2 text-white">Ghost Protocol</h3>
                         <p class="text-slate-400 text-sm">Invisible to screen sharing (Zoom, Teams) and anti-cheat software.</p>
                     </div>
+                    <div class="mt-8 px-3 py-1 bg-red-900/20 border border-red-500/20 rounded text-red-400 text-xs font-mono text-center">STATUS: UNDETECTABLE</div>
+                </div>
+
+                <div class="reveal glass-card rounded-3xl p-10 group">
+                    <div class="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center border border-purple-500/20 mb-6">
+                        <i class="fa-solid fa-eye text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Omni-Vision</h3>
+                    <p class="text-slate-400 text-sm">Reads diagrams, system architecture charts, and complex visual prompts.</p>
+                </div>
+
+                <div class="reveal md:col-span-2 glass-card rounded-3xl p-10 group">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
+                            <i class="fa-solid fa-code text-2xl text-emerald-400"></i>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="px-2 py-1 rounded bg-white/5 text-xs text-slate-400 font-mono">Python</span>
+                            <span class="px-2 py-1 rounded bg-white/5 text-xs text-slate-400 font-mono">Java</span>
+                            <span class="px-2 py-1 rounded bg-white/5 text-xs text-slate-400 font-mono">C++</span>
+                            <span class="px-2 py-1 rounded bg-white/5 text-xs text-slate-400 font-mono">Go</span>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2 text-white">Polyglot Engine</h3>
+                    <p class="text-slate-400 text-lg">Writes optimal, clean code in any language. Handles edge cases automatically.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="demo" class="py-32 relative z-10 border-t border-white/5 bg-[#050505]">
+    <section id="demo" class="py-32 bg-charcoal border-t border-white/5 relative">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
+            <div class="reveal">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-volt/10 text-volt text-xs font-bold mb-6">
                     <i class="fa-solid fa-circle text-[6px] animate-pulse"></i> LIVE SIMULATION
                 </div>
@@ -334,17 +365,12 @@
                     The interviewer speaks. Whis analyzes. The solution renders. <br>
                     No typing. No searching. Just answers.
                 </p>
-                <div class="flex gap-4 opacity-70">
-                    <i class="fa-brands fa-python text-3xl text-white"></i>
-                    <i class="fa-brands fa-java text-3xl text-white"></i>
-                    <i class="fa-solid fa-c text-3xl text-white"></i>
-                </div>
             </div>
 
-            <div class="glass-panel rounded-xl overflow-hidden shadow-2xl relative h-[400px]">
+            <div class="reveal glass-panel rounded-xl overflow-hidden shadow-2xl relative h-[400px]">
                 <div class="bg-black/80 px-4 py-2 flex items-center gap-2 border-b border-white/10">
                     <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
-                    <span class="ml-4 text-xs font-mono text-slate-500">whis_core.py</span>
+                    <span class="ml-4 text-xs font-mono text-slate-500">whis_core_v3.py</span>
                 </div>
                 <div class="p-6 font-mono text-xs md:text-sm text-emerald-400 overflow-hidden h-full bg-[#050505]">
                     <div id="typewriter" class="whitespace-pre-wrap"></div>
@@ -356,88 +382,61 @@
 
     <section id="pricing" class="py-32 px-6 relative z-10 border-t border-white/5">
         <div class="max-w-7xl mx-auto text-center">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-6">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> ROI Focused
-            </div>
-            <h2 class="text-4xl md:text-6xl font-medium mb-6 text-white tracking-tight">Invest in your productivity.</h2>
-            <p class="text-slate-400 text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">Secure your success. Master every technical meeting.</p>
+            <h2 class="reveal text-4xl md:text-6xl font-medium mb-6 text-white tracking-tight">Invest in your <span class="text-volt">career</span>.</h2>
+            <p class="reveal text-slate-400 text-lg mb-12 max-w-xl mx-auto font-light leading-relaxed">Secure your success. Master every technical meeting.</p>
             
-            <div class="inline-flex pricing-toggle-bg p-1 rounded-lg mb-16">
-                <button id="btnMonthly" class="px-8 py-3 rounded-md text-sm font-bold toggle-btn-active transition-all" onclick="setCycle('monthly')">Monthly</button>
-                <button id="btnAnnual" class="px-8 py-3 rounded-md text-sm font-bold toggle-btn-inactive transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-[10px] ml-1">SAVE 50%</span></button>
+            <div class="reveal inline-flex bg-white/5 p-1 rounded-lg mb-16 border border-white/10">
+                <button id="btnMonthly" class="px-8 py-3 rounded-md text-sm font-bold toggle-active transition-all" onclick="setCycle('monthly')">Monthly</button>
+                <button id="btnAnnual" class="px-8 py-3 rounded-md text-sm font-bold toggle-inactive transition-all" onclick="setCycle('annual')">Yearly <span class="text-emerald-400 text-[10px] ml-1">SAVE 50%</span></button>
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 items-start">
-                
-                <div class="glass-card rounded-2xl p-10 text-left flex flex-col h-full hover:border-slate-700">
+                <div class="reveal glass-card rounded-2xl p-10 text-left flex flex-col h-full hover:border-slate-700">
                     <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Starter</h3>
                     <div class="mb-6"><span class="text-4xl font-bold text-white">Free</span></div>
                     <p class="text-sm text-slate-500 mb-8 min-h-[40px]">Perfect for testing the waters.</p>
-                    <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-sm font-bold transition mb-8">Download App</button>
+                    <button onclick="handleDownload()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-sm font-bold transition mb-8">Download App</button>
                     <div class="space-y-3 text-xs text-slate-400 font-medium">
                         <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Responses / day</p>
                         <p class="flex gap-3"><i class="fa-solid fa-microphone"></i> Basic Audio Analysis</p>
-                        <p class="flex gap-3"><i class="fa-solid fa-clock"></i> 3-Day History</p>
                     </div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-10 text-left flex flex-col relative border-blue-500/30 shadow-[0_0_40px_rgba(37,99,235,0.1)]">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-4 py-1 rounded-full border border-blue-400 shadow-lg tracking-wide">MOST POPULAR</div>
-                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-2">Pro</h3>
+                <div class="reveal glass-card rounded-2xl p-10 text-left flex flex-col relative border-volt/30 shadow-[0_0_40px_rgba(59,130,246,0.1)] transform scale-105 z-10">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-volt text-white text-[10px] font-bold px-4 py-1 rounded-full border border-blue-400 shadow-lg tracking-wide">MOST POPULAR</div>
+                    <h3 class="text-sm font-bold text-volt uppercase tracking-wider mb-2">Pro</h3>
                     <div class="mb-6 flex items-baseline gap-1"><span class="text-5xl font-bold text-white" id="pricePro">₹999</span><span class="text-slate-600 price-period text-lg">/mo</span></div>
                     <p class="text-sm text-slate-400 mb-8 min-h-[40px]">For professionals managing frequent calls.</p>
-                    <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-900/20 mb-8">Upgrade to Pro</button>
+                    <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-volt text-white font-bold hover:bg-blue-500 transition shadow-lg shadow-blue-900/20 mb-8">Upgrade to Pro</button>
                     <div class="space-y-3 text-xs text-slate-300 font-medium">
-                        <p class="flex gap-3"><i class="fa-solid fa-infinity text-blue-500"></i> Unlimited Responses</p>
-                        <p class="flex gap-3"><i class="fa-solid fa-desktop text-blue-500"></i> Visual Context Analysis</p>
-                        <p class="flex gap-3"><i class="fa-solid fa-bolt text-blue-500"></i> Turbo Latency</p>
+                        <p class="flex gap-3"><i class="fa-solid fa-infinity text-volt"></i> Unlimited Responses</p>
+                        <p class="flex gap-3"><i class="fa-solid fa-desktop text-volt"></i> Visual Context Analysis</p>
+                        <p class="flex gap-3"><i class="fa-solid fa-bolt text-volt"></i> Turbo Latency</p>
                     </div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-10 text-left flex flex-col relative overflow-hidden group hover:border-purple-500/30">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 blur-[80px] group-hover:bg-purple-600/20 transition duration-700"></div>
-                    <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider mb-2 flex items-center gap-2">Elite <i class="fa-solid fa-crown"></i></h3>
+                <div class="reveal glass-card rounded-2xl p-10 text-left flex flex-col relative overflow-hidden group hover:border-accent/30">
+                    <h3 class="text-sm font-bold text-accent uppercase tracking-wider mb-2 flex items-center gap-2">Elite <i class="fa-solid fa-crown"></i></h3>
                     <div class="mb-6 flex items-baseline gap-1"><span class="text-4xl font-bold text-white" id="priceStealth">₹2499</span><span class="text-slate-600 price-period text-lg">/mo</span></div>
                     <p class="text-sm text-slate-500 mb-8 min-h-[40px]">Maximum privacy for high-stakes roles.</p>
                     <button onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-white/5 text-white border border-white/10 font-bold hover:bg-white/10 transition mb-8">Get Elite</button>
                     <div class="space-y-3 text-xs text-slate-400 relative z-10 font-medium">
                         <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">Includes Pro, plus:</p>
-                        <p class="flex gap-3 text-purple-400"><i class="fa-solid fa-eye-slash"></i> Fully Private Operation</p>
+                        <p class="flex gap-3 text-accent"><i class="fa-solid fa-eye-slash"></i> Fully Private Operation</p>
                         <p class="flex gap-3"><i class="fa-solid fa-layer-group"></i> Private HUD Overlay</p>
                         <p class="flex gap-3"><i class="fa-solid fa-keyboard"></i> Direct Input Mode</p>
                     </div>
                 </div>
-
             </div>
-            
-            <div class="mt-24 overflow-x-auto">
-                 <table class="w-full text-sm text-left border-collapse">
-                      <thead class="text-xs text-slate-500 uppercase bg-white/5">
-                          <tr>
-                              <th class="px-6 py-4 rounded-tl-lg font-medium">Feature</th>
-                              <th class="px-6 py-4 font-medium text-center">Starter</th>
-                              <th class="px-6 py-4 font-medium text-center text-blue-400">Pro</th>
-                              <th class="px-6 py-4 rounded-tr-lg font-medium text-center text-purple-400">Elite</th>
-                          </tr>
-                      </thead>
-                      <tbody class="text-slate-400 divide-y divide-white/5">
-                          <tr class="hover:bg-white/5 transition"><td class="px-6 py-4 font-medium text-white">System Audio</td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-blue-500"></i></td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-blue-500"></i></td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-blue-500"></i></td></tr>
-                          <tr class="hover:bg-white/5 transition"><td class="px-6 py-4 font-medium text-white">Visual OCR</td><td class="px-6 py-4 text-center text-xs">3 / day</td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-blue-500"></i></td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-blue-500"></i></td></tr>
-                          <tr class="hover:bg-white/5 transition"><td class="px-6 py-4 font-medium text-white">Direct Input</td><td class="px-6 py-4 text-center opacity-20"><i class="fa-solid fa-minus"></i></td><td class="px-6 py-4 text-center opacity-20"><i class="fa-solid fa-minus"></i></td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-purple-500"></i></td></tr>
-                          <tr class="hover:bg-white/5 transition"><td class="px-6 py-4 font-medium text-white">Private HUD</td><td class="px-6 py-4 text-center opacity-20"><i class="fa-solid fa-minus"></i></td><td class="px-6 py-4 text-center opacity-20"><i class="fa-solid fa-minus"></i></td><td class="px-6 py-4 text-center"><i class="fa-solid fa-check text-purple-500"></i></td></tr>
-                      </tbody>
-                  </table>
-            </div>
-
         </div>
     </section>
 
-    <footer class="border-t border-white/5 bg-[#02000d] py-24 px-4">
+    <footer class="border-t border-white/5 bg-charcoal py-24 px-4 relative z-10">
         <div class="max-w-7xl mx-auto flex flex-col items-center text-center">
-            <h2 class="text-4xl md:text-6xl font-black text-white mb-8 tracking-tighter">
-                Secure Your Offer.
+            <h2 class="reveal text-4xl md:text-6xl font-black text-white mb-8 tracking-tighter">
+                Don't let them reject you again.
             </h2>
-            <button onclick="openDownloadModal()" class="btn-plasma rounded-full px-12 py-5 text-sm font-bold uppercase tracking-widest mb-16 shadow-[0_0_60px_rgba(37,99,235,0.3)]">
+            <button id="footerDownloadBtn" onclick="handleDownload()" class="reveal btn-glowing rounded-full px-12 py-5 text-sm font-bold uppercase tracking-widest mb-16 shadow-[0_0_60px_rgba(59,130,246,0.3)]">
                 Get The Advantage
             </button>
             <div class="mt-8 text-slate-800 text-xs font-mono">© 2025 Whis AI. Systems Nominal.</div>
@@ -450,13 +449,13 @@
             <h2 class="text-3xl font-black text-white mb-2">Initialize.</h2>
             <p class="text-slate-400 mb-8">Select your platform.</p>
             <div class="space-y-4">
-                <a href="#" class="flex items-center justify-between px-6 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white hover:text-black transition group">
+                <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between px-6 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white hover:text-black transition group">
                     <span class="font-bold flex items-center gap-3"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
-                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition"></i>
+                    <i class="fa-solid fa-download opacity-0 group-hover:opacity-100 transition"></i>
                 </a>
-                <a href="#" class="flex items-center justify-between px-6 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white hover:text-black transition group">
+                <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between px-6 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white hover:text-black transition group">
                     <span class="font-bold flex items-center gap-3"><i class="fa-brands fa-windows text-xl"></i> Windows</span>
-                    <i class="fa-solid fa-arrow-right opacity-0 group-hover:opacity-100 transition"></i>
+                    <i class="fa-solid fa-download opacity-0 group-hover:opacity-100 transition"></i>
                 </a>
             </div>
         </div>
@@ -483,9 +482,42 @@
         const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
         let currentCycle='monthly';
         let currentUser=null;
-        let currentTier = 'free';
+        let currentTier='free';
 
-        // --- DECK LOGIC ---
+        /* --- OS DETECTION (SMART DOWNLOAD BUTTONS) --- */
+        function detectOS() {
+            const platform = navigator.platform.toLowerCase();
+            const userAgent = navigator.userAgent.toLowerCase();
+            let os = 'mac'; // default
+            
+            if (platform.includes('win') || userAgent.includes('win')) os = 'win';
+            
+            const heroBtn = document.getElementById('heroDownloadBtn');
+            const navBtn = document.getElementById('navDownloadBtn');
+            const footerBtn = document.getElementById('footerDownloadBtn');
+            
+            if (os === 'win') {
+                heroBtn.innerHTML = '<i class="fa-brands fa-windows text-lg"></i><span>Download for Windows</span>';
+                navBtn.innerText = 'Get Whis (Win)';
+                footerBtn.innerText = 'Download for Windows';
+            } else {
+                heroBtn.innerHTML = '<i class="fa-brands fa-apple text-lg"></i><span>Download for macOS</span>';
+                navBtn.innerText = 'Get Whis (Mac)';
+                footerBtn.innerText = 'Download for macOS';
+            }
+            return os;
+        }
+
+        function handleDownload() {
+            const os = detectOS();
+            if (os === 'win') {
+                window.location.href = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe";
+            } else {
+                window.location.href = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg";
+            }
+        }
+
+        /* --- 3D DECK LOGIC --- */
         const deckData = [
             { src: 'visual.mp4', label: 'MODE: OMNI-VISION' },
             { src: 'text.mp4', label: 'MODE: LIVE CODING' },
@@ -513,8 +545,12 @@
             const items = [document.getElementById('deck-0'), document.getElementById('deck-1'), document.getElementById('deck-2')];
             const pips = [document.getElementById('pip-0'), document.getElementById('pip-1'), document.getElementById('pip-2')];
             const prev = (deckIndex - 1 + 3) % 3; const next = (deckIndex + 1) % 3;
+            
             items.forEach(el => el.className = 'deck-item transition-all duration-700 ease-out');
-            items[deckIndex].classList.add('deck-center'); items[prev].classList.add('deck-left'); items[next].classList.add('deck-right');
+            items[deckIndex].classList.add('deck-center'); 
+            items[prev].classList.add('deck-left'); 
+            items[next].classList.add('deck-right');
+            
             items.forEach((el, idx) => {
                 const v = el.querySelector('video');
                 if (idx === deckIndex) { v.style.opacity = '1'; v.play().catch(e => {}); } 
@@ -522,32 +558,21 @@
             });
             document.getElementById('deckLabel').innerText = "SYSTEM: " + deckData[deckIndex].label;
             pips.forEach((p, i) => {
-                if(i === deckIndex) p.className = "w-8 h-1 bg-volt rounded-full transition-all shadow-[0_0_10px_rgba(96,165,250,0.8)]";
+                if(i === deckIndex) p.className = "w-8 h-1 bg-volt rounded-full transition-all shadow-[0_0_10px_rgba(59,130,246,0.8)]";
                 else p.className = "w-2 h-1 bg-white/20 hover:bg-white rounded-full transition-all cursor-pointer";
             });
         }
         function setDeck(i) { deckIndex = i; updateDeck(); }
 
-        // --- PRICING LOGIC ---
-        function setCycle(c){
-            currentCycle=c;
-            const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual');
-            if(c==='monthly'){
-                btnM.className="px-8 py-3 rounded-md text-sm font-bold toggle-btn-active transition-all";
-                btnM.style.background="#FFF"; btnM.style.color="#000";
-                btnA.className="px-8 py-3 rounded-md text-sm font-bold toggle-btn-inactive transition-all";
-                btnA.style.background="transparent"; btnA.style.color="#666";
-                document.getElementById('pricePro').innerText='₹999'; document.getElementById('priceStealth').innerText='₹2499';
-            }else{
-                btnA.className="px-8 py-3 rounded-md text-sm font-bold toggle-btn-active transition-all";
-                btnA.style.background="#FFF"; btnA.style.color="#000";
-                btnM.className="px-8 py-3 rounded-md text-sm font-bold toggle-btn-inactive transition-all";
-                btnM.style.background="transparent"; btnM.style.color="#666";
-                document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
-            }
+        /* --- AUTH & UI STATE --- */
+        function updateNavUI(u) {
+            // Hides Sign In button, Shows Profile
+            document.getElementById('navSignInBtn').classList.add('hidden');
+            const p = document.getElementById('navProfileBtn');
+            p.classList.remove('hidden'); p.classList.add('flex');
+            document.getElementById('navAvatar').src = u.avatarUrl;
         }
 
-        // --- PAYMENT & AUTH LOGIC ---
         async function fetchUserStatus() {
             if(!currentUser) return;
             try {
@@ -556,18 +581,32 @@
                 if(d.active) currentTier = d.tier; else currentTier = 'free';
                 
                 const planName = d.tier==='pro_plus'?'Pro + Elite':(d.tier==='pro'?'Pro Plan':'Starter Free');
-                const badge=document.getElementById('navPlanBadge'); const modalBadge=document.getElementById('modalPlanStatus');
+                const badge=document.getElementById('navBadge'); const modalBadge=document.getElementById('modalPlanStatus');
+                
                 if(d.active){
-                    badge.textContent=(d.tier==='pro_plus'?'ELITE':'PRO'); badge.className="text-[9px] font-bold text-emerald-400 uppercase tracking-wide";
+                    badge.textContent=(d.tier==='pro_plus'?'ELITE':'PRO');
                     modalBadge.textContent="ACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
                     document.getElementById('modalExpiryDate').textContent = new Date(d.validUntil).toLocaleDateString();
                 } else {
-                    badge.textContent="FREE"; badge.className="text-[9px] font-bold text-slate-500 uppercase tracking-wide";
+                    badge.textContent="FREE";
                     modalBadge.textContent="INACTIVE"; modalBadge.className="px-2 py-1 rounded text-[10px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/20";
                     document.getElementById('modalExpiryDate').textContent = "Forever";
                 }
                 document.getElementById('modalUserName').textContent=currentUser.name; document.getElementById('modalPlanName').textContent=planName;
             } catch(e) {}
+        }
+
+        /* --- PRICING --- */
+        function setCycle(c){
+            currentCycle=c;
+            const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual');
+            if(c==='monthly'){
+                btnM.classList.replace('toggle-inactive','toggle-active'); btnA.classList.replace('toggle-active','toggle-inactive');
+                document.getElementById('pricePro').innerText='₹999'; document.getElementById('priceStealth').innerText='₹2499';
+            }else{
+                btnA.classList.replace('toggle-inactive','toggle-active'); btnM.classList.replace('toggle-active','toggle-inactive');
+                document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
+            }
         }
 
         async function initiatePayment(targetTier){
@@ -593,8 +632,7 @@
             btn.innerText=orig;
         }
 
-        // --- UI UTILS ---
-        function updateNavUI(u){ document.getElementById('signInBtn').classList.add('hidden'); const p=document.getElementById('userProfileTrigger'); p.classList.remove('hidden'); p.classList.add('flex'); document.getElementById('navUserAvatar').src=u.avatarUrl; }
+        /* --- MODALS --- */
         const downloadModal = document.getElementById('downloadModal'); const loginModal = document.getElementById('loginModal'); const profileModal=document.getElementById('profileModal');
         function openDownloadModal() { downloadModal.classList.remove('hidden'); downloadModal.classList.add('flex'); }
         function closeDownloadModal() { downloadModal.classList.add('hidden'); downloadModal.classList.remove('flex'); }
@@ -604,6 +642,20 @@
         function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
         function logout(){localStorage.removeItem('whisUser');location.reload();}
         async function handleGoogleRes(res){const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);fetchUserStatus();closeLoginModal();}}
+
+        /* --- SCROLL REVEAL --- */
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
 
         // --- TYPEWRITER ---
         const codeText = `class Solution:\n    def solve(self, input: str) -> str:\n        # Analyzing Audio Stream...\n        # Optimizing Solution O(n)...\n        return "Optimal Solution Found"`;
@@ -616,8 +668,12 @@
         // --- INIT ---
         window.addEventListener('DOMContentLoaded', () => {
             initDeck();
+            detectOS();
+            reveal(); // check on load
             const uStr = localStorage.getItem('whisUser');
             if (uStr) { currentUser = JSON.parse(uStr); updateNavUI(currentUser); fetchUserStatus(); }
+            
+            // Typewriter Observer
             const obs = new IntersectionObserver((e) => { e.forEach(en => { if(en.isIntersecting && typeIdx===0) typeLoop(); }); });
             obs.observe(document.getElementById('demo'));
         });
