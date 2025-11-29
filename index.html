@@ -588,11 +588,11 @@
 
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
-    const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
     
-    // No hardcoded defaults here anymore
+    // FETCHED FROM BACKEND
     let PRICING_CONFIG = null;
+    let GOOGLE_CLIENT_ID = null;
 
     function detectOS(){
         const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
@@ -603,15 +603,20 @@
 
     async function fetchPricingConfig() {
         try {
-            const res = await fetch(`${BACKEND_URL}/api/config/pricing`);
+            // New Endpoint returns { pricing, googleClientId }
+            const res = await fetch(`${BACKEND_URL}/api/config`);
             if(res.ok) {
-                PRICING_CONFIG = await res.json();
+                const data = await res.json();
+                PRICING_CONFIG = data.pricing;
+                GOOGLE_CLIENT_ID = data.googleClientId;
+                
                 updatePricingUI();
-                // Enable buttons after data load
+                
+                // Enable buttons only after config loads
                 document.getElementById('btnPro').disabled = false;
                 document.getElementById('btnElite').disabled = false;
             }
-        } catch(e) { console.error("Pricing Fetch Error", e); }
+        } catch(e) { console.error("Config Fetch Error", e); }
     }
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
@@ -637,11 +642,11 @@
     function formatPrice(amount, discount) {
         if (!amount) return "...";
         if(discount > 0) {
-            const discounted = (amount * (1 - discount/100)).toFixed(2);
+            const discounted = Math.floor(amount * (1 - discount/100)); // Whole number rounding
             // Returns: ₹999 <span strikethrough>₹1999</span> <span badge>50% OFF</span>
-            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${amount.toFixed(2)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${Math.floor(amount)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
-        return `₹${amount.toFixed(2)}`;
+        return `₹${Math.floor(amount)}`;
     }
 
     function setCycle(c){
@@ -745,13 +750,19 @@
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
+    
+    // --- UPDATED: Wait for GOOGLE_CLIENT_ID ---
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
-        if(window.google){
+        
+        if(window.google && GOOGLE_CLIENT_ID){
             google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
+        } else {
+            console.warn("Google Auth not ready: Missing Client ID or Script");
         }
     }
+    
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
@@ -764,7 +775,7 @@
         typeCode();
         checkUser();
         detectOS();
-        fetchPricingConfig(); // New fetch
+        fetchPricingConfig(); // Fetches Pricing + Client ID
         setTimeout(initPhysics, 500);
     });
   </script>
