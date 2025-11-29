@@ -21,8 +21,8 @@
           animation: { 
             'intro-sequence': 'introSequence 5s forwards',
             'float': 'float 20s infinite linear',
-            'rain-drop': 'rainDrop 0.8s linear infinite',
-            'lightning': 'lightning 8s infinite random',
+            'rain-drop': 'rainDrop 0.6s linear infinite',
+            'lightning': 'lightning 5s infinite random',
             'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
             'cursor': 'cursor .75s step-end infinite',
             'wave': 'wave 1.2s ease-in-out infinite',
@@ -30,15 +30,15 @@
           keyframes: {
             rainDrop: {
                 '0%': { transform: 'translateY(-10vh)', opacity: '0' },
-                '10%': { opacity: '0.6' },
-                '90%': { opacity: '0.6' },
+                '10%': { opacity: '0.8' },
+                '90%': { opacity: '0.8' },
                 '100%': { transform: 'translateY(100vh)', opacity: '0' }
             },
             lightning: { 
                 '0%, 92%, 100%': { opacity: '0' },
-                '93%': { opacity: '0.1' },
+                '93%': { opacity: '0.15' },
                 '94%': { opacity: '0' },
-                '96%': { opacity: '0.3' }, 
+                '96%': { opacity: '0.4' }, 
                 '97%': { opacity: '0' }
             },
             pulseGlow: {
@@ -90,7 +90,7 @@
 
     /* Glass Panels (Flow Style) */
     .glass-nav { 
-        background: rgba(0, 0, 0, 0.6); 
+        background: rgba(0, 0, 0, 0.7); 
         backdrop-filter: blur(20px); 
         border-bottom: 1px solid rgba(255,255,255,0.05); 
     }
@@ -123,22 +123,45 @@
     /* 3D Carousel */
     .carousel-container { perspective: 1500px; display: flex; justify-content: center; align-items: center; height: 350px; }
     @media (min-width: 768px) { .carousel-container { height: 550px; } }
-    .carousel-item { position: absolute; width: 85%; aspect-ratio: 16/9; transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 20px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.08); }
+    .carousel-item { 
+        position: absolute; 
+        width: 85%; 
+        aspect-ratio: 16/9; 
+        transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); 
+        border-radius: 20px; 
+        overflow: hidden; 
+        background: #050505; 
+        border: 1px solid rgba(255,255,255,0.08); 
+    }
     @media (min-width: 768px) { .carousel-item { width: 60%; } }
-    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: rgba(255,255,255,0.2); box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: rgba(255,255,255,0.3); box-shadow: 0 30px 80px rgba(0,0,0,0.9); }
     .item-left { z-index: 10; transform: translateX(-65%) scale(0.8) translateZ(-400px) rotateY(20deg); opacity: 0.3; filter: grayscale(100%); pointer-events: none; }
     .item-right { z-index: 10; transform: translateX(65%) scale(0.8) translateZ(-400px) rotateY(-20deg); opacity: 0.3; filter: grayscale(100%); pointer-events: none; }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
-    .carousel-item video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+    
+    .carousel-item video { width: 100%; height: 100%; object-fit: cover; }
     
     /* RAIN ENGINE */
-    .rain-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0; transition: opacity 5s ease; }
+    .rain-container { 
+        position: fixed; 
+        top: 0; left: 0; width: 100%; height: 100%; 
+        pointer-events: none; 
+        z-index: 50; /* High Z-Index to be seen */
+        opacity: 0; 
+        transition: opacity 3s ease; 
+        background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+    }
     .raindrop {
         position: absolute;
-        width: 1px;
-        height: 40px;
-        background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.15));
-        animation: rainDrop 0.8s linear infinite;
+        width: 2px;
+        height: 50px;
+        background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.3));
+        animation: rainDrop 0.6s linear infinite;
+    }
+    /* Heavy Lightning override */
+    .heavy-lightning {
+        animation: lightning 2s infinite random !important;
+        opacity: 0.2 !important;
     }
     
     /* Intro Sequence Styles */
@@ -148,8 +171,8 @@
 <body class="selection:bg-white/20 selection:text-white">
 
   <div id="intro-layer" class="fixed inset-0 z-[9999] bg-black flex items-center justify-center pointer-events-none">
-      <h1 id="intro-text-1" class="text-3xl md:text-5xl font-light tracking-[0.2em] text-white uppercase text-center">Your Potential Deserves More</h1>
-      <h1 id="intro-text-2" class="text-3xl md:text-5xl font-light tracking-[0.2em] text-white uppercase text-center">You have come to the right place</h1>
+      <h1 id="intro-text-1" class="text-2xl md:text-5xl font-light tracking-[0.2em] text-white uppercase text-center">Your Potential Deserves More</h1>
+      <h1 id="intro-text-2" class="text-2xl md:text-5xl font-light tracking-[0.2em] text-white uppercase text-center">You have come to the right place</h1>
   </div>
   <script> 
     // Intro Sequencing
@@ -161,7 +184,7 @@
   </script>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
-    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
+    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
     
     <div id="lightning-layer" class="absolute inset-0 bg-white mix-blend-overlay opacity-0 animate-lightning"></div>
     
@@ -218,7 +241,7 @@
       </p>
 
       <button id="heroDownloadBtn" onclick="openDownloadModal()" class="px-8 py-3.5 rounded-xl bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition flex items-center justify-center gap-3">
-          <i class="fa-brands fa-apple text-lg"></i> Download for Mac
+          <i id="osIconHero" class="fa-brands fa-apple text-lg"></i> <span id="osTextHero">Download Client</span>
       </button>
     </div>
 
@@ -230,7 +253,7 @@
     </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-[#010101]">
+  <section class="py-24 border-t border-white/5 bg-[#000000]">
       <div class="max-w-7xl mx-auto px-6 text-center">
           <h2 class="text-3xl font-medium text-white mb-16 tracking-tight">Intelligence For Every Role.</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -250,7 +273,7 @@
       </div>
   </section>
 
-  <section id="demo" class="py-24 bg-[#020202] relative border-t border-white/5">
+  <section id="demo" class="py-24 bg-[#0A0A0A] relative border-t border-white/5">
       <div class="max-w-7xl mx-auto px-6">
           <div class="flex flex-col lg:flex-row gap-16 items-center">
               <div class="flex-1 space-y-8">
@@ -330,6 +353,7 @@
                     <p class="flex gap-3"><i class="fa-solid fa-infinity dynamic-text"></i> Unlimited Usage</p>
                     <p class="flex gap-3"><i class="fa-solid fa-eye dynamic-text"></i> Visual Context</p>
                     <p class="flex gap-3"><i class="fa-solid fa-bolt dynamic-text"></i> Turbo Latency</p>
+                    <p class="flex gap-3"><i class="fa-solid fa-keyboard dynamic-text"></i> Direct Input</p>
                 </div>
                 <button id="btnPro" onclick="initiatePayment('pro')" class="mt-auto w-full py-3 rounded-lg dynamic-bg text-white hover:brightness-110 text-xs font-bold transition">UPGRADE</button>
             </div>
@@ -342,7 +366,7 @@
                 <div class="space-y-4 text-xs text-white font-medium mb-10 w-full text-left pl-8">
                     <p class="flex gap-3"><i class="fa-solid fa-check"></i> All Pro Features</p>
                     <p class="flex gap-3 text-purple-400 font-bold"><i class="fa-solid fa-ghost"></i> Invisible to Screenshare</p>
-                    <p class="flex gap-3"><i class="fa-solid fa-keyboard"></i> Direct Input Mode</p>
+                    <p class="flex gap-3 text-purple-400"><i class="fa-solid fa-shield-halved"></i> Private HUD</p>
                 </div>
                 <button id="btnElite" onclick="initiatePayment('pro_plus')" class="mt-auto w-full py-3 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 text-xs font-bold transition">GET ELITE</button>
             </div>
@@ -425,15 +449,18 @@
         }
         rainContainer.style.opacity = '1';
         
-        // Intensify Lightning
-        document.getElementById('lightning-layer').style.animation = 'lightning 2s infinite random'; // Faster
+        // Increase Lightning Intensity
+        const lightning = document.getElementById('lightning-layer');
+        lightning.style.opacity = '0.3';
+        lightning.style.animationDuration = '2s'; // Faster flash
     }, 20000);
 
     // --- CAROUSEL ---
+    // Using reliable external placeholder videos for demonstration
     const videos = [
-        { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
-        { src: 'text.mp4', label: 'CODE SYNTHESIS' },
-        { src: 'audio.mp4', label: 'AUDIO INGESTION' }
+        { src: 'https://cdn.coverr.co/videos/coverr-data-analysis-on-a-monitor-5484/1080p.mp4', label: 'VISUAL CONTEXT' },
+        { src: 'https://cdn.coverr.co/videos/coverr-typing-on-computer-keyboard-2651/1080p.mp4', label: 'CODE SYNTHESIS' },
+        { src: 'https://cdn.coverr.co/videos/coverr-audio-spectrum-visualizer-5036/1080p.mp4', label: 'AUDIO INGESTION' }
     ];
     let activeIndex = 0;
     
@@ -446,6 +473,8 @@
             div.id = `c-item-${i}`;
             const video = document.createElement('video');
             video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
+            // Fallback for demo
+            video.onerror = () => { video.style.display = 'none'; div.style.background = `linear-gradient(135deg, #111, #222)`; }
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -464,14 +493,13 @@
             
             if(i === activeIndex) {
                 el.classList.add('item-center');
-                vid.play().catch(()=>{});
-                vid.style.opacity = '1';
+                if(vid.style.display!=='none') vid.play().catch(()=>{});
             } else if (i === prev) {
                 el.classList.add('item-left');
-                vid.pause(); vid.style.opacity = '0.4';
+                if(vid.style.display!=='none') vid.pause();
             } else if (i === next) {
                 el.classList.add('item-right');
-                vid.pause(); vid.style.opacity = '0.4';
+                if(vid.style.display!=='none') vid.pause();
             } else {
                 el.classList.add('item-hidden');
             }
@@ -509,7 +537,8 @@
             else if(char === 'w' && codeSnippet.substr(charIndex, 5) === 'while') { char = '<span class="syntax-kw">while</span>'; charIndex += 4; }
             el.innerHTML += char; charIndex++; setTimeout(typeCode, 15 + Math.random() * 20);
         } else {
-            // Finished
+            badge.style.opacity = '1';
+            setTimeout(() => { badge.style.opacity = '0'; el.innerHTML = ''; charIndex = 0; typeCode(); }, 4000);
         }
     }
 
@@ -518,6 +547,8 @@
         const p = navigator.platform.toLowerCase(); 
         const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
+        const icon = document.getElementById('osIconHero');
+        const txt = document.getElementById('osTextHero');
         
         if (p.includes('win')||ua.includes('win')) { 
             btn.innerHTML = '<i class="fa-brands fa-windows text-lg"></i> Download for Windows';
