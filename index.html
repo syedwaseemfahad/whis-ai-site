@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-    <title>WHIS | The Singularity</title>
+    <title>WHIS | The Elite Advantage</title>
     <meta name="description" content="The undetectable AI copilot for technical interviews." />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,28 +14,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <script>
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+            fontFamily: { 
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
             colors: { 
-              void: '#000000', onyx: '#050505', gold: '#F59E0B', gold_dim: '#92400e', primary: '#6366f1', cyan: '#06b6d4',
+              void: '#000000', 
+              onyx: '#050505',
+              gold: '#F59E0B',     /* Elite Gold */
+              gold_dim: '#92400e',
+              primary: '#6366f1',  
+              cyan: '#06b6d4',
             },
             backgroundImage: {
               'gold-gradient': 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
+              'noise': "url('https://grainy-gradients.vercel.app/noise.svg')",
               'hero-glow': 'radial-gradient(circle at 50% -20%, rgba(245, 158, 11, 0.15) 0%, rgba(0,0,0,0) 60%)',
             },
             boxShadow: {
               'gold-glow': '0 0 50px -10px rgba(245, 158, 11, 0.4)',
+              'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
             },
             animation: {
               'ticker': 'ticker 40s linear infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'force-hide': 'forceHide 0s forwards 3s', /* Failsafe animation */
             },
             keyframes: {
               ticker: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+              forceHide: { 'to': { visibility: 'hidden', opacity: 0 } }
             }
           }
         }
@@ -46,20 +60,32 @@
         :root { --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1); }
         html.lenis { height: auto; } 
         .lenis.lenis-smooth { scroll-behavior: auto; } 
-        body { background-color: #000; color: #fff; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        
+        body { 
+            background-color: #000; 
+            color: #fff; 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased; 
+        }
 
-        /* --- PRELOADER (FAILSAFE) --- */
+        /* --- FAILSAFE PRELOADER --- */
         #preloader {
             position: fixed; inset: 0; z-index: 99999; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.8s var(--ease-luxury), visibility 0.8s;
+            /* This animation forces the loader to hide after 3.5s even if JS fails */
+            animation: force-hide 3.5s forwards; 
         }
         .loader-line { width: 150px; height: 1px; background: rgba(255,255,255,0.1); overflow: hidden; position: relative; }
         .loader-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #F59E0B; transition: width 0.5s ease; }
 
         /* --- GLASS UI --- */
-        .glass-nav { background: rgba(0,0,0,0); transition: all 0.5s var(--ease-luxury); border-bottom: 1px solid transparent; }
-        .glass-nav.scrolled { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-nav {
+            background: rgba(0,0,0,0); transition: all 0.5s var(--ease-luxury); border-bottom: 1px solid transparent;
+        }
+        .glass-nav.scrolled {
+            background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.02);
@@ -69,13 +95,15 @@
         }
         .glass-card:hover {
             background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(245, 158, 11, 0.3);
+            border-color: rgba(245, 158, 11, 0.3); /* Gold Border */
             transform: translateY(-5px);
             box-shadow: 0 20px 50px -10px rgba(245, 158, 11, 0.1);
         }
 
-        /* --- VIDEO DECK --- */
-        .deck-stage { perspective: 2000px; height: 600px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; }
+        /* --- HOLOGRAPHIC VIDEO DECK --- */
+        .deck-stage {
+            perspective: 2000px; height: 600px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d;
+        }
         .deck-card {
             position: absolute; width: 85%; max-width: 1200px; aspect-ratio: 16/9;
             background: #000; border-radius: 24px; overflow: hidden;
@@ -85,30 +113,50 @@
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        .deck-card video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        /* Ensure 16:9 ratio is respected, content is contained (no crop), background is black */
+        .deck-card video { 
+            width: 100%; height: 100%; object-fit: contain; background: #000; 
+        }
+        
         .deck-card.active {
             transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 20;
             border: 1px solid rgba(245, 158, 11, 0.4);
             box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), 0 50px 120px -20px rgba(0,0,0,1);
         }
-        .deck-card.active:hover { transform: translate3d(0, 0, 20px) scale(1.02); border-color: #F59E0B; box-shadow: 0 0 60px rgba(245, 158, 11, 0.3); }
-        .deck-card.left { transform: translate3d(-60%, 0, -500px) rotateY(25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px); }
-        .deck-card.right { transform: translate3d(60%, 0, -500px) rotateY(-25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px); }
+        .deck-card.active:hover {
+            transform: translate3d(0, 0, 20px) scale(1.02);
+            border-color: #F59E0B;
+            box-shadow: 0 0 60px rgba(245, 158, 11, 0.3);
+        }
+        .deck-card.left {
+            transform: translate3d(-60%, 0, -500px) rotateY(25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px);
+        }
+        .deck-card.right {
+            transform: translate3d(60%, 0, -500px) rotateY(-25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px);
+        }
 
-        /* --- CINEMA MODE --- */
+        /* --- CINEMA MODE (IMMERSIVE) --- */
         #cinema-modal {
             position: fixed; inset: 0; z-index: 1000; background: #000;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease-luxury);
         }
         #cinema-modal.active { opacity: 1; pointer-events: auto; }
+        
+        /* The container scales up */
         #cinema-content {
-            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center;
             transform: scale(0.9); transition: transform 0.8s var(--ease-luxury);
         }
         #cinema-modal.active #cinema-content { transform: scale(1); }
+        
+        #cinema-player {
+            width: 100%; height: 100%; object-fit: contain;
+            box-shadow: 0 0 100px rgba(245, 158, 11, 0.1);
+        }
 
-        /* --- TEXT --- */
+        /* --- TEXT & BUTTONS --- */
         .text-gold-liquid {
             background: linear-gradient(to right, #F59E0B 20%, #FFF 50%, #F59E0B 80%);
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -131,9 +179,11 @@
         }
         .btn-gold:hover::after { left: 100%; }
 
-        /* --- ANIM --- */
+        /* --- REVEAL --- */
         .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--ease-luxury), transform 1s var(--ease-luxury); }
         .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Strikethrough Price */
         .price-strike { position: relative; display: inline-block; color: #6b7280; font-size: 0.875rem; text-decoration: line-through; text-decoration-color: #ef4444; }
     </style>
 </head>
@@ -207,7 +257,9 @@
         </p>
 
         <div class="reveal active w-full max-w-[1600px] relative z-10">
-            <div class="deck-stage" id="deck-stage"></div>
+            <div class="deck-stage" id="deck-stage">
+                </div>
+            
             <div class="flex flex-col items-center mt-12 gap-6">
                 <div class="text-[10px] font-mono text-gold tracking-widest uppercase flex items-center gap-3">
                     <span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span>
@@ -304,6 +356,7 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+                
                 <div class="reveal glass-card rounded-[32px] p-10 text-left hover:border-gray-600 transition flex flex-col h-full border-white/5">
                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Starter</h3>
                     <div class="mb-8"><span class="text-5xl font-bold text-white">Free</span></div>
@@ -341,10 +394,11 @@
                     <div class="space-y-4 text-xs text-gray-400 relative z-10 font-bold uppercase tracking-wide">
                         <p class="text-[9px] text-gray-600 mb-2">Includes Pro, plus:</p>
                         <p class="flex gap-3 text-gold"><i class="fa-solid fa-user-secret"></i> Ghost Protocol</p>
-                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-layer-group"></i> Private HUD</p>
-                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-bolt"></i> Zero-Day Latency</p>
+                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-desktop"></i> Visual Context</p>
+                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-globe"></i> Polyglot Support</p>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -370,7 +424,7 @@
         </div>
         <div id="modal-profile" class="hidden glass-card rounded-[32px] w-full max-w-md relative shadow-2xl transform scale-95 transition-transform">
             <div class="p-8 border-b border-white/5 flex justify-between items-center">
-                <div class="flex items-center gap-4"><img id="profile-avatar" class="w-12 h-12 rounded-full" /><div class="font-bold text-white text-lg" id="profile-name"></div></div>
+                <div class="flex items-center gap-4"><img id="profile-avatar" class="w-12 h-12 rounded-full ring-2 ring-white/10" /><div class="font-bold text-white text-lg" id="profile-name"></div></div>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
             </div>
             <div class="p-8 space-y-6">
@@ -392,32 +446,19 @@
         let currentUser = null;
         let currentCycle = 'monthly';
 
-        // --- PRELOADER ---
+        // --- SCROLL & LOAD ---
         const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
 
-        // Failsafe Preloader Removal
         window.addEventListener('load', () => {
-            const bar = document.getElementById('loader-fill');
-            bar.style.width = '100%';
+            document.getElementById('loader-bar').style.width = '100%';
             setTimeout(() => {
                 const loader = document.getElementById('preloader');
                 loader.style.opacity = '0';
-                setTimeout(() => { 
-                    loader.style.display = 'none'; 
-                    reveal(); 
-                }, 800);
+                setTimeout(() => { loader.style.display = 'none'; reveal(); }, 800);
             }, 600);
         });
-        // Backup removal in case load hangs
-        setTimeout(() => {
-            const loader = document.getElementById('preloader');
-            if(loader && loader.style.display !== 'none') {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; reveal(); }, 800);
-            }
-        }, 3000);
 
         function reveal() {
             const observer = new IntersectionObserver((entries) => {
@@ -442,7 +483,7 @@
                 el.className = 'deck-card'; el.id = `deck-${i}`;
                 
                 const vid = document.createElement('video');
-                vid.src = item.src; vid.muted = true; vid.playsInline = true; vid.preload = "none";
+                vid.src = item.src; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = "none";
                 vid.className = "w-full h-full object-contain bg-black";
                 
                 // Click -> Cinema Mode
@@ -470,7 +511,7 @@
 
             document.getElementById('deck-label').innerText = deckData[deckIndex].label;
             pips.forEach((p, i) => {
-                if(i === deckIndex) p.className = "w-12 h-1.5 bg-cyan rounded-full transition-all shadow-glow";
+                if(i === deckIndex) p.className = "w-12 h-1.5 bg-gold rounded-full transition-all shadow-gold-glow";
                 else p.className = "w-2 h-1.5 bg-white/20 hover:bg-white rounded-full transition-all cursor-pointer";
             });
         }
@@ -527,18 +568,19 @@
         // --- PRICING LOGIC ---
         function setCycle(c) {
             currentCycle = c;
-            const m = document.getElementById('btn-monthly'); const a = document.getElementById('btn-annual');
+            const m = document.getElementById('btn-monthly');
+            const a = document.getElementById('btn-annual');
             const pPro = document.getElementById('price-pro'); const sPro = document.getElementById('strike-pro');
             const pElite = document.getElementById('price-elite'); const sElite = document.getElementById('strike-elite');
 
             if (c === 'monthly') {
-                m.className = "px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all toggle-btn-active";
-                a.className = "px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all toggle-btn-inactive";
+                m.className = "px-10 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all toggle-btn-active";
+                a.className = "px-10 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all toggle-btn-inactive";
                 pPro.innerText = '₹999'; sPro.innerText = '₹1999';
                 pElite.innerText = '₹2499'; sElite.innerText = '₹4999';
             } else {
-                a.className = "px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all toggle-btn-active";
-                m.className = "px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all toggle-btn-inactive";
+                a.className = "px-10 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all toggle-btn-active";
+                m.className = "px-10 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all toggle-btn-inactive";
                 pPro.innerText = '₹499'; sPro.innerText = '₹999';
                 pElite.innerText = '₹999'; sElite.innerText = '₹1999';
             }
@@ -549,8 +591,8 @@
             
             const btn = event.target; const orig = btn.innerText; btn.innerText = "Processing...";
             
-            // Payment Logic with Fallback for Demo
             try {
+                // Subscription Logic
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -558,7 +600,7 @@
                 });
                 const data = await res.json();
                 
-                // If backend fails (e.g. localhost/demo), simulate success UI
+                // Fallback simulation for demo if backend is offline/unreachable
                 if(!data.success && !data.key_id) {
                     console.warn("Backend Unreachable. Simulating flow.");
                     // In real production, remove this block
