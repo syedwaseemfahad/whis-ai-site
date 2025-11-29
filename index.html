@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-  <title>Whis — Thunderstorm Mode</title>
-  <meta name="description" content="Whis — the ultra‑stealth interview co‑pilot. Lightning fast. Invisible. Ultra pro max UI."/>
+  <title>Whis — Thunderstorm Mode · Ultra Premium</title>
+  <meta name="description" content="Whis — the ultra‑stealth interview co‑pilot. Lightning fast. Invisible. Ultra premium UI."/>
   <meta name="theme-color" content="#0A0A0B"/>
   <meta property="og:title" content="Whis — Thunderstorm Mode"/>
-  <meta property="og:description" content="Lightning fast answers. Ultra pro max design."/>
+  <meta property="og:description" content="Lightning fast answers. Ultra premium design."/>
   <meta property="og:type" content="website"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -21,52 +21,31 @@
           fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
           colors: {
             page: '#0A0A0B',
-            thunder: {
-              50: '#F9F7E8',
-              100: '#FFF7C2',
-              200: '#FFE86A',
-              300: '#FFD000',
-              400: '#FFC000',
-              500: '#F2B705',
-              600: '#E3A100',
-              700: '#C08300',
-              800: '#906100',
-              900: '#4A3200'
-            },
             bolt: '#FFE34D',
             glass: 'rgba(255,255,255,0.04)',
             stroke: 'rgba(255,255,255,0.08)'
           },
           boxShadow: {
             neon: '0 0 0 1px rgba(255,227,77,.12), 0 10px 30px -10px rgba(255,227,77,.25)',
-            glow: '0 0 40px rgba(255,227,77,.15)',
+            glow: '0 0 40px rgba(255,227,77,.15)'
           },
-          dropShadow: {
-            bolt: '0 0 30px rgba(255,227,77,.45)'
-          },
+          dropShadow: { bolt: '0 0 30px rgba(255,227,77,.45)' },
           animation: {
             shimmer: 'shimmer 2.8s linear infinite',
             float: 'float 6s ease-in-out infinite',
             slowpulse: 'pulse 4s cubic-bezier(0.4,0,0.6,1) infinite',
             marquee: 'marquee 36s linear infinite',
             lightning: 'lightning 7s linear infinite',
-            fadeIn: 'fadeIn .9s ease-out forwards'
+            fadeIn: 'fadeIn .9s ease-out forwards',
+            inUp: 'inUp .7s ease-out both'
           },
           keyframes: {
             shimmer: { from:{ backgroundPosition:'0 0' }, to:{ backgroundPosition:'-200% 0' }},
-            float: {
-              '0%,100%': { transform:'translateY(0)' },
-              '50%': { transform:'translateY(-6px)' }
-            },
+            float: { '0%,100%': { transform:'translateY(0)' }, '50%': { transform:'translateY(-6px)' } },
             marquee: { '0%':{transform:'translateX(0)'}, '100%':{transform:'translateX(-50%)'} },
-            lightning: {
-              '0%, 97%, 100%': { opacity: 0 },
-              '5%': { opacity: .9 },
-              '6%': { opacity: 0 },
-              '20%': { opacity: .6 },
-              '21%': { opacity: 0 }
-            },
-            fadeIn: { '0%': { opacity:0, transform:'translateY(10px)' }, '100%': { opacity:1, transform:'translateY(0)' } }
+            lightning: { '0%, 97%, 100%': { opacity: 0 }, '5%': { opacity: .9 }, '6%': { opacity: 0 }, '20%': { opacity: .6 }, '21%': { opacity: 0 } },
+            fadeIn: { '0%': { opacity:0, transform:'translateY(10px)' }, '100%': { opacity:1, transform:'translateY(0)' } },
+            inUp: { '0%':{ opacity:0, transform:'translateY(14px) scale(.98)' }, '100%':{ opacity:1, transform:'translateY(0) scale(1)'} }
           }
         }
       }
@@ -86,9 +65,16 @@
     .ring-bolt{ box-shadow: 0 0 0 1px var(--ring), 0 0 80px -20px var(--ring); }
     .video-frame::-webkit-media-controls { display:none !important; }
     .video-frame { outline: none; }
+    .stroke-title{ -webkit-text-stroke: 1px rgba(255,255,255,.4); text-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .magnetic{ transition: transform .15s ease; will-change: transform; }
+    .cmdk-backdrop{ backdrop-filter: blur(18px); }
+    .scrollbar-hide::-webkit-scrollbar{ display:none; }
   </style>
 </head>
 <body>
+  <!-- PROGRESS BAR -->
+  <div id="progress" class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-amber-300 via-white to-amber-300 w-0 z-[60]"></div>
+
   <!-- BACKGROUND -->
   <div class="backdrop">
     <div class="storm-gradient"></div>
@@ -97,7 +83,7 @@
   </div>
 
   <!-- NAV -->
-  <nav class="fixed top-0 z-50 w-full h-[64px] md:h-[76px] flex items-center backdrop-blur-xl/2">
+  <nav id="nav" class="fixed top-0 z-50 w-full h-[64px] md:h-[76px] flex items-center transition-all">
     <div class="mx-auto w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3 group">
         <!-- Thunderstorm Logo (lightning in a circle) -->
@@ -112,11 +98,12 @@
       <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10">
         <a href="#how" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">How It Works</a>
         <a href="#security" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">Safety</a>
+        <a href="#faq" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">FAQ</a>
         <a href="/pricing" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">Plans</a>
       </div>
       <div class="flex items-center gap-2">
         <button id="signInBtn" onclick="openLoginModal()" class="hidden md:inline text-xs font-medium text-slate-400 hover:text-white">Sign in</button>
-        <button onclick="openDownloadModal()" class="btn-shine px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-white border border-white/10 shadow-glow hover:scale-[1.02] active:scale-[.98]">Get The Advantage</button>
+        <button id="ctaPrimary" onclick="openDownloadModal()" class="magnetic btn-shine px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-white border border-white/10 shadow-glow">Get The Advantage</button>
         <button id="userProfileTrigger" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition group">
           <img id="navUserAvatar" src="" class="w-6 h-6 rounded-full bg-slate-800 object-cover"/>
           <span id="navPlanBadge" class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">PRO</span>
@@ -126,14 +113,16 @@
   </nav>
 
   <!-- HERO -->
-  <header class="relative pt-28 md:pt-40 pb-10 md:pb-16">
+  <header id="hero" class="relative pt-28 md:pt-40 pb-10 md:pb-16">
+    <!-- cursor spotlight -->
+    <div id="spotlight" class="pointer-events-none fixed inset-0 opacity-40" aria-hidden="true"></div>
     <div class="max-w-6xl mx-auto px-6 text-center">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6 animate-inUp">
         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(255,227,77,.7)] animate-pulse"></span>
         Thunderstorm Mode Enabled
       </div>
 
-      <h1 class="text-4xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.05] mb-6">
+      <h1 class="stroke-title text-4xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.05] mb-6">
         <span class="block bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent">Don't Just Prepare.</span>
         <span class="block text-white drop-shadow-bolt">Strike First.</span>
       </h1>
@@ -143,15 +132,25 @@
       </p>
 
       <div class="mt-8 flex flex-col md:flex-row items-center justify-center gap-3">
-        <button id="smartDownloadBtn" class="btn-shine inline-flex items-center justify-center rounded-xl border border-white/10 px-8 py-3.5 text-sm font-semibold text-white shadow-glow">
+        <button id="smartDownloadBtn" class="magnetic btn-shine inline-flex items-center justify-center rounded-xl border border-white/10 px-8 py-3.5 text-sm font-semibold text-white shadow-glow">
           <i id="osIcon" class="fa-brands fa-apple mr-2 text-lg"></i> <span id="osText">Get Whis for macOS</span>
         </button>
         <button onclick="document.getElementById('showcase').scrollIntoView({behavior:'smooth'});" class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold bg-white/10 hover:bg-white/20 border border-white/10">
           See It In Action
         </button>
+        <button id="cmdkOpen" class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold bg-white/5 hover:bg-white/10 border border-white/10">
+          <i class="fa-solid fa-magnifying-glass mr-2"></i> Quick Actions (⌘K)
+        </button>
       </div>
 
       <p id="osSubtext" class="mt-4 text-[10px] text-slate-500 font-mono uppercase tracking-widest">Your competition is already using it.</p>
+
+      <!-- floating dock -->
+      <div class="mt-10 flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest">
+        <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400">Private by Design</span>
+        <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400">RAM‑Only</span>
+        <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400">Undetectable</span>
+      </div>
     </div>
   </header>
 
@@ -162,7 +161,7 @@
         <!-- BIG LEFT (2x2) -->
         <article class="lg:col-span-3 row-span-2 rounded-3xl overflow-hidden border border-white/10 bg-black/60 shadow-neon ring-bolt">
           <div class="relative aspect-[16/9] md:aspect-[21/9]">
-            <video class="video-frame absolute inset-0 w-full h-full object-cover" src="visual.mp4" muted playsinline preload="metadata" loop></video>
+            <video class="video-frame absolute inset-0 w-full h-full object-cover" src="visual.mp4" poster="visual_poster.jpg" muted playsinline preload="metadata" loop></video>
             <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 text-amber-300 border border-amber-300/20 text-[10px] uppercase tracking-widest">Mode: Reading Screen</div>
               <h3 class="mt-3 text-lg md:text-2xl font-semibold">See. Understand. Solve.</h3>
@@ -172,7 +171,7 @@
         <!-- TALL RIGHT TOP -->
         <article class="lg:col-span-2 rounded-3xl overflow-hidden border border-white/10 bg-black/60 shadow-neon">
           <div class="relative aspect-[16/9] md:aspect-[16/10]">
-            <video class="video-frame absolute inset-0 w-full h-full object-cover" src="text.mp4" muted playsinline preload="metadata" loop></video>
+            <video class="video-frame absolute inset-0 w-full h-full object-cover" src="text.mp4" poster="text_poster.jpg" muted playsinline preload="metadata" loop></video>
             <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-400/10 text-emerald-300 border border-emerald-300/20 text-[10px] uppercase tracking-widest">Mode: Generating Code</div>
               <h3 class="mt-3 text-lg md:text-2xl font-semibold">Before They Finish Asking.</h3>
@@ -182,7 +181,7 @@
         <!-- WIDE BOTTOM RIGHT -->
         <article class="lg:col-span-2 rounded-3xl overflow-hidden border border-white/10 bg-black/60 shadow-neon">
           <div class="relative aspect-[16/9] md:aspect-[21/9]">
-            <video class="video-frame absolute inset-0 w-full h-full object-cover" src="audio.mp4" muted playsinline preload="metadata" loop></video>
+            <video class="video-frame absolute inset-0 w-full h-full object-cover" src="audio.mp4" poster="audio_poster.jpg" muted playsinline preload="metadata" loop></video>
             <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-400/10 text-sky-300 border border-sky-300/20 text-[10px] uppercase tracking-widest">Mode: Listening</div>
               <h3 class="mt-3 text-lg md:text-2xl font-semibold">Capture Every Word. No Panic.</h3>
@@ -219,7 +218,6 @@
         <p class="text-slate-500 mt-2">Technology designed to make you look like a genius.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <!-- Card -->
         <div class="glass rounded-3xl p-6 md:p-8 hover:bg-white/[0.04] transition">
           <div class="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-300 mb-5"><i class="fa-solid fa-bolt"></i></div>
           <h3 class="text-white font-semibold mb-2">Totally Invisible</h3>
@@ -292,11 +290,34 @@
     </div>
   </section>
 
+  <!-- FAQ / Microcopy -->
+  <section id="faq" class="py-16 md:py-24 border-t border-white/5 bg-[#070707]">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-2xl md:text-3xl font-semibold mb-6">Questions, answered.</h2>
+      <div class="divide-y divide-white/10">
+        <details class="group py-5">
+          <summary class="cursor-pointer list-none flex items-center justify-between text-slate-300 hover:text-white">
+            <span>Is it detectable on screenshare?</span>
+            <i class="fa-solid fa-plus group-open:rotate-45 transition"></i>
+          </summary>
+          <p class="mt-3 text-sm text-slate-400">No. Overlay uses compositing paths that are not captured by common meeting tools.</p>
+        </details>
+        <details class="group py-5">
+          <summary class="cursor-pointer list-none flex items-center justify-between text-slate-300 hover:text-white">
+            <span>Do you store any audio or screen data?</span>
+            <i class="fa-solid fa-plus group-open:rotate-45 transition"></i>
+          </summary>
+          <p class="mt-3 text-sm text-slate-400">No. Processing is in RAM; buffers are disposed immediately after response generation.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <!-- FOOTER -->
-  <footer class="border-t border-white/5 py-12 bg-black">
+  <footer class="border-t border-white/5 py-16 bg-black relative">
     <div class="max-w-7xl mx-auto px-6 text-center">
-      <h3 class="text-white font-medium text-lg mb-4">Don't let them reject you again.</h3>
-      <button onclick="openDownloadModal()" class="mb-8 px-6 py-2 rounded-full bg-white/10 border border-white/10 hover:bg-white hover:text-black transition text-xs font-bold uppercase tracking-widest">Get Whis Now</button>
+      <h3 class="text-white font-medium text-xl mb-4">Don't let them reject you again.</h3>
+      <button onclick="openDownloadModal()" class="mb-8 px-6 py-3 rounded-full bg-white/10 border border-white/10 hover:bg-white hover:text-black transition text-xs font-bold uppercase tracking-widest">Get Whis Now</button>
       <div class="text-xs text-slate-600 mb-6">&copy; 2025 Whis AI.</div>
       <div class="flex flex-wrap justify-center gap-6 md:gap-8 text-xs font-medium text-slate-500">
         <a href="/pricing" class="hover:text-white transition">Pricing</a>
@@ -305,9 +326,34 @@
         <a href="/privacy" class="hover:text-white transition">Privacy</a>
       </div>
     </div>
+    <!-- sticky bottom bar -->
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
+      <div class="glass rounded-full px-3 py-2 border border-white/10 shadow-neon backdrop-blur-xl flex items-center gap-2">
+        <span class="hidden sm:inline text-[11px] text-slate-300">Ready when you are</span>
+        <button onclick="openDownloadModal()" class="magnetic px-4 py-2 rounded-full bg-white text-black text-[11px] font-bold">Download</button>
+        <button id="cmdkOpen2" class="px-3 py-2 rounded-full bg-white/10 border border-white/10 text-[11px]">Quick Actions ⌘K</button>
+      </div>
+    </div>
   </footer>
 
-  <!-- MODALS -->
+  <!-- COMMAND PALETTE -->
+  <div id="cmdk" class="hidden fixed inset-0 bg-black/60 cmdk-backdrop z-[70] items-start justify-center pt-[15vh] p-4">
+    <div class="glass w-full max-w-2xl rounded-2xl border border-white/10 overflow-hidden">
+      <div class="flex items-center gap-3 px-4 py-3 border-b border-white/10">
+        <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+        <input id="cmdkInput" class="w-full bg-transparent outline-none text-sm placeholder:text-slate-500" placeholder="Type a command… (download, pricing, contact, sign in)"/>
+        <kbd class="hidden md:inline text-[10px] px-2 py-1 bg-white/10 rounded">ESC</kbd>
+      </div>
+      <div id="cmdkResults" class="max-h-[40vh] overflow-auto p-2 scrollbar-hide">
+        <button data-action="download" class="w-full text-left px-3 py-2 rounded hover:bg-white/5">Download Whis</button>
+        <button data-action="pricing" class="w-full text-left px-3 py-2 rounded hover:bg-white/5">Open Pricing</button>
+        <button data-action="contact" class="w-full text-left px-3 py-2 rounded hover:bg-white/5">Contact Support</button>
+        <button data-action="signin" class="w-full text-left px-3 py-2 rounded hover:bg-white/5">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALS (login / download / profile) -->
   <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
     <div class="glass rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative">
       <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
@@ -363,6 +409,8 @@
     const loginModal = document.getElementById('loginModal');
     const downloadModal = document.getElementById('downloadModal');
     const profileModal = document.getElementById('profileModal');
+    const nav = document.getElementById('nav');
+    const progress = document.getElementById('progress');
 
     let currentUser = null;
 
@@ -370,6 +418,10 @@
       detectOS();
       checkUser();
       initVideoAutoplay();
+      initParallax();
+      initScrollProgress();
+      initMagnetic();
+      initCmdK();
     });
 
     // OS‑aware CTA
@@ -388,13 +440,13 @@
       if (isWin) {
         text.textContent = 'Get Whis for Windows';
         icon.className = 'fa-brands fa-windows mr-2 text-lg';
-        btn.onclick = () => window.location.href = winLink;
+        btn && (btn.onclick = () => window.location.href = winLink);
         document.getElementById('winDl').href = winLink;
         document.getElementById('macDl').href = macLink;
       } else {
         text.textContent = 'Get Whis for macOS';
         icon.className = 'fa-brands fa-apple mr-2 text-lg';
-        btn.onclick = () => window.location.href = macLink;
+        btn && (btn.onclick = () => window.location.href = macLink);
         document.getElementById('macDl').href = macLink;
         document.getElementById('winDl').href = winLink;
       }
@@ -410,6 +462,85 @@
         })
       }, { threshold: .25 });
       vids.forEach(v=> io.observe(v));
+    }
+
+    // Parallax spotlight + compact nav on scroll
+    function initParallax(){
+      const spot = document.getElementById('spotlight');
+      window.addEventListener('mousemove', (e)=>{
+        const x = e.clientX; const y = e.clientY;
+        spot.style.background = `radial-gradient(400px at ${x}px ${y}px, rgba(255,255,255,.12), transparent 60%)`;
+      });
+      const onScroll = ()=>{
+        const s = window.scrollY;
+        nav.style.backdropFilter = s>8 ? 'blur(16px)' : 'none';
+        nav.style.background = s>8 ? 'rgba(0,0,0,.35)' : 'transparent';
+        nav.style.borderBottom = s>8 ? '1px solid rgba(255,255,255,.08)' : '1px solid transparent';
+      };
+      window.addEventListener('scroll', onScroll);
+      onScroll();
+    }
+
+    // Scroll progress
+    function initScrollProgress(){
+      const h = document.documentElement;
+      const up = ()=>{
+        const st = h.scrollTop; const sh = h.scrollHeight - h.clientHeight;
+        const pct = Math.max(0, Math.min(1, st/sh));
+        progress.style.width = (pct*100)+'%';
+      };
+      document.addEventListener('scroll', up, { passive:true });
+      up();
+    }
+
+    // Magnetic CTAs
+    function initMagnetic(){
+      const els = document.querySelectorAll('.magnetic');
+      els.forEach(el=>{
+        el.addEventListener('mousemove', (e)=>{
+          const rect = el.getBoundingClientRect();
+          const dx = (e.clientX - rect.left - rect.width/2)/rect.width;
+          const dy = (e.clientY - rect.top - rect.height/2)/rect.height;
+          el.style.transform = `translate(${dx*6}px, ${dy*6}px)`;
+        });
+        el.addEventListener('mouseleave', ()=>{ el.style.transform = 'translate(0,0)'; });
+      })
+    }
+
+    // Command Palette (⌘K)
+    function initCmdK(){
+      const modal = document.getElementById('cmdk');
+      const input = document.getElementById('cmdkInput');
+      const results = document.getElementById('cmdkResults');
+      const openers = [document.getElementById('cmdkOpen'), document.getElementById('cmdkOpen2')];
+
+      const open = ()=>{ modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(()=>input.focus(), 50); };
+      const close = ()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); input.value=''; };
+      openers.forEach(b=> b && b.addEventListener('click', open));
+
+      window.addEventListener('keydown', (e)=>{
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); open(); }
+        if (e.key==='Escape'){ close(); }
+      });
+      modal.addEventListener('click', (e)=>{ if(e.target===modal) close(); });
+
+      results.addEventListener('click', (e)=>{
+        const btn = e.target.closest('button[data-action]'); if(!btn) return;
+        const act = btn.getAttribute('data-action');
+        if (act==='download') openDownloadModal();
+        if (act==='pricing') location.href='/pricing';
+        if (act==='contact') location.href='/contact';
+        if (act==='signin') openLoginModal();
+        close();
+      });
+
+      input.addEventListener('input', ()=>{
+        const q = input.value.toLowerCase();
+        [...results.children].forEach(ch=>{
+          const t = ch.textContent.toLowerCase();
+          ch.style.display = t.includes(q) ? '' : 'none';
+        });
+      });
     }
 
     // Auth UI
