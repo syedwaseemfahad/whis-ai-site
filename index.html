@@ -430,6 +430,17 @@
       </div>
   </div>
 
+  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+      <div class="physics-card p-8 max-w-sm w-full text-center border border-green-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+              <i class="fa-solid fa-check text-2xl text-green-400"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Upgrade Complete</h3>
+          <p class="text-slate-400 text-sm mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
+          <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition">Initialize System</button>
+      </div>
+  </div>
+
   <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
     <div class="physics-card p-8 max-w-md w-full border border-white/10">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
@@ -739,7 +750,7 @@
                     "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
                     "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
                     "handler": async function (response){ 
-                        // --- VITAL FIX: Call Backend to Verify & Update DB ---
+                        // --- UPDATED HANDLER: Call Backend to Verify ---
                         try {
                             const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
                                 method: 'POST',
@@ -752,14 +763,15 @@
                             });
                             const verifyData = await verifyRes.json();
                             if(verifyData.success){
-                                alert("Payment Successful! Upgrading your account...");
-                                window.location.reload(); 
+                                // SHOW NEW SUCCESS MODAL
+                                document.getElementById('successModal').classList.remove('hidden');
+                                document.getElementById('successModal').classList.add('flex');
                             } else {
-                                alert("Payment verification failed. Please contact support.");
+                                alert("Verification Failed. Contact Support.");
                             }
                         } catch(e) {
                             console.error(e);
-                            alert("Network error during verification. Check your connection.");
+                            alert("Network Error during verification.");
                         }
                     },
                     "theme": { "color": "#00f2ff" }
