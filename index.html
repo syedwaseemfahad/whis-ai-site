@@ -9,359 +9,297 @@
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
+            fontFamily: { sans: ['SF Pro Display', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'] },
             colors: { 
-              page: '#030303', /* Deepest Black base */
-              glass: 'rgba(255, 255, 255, 0.05)',
-              stroke: 'rgba(255, 255, 255, 0.15)',
-              cyan: '#00FFFF', /* Extreme Electric Cyan Accent */
+              ultra: '#007AFF', /* Apple/Electric Blue */
             },
             animation: { 
-              'shimmer': 'shimmer 2.5s linear infinite',
-              'fade-in': 'fadeIn 1.0s cubic-bezier(0.2, 0.8, 0.2, 1) forwards', 
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-glow': 'pulseGlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
-              shimmer: { from: { backgroundPosition: '0 0' }, to: { backgroundPosition: '-200% 0' } },
-              fadeIn: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } 
+              float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+              pulseGlow: { '0%, 100%': { opacity: 1, boxShadow: '0 0 20px rgba(0, 122, 255, 0.5)' }, '50%': { opacity: .8, boxShadow: '0 0 40px rgba(0, 122, 255, 0.8)' } }
             }
           }
         }
       }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
       
     <style>
-      /* Base background for Ultra Pro Premium Look */
-      body { background-color: #030303; color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        
-      /* --- MAXIMAL VIDEO CAROUSEL ADJUSTMENTS --- */
+      /* --- ULTRA PRO MAX RESET --- */
+      body { background-color: #000000; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+      
+      /* --- OPTIMIZED CAROUSEL ENGINE --- */
       .carousel-stage {
           position: relative;
-          height: 500px; 
+          height: 400px; /* Mobile height */
           width: 100%;
           display: flex;
           justify-content: center;
           align-items: center;
-          perspective: 2000px; /* Extreme 3D effect */
+          perspective: 1200px; /* Reduced perspective for sharper text */
           transform-style: preserve-3d;
       }
-      @media (min-width: 768px) { .carousel-stage { height: 900px; } } /* MAXIMAL HEIGHT */
+      @media (min-width: 768px) { .carousel-stage { height: 700px; } }
 
       .carousel-item {
           position: absolute;
-          width: 95%; 
-          max-width: 1400px; /* EXTREME MAX-WIDTH */
+          width: 90%; 
+          max-width: 1100px;
           aspect-ratio: 16/10;
-          transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); 
-          border-radius: 24px; 
+          transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); /* Apple-style spring physics */
+          border-radius: 20px;
           overflow: hidden;
-          background: #000;
-          box-shadow: 0 50px 180px rgba(0,0,0,1), inset 0 0 100px rgba(255,255,255,0.03); /* Extreme depth/shadow + inner glow */
-          backface-visibility: hidden;
+          background: #050505;
+          /* GPU Force */
           will-change: transform, opacity;
-          border: 1px solid rgba(255,255,255,0.1); 
+          transform: translate3d(0,0,0);
       }
         
-      @media (min-width: 768px) {
-          .pos-center { 
-            z-index: 30; 
-            transform: translateX(0) scale(1); 
-            opacity: 1; 
-            border: 3px solid var(--tw-colors-cyan); /* THICKER CYAN BORDER */
-            box-shadow: 
-                0 0 60px rgba(0, 255, 255, 0.7), /* INTENSE CYBERPUNK GLOW */
-                0 100px 200px -40px rgba(0,0,0,1); 
-            }
-          .pos-left { z-index: 10; transform: translateX(-90%) scale(0.6) rotateY(45deg); opacity: 0.03; filter: blur(6px) grayscale(100%); pointer-events: none; } 
-          .pos-right { z-index: 10; transform: translateX(90%) scale(0.6) rotateY(-45deg); opacity: 0.03; filter: blur(6px) grayscale(100%); pointer-events: none; }
+      /* Active Item: Clear, Bright, Front */
+      .pos-center { 
+          z-index: 30; 
+          transform: translate3d(0, 0, 0) scale(1); 
+          opacity: 1; 
+          border: 1px solid rgba(255,255,255,0.15);
+          box-shadow: 0 40px 100px -20px rgba(0,0,0,1), 0 0 0 1px rgba(0,0,0,1);
+      }
+      
+      /* Active Item Glow Border */
+      .pos-center::after {
+          content: ''; position: absolute; inset: 0; pointer-events: none;
+          border-radius: 20px;
+          border: 2px solid transparent;
+          background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 40%) border-box;
+          -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
       }
 
-      /* Animated bottom line (Holographic/Cyberpunk Look) */
-      .pos-center::after { 
-          content: ''; 
-          position: absolute; 
-          bottom: 0; 
-          left: 0; 
-          width: 100%; 
-          height: 6px; /* EXTREME THICKNESS */
-          background: linear-gradient(90deg, transparent 10%, var(--tw-colors-cyan) 50%, transparent 90%); 
-          z-index: 40; 
-          box-shadow: 0 0 40px var(--tw-colors-cyan); /* STRONGER GLOW */
-          transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      /* Inactive Items: Glassy, Blurred, Receded (NO VIDEO TO SAVE CPU) */
+      .pos-left { 
+          z-index: 10; 
+          transform: translate3d(-60%, 0, -200px) rotateY(15deg); 
+          opacity: 0.4; 
+          filter: blur(2px) brightness(0.5);
+          pointer-events: none; 
+          border: 1px solid rgba(255,255,255,0.05);
+      } 
+      .pos-right { 
+          z-index: 10; 
+          transform: translate3d(60%, 0, -200px) rotateY(-15deg); 
+          opacity: 0.4; 
+          filter: blur(2px) brightness(0.5);
+          pointer-events: none; 
+          border: 1px solid rgba(255,255,255,0.05);
       }
 
-      /* --- GENERAL UI STYLING FOR ULTRA PRO PREMIUM --- */
-      .glass-nav { 
-        background: rgba(0, 0, 0, 0.98); 
-        backdrop-filter: blur(40px); 
-        border-bottom: 1px solid rgba(255,255,255,0.3); 
-      } 
-      .glass-card { 
-        background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%); 
-        border: 1px solid rgba(255, 255, 255, 0.2); 
-        box-shadow: 0 15px 40px rgba(0,0,0,0.7); 
-        /* Complex border for elite cards */
-        border-image: linear-gradient(45deg, rgba(255,255,255,0.3), var(--tw-colors-cyan), rgba(255,255,255,0.3)) 1;
-      } 
-      .gradient-text { 
-        background: linear-gradient(to bottom, #ffffff, var(--tw-colors-cyan)); /* White to Cyan Gradient */
-        -webkit-background-clip: text; 
-        -webkit-text-fill-color: transparent; 
-      } 
-      .btn-shine { 
-          background: linear-gradient(110deg, #101010 40%, #303030 55%, #101010); 
-          background-size: 200% 100%; 
-          animation: shimmer 3s linear infinite; 
-          /* Focused, high-intensity glow */
-          box-shadow: 0 0 35px rgba(0, 255, 255, 0.9), inset 0 0 15px rgba(255,255,255,0.2); 
-          border: 2px solid var(--tw-colors-cyan);
-          color: white; /* Ensure text visibility */
+      /* --- HIGH VISIBILITY COMPONENTS --- */
+      .btn-ultra {
+          background: linear-gradient(180deg, #007AFF 0%, #0062CC 100%);
+          color: white !important;
+          font-weight: 700;
+          border: 1px solid rgba(255,255,255,0.2);
+          box-shadow: 0 0 25px rgba(0, 122, 255, 0.4), inset 0 1px 1px rgba(255,255,255,0.3);
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+          transition: transform 0.2s;
       }
-      .btn-accent {
-        background-color: var(--tw-colors-cyan);
-        color: #000000 !important; /* FIXED: Black text on Cyan background for visibility */
-        font-weight: 900;
-        box-shadow: 0 0 20px var(--tw-colors-cyan);
+      .btn-ultra:hover { transform: scale(1.02); box-shadow: 0 0 40px rgba(0, 122, 255, 0.6), inset 0 1px 1px rgba(255,255,255,0.4); }
+      .btn-ultra:active { transform: scale(0.98); }
+
+      .btn-ghost {
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: white;
+          font-weight: 600;
+          transition: all 0.3s;
       }
-      * { -webkit-tap-highlight-color: transparent; }
+      .btn-ghost:hover { background: rgba(255,255,255,0.15); border-color: white; }
+
+      .glass-panel {
+          background: rgba(10, 10, 10, 0.7);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      }
+
+      .text-glow { text-shadow: 0 0 30px rgba(255,255,255,0.3); }
+      .text-blue-glow { text-shadow: 0 0 20px rgba(0, 122, 255, 0.8); }
+      
+      /* Hide scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #000; }
+      ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body>
 
-    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[700px] md:w-[1400px] h-[700px] md:h-[1000px] bg-cyan/10 blur-[350px] rounded-full mix-blend-screen animate-pulse-slow"></div> 
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#007AFF] opacity-[0.12] blur-[150px] rounded-full"></div>
     </div>
 
-    <nav class="fixed top-0 w-full z-50 glass-nav h-[80px] md:h-[100px] flex items-center justify-center transition-all duration-300">
-      <div class="w-full max-w-8xl px-6 md:px-12 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-4 group">
-          <div class="w-12 h-12 rounded-xl bg-cyan/10 flex items-center justify-center border border-cyan/40 group-hover:border-cyan transition shadow-xl shadow-cyan/20">
-            <span class="text-lg font-extrabold text-cyan tracking-widest">WH</span>
+    <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center transition-all duration-300 glass-panel border-b-0">
+      <div class="w-full max-w-7xl px-6 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+            <span class="text-sm font-black text-black tracking-tighter">WH</span>
           </div>
-          <span class="text-xl font-extrabold text-slate-100 group-hover:text-cyan transition">WHIS.AI</span>
+          <span class="text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition">whis.ai</span>
         </a>
           
-        <div class="hidden md:flex items-center gap-2 bg-white/5 p-2 rounded-full border border-white/20 backdrop-blur-md absolute left-1/2 -translate-x-1/2 shadow-2xl">
-          <a href="#features" class="px-8 py-3 text-base font-semibold text-slate-300 hover:text-white hover:bg-white/15 rounded-full transition">How It Works</a>
-          <a href="#security" class="px-8 py-3 text-base font-semibold text-slate-300 hover:text-white hover:bg-white/15 rounded-full transition">Safety</a>
-          <a href="/pricing" class="px-8 py-3 text-base font-semibold text-slate-300 hover:text-white hover:bg-white/15 rounded-full transition">Plans</a>
+        <div class="hidden md:flex items-center gap-1 bg-black/40 p-1.5 rounded-full border border-white/10 backdrop-blur-md">
+          <a href="#features" class="px-6 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition">How It Works</a>
+          <a href="#security" class="px-6 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition">Safety</a>
+          <a href="/pricing" class="px-6 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition">Plans</a>
         </div>
 
         <div class="flex items-center gap-4">
-            <button onclick="openLoginModal()" id="signInBtn" class="text-base font-semibold text-slate-300 hover:text-cyan transition hidden lg:block px-6 py-3 rounded-full border border-white/10 hover:border-cyan">Sign In</button>
-            <button onclick="openDownloadModal()" class="px-10 py-4 btn-accent rounded-xl text-lg font-extrabold hover:bg-white transition shadow-2xl shadow-cyan/60">Get The Advantage</button>
+            <button onclick="openLoginModal()" id="signInBtn" class="text-sm font-semibold text-slate-300 hover:text-white transition hidden lg:block">Sign In</button>
+            <button onclick="openDownloadModal()" class="px-6 py-2.5 btn-ultra rounded-full text-sm tracking-wide">Get Whis</button>
             
-            <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/10 pr-5 pl-3 py-2.5 rounded-full border border-white/20 hover:border-cyan transition group shadow-lg">
-              <img id="navUserAvatar" src="" class="w-9 h-9 rounded-full bg-slate-800 object-cover" />
-              <span id="navPlanBadge" class="text-sm font-extrabold text-cyan uppercase tracking-widest">ELITE</span>
+            <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-2 py-1.5 rounded-full border border-white/10 hover:border-white/30 transition group">
+              <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover" />
+              <span id="navPlanBadge" class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">ELITE</span>
             </button>
         </div>
       </div>
     </nav>
 
-    <section class="relative pt-60 pb-32 md:pt-80 md:pb-52 overflow-hidden flex flex-col items-center">
+    <section class="relative pt-40 pb-20 md:pt-56 md:pb-32 overflow-hidden flex flex-col items-center">
         
-      <div class="relative z-10 text-center max-w-6xl px-6 mb-32 md:mb-48 animate-fade-in">
-        <div class="inline-flex items-center gap-4 px-8 py-3 rounded-full bg-cyan/10 border border-cyan/40 text-cyan text-sm font-bold uppercase tracking-[0.4em] mb-16 md:mb-20 cursor-default transition shadow-2xl shadow-cyan/30">
-          <span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_25px_rgba(239,68,68,1)] animate-pulse"></span> 1,240 ELITE USERS ONLINE NOW
+      <div class="relative z-10 text-center max-w-5xl px-6 mb-16 animate-float">
+        <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-slate-300 text-[10px] font-bold uppercase tracking-[0.2em] mb-10 backdrop-blur-sm">
+          <span class="w-2 h-2 rounded-full bg-[#007AFF] shadow-[0_0_10px_#007AFF] animate-pulse"></span> 
+          System Operational
         </div>
         
-        <h1 class="text-6xl md:text-8xl lg:text-8xl font-extrabold tracking-tighter leading-none mb-10 md:mb-12">
-          <span class="block gradient-text">Don't Just Prepare.</span>
-          <span class="block text-white mt-6 md:mt-8">Have The Answers.</span>
+        <h1 class="text-5xl md:text-8xl font-black tracking-tight leading-[1.05] mb-8 text-white text-glow">
+          Don't Just Prepare.<br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-b from-blue-400 to-blue-600 text-blue-glow">Have The Answers.</span>
         </h1>
         
-        <p class="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-16 md:mb-20 leading-relaxed font-light">
-          System is broken. Competition is impossible. Why struggle alone? <br class="hidden md:block">
-          <span class="text-cyan font-semibold">Get the answer before they finish asking the question.</span> <br>
-          <span class="text-white font-medium">Invisible. Undetectable. Guaranteed.</span>
+        <p class="text-lg md:text-2xl text-slate-400 max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
+          The ultimate stealth assistant for technical interviews. <br>
+          <span class="text-white">Invisible. Undetectable. Real-time.</span>
         </p>
         
-        <div class="flex flex-col md:flex-row items-center justify-center gap-6">
-          <button id="smartDownloadBtn" class="w-full md:w-auto btn-shine inline-flex items-center justify-center rounded-xl px-16 py-5 text-xl font-bold text-cyan transition hover:scale-[1.01] active:scale-[0.99]">
-            <i id="osIcon" class="fa-brands fa-apple mr-3 text-2xl"></i> <span id="osText">Get Whis for macOS</span>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-5">
+          <button id="smartDownloadBtn" class="w-full md:w-auto btn-ultra rounded-2xl px-12 py-5 text-xl tracking-tight flex items-center justify-center gap-3">
+            <i id="osIcon" class="fa-brands fa-apple text-2xl"></i> 
+            <span id="osText">Download for macOS</span>
           </button>
+          <a href="#features" class="w-full md:w-auto btn-ghost rounded-2xl px-10 py-5 text-lg flex items-center justify-center">
+            See How It Works
+          </a>
         </div>
-        <p id="osSubtext" class="mt-4 text-sm text-slate-700 font-mono uppercase tracking-widest opacity-80">
-          Your competition is already using it.
-        </p>
       </div>
 
-      <div class="w-full max-w-[1500px] mx-auto px-4 md:px-8 relative z-20 mb-10">
+      <div class="w-full max-w-[1600px] mx-auto px-4 relative z-20">
           <div class="carousel-stage" id="carouselStage"></div>
           
-          <div class="flex flex-col items-center mt-20 md:mt-32 gap-8">
-              <div id="activeFeatureLabel" class="text-lg font-extrabold text-cyan uppercase tracking-[0.5em] bg-black/50 border border-cyan/50 px-10 py-4 rounded-full shadow-2xl shadow-cyan/40">
+          <div class="flex flex-col items-center mt-12 gap-6">
+              <div id="activeFeatureLabel" class="text-sm font-bold text-blue-400 uppercase tracking-[0.3em]">
                   Initializing...
               </div>
               
-              <div class="flex justify-center gap-4 p-4 rounded-full bg-black/80 border border-white/20 backdrop-blur-sm shadow-inner shadow-white/5">
-                  <button onclick="manualSet(0)" id="ind-0" class="w-12 md:w-16 h-3.5 rounded-full bg-cyan transition-all"></button>
-                  <button onclick="manualSet(1)" id="ind-1" class="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white/20 hover:bg-cyan/60 transition-all"></button>
-                  <button onclick="manualSet(2)" id="ind-2" class="w-4 h-4 md:w-5 md:h-5 rounded-full bg-white/20 hover:bg-cyan/60 transition-all"></button>
+              <div class="flex justify-center gap-4">
+                  <button onclick="manualSet(0)" id="ind-0" class="w-12 h-1.5 rounded-full bg-white transition-all"></button>
+                  <button onclick="manualSet(1)" id="ind-1" class="w-2 h-1.5 rounded-full bg-white/20 hover:bg-white transition-all"></button>
+                  <button onclick="manualSet(2)" id="ind-2" class="w-2 h-1.5 rounded-full bg-white/20 hover:bg-white transition-all"></button>
               </div>
           </div>
       </div>
 
-      <div class="w-full max-w-6xl px-6 text-center mt-36 md:mt-60">
-          <p class="text-lg font-bold text-slate-800 uppercase tracking-[0.6em] mb-12 md:mb-16">TRUSTED BY ELITE ENGINEERS AT</p>
-          <div class="flex flex-wrap justify-center gap-12 md:gap-24 opacity-70 grayscale hover:grayscale-0 transition duration-700">
-              <i class="fa-brands fa-google text-5xl md:text-6xl text-white hover:text-cyan transition cursor-default"></i>
-              <i class="fa-brands fa-amazon text-5xl md:text-6xl text-white hover:text-cyan transition cursor-default"></i>
-              <i class="fa-brands fa-meta text-5xl md:text-6xl text-white hover:text-cyan transition cursor-default"></i>
-              <i class="fa-brands fa-microsoft text-5xl md:text-6xl text-white hover:text-cyan transition cursor-default"></i>
-              <i class="fa-brands fa-uber text-5xl md:text-6xl text-white hover:text-cyan transition cursor-default"></i>
+      <div class="w-full max-w-5xl px-6 text-center mt-32">
+          <p class="text-xs font-bold text-slate-600 uppercase tracking-[0.3em] mb-10">Used by engineers at</p>
+          <div class="flex flex-wrap justify-center gap-10 md:gap-20 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition duration-500">
+              <i class="fa-brands fa-google text-3xl md:text-4xl hover:text-white transition cursor-default"></i>
+              <i class="fa-brands fa-amazon text-3xl md:text-4xl hover:text-white transition cursor-default"></i>
+              <i class="fa-brands fa-meta text-3xl md:text-4xl hover:text-white transition cursor-default"></i>
+              <i class="fa-brands fa-microsoft text-3xl md:text-4xl hover:text-white transition cursor-default"></i>
+              <i class="fa-brands fa-uber text-3xl md:text-4xl hover:text-white transition cursor-default"></i>
           </div>
       </div>
     </section>
 
-    <section class="py-32 md:py-52 border-t border-white/10 bg-gradient-to-b from-[#030303] to-[#0A0A0A] shadow-inner shadow-black/90">
-      <div class="max-w-5xl mx-auto px-6 text-center">
-          <h2 class="text-5xl md:text-6xl font-extrabold text-white mb-10 leading-snug">
-              "I studied for 6 months. I solved 500 problems.<br>
-              <span class="text-slate-600 font-normal italic text-4xl">And I still froze in the interview.</span>"
-          </h2>
-          <p class="text-xl md:text-2xl text-slate-400 leading-10 font-light">
-              It happens to the best of us. You know the code, but the pressure breaks you. 
-              Why let 45 minutes define your entire career? <br><br>
-              <strong class="text-cyan font-extrabold">Stop playing by their rules.</strong> Whis sits quietly on your screen. 
-              It listens. It sees. It gives you the perfect code, the system design, and the logic.
-              <br><br>
-              You speak the answer. You get the job. <span class="text-white font-bold">It's that simple.</span>
-          </p>
-      </div>
-    </section>
-
-    <section id="features" class="py-36 md:py-60 relative border-t border-white/10 bg-[#030303]">
+    <section id="features" class="py-32 bg-[#050505] relative">
         <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-32 md:mb-48">
-                <h2 class="text-6xl md:text-8xl font-extrabold text-white mb-4 md:mb-6 tracking-tight">The Unfair Advantage.</h2>
-                <p class="text-slate-500 text-2xl md:text-3xl">Technology designed to make you look like a genius.</p>
+            <div class="text-center mb-24">
+                <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">The Unfair Advantage.</h2>
+                <p class="text-slate-400 text-xl">Technology designed to make you look like a genius.</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12">
-                <div class="glass-card rounded-3xl p-12 md:p-14 text-center flex flex-col items-center hover:bg-white/[0.1] transition duration-500 shadow-2xl hover:shadow-cyan/30">
-                    <div class="w-16 h-16 rounded-2xl bg-cyan/10 flex items-center justify-center border border-cyan/40 mb-8 text-cyan text-3xl shadow-xl shadow-cyan/10"><i class="fa-solid fa-ghost"></i></div>
-                    <h3 class="text-2xl font-extrabold text-white mb-4">Totally Invisible</h3>
-                    <p class="text-base text-slate-400 leading-relaxed">
-                        Share your screen with confidence. Whis hides from screen sharing tools. You see the answer. They see nothing.
-                    </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel rounded-3xl p-10 hover:bg-white/5 transition duration-500 group">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl mb-8 shadow-lg shadow-blue-900/50 group-hover:scale-110 transition"><i class="fa-solid fa-ghost"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-3">Totally Invisible</h3>
+                    <p class="text-slate-400 leading-relaxed">Hidden from screen sharing. Hidden from task managers. It runs as a system kernel process that interview platforms cannot detect.</p>
                 </div>
-                <div class="glass-card rounded-3xl p-12 md:p-14 text-center flex flex-col items-center hover:bg-white/[0.1] transition duration-500 shadow-2xl hover:shadow-cyan/30">
-                    <div class="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/40 mb-8 text-red-400 text-3xl"><i class="fa-solid fa-ban"></i></div>
-                    <h3 class="text-2xl font-extrabold text-white mb-4">Zero Trace</h3>
-                    <p class="text-base text-slate-400 leading-relaxed">
-                        No icon in the dock. No taskbar presence. It runs deep in the background. It's like it was never there.
-                    </p>
+                <div class="glass-panel rounded-3xl p-10 hover:bg-white/5 transition duration-500 group">
+                    <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white text-2xl mb-8 border border-white/10 group-hover:scale-110 transition"><i class="fa-solid fa-bolt"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-3">Instant Answers</h3>
+                    <p class="text-slate-400 leading-relaxed">Whis listens to the audio stream. It generates the optimal code solution (Python, Java, C++) before the interviewer finishes their sentence.</p>
                 </div>
-                <div class="glass-card rounded-3xl p-12 md:p-14 text-center flex flex-col items-center hover:bg-white/[0.1] transition duration-500 shadow-2xl hover:shadow-cyan/30">
-                    <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/40 mb-8 text-emerald-400 text-3xl"><i class="fa-solid fa-microphone-lines"></i></div>
-                    <h3 class="text-2xl font-extrabold text-white mb-4">Instant Answers</h3>
-                    <p class="text-base text-slate-400 leading-relaxed">
-                        Whis listens to the interviewer's voice. It generates the correct code solution before they stop talking.
-                    </p>
-                </div>
-                <div class="glass-card rounded-3xl p-12 md:p-14 text-center flex flex-col items-center hover:bg-white/[0.1] transition duration-500 shadow-2xl hover:shadow-cyan/30">
-                    <div class="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/40 mb-8 text-purple-400 text-3xl"><i class="fa-solid fa-eye"></i></div>
-                    <h3 class="text-2xl font-extrabold text-white mb-4">It Reads For You</h3>
-                    <p class="text-base text-slate-400 leading-relaxed">
-                        Stuck on a diagram or a written problem? Just use the snippet tool. Whis reads the screen and solves it.
-                    </p>
-                </div>
-                <div class="glass-card rounded-3xl p-12 md:p-14 text-center flex flex-col items-center hover:bg-white/[0.1] transition duration-500 shadow-2xl hover:shadow-cyan/30">
-                    <div class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/40 mb-8 text-indigo-400 text-3xl"><i class="fa-solid fa-keyboard"></i></div>
-                    <h3 class="text-2xl font-extrabold text-white mb-4">Direct Control</h3>
-                    <p class="text-base text-slate-400 leading-relaxed">
-                        Need a specific algorithm? Type a command, and the code appears in your clipboard instantly.
-                    </p>
-                </div>
-                <div class="glass-card rounded-3xl p-12 md:p-14 text-center flex flex-col items-center hover:bg-white/[0.1] transition duration-500 shadow-2xl hover:shadow-cyan/30">
-                    <div class="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/40 mb-8 text-orange-400 text-3xl"><i class="fa-solid fa-globe"></i></div>
-                    <h3 class="text-2xl font-extrabold text-white mb-4">Any Language</h3>
-                    <p class="text-base text-slate-400 leading-relaxed">
-                        Interviewing in Java? Python? C++? Whis adapts instantly. It speaks every coding language fluently.
-                    </p>
+                <div class="glass-panel rounded-3xl p-10 hover:bg-white/5 transition duration-500 group">
+                    <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-white text-2xl mb-8 border border-white/10 group-hover:scale-110 transition"><i class="fa-solid fa-eye"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-3">Screen Reading</h3>
+                    <p class="text-slate-400 leading-relaxed">System design diagram? LeetCode problem text? Whis reads your screen using OCR and solves visuals instantly.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="security" class="py-36 md:py-60 bg-[#030303] border-t border-white/10 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-900/15 blur-[250px] rounded-full pointer-events-none"></div>
-        
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col lg:flex-row items-center gap-24 lg:gap-40">
-                <div class="flex-1 space-y-16">
-                    <h2 class="text-6xl md:text-7xl font-extrabold text-white tracking-tight">Your Secret is Safe.</h2>
-                    <p class="text-slate-400 text-xl md:text-2xl leading-relaxed">
-                        We know the risks. That's why we built the most secure, privacy-focused architecture possible. <strong class="text-cyan">No one will ever know.</strong>
-                    </p>
-                    
-                    <div class="space-y-10">
-                        <div class="flex gap-8 items-start">
-                            <div class="w-14 h-14 rounded-xl bg-cyan/10 flex items-center justify-center border border-cyan/40 shrink-0 shadow-lg shadow-cyan/20"><i class="fa-solid fa-shield-halved text-cyan text-xl"></i></div>
-                            <div>
-                                <h4 class="text-white font-extrabold text-2xl mb-1">Nothing is Saved</h4>
-                                <p class="text-base text-slate-500 leading-relaxed">Audio and screen data is processed in RAM and deleted instantly. We keep zero logs of your session.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-8 items-start">
-                            <div class="w-14 h-14 rounded-xl bg-cyan/10 flex items-center justify-center border border-cyan/40 shrink-0 shadow-lg shadow-cyan/20"><i class="fa-solid fa-lock text-cyan text-xl"></i></div>
-                            <div>
-                                <h4 class="text-white font-extrabold text-2xl mb-1">Undetectable Process</h4>
-                                <p class="text-base text-slate-500 leading-relaxed">Our application is designed to bypass standard anti-cheat and detection methods. It is a ghost on your system.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex-1 w-full max-w-xl">
-                    <div class="glass-card p-2 rounded-3xl bg-gradient-to-br from-white/20 to-transparent shadow-2xl shadow-cyan/20">
-                        <div class="bg-black/90 rounded-2xl p-12 md:p-14 border border-white/10 backdrop-blur-sm">
-                            <div class="flex justify-between items-center mb-10 text-base font-extrabold text-slate-500 uppercase tracking-widest font-mono border-b border-white/10 pb-4">
-                                <span>STEALTH STATUS</span>
-                                <span class="text-cyan flex items-center gap-3 font-bold"><span class="w-4 h-4 rounded-full bg-cyan animate-pulse shadow-xl shadow-cyan/50"></span> ACTIVE</span>
-                            </div>
-                            <div class="space-y-6 font-mono text-base">
-                                <div class="flex justify-between items-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition border border-transparent hover:border-cyan/10"><span class="text-slate-300">Audio Stream</span><span class="text-cyan font-bold">Encrypted (AES-256)</span></div>
-                                <div class="flex justify-between items-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition border border-transparent hover:border-cyan/10"><span class="text-slate-300">Screenshare Visibility</span><span class="text-purple-400 font-bold">Hidden</span></div>
-                                <div class="flex justify-between items-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition border border-transparent hover:border-cyan/10"><span class="text-slate-300">Server Logs</span><span class="text-red-400 font-bold">Deleted (Immediate)</span></div>
-                                <div class="flex justify-between items-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition border border-transparent hover:border-cyan/10"><span class="text-slate-300">User Identity</span><span class="text-blue-400 font-bold">Anonymous</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="border-t border-white/10 py-24 bg-[#0A0A0A]">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <h3 class="text-white font-extrabold text-3xl mb-10">Don't let them reject you again.</h3>
-            <button onclick="openDownloadModal()" class="mb-14 px-12 py-4 btn-accent rounded-xl text-lg font-extrabold uppercase tracking-widest shadow-xl shadow-cyan/40">Get Whis Now</button>
-            
-            <div class="text-sm text-slate-700 mb-8">&copy; 2025 Whis AI. All Rights Reserved.</div>
-            <div class="flex flex-wrap justify-center gap-10 md:gap-20 text-base font-semibold text-slate-500">
-                <a href="/pricing" class="hover:text-cyan transition">Pricing</a>
-                <a href="/contact" class="hover:text-cyan transition">Contact</a>
-                <a href="/terms" class="hover:text-cyan transition">Terms of Service</a>
-                <a href="/privacy" class="hover:text-cyan transition">Privacy Policy</a>
+    <footer class="border-t border-white/10 py-24 bg-black">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h3 class="text-white font-bold text-3xl mb-10">Secure Your Offer Today.</h3>
+            <button onclick="openDownloadModal()" class="mb-16 px-12 py-5 btn-ultra rounded-full text-lg tracking-wide shadow-[0_0_50px_rgba(0,122,255,0.4)]">Get The Advantage</button>
+            <div class="flex justify-center gap-10 text-sm font-medium text-slate-500">
+                <a href="#" class="hover:text-white transition">Privacy</a>
+                <a href="#" class="hover:text-white transition">Terms</a>
+                <a href="#" class="hover:text-white transition">Contact</a>
             </div>
         </div>
     </footer>
 
-    <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass-card rounded-3xl p-12 max-w-sm w-full text-center shadow-2xl relative border border-white/20"><button onclick="closeLoginModal()" class="absolute top-5 right-5 text-slate-500 hover:text-cyan text-xl"><i class="fa-solid fa-times"></i></button><h3 class="text-2xl font-extrabold text-white mb-2">Welcome Back</h3><p class="text-base text-slate-500 mb-8">Sign in to manage your subscription.</p><div id="googleBtnContainer" class="flex justify-center h-[48px]"></div></div></div>
-        
-    <div id="downloadModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass-card rounded-3xl p-12 max-w-md w-full shadow-2xl relative border border-white/20"><button onclick="closeDownloadModal()" class="absolute top-5 right-5 text-slate-600 hover:text-cyan text-xl"><i class="fa-solid fa-times"></i></button><h2 class="text-3xl font-extrabold text-white mb-8">Start Winning.</h2><div class="space-y-6"><a href="#" class="flex items-center justify-between px-6 py-5 bg-white/10 border border-white/20 rounded-xl hover:bg-cyan/10 transition group shadow-md"><span class="text-lg font-semibold text-white"><i class="fa-brands fa-apple mr-4 text-cyan"></i> macOS</span><i class="fa-solid fa-download text-slate-300 group-hover:text-cyan text-lg"></i></a><a href="#" class="flex items-center justify-between px-6 py-5 bg-white/10 border border-white/20 rounded-xl hover:bg-cyan/10 transition group shadow-md"><span class="text-lg font-semibold text-white"><i class="fa-brands fa-windows mr-4 text-cyan"></i> Windows</span><i class="fa-solid fa-download text-slate-300 group-hover:text-cyan text-lg"></i></a></div></div></div>
-        
-    <div id="profileModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
-      <div class="bg-[#0A0A0A] border border-cyan/30 rounded-2xl w-full max-w-md overflow-hidden relative shadow-2xl ring-2 ring-cyan/10">
-          <div class="p-8 border-b border-white/10 flex justify-between items-center bg-white/10"><div class="flex items-center gap-4"><img id="modalUserAvatar" class="w-12 h-12 rounded-full bg-slate-800 object-cover" /><div class="font-extrabold text-white text-lg" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-cyan text-xl"><i class="fa-solid fa-times"></i></button></div>
-          <div class="p-8 space-y-8">
-              <div class="bg-cyan/5 border border-cyan/30 rounded-xl p-6"><div class="flex justify-between items-start mb-4"><div><p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-2xl font-extrabold text-cyan">Loading...</h3></div><span id="modalPlanStatus" class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-emerald-500/30 text-emerald-300 border border-emerald-500/30">ACTIVE</span></div><div class="text-sm text-slate-400 flex justify-between border-t border-white/10 pt-4"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono font-medium">--</span></div></div>
-              <button onclick="logout()" class="w-full py-4 rounded-xl border border-white/20 text-slate-300 hover:bg-cyan/10 hover:text-cyan transition text-sm font-extrabold uppercase tracking-wider shadow-md">Sign Out</button>
+    <div id="downloadModal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[100] hidden items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl p-10 max-w-md w-full relative border border-white/20 shadow-2xl">
+            <button onclick="closeDownloadModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white text-xl"><i class="fa-solid fa-times"></i></button>
+            <h2 class="text-3xl font-black text-white mb-2">Download Whis</h2>
+            <p class="text-slate-400 mb-8">Select your platform to begin.</p>
+            <div class="space-y-4">
+                <a href="#" class="flex items-center justify-between px-6 py-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition group">
+                    <span class="text-lg font-bold text-white flex items-center gap-3"><i class="fa-brands fa-apple text-2xl"></i> macOS</span>
+                    <i class="fa-solid fa-arrow-right text-white/50 group-hover:text-white"></i>
+                </a>
+                <a href="#" class="flex items-center justify-between px-6 py-5 bg-white/5 border border-white/10 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition group">
+                    <span class="text-lg font-bold text-white flex items-center gap-3"><i class="fa-brands fa-windows text-2xl"></i> Windows</span>
+                    <i class="fa-solid fa-arrow-right text-white/50 group-hover:text-white"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[100] hidden items-center justify-center p-4">
+        <div class="glass-panel rounded-3xl p-10 max-w-sm w-full text-center border border-white/20 shadow-2xl relative">
+            <button onclick="closeLoginModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            <h3 class="text-2xl font-bold text-white mb-2">Welcome Back</h3>
+            <p class="text-slate-400 mb-8">Sign in to manage your subscription.</p>
+            <div id="googleBtnContainer" class="flex justify-center h-[50px]"></div>
+        </div>
+    </div>
+    
+    <div id="profileModal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[100] hidden items-center justify-center p-4">
+      <div class="bg-[#0A0A0A] border border-white/20 rounded-3xl w-full max-w-md overflow-hidden relative shadow-2xl">
+          <div class="p-8 border-b border-white/10 flex justify-between items-center bg-white/5"><div class="flex items-center gap-4"><img id="modalUserAvatar" class="w-14 h-14 rounded-full bg-slate-800 object-cover ring-2 ring-white/20" /><div class="font-bold text-white text-xl" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-500 hover:text-white text-xl"><i class="fa-solid fa-times"></i></button></div>
+          <div class="p-8 space-y-6">
+              <div class="bg-blue-600/10 border border-blue-500/30 rounded-2xl p-6"><div class="flex justify-between items-center mb-2"><p class="text-xs font-bold text-blue-400 uppercase tracking-widest">Plan</p><span id="modalPlanStatus" class="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-500 text-white">ACTIVE</span></div><h3 id="modalPlanName" class="text-3xl font-black text-white">PRO ELITE</h3><div class="text-xs text-blue-200/60 mt-4 font-mono">RENEWS: <span id="modalExpiryDate" class="text-white">--</span></div></div>
+              <button onclick="logout()" class="w-full py-4 rounded-xl border border-white/10 text-slate-400 hover:bg-white hover:text-black transition text-sm font-bold uppercase tracking-wider">Sign Out</button>
           </div>
       </div>
     </div>
@@ -370,18 +308,18 @@
       // Configuration
       const BACKEND_URL="https://whis-backend.onrender.com";
       const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-        
+      
       // UI vars
       const loginModal=document.getElementById('loginModal');
       const downloadModal=document.getElementById('downloadModal');
       const profileModal=document.getElementById('profileModal');
       let currentUser=null;
         
-      // CAROUSEL LOGIC
+      // CAROUSEL LOGIC (OPTIMIZED FOR NO HANGING)
       const videos = [
-          { src: 'visual.mp4', label: 'MODE: READING SCREEN...' },
-          { src: 'text.mp4', label: 'MODE: GENERATING CODE...' },
-          { src: 'audio.mp4', label: 'MODE: LISTENING TO INTERVIEWER...' }
+          { src: 'visual.mp4', label: 'MODE: SCREEN READING' },
+          { src: 'text.mp4', label: 'MODE: CODE GENERATION' },
+          { src: 'audio.mp4', label: 'MODE: AUDIO ANALYSIS' }
       ];
       let activeIndex = 0;
         
@@ -397,15 +335,27 @@
             
           videos.forEach((v, i) => {
               const div = document.createElement('div');
-              div.className = 'carousel-item transition-all duration-1200 ease-in-out'; 
+              div.className = 'carousel-item'; 
               div.id = `item-${i}`;
+              
+              // PERFORMANCE FIX: Only create video element for the active item initially
+              // Or better: Create all but set preload=none, and only manage src based on active state
+              // To prevent hanging, we use a placeholder for inactive, and video for active.
+              
+              const vidContainer = document.createElement('div');
+              vidContainer.className = "w-full h-full bg-[#111] relative overflow-hidden";
+              
+              // Fallback/Loading state styling
+              vidContainer.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-slate-700 font-mono text-xs">LOADING STREAM...</div>`;
+              
               const vid = document.createElement('video');
               vid.src = v.src;
               vid.muted = true; vid.playsInline = true; vid.loop = true; 
-              vid.className = "w-full h-full object-cover";
-              vid.preload = "auto";
-                
-              div.appendChild(vid);
+              vid.className = "absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500";
+              vid.preload = "none"; // CRITICAL: Do not preload to stop hanging
+              
+              vidContainer.appendChild(vid);
+              div.appendChild(vidContainer);
               stage.appendChild(div);
           });
             
@@ -417,31 +367,27 @@
           const prevIndex = (activeIndex - 1 + 3) % 3;
           const nextIndex = (activeIndex + 1) % 3;
             
-          // Reset classes
-          items.forEach(el => el.className = 'carousel-item transition-all duration-1200 ease-in-out');
+          // Clean classes
+          items.forEach(el => el.className = 'carousel-item transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]');
             
-          // Add Position Classes
+          // Set Positions
           items[activeIndex].classList.add('pos-center');
           items[prevIndex].classList.add('pos-left');
           items[nextIndex].classList.add('pos-right');
             
-          // Click handlers
-          items[prevIndex].onclick = () => manualSet(prevIndex);
-          items[nextIndex].onclick = () => manualSet(nextIndex);
-          items[activeIndex].onclick = null;
-
-          // Video Playback Logic (Strict control for performance)
+          // PERFORMANCE VIDEO MANAGER
           items.forEach((el, idx) => {
               const v = el.querySelector('video');
               if(idx === activeIndex) {
-                  v.muted = true;
-                  const playPromise = v.play();
-                  if (playPromise !== undefined) {
-                      playPromise.catch(error => { /* Autoplay prevented, safely ignore */ });
+                  // Load and Play Active
+                  v.style.opacity = '1';
+                  if(v.paused) {
+                      v.play().catch(e => console.log("Auto-play restricted"));
                   }
               } else {
+                  // Unload/Pause Inactive to free memory
+                  v.style.opacity = '0.5';
                   v.pause();
-                  v.currentTime = 0;
               }
           });
 
@@ -449,15 +395,14 @@
           [0,1,2].forEach(i => {
               const ind = document.getElementById(`ind-${i}`);
               if(i === activeIndex) {
-                  ind.className = "w-12 md:w-16 h-3.5 rounded-full bg-cyan transition-all";
+                  ind.className = "w-12 h-1.5 rounded-full bg-blue-500 transition-all shadow-[0_0_10px_#3b82f6]";
               } else {
-                  ind.className = "w-4 h-4 md:w-5 md:h-5 rounded-full bg-white/20 hover:bg-cyan/60 transition-all cursor-pointer";
+                  ind.className = "w-2 h-1.5 rounded-full bg-white/20 hover:bg-white transition-all cursor-pointer";
               }
           });
             
           // Label
-          const lbl = document.getElementById('activeFeatureLabel');
-          lbl.innerText = videos[activeIndex].label;
+          document.getElementById('activeFeatureLabel').innerText = videos[activeIndex].label;
       }
 
       function manualSet(idx) { activeIndex = idx; updateCarouselPositions(); }
@@ -466,28 +411,24 @@
           const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
           const btn = document.getElementById('smartDownloadBtn'); 
           const icon = document.getElementById('osIcon'); 
-          const text = document.getElementById('osText'); 
-          const sub = document.getElementById('osSubtext');
+          const text = document.getElementById('osText');
             
-          // Simple logic for download links
           const winLink = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe";
           const macLink = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg";
 
           if (p.includes('win')||ua.includes('win')) { 
-              text.innerText="Get Whis for Windows"; 
-              icon.className="fa-brands fa-windows mr-3 text-2xl"; 
-              sub.innerText="Your competition is already using it."; 
+              text.innerText="Download for Windows"; 
+              icon.className="fa-brands fa-windows text-2xl"; 
               btn.onclick=()=>window.location.href=winLink; 
           }
           else { 
-              text.innerText="Get Whis for macOS"; 
-              icon.className="fa-brands fa-apple mr-3 text-2xl"; 
-              sub.innerText="Your competition is already using it."; 
+              text.innerText="Download for macOS"; 
+              icon.className="fa-brands fa-apple text-2xl"; 
               btn.onclick=()=>window.location.href=macLink; 
           }
       }
 
-      // --- Auth Functions (Minified for performance) ---
+      // --- Auth ---
       function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); }catch(e){localStorage.removeItem('whisUser');} } }
       function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:hGoogle});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill"});}}
       function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
@@ -498,7 +439,7 @@
       function logout(){localStorage.removeItem('whisUser');location.reload();}
       function updateNavUI(u){document.getElementById('signInBtn').style.display='none';document.getElementById('userProfileTrigger').classList.remove('hidden');document.getElementById('userProfileTrigger').classList.add('flex');document.getElementById('navUserAvatar').src=u.avatarUrl;}
       async function hGoogle(res){try{const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});if(r.ok){const d=await r.json();if(d.success){localStorage.setItem('whisUser',JSON.stringify(d.user));currentUser=d.user;updateNavUI(currentUser);closeLoginModal();fetchFullUserData(currentUser.googleId);}}}catch(e){}}
-      async function fetchFullUserData(gid){try{const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});const d=await r.json();const b=document.getElementById('navPlanBadge');const mb=document.getElementById('modalPlanStatus');if(d.active){b.textContent=(d.tier==='pro_plus'?'ELITE':'PRO');b.className="text-sm font-extrabold text-cyan uppercase tracking-widest";mb.textContent="ACTIVE";mb.className="px-3 py-1.5 rounded-full text-xs font-extrabold bg-emerald-500/30 text-emerald-300 border border-emerald-500/30";document.getElementById('modalExpiryDate').textContent=new Date(d.validUntil).toLocaleDateString();}else{b.textContent="FREE";b.className="text-sm font-extrabold text-slate-500 uppercase tracking-widest";mb.textContent="INACTIVE";mb.className="px-3 py-1.5 rounded-full text-xs font-extrabold bg-slate-500/30 text-slate-400 border border-slate-500/30";document.getElementById('modalExpiryDate').textContent="Forever";}document.getElementById('modalPlanName').textContent=d.tier==='pro_plus'?'Pro + Elite':(d.tier==='pro'?'Pro Plan':'Starter Free');}catch(e){}}
+      async function fetchFullUserData(gid){try{const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':gid}});const d=await r.json();const b=document.getElementById('navPlanBadge');const mb=document.getElementById('modalPlanStatus');if(d.active){b.textContent=(d.tier==='pro_plus'?'ELITE':'PRO');mb.textContent="ACTIVE";mb.className="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-500 text-white";document.getElementById('modalExpiryDate').textContent=new Date(d.validUntil).toLocaleDateString();}else{b.textContent="FREE";mb.textContent="INACTIVE";mb.className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-600 text-slate-300";document.getElementById('modalExpiryDate').textContent="Forever";}document.getElementById('modalPlanName').textContent=d.tier==='pro_plus'?'Pro Elite':(d.tier==='pro'?'Pro Plan':'Starter');}catch(e){}}
     </script>
 </body>
 </html>
