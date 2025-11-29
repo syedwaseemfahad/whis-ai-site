@@ -66,9 +66,9 @@
             -webkit-font-smoothing: antialiased; 
         }
 
-        /* --- PRELOADER --- */
+        /* --- PRELOADER (THE CURTAIN) --- */
         #preloader {
-            position: fixed; inset: 0; z-index: 9999; background: #000;
+            position: fixed; inset: 0; z-index: 99999; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.8s var(--ease-luxury), visibility 0.8s;
         }
@@ -109,7 +109,7 @@
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        /* Fix cropping: Ensure video fits perfectly */
+        /* FIX: CONTAIN prevents cropping, bg-black fills gaps */
         .deck-card video { 
             width: 100%; height: 100%; object-fit: contain; background: #000; 
         }
@@ -167,7 +167,7 @@
 <body id="top">
 
     <div id="preloader">
-        <div class="text-[10px] font-mono text-primary tracking-[0.5em] mb-6">SYSTEM INITIALIZING</div>
+        <div class="text-[10px] font-mono text-primary tracking-[0.5em] mb-6 animate-pulse">SYSTEM INITIALIZING</div>
         <div class="loader-line"><div class="loader-fill" id="loader-fill"></div></div>
     </div>
 
@@ -196,6 +196,7 @@
 
             <div class="hidden md:flex items-center gap-2 bg-white/5 p-1.5 rounded-full border border-white/5 backdrop-blur-md">
                 <a href="#logic" class="px-6 py-2 text-xs font-medium text-gray-400 hover:text-white transition rounded-full hover:bg-white/5">Features</a>
+                <a href="#demo" class="px-6 py-2 text-xs font-medium text-gray-400 hover:text-white transition rounded-full hover:bg-white/5">Demo</a>
                 <a href="#pricing" class="px-6 py-2 text-xs font-medium text-gray-400 hover:text-white transition rounded-full hover:bg-white/5">Pricing</a>
             </div>
 
@@ -334,6 +335,7 @@
     <section id="pricing" class="py-40 px-6 relative z-10 border-t border-white/5 bg-surface">
         <div class="max-w-7xl mx-auto text-center">
             <h2 class="reveal text-5xl md:text-7xl font-semibold mb-10 text-white tracking-tighter">Invest in your <span class="text-primary">career</span>.</h2>
+            <p class="reveal text-gray-400 text-lg mb-16 max-w-xl mx-auto font-light">Secure your success. Master every technical meeting.</p>
             
             <div class="reveal inline-flex bg-[#050505] p-1.5 rounded-full mb-24 border border-white/10 shadow-xl">
                 <button id="btn-monthly" class="px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all" onclick="setCycle('monthly')">Monthly</button>
@@ -349,7 +351,7 @@
                     <button onclick="handleDownload()" class="w-full py-4 rounded-full border border-white/10 text-gray-300 hover:bg-white/5 text-xs font-bold transition mb-10 uppercase tracking-wide">Download App</button>
                     <div class="space-y-4 text-xs text-gray-400 font-bold uppercase tracking-wide">
                         <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Responses / day</p>
-                        <p class="flex gap-3"><i class="fa-solid fa-microphone"></i> Basic Audio</p>
+                        <p class="flex gap-3"><i class="fa-solid fa-microphone"></i> Basic Audio Analysis</p>
                         <p class="flex gap-3"><i class="fa-solid fa-clock"></i> 3-Day History</p>
                     </div>
                 </div>
@@ -433,15 +435,34 @@
         let currentUser = null;
         let currentCycle = 'monthly';
 
-        // --- SCROLL & LOAD ---
+        // --- SCROLL & LOAD (Safety Timeout Added) ---
         const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
 
         window.addEventListener('load', () => {
-            document.getElementById('loader-bar').style.width = '100%';
-            setTimeout(() => { document.getElementById('preloader').style.opacity = '0'; setTimeout(() => { document.getElementById('preloader').style.display = 'none'; reveal(); }, 800); }, 600);
+            const bar = document.getElementById('loader-fill');
+            bar.style.width = '100%';
+            setTimeout(() => {
+                const loader = document.getElementById('preloader');
+                if(loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => { 
+                        loader.style.display = 'none'; 
+                        reveal(); 
+                    }, 800);
+                }
+            }, 500);
         });
+        
+        // Safety Fallback if load hangs
+        setTimeout(() => {
+            const loader = document.getElementById('preloader');
+            if(loader && loader.style.display !== 'none') {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; reveal(); }, 800);
+            }
+        }, 3000);
 
         function reveal() {
             const observer = new IntersectionObserver((entries) => {
@@ -450,7 +471,7 @@
             document.querySelectorAll('.reveal, .reveal-up').forEach(el => observer.observe(el));
         }
 
-        // --- VIDEO ENGINE (Original Videos) ---
+        // --- VIDEO ENGINE (Zero-Crop) ---
         const deckData = [
             { src: 'visual.mp4', label: 'MODE: OMNI-VISION' },
             { src: 'text.mp4', label: 'MODE: LIVE CODING' },
@@ -460,14 +481,16 @@
 
         function initDeck() {
             const stage = document.getElementById('deck-stage');
+            if(!stage) return;
             stage.innerHTML = '';
             deckData.forEach((item, i) => {
                 const el = document.createElement('div');
                 el.className = 'deck-card'; el.id = `deck-${i}`;
+                
                 const vid = document.createElement('video');
                 vid.src = item.src; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = "none";
+                vid.className = "w-full h-full object-contain bg-black"; // FIXED CROPPING
                 
-                // Add click listener for Lightbox
                 el.onclick = () => openCinema(item.src);
                 vid.onended = () => { if(i===deckIndex) setDeck((deckIndex + 1) % 3); };
 
@@ -479,9 +502,15 @@
         function updateDeck() {
             const items = [document.getElementById('deck-0'), document.getElementById('deck-1'), document.getElementById('deck-2')];
             const pips = [document.getElementById('pip-0'), document.getElementById('pip-1'), document.getElementById('pip-2')];
+            if(!items[0]) return;
+            
             const prev = (deckIndex - 1 + 3) % 3; const next = (deckIndex + 1) % 3;
 
-            items.forEach(el => { el.className = 'deck-card'; el.querySelector('video').pause(); el.querySelector('video').style.opacity = "0.4"; });
+            items.forEach(el => { 
+                el.className = 'deck-card'; 
+                const v = el.querySelector('video');
+                v.pause(); v.style.opacity = "0.4";
+            });
 
             items[deckIndex].classList.add('active'); items[prev].classList.add('left'); items[next].classList.add('right');
             
@@ -489,9 +518,9 @@
             activeVid.style.opacity = "1";
             activeVid.play().catch(()=>{});
 
-            document.getElementById('deck-label').innerText = "SYSTEM: " + deckData[deckIndex].label;
+            document.getElementById('deck-label').innerText = deckData[deckIndex].label;
             pips.forEach((p, i) => {
-                if(i === deckIndex) p.className = "w-12 h-1.5 bg-cyan rounded-full transition-all";
+                if(i === deckIndex) p.className = "w-12 h-1.5 bg-cyan rounded-full transition-all shadow-glow";
                 else p.className = "w-2 h-1.5 bg-white/20 hover:bg-white rounded-full transition-all cursor-pointer";
             });
         }
@@ -512,7 +541,7 @@
             setTimeout(() => { overlay.classList.add('hidden'); overlay.classList.remove('flex'); vid.pause(); vid.src=""; }, 500);
         }
 
-        // --- AUTH ---
+        // --- AUTH & PRICING ---
         const Storage = {
             save: (u) => localStorage.setItem('whisUser', JSON.stringify(u)),
             get: () => JSON.parse(localStorage.getItem('whisUser')),
@@ -539,7 +568,7 @@
             try {
                 const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
                 const d = await r.json();
-                document.getElementById('nav-badge').innerText = d.active ? 'PRO' : 'FREE';
+                document.getElementById('nav-badge').innerText = d.active ? (d.tier === 'pro_plus' ? 'ELITE' : 'PRO') : 'FREE';
                 document.getElementById('profile-plan').innerText = d.active ? (d.tier === 'pro_plus' ? 'Elite (Stealth)' : 'Pro') : 'Free Starter';
                 document.getElementById('profile-expiry').innerText = d.active ? new Date(d.validUntil).toLocaleDateString() : 'Forever';
             } catch(e) {}
@@ -554,13 +583,13 @@
             const pElite = document.getElementById('price-elite'); const sElite = document.getElementById('strike-elite');
 
             if (c === 'monthly') {
-                m.className = "px-8 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all";
-                a.className = "px-8 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all";
+                m.className = "px-10 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all toggle-btn-active";
+                a.className = "px-10 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all toggle-btn-inactive";
                 pPro.innerText = '₹999'; sPro.innerText = '₹1999';
                 pElite.innerText = '₹2499'; sElite.innerText = '₹4999';
             } else {
-                a.className = "px-8 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all";
-                m.className = "px-8 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all";
+                a.className = "px-10 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all toggle-btn-active";
+                m.className = "px-10 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all toggle-btn-inactive";
                 pPro.innerText = '₹499'; sPro.innerText = '₹999';
                 pElite.innerText = '₹999'; sElite.innerText = '₹1999';
             }
@@ -571,42 +600,29 @@
             
             const btn = event.target; const orig = btn.innerText; btn.innerText = "Processing...";
             
-            // Payment Logic Corrected for Robustness
             try {
-                const res = await fetch(`${BACKEND_URL}/api/payment/create-order`, {
+                // Subscription Logic
+                const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        googleId: currentUser.googleId, 
-                        tier: tier, 
-                        cycle: currentCycle 
-                    }) 
+                    body: JSON.stringify({ googleId: currentUser.googleId, tier: tier, cycle: currentCycle }) 
                 });
-                
                 const data = await res.json();
+                if(!data.success) throw new Error("Subscription Failed");
                 
-                if(!data.order_id) throw new Error("Order Creation Failed");
-
                 const options = {
                     "key": data.key_id,
-                    "amount": data.amount,
-                    "currency": data.currency,
+                    "subscription_id": data.subscription_id,
                     "name": "Whis AI",
-                    "description": tier.toUpperCase() + " Plan",
-                    "order_id": data.order_id,
-                    "handler": function (response){ 
-                        window.location.href = `payment?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`; 
-                    },
+                    "description": tier.toUpperCase() + " Subscription",
+                    "handler": function (response){ window.location.href = "/success"; },
                     "theme": { "color": "#6366f1" }
                 };
-                
                 const rzp = new Razorpay(options);
                 rzp.on('payment.failed', function (response){ alert("Payment Failed"); });
                 rzp.open();
-
             } catch(e) { 
-                console.error(e);
-                alert("Payment Gateway Error. Please try again."); 
+                alert("Payment System Offline (Demo Mode)."); 
             }
             btn.innerText = orig;
         }
