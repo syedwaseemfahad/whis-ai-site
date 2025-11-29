@@ -384,7 +384,7 @@
 
             <div class="physics-card p-8 text-left flex flex-col h-full border-white/20">
                 <h3 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Pro License</h3>
-                <div class="text-4xl font-bold text-white mb-6" id="pricePro">₹999</div>
+                <div class="text-4xl font-bold text-white mb-6" id="pricePro">...</div>
                 <div class="space-y-4 text-xs text-slate-300 mb-8 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Unlimited Syntheses</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Visual Context Analysis</p>
@@ -397,7 +397,7 @@
             <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-accent">
                 <div class="absolute top-0 right-0 p-4"><i class="fa-solid fa-crown text-accent text-xl"></i></div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Elite License</h3>
-                <div class="text-4xl font-bold text-white mb-6" id="priceStealth">₹2499</div>
+                <div class="text-4xl font-bold text-white mb-6" id="priceStealth">...</div>
                 <div class="space-y-4 text-xs text-white mb-8 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
                     <p class="flex gap-3"><i class="fa-solid fa-ghost text-accent"></i> Invisible to Screenshare</p>
@@ -484,18 +484,10 @@
         const t1 = document.getElementById('intro-text-1');
         const t2 = document.getElementById('intro-text-2');
         const layer = document.getElementById('intro-layer');
-
-        // Text 1: In at 0.5s, Out at 2.0s
         setTimeout(() => t1.classList.add('intro-active'), 500);
         setTimeout(() => t1.classList.remove('intro-active'), 2000);
-        
-        // Gap of 0.5s
-        
-        // Text 2: In at 2.5s, Out at 4.0s
         setTimeout(() => t2.classList.add('intro-active'), 2500);
         setTimeout(() => t2.classList.remove('intro-active'), 4000);
-
-        // Fade Layer: 4.5s
         setTimeout(() => { layer.style.opacity = '0'; }, 4500);
         setTimeout(() => { layer.style.display = 'none'; }, 5500);
     }
@@ -515,12 +507,9 @@
             const div = document.createElement('div');
             div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
-            
             const video = document.createElement('video');
             video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
-            // Ensure uncropped fit
             video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
-            
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -531,12 +520,10 @@
         const total = videos.length;
         const prev = (activeIndex - 1 + total) % total;
         const next = (activeIndex + 1) % total;
-        
         videos.forEach((_, i) => {
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
-            
             if(i === activeIndex) {
                 el.classList.add('item-center');
                 vid.play().catch(()=>{});
@@ -556,7 +543,6 @@
     setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
     // --- 1. CODE TYPEWRITER (Formatted) ---
-    // Using string parts to simulate syntax highlighting structure
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -575,31 +561,19 @@
         { text: "                res += rightMax - height[r]\n", class: "" },
         { text: "        return ", class: "keyword" }, { text: "res", class: "" }
     ];
-    
-    let currentPart = 0;
-    let currentChar = 0;
-    
+    let currentPart = 0; let currentChar = 0;
     function typeCode() {
         const el = document.getElementById('code-display');
         const cursor = document.getElementById('cursor');
-        
         if (currentPart < codeLines.length) {
             const part = codeLines[currentPart];
-            
-            // Create span if starting new part
             let span = el.lastElementChild;
             if (currentChar === 0 || !span) {
                 span = document.createElement('span');
                 if (part.class) span.className = part.class;
                 el.appendChild(span);
             }
-            
             span.textContent += part.text[currentChar];
-            
-            // Move cursor
-            const rect = span.getBoundingClientRect();
-            // Simple cursor positioning (approximate)
-            
             currentChar++;
             if (currentChar >= part.text.length) {
                 currentPart++;
@@ -616,12 +590,28 @@
     const BACKEND_URL="https://whis-backend.onrender.com";
     const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
+    
+    // Global Config (Will be fetched)
+    let PRICING_CONFIG = {
+        pro: { monthly: 999, annual_per_month: 499, discount: 0 },
+        pro_plus: { monthly: 2499, annual_per_month: 999, discount: 0 }
+    };
 
     function detectOS(){
         const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
         if (p.includes('win')||ua.includes('win')) btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
         else btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
+    }
+
+    async function fetchPricingConfig() {
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/config/pricing`);
+            if(res.ok) {
+                PRICING_CONFIG = await res.json();
+                updatePricingUI();
+            }
+        } catch(e) { console.error("Pricing Fetch Error", e); }
     }
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
@@ -632,10 +622,7 @@
         profileTrigger.classList.remove('hidden'); 
         profileTrigger.classList.add('flex'); 
         document.getElementById('navUserAvatar').src = u.avatarUrl; 
-        
-        // Fix: Hide Badge by default, logic will show it in fetchUserStatus
         document.getElementById('navPlanBadge').innerText = "FREE";
-        document.getElementById('navPlanBadge').classList.remove('text-accent');
         document.getElementById('navPlanBadge').classList.add('text-slate-400');
     }
     
@@ -647,15 +634,44 @@
         } catch(e){ console.error(e); }
     }
     
+    function formatPrice(amount, discount) {
+        if(discount > 0) {
+            const discounted = Math.round(amount * (1 - discount/100));
+            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60">₹${amount}</span>`;
+        }
+        return `₹${amount}`;
+    }
+
     function setCycle(c){
         currentCycle=c;
         const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual');
         if(c==='monthly'){
             btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
-            document.getElementById('pricePro').innerText='₹999'; document.getElementById('priceStealth').innerText='₹2499';
         } else {
             btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
-            document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
+        }
+        updatePricingUI();
+    }
+
+    function updatePricingUI() {
+        const proDiv = document.getElementById('pricePro');
+        const eliteDiv = document.getElementById('priceStealth');
+        
+        let proPrice = 0, elitePrice = 0;
+        let proDisc = PRICING_CONFIG.pro.discount;
+        let eliteDisc = PRICING_CONFIG.pro_plus.discount;
+
+        if (currentCycle === 'monthly') {
+            proPrice = PRICING_CONFIG.pro.monthly;
+            elitePrice = PRICING_CONFIG.pro_plus.monthly;
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}`;
+        } else {
+            proPrice = PRICING_CONFIG.pro.annual_per_month;
+            elitePrice = PRICING_CONFIG.pro_plus.annual_per_month;
+            // Added explicit "per month (billed annually)" text
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/mo (billed yearly)</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/mo (billed yearly)</span>`;
         }
     }
 
@@ -670,31 +686,24 @@
             const validityEl = document.getElementById('modalPlanValidity');
             
             if(d.active){
-                // PAID TIER
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
                 badge.classList.remove('text-slate-400');
                 badge.classList.add('text-accent');
-
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
-                
-                // Show validity if available
                 if(d.expiry || d.validUntil) {
                     const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
                     validityEl.innerText = "Valid until: " + dateStr;
                 } else {
                     validityEl.innerText = "Active Subscription";
                 }
-
                 const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
                 if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
                 if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
             } else {
-                // FREE TIER
                 badge.innerText = 'FREE';
                 badge.classList.add('text-slate-400');
                 badge.classList.remove('text-accent');
-                
                 document.getElementById('modalPlanName').innerText = 'Free Tier';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 validityEl.innerText = "Lifetime Free Access";
@@ -733,12 +742,10 @@
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
-    // FIXED: Google Button Rendering
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         if(window.google){
             google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
-            // Force specific width to prevent overflow
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
         }
     }
@@ -754,6 +761,7 @@
         typeCode();
         checkUser();
         detectOS();
+        fetchPricingConfig(); // New fetch
         setTimeout(initPhysics, 500);
     });
   </script>
