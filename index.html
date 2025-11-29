@@ -2,7 +2,7 @@
 <html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <title>Whis-AI – Silence The Doubt</title>
+  <title>Whis-AI – Dominate The Interview</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,40 +17,37 @@
           colors: { 
             page: '#010101', 
             stormBlue: '#3b82f6',
-            stormPurple: '#8b5cf6',
+            stormPurple: '#7c3aed',
             accent: '#00f2ff'
           },
           animation: { 
             'intro-reveal': 'introReveal 2s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+            'rain': 'rain 0.5s linear infinite',
+            'lightning-severe': 'lightningSevere 5s infinite random',
             'float': 'float 20s infinite linear',
-            'lightning': 'lightning 10s infinite random',
-            'glow-pulse': 'glowPulse 3s ease-in-out infinite',
-            'cursor': 'cursor .75s step-end infinite',
-            'wave': 'wave 1.2s ease-in-out infinite',
             'shimmer-text': 'shimmerText 8s linear infinite',
+            'pulse-slow': 'pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           },
           keyframes: {
             introReveal: {
-                '0%': { opacity: '0', transform: 'scale(1.1)' },
-                '100%': { opacity: '1', transform: 'scale(1)' }
+                '0%': { opacity: '0', transform: 'scale(1.1) translateY(20px)' },
+                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
             },
-            lightning: { 
+            rain: {
+                '0%': { backgroundPosition: '0% 0%' },
+                '100%': { backgroundPosition: '0% 100%' }
+            },
+            lightningSevere: { 
                 '0%, 95%, 100%': { opacity: '0' },
-                '96%': { opacity: '0.1' },
+                '96%': { opacity: '0.3' },
                 '96.5%': { opacity: '0' },
-                '97%': { opacity: '0.2' }, 
+                '97%': { opacity: '0.5' }, 
                 '98%': { opacity: '0' }
             },
             shimmerText: {
                 '0%, 100%': { backgroundPosition: '0% 50%' },
                 '50%': { backgroundPosition: '100% 50%' }
             },
-            glowPulse: {
-                '0%, 100%': { boxShadow: '0 0 20px rgba(0, 242, 255, 0.2)' },
-                '50%': { boxShadow: '0 0 40px rgba(0, 242, 255, 0.5)' }
-            },
-            cursor: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } },
-            wave: { '0%, 100%': { height: '10%' }, '50%': { height: '100%' } },
             float: {
                 '0%': { transform: 'translateY(100vh)', opacity: '0' },
                 '10%': { opacity: '0.1' },
@@ -70,12 +67,12 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
   <style>
-    /* --- ETHEREAL THEME --- */
-    body { background-color: #010101; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    /* --- ASCENSION THEME --- */
+    body { background-color: #010101; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; transition: background-color 2s ease; }
 
     /* The "Liquid" Text */
     .text-liquid {
-        background: linear-gradient(90deg, #ffffff, #8b5cf6, #00f2ff, #ffffff);
+        background: linear-gradient(90deg, #ffffff, #7c3aed, #00f2ff, #ffffff);
         background-size: 300% 100%;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -84,21 +81,38 @@
 
     /* Glass Panels */
     .glass-nav { 
-        background: rgba(1, 1, 1, 0.7); 
+        background: rgba(1, 1, 1, 0.8); 
         backdrop-filter: blur(24px); 
         border-bottom: 1px solid rgba(255,255,255,0.06); 
     }
     
     .glass-card { 
-        background: linear-gradient(180deg, rgba(20, 20, 25, 0.4) 0%, rgba(5, 5, 5, 0.6) 100%); 
+        background: linear-gradient(180deg, rgba(15, 15, 20, 0.6) 0%, rgba(2, 2, 2, 0.8) 100%); 
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.08); 
         transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
     }
     .glass-card:hover {
         transform: translateY(-5px);
         border-color: var(--accent-color, #00f2ff);
-        box-shadow: 0 10px 40px -10px rgba(0, 242, 255, 0.15);
+        box-shadow: 0 20px 60px -10px rgba(0, 242, 255, 0.1);
+    }
+    .glass-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top, rgba(255,255,255,0.03), transparent 70%);
+        pointer-events: none;
+    }
+
+    /* Pricing Card Special */
+    .pricing-card-elite {
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        box-shadow: 0 0 40px -10px rgba(124, 58, 237, 0.1);
+    }
+    .pricing-card-elite:hover {
+        border-color: #7c3aed;
+        box-shadow: 0 0 60px -10px rgba(124, 58, 237, 0.3);
     }
 
     /* Code Terminal */
@@ -106,44 +120,41 @@
         background: #050505;
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 12px;
-        box-shadow: 0 20px 60px -20px rgba(0,0,0,1);
+        box-shadow: 0 30px 80px -20px rgba(0,0,0,1);
     }
     .line-numbers { color: #3f3f46; text-align: right; padding-right: 16px; user-select: none; }
     .code-content { color: #d4d4d8; }
     .syntax-kw { color: #c084fc; font-weight: bold; }
-    .syntax-fn { color: #60a5fa; }
     
-    /* 3D Carousel (Mobile Friendly) */
-    .carousel-container { 
-        perspective: 1200px; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        height: 300px; 
-    }
+    /* 3D Carousel */
+    .carousel-container { perspective: 1200px; display: flex; justify-content: center; align-items: center; height: 300px; }
     @media (min-width: 768px) { .carousel-container { height: 550px; } }
-
-    .carousel-item { 
-        position: absolute; 
-        width: 85%; /* Mobile width */
-        aspect-ratio: 16/9; 
-        transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); 
-        border-radius: 16px; 
-        overflow: hidden; 
-        background: #000; 
-        border: 1px solid rgba(255,255,255,0.1); 
-    }
+    .carousel-item { position: absolute; width: 85%; aspect-ratio: 16/9; transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); border-radius: 16px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.1); }
     @media (min-width: 768px) { .carousel-item { width: 65%; } }
-
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: #00f2ff; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1); }
     .item-left { z-index: 10; transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); opacity: 0.3; filter: grayscale(100%); }
     .item-right { z-index: 10; transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); opacity: 0.3; filter: grayscale(100%); }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
-    
     .carousel-item video { width: 100%; height: 100%; object-fit: contain; background: #000; }
     
     /* Audio Bars */
     .bar { width: 3px; background: #00f2ff; border-radius: 4px; animation: wave 1s ease-in-out infinite; }
+
+    /* HEAVY STORM FX */
+    .rain-layer {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        background-image: url('https://raw.githubusercontent.com/gniezen/rain-js/master/img/rain.png'); /* Fallback / Simulation of rain streaks */
+        background-size: 300px 1000px; /* Stretch for rain effect */
+        opacity: 0;
+        transition: opacity 5s ease;
+    }
+    .heavy-storm .rain-layer {
+        opacity: 0.15;
+        animation: rain 0.3s linear infinite;
+    }
+    .heavy-storm .lightning-layer {
+        animation: lightningSevere 3s infinite random; /* Faster, more intense */
+    }
   </style>
 </head>
 <body class="selection:bg-cyan-500/30 selection:text-white">
@@ -151,22 +162,26 @@
   <div id="intro-layer" class="fixed inset-0 z-[9999] bg-black flex items-center justify-center animate-intro-reveal pointer-events-none">
       <div class="text-center relative">
           <div class="absolute inset-0 bg-blue-500 blur-[100px] opacity-20"></div>
-          <h1 class="text-4xl md:text-6xl font-light tracking-[0.3em] text-white uppercase relative z-10">Witness Greatness</h1>
+          <h1 class="text-3xl md:text-5xl font-light tracking-[0.4em] text-white uppercase relative z-10">Ascend Beyond Limits</h1>
       </div>
   </div>
-  <script> setTimeout(() => document.getElementById('intro-layer').style.display='none', 1800); </script>
+  <script> setTimeout(() => document.getElementById('intro-layer').style.display='none', 2200); </script>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
     <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
-    <div class="absolute inset-0 bg-white mix-blend-overlay opacity-0 animate-lightning"></div>
-    <div class="absolute top-[-20%] left-[-10%] w-[100vw] h-[100vh] bg-blue-900/10 rounded-full blur-[150px] animate-pulse"></div>
-    <div class="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vh] bg-violet-900/10 rounded-full blur-[150px] animate-pulse" style="animation-delay: 2s"></div>
+    
+    <div id="rainLayer" class="rain-layer"></div>
+
+    <div id="lightningLayer" class="absolute inset-0 bg-white mix-blend-overlay opacity-0 lightning-layer"></div>
+    
+    <div class="absolute top-[-20%] left-[-10%] w-[100vw] h-[100vh] bg-blue-900/10 rounded-full blur-[150px] animate-pulse-slow"></div>
+    <div class="absolute bottom-[-20%] right-[-10%] w-[80vw] h-[80vh] bg-purple-900/10 rounded-full blur-[150px] animate-pulse-slow" style="animation-delay: 2s"></div>
   </div>
 
   <nav class="fixed top-0 w-full z-50 glass-nav h-[72px] md:h-[80px] flex items-center justify-center">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-lg border border-white/10 group-hover:border-accent transition duration-300">
+        <div class="w-9 h-9 flex items-center justify-center bg-white/5 rounded-lg border border-white/10 group-hover:border-accent transition duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
             <i class="fa-solid fa-bolt text-accent text-sm"></i>
         </div>
         <span class="text-lg font-bold tracking-tight text-white">Whis-AI</span>
@@ -175,14 +190,14 @@
       <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
         <a href="#features" class="px-5 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Features</a>
         <a href="#demo" class="px-5 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Demo</a>
-        <a href="#pricing" class="px-5 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Access</a>
+        <a href="#pricing" class="px-5 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Pricing</a>
       </div>
 
       <div class="flex items-center gap-5">
           <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-bold text-slate-400 hover:text-white transition uppercase tracking-wider">Sign In</button>
           
           <button onclick="openDownloadModal()" class="relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold uppercase tracking-wider overflow-hidden group transition-transform hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-             <span class="relative z-10">Access Whis-AI</span>
+             <span class="relative z-10">Get Advantage</span>
              <div class="absolute inset-0 bg-gradient-to-r from-accent via-white to-accent opacity-0 group-hover:opacity-30 transition"></div>
           </button>
           
@@ -195,23 +210,23 @@
   </nav>
 
   <section class="relative pt-40 md:pt-48 pb-20 overflow-hidden flex flex-col items-center min-h-screen">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-16 flex flex-col items-center">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 text-slate-300 backdrop-blur-md">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Systems Operational
+    <div class="relative z-10 text-center max-w-5xl px-6 mb-16 flex flex-col items-center animate-intro-reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 text-slate-300 backdrop-blur-md shadow-lg">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Stealth Active
       </div>
       
       <h1 class="text-5xl md:text-8xl font-bold tracking-tighter leading-[0.95] mb-8 text-white">
-        Silence The Doubt.<br>
-        <span class="text-liquid drop-shadow-[0_0_50px_rgba(0,242,255,0.2)]">Speak With Certainty.</span>
+        Dominate The Interview.<br>
+        <span class="text-liquid drop-shadow-[0_0_50px_rgba(0,242,255,0.2)]">Silence The Doubt.</span>
       </h1>
       
       <p class="text-lg text-slate-400 max-w-xl mx-auto mb-12 font-medium leading-relaxed">
-        The ultimate intelligence layer for your screen. <br>
+        Your silent partner in high-stakes engineering.<br>
         <span class="text-white">Invisible. Real-time. Unbeatable.</span>
       </p>
 
       <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto px-6">
-        <button onclick="openDownloadModal()" class="w-full md:w-auto px-8 py-4 rounded-xl bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-accent hover:shadow-[0_0_40px_rgba(0,242,255,0.4)] transition flex items-center justify-center gap-3">
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-accent hover:shadow-[0_0_40px_rgba(0,242,255,0.4)] transition flex items-center justify-center gap-3">
             <i class="fa-brands fa-apple text-lg"></i> Download Client
         </button>
       </div>
@@ -221,26 +236,26 @@
         <div class="carousel-container" id="carouselContainer">
              </div>
         <div class="text-center mt-8">
-             <p id="featureLabel" class="text-xs font-mono text-accent uppercase tracking-[0.3em] opacity-80">Loading Visuals...</p>
+             <p id="featureLabel" class="text-xs font-mono text-accent uppercase tracking-[0.3em] opacity-80">Visual Context Analysis</p>
         </div>
     </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-[#030303]">
+  <section class="py-24 border-t border-white/5 bg-[#010101]">
       <div class="max-w-7xl mx-auto px-6 text-center">
-          <h2 class="text-3xl font-bold text-white mb-12 tracking-tight">Not Just For Engineers.</h2>
+          <h2 class="text-3xl font-bold text-white mb-12 tracking-tight">Intelligence For Everyone.</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="glass-card p-8 rounded-2xl text-left border-l-2 border-l-blue-500">
-                  <h3 class="text-white font-bold mb-2">For Leadership</h3>
-                  <p class="text-sm text-slate-400">Recall financial figures, strategy points, and team metrics instantly during board meetings.</p>
+              <div class="glass-card p-8 rounded-2xl text-left border-l-2 border-l-stormBlue">
+                  <h3 class="text-white font-bold mb-2">Engineering</h3>
+                  <p class="text-sm text-slate-400">Crush System Design & LeetCode. Visualize architecture instantly.</p>
               </div>
-              <div class="glass-card p-8 rounded-2xl text-left border-l-2 border-l-purple-500">
-                  <h3 class="text-white font-bold mb-2">For Sales</h3>
-                  <p class="text-sm text-slate-400">Handle objections in real-time. Pull up product specs and pricing data without breaking eye contact.</p>
+              <div class="glass-card p-8 rounded-2xl text-left border-l-2 border-l-stormPurple">
+                  <h3 class="text-white font-bold mb-2">Management</h3>
+                  <p class="text-sm text-slate-400">Recall KPIs, strategy metrics, and team data during board reviews.</p>
               </div>
-              <div class="glass-card p-8 rounded-2xl text-left border-l-2 border-l-green-500">
-                  <h3 class="text-white font-bold mb-2">For Candidates</h3>
-                  <p class="text-sm text-slate-400">Solve LeetCode, System Design, and behavioral questions with an invisible co-pilot.</p>
+              <div class="glass-card p-8 rounded-2xl text-left border-l-2 border-l-accent">
+                  <h3 class="text-white font-bold mb-2">Sales</h3>
+                  <p class="text-sm text-slate-400">Overcome objections live. Pull technical specs without breaking eye contact.</p>
               </div>
           </div>
       </div>
@@ -250,15 +265,15 @@
       <div class="max-w-7xl mx-auto px-6">
           <div class="flex flex-col lg:flex-row gap-12 items-center">
               <div class="flex-1 space-y-8">
-                  <h2 class="text-3xl md:text-5xl font-bold text-white tracking-tight">Live Intelligence.</h2>
+                  <h2 class="text-3xl md:text-5xl font-bold text-white tracking-tight">Live Synthesis.</h2>
                   <p class="text-slate-400 text-lg leading-relaxed">
-                      Whis-AI listens, understands, and solves. Whether it's spoken audio or visual diagrams, the solution appears instantly.
+                      Whis listens to the problem description. It synthesizes the optimal algorithm in your preferred language instantly.
                   </p>
                   
                   <div class="glass-card p-6 rounded-2xl border border-white/10">
                       <div class="flex items-center gap-4 mb-4">
                           <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center animate-pulse"><div class="w-2 h-2 rounded-full bg-red-500"></div></div>
-                          <span class="text-[10px] font-mono text-red-400 uppercase tracking-widest">Mic Active</span>
+                          <span class="text-[10px] font-mono text-red-400 uppercase tracking-widest">Audio Stream Active</span>
                       </div>
                       <div class="flex items-center gap-1 h-10 opacity-80">
                           <div class="bar h-3" style="animation-delay: 0.1s"></div><div class="bar h-6" style="animation-delay: 0.3s"></div>
@@ -277,7 +292,7 @@
                           <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
                           <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
                           <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
-                          <span class="ml-3 text-[10px] text-slate-500 font-mono uppercase tracking-widest">Output.py</span>
+                          <span class="ml-3 text-[10px] text-slate-500 font-mono uppercase tracking-widest">Solution.py</span>
                       </div>
                       <div class="p-6 font-mono text-xs md:text-sm leading-relaxed overflow-hidden h-[280px] flex">
                           <div class="line-numbers flex flex-col gap-1 opacity-50">
@@ -288,7 +303,7 @@
                           </div>
                       </div>
                       <div id="compileBadge" class="absolute bottom-4 right-4 text-[10px] text-green-400 font-mono flex items-center gap-2 opacity-0 transition-opacity duration-500">
-                          <i class="fa-solid fa-check-circle"></i> GENERATION COMPLETE
+                          <i class="fa-solid fa-check-circle"></i> SYNTHESIS COMPLETE
                       </div>
                   </div>
               </div>
@@ -298,59 +313,41 @@
 
   <section class="py-24 border-t border-white/5 bg-[#010101]">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-2xl font-bold text-white mb-12 text-center">Trusted By The Elite.</h2>
+          <h2 class="text-2xl font-bold text-white mb-12 text-center tracking-tight">Verified Success.</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="glass-card p-8 rounded-2xl">
                   <div class="flex gap-1 text-accent text-xs mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"I secured an L5 offer at Google. The visual context feature saved me during the system design round. It felt like magic."</p>
+                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"Secured L5 at Google. The visual context feature is magic for system design."</p>
                   <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-slate-700"></div>
-                      <div><p class="text-xs font-bold text-white">Sarah J.</p><p class="text-[10px] text-slate-500">Senior Engineer</p></div>
+                      <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10"></div>
+                      <div><p class="text-xs font-bold text-white">S. Johnson</p><p class="text-[10px] text-slate-500">Senior SWE</p></div>
                   </div>
               </div>
               <div class="glass-card p-8 rounded-2xl">
                   <div class="flex gap-1 text-accent text-xs mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"Used this for my PM interviews. Being able to pull up metrics and frameworks instantly without looking away is a game changer."</p>
+                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"Latency is zero. It feels like an extension of my brain. Completely undetectable."</p>
                   <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-slate-700"></div>
-                      <div><p class="text-xs font-bold text-white">David L.</p><p class="text-[10px] text-slate-500">Product Manager</p></div>
+                      <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10"></div>
+                      <div><p class="text-xs font-bold text-white">M. Rivera</p><p class="text-[10px] text-slate-500">Backend Lead</p></div>
                   </div>
               </div>
               <div class="glass-card p-8 rounded-2xl">
                   <div class="flex gap-1 text-accent text-xs mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"The latency is non-existent. It feels like an extension of my own brain. Totally undetectable."</p>
+                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"I use it for board meetings to recall KPIs. It works for everyone, not just coders."</p>
                   <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-slate-700"></div>
-                      <div><p class="text-xs font-bold text-white">Michael R.</p><p class="text-[10px] text-slate-500">Backend Dev</p></div>
+                      <div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10"></div>
+                      <div><p class="text-xs font-bold text-white">D. Chen</p><p class="text-[10px] text-slate-500">VP of Product</p></div>
                   </div>
               </div>
-          </div>
-      </div>
-  </section>
-
-  <section id="features" class="py-24 relative border-t border-white/5 bg-black/50">
-      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="text-center group">
-              <div class="w-12 h-12 rounded-full bg-white/5 mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition border border-white/10"><i class="fa-solid fa-ghost text-slate-300"></i></div>
-              <h3 class="text-white font-bold mb-3">True Invisibility</h3>
-              <p class="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">Not visible on Zoom, Teams, or Meet screen shares. A secure overlay only you can see.</p>
-          </div>
-          <div class="text-center group">
-              <div class="w-12 h-12 rounded-full bg-white/5 mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition border border-white/10"><i class="fa-solid fa-bolt text-slate-300"></i></div>
-              <h3 class="text-white font-bold mb-3">Instant Answers</h3>
-              <p class="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">Real-time audio processing creates the perfect answer before the question is finished.</p>
-          </div>
-          <div class="text-center group">
-              <div class="w-12 h-12 rounded-full bg-white/5 mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition border border-white/10"><i class="fa-solid fa-eraser text-slate-300"></i></div>
-              <h3 class="text-white font-bold mb-3">Zero Trace</h3>
-              <p class="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto">No logs. No history. No installation files. The app vanishes when closed.</p>
           </div>
       </div>
   </section>
 
   <section id="pricing" class="py-24 border-t border-white/5 bg-[#010101]">
     <div class="max-w-7xl mx-auto px-6 text-center">
-        <h2 class="text-4xl font-bold text-white mb-6">Access The Future.</h2>
+        <h2 class="text-4xl font-bold text-white mb-6">Invest In Your Future.</h2>
+        <p class="text-slate-400 mb-12">One offer pays for a lifetime of subscriptions.</p>
+        
         <div class="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mb-16">
            <button id="btnMonthly" class="px-8 py-3 rounded-lg text-xs font-bold bg-white text-black shadow-lg" onclick="setCycle('monthly')">Monthly</button>
            <button id="btnAnnual" class="px-8 py-3 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly</button>
@@ -371,20 +368,20 @@
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-stormBlue text-white text-[9px] font-bold px-4 py-1 rounded-full uppercase tracking-widest">Recommended</div>
                 <h3 class="text-xs font-bold text-stormBlue uppercase tracking-widest mb-4">Pro License</h3>
                 <div class="text-5xl font-bold text-white mb-4" id="pricePro">₹999<span class="text-sm font-medium text-slate-500">/mo</span></div>
-                <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-stormBlue text-white hover:bg-blue-600 text-xs font-bold transition uppercase tracking-widest mb-8 shadow-lg">Upgrade License</button>
+                <button id="btnPro" onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-stormBlue text-white hover:bg-blue-600 text-xs font-bold transition uppercase tracking-widest mb-8 shadow-lg">Upgrade License</button>
                 <div class="space-y-3 text-xs text-slate-300 font-bold">
                     <p class="flex gap-3"><i class="fa-solid fa-infinity text-stormBlue"></i> Unlimited</p>
                     <p class="flex gap-3"><i class="fa-solid fa-eye text-stormBlue"></i> Visual Context</p>
-                    <p class="flex gap-3"><i class="fa-solid fa-keyboard text-stormBlue"></i> Direct Input</p>
                 </div>
             </div>
 
-            <div class="glass-card p-8 rounded-3xl text-left border border-white/5 opacity-80 hover:opacity-100 transition group hover:border-stormPurple/40">
-                <h3 class="text-xs font-bold text-stormPurple uppercase tracking-widest mb-4">Elite</h3>
+            <div class="glass-card pricing-card-elite p-8 rounded-3xl text-left opacity-90 hover:opacity-100 transition group">
+                <h3 class="text-xs font-bold text-stormPurple uppercase tracking-widest mb-4 flex items-center gap-2">Elite <i class="fa-solid fa-crown text-[10px]"></i></h3>
                 <div class="text-5xl font-bold text-white mb-4" id="priceStealth">₹2499<span class="text-sm font-medium text-slate-500">/mo</span></div>
-                <button onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl border border-stormPurple/40 text-stormPurple hover:bg-stormPurple/10 text-xs font-bold transition uppercase tracking-widest mb-8">Get Elite</button>
+                <button id="btnElite" onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl border border-stormPurple/40 text-stormPurple hover:bg-stormPurple/10 text-xs font-bold transition uppercase tracking-widest mb-8">Get Elite</button>
                 <div class="space-y-3 text-xs text-slate-400 font-bold">
                     <p class="flex gap-3 text-stormPurple"><i class="fa-solid fa-shield-halved"></i> Private HUD</p>
+                    <p class="flex gap-3 text-stormPurple"><i class="fa-solid fa-keyboard"></i> Direct Input</p>
                     <p class="flex gap-3 text-stormPurple"><i class="fa-solid fa-user-secret"></i> Log Scrubbing</p>
                 </div>
             </div>
@@ -396,7 +393,7 @@
       <div class="max-w-7xl mx-auto px-6">
           <p class="text-white font-medium mb-6">Built for those who refuse to lose.</p>
           <button onclick="openDownloadModal()" class="px-8 py-3 rounded-full border border-white/10 hover:bg-white hover:text-black transition text-xs font-bold uppercase tracking-widest mb-10">Access Whis-AI</button>
-          <div class="text-[10px] text-slate-700 font-mono">&copy; 2025 Whis-AI. All Systems Operational.</div>
+          <div class="text-[10px] text-slate-700 font-mono">&copy; 2025 Whis-AI. Systems Operational.</div>
       </div>
   </footer>
 
@@ -411,7 +408,7 @@
   <div id="downloadModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
     <div class="glass-card rounded-2xl p-8 max-w-md w-full border border-white/10 relative shadow-2xl">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-xl font-bold text-white mb-6">Select Platform</h3>
+        <h3 class="text-xl font-bold text-white mb-6">Select Architecture</h3>
         <div class="space-y-3">
             <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 border border-white/5 transition group">
                 <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
@@ -440,20 +437,27 @@
                     <span id="modalExpiryDate" class="text-[10px] font-mono text-slate-400">--/--/----</span>
                 </div>
             </div>
-            <button onclick="logout()" class="w-full py-3 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition text-xs font-bold uppercase tracking-wider">Deactivate</button>
+            <button onclick="logout()" class="w-full py-3 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition text-xs font-bold uppercase tracking-wider">Logout</button>
         </div>
     </div>
   </div>
 
   <script>
-    // --- CONFIG & STATE ---
+    // --- APP CONFIG ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     let currentUser = null;
     let currentCycle = 'monthly';
     let currentTier = 'free';
 
-    // --- CAROUSEL LOGIC ---
+    // --- STORM ENGINE (20s Timer) ---
+    setTimeout(() => {
+        document.body.classList.add('heavy-storm');
+        document.getElementById('rainLayer').style.opacity = '0.3';
+        document.getElementById('lightningLayer').style.animation = 'lightningSevere 4s infinite random';
+    }, 20000);
+
+    // --- CAROUSEL ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
         { src: 'text.mp4', label: 'CODE SYNTHESIS' },
@@ -502,10 +506,9 @@
         });
         document.getElementById('featureLabel').innerText = videos[activeIndex].label;
     }
-
     setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
-    // --- SMART TYPEWRITER ---
+    // --- TYPEWRITER ---
     const codeSnippet = `class Solution:
     def trap(self, height: List[int]) -> int:
         if not height: return 0
@@ -527,39 +530,38 @@
     function typeCode() {
         const el = document.getElementById('typewriter');
         const badge = document.getElementById('compileBadge');
-        
         if (charIndex < codeSnippet.length) {
             let char = codeSnippet.charAt(charIndex);
             if(char === 'd' && codeSnippet.substr(charIndex, 3) === 'def') { char = '<span class="syntax-kw">def</span>'; charIndex += 2; }
             else if(char === 'r' && codeSnippet.substr(charIndex, 6) === 'return') { char = '<span class="syntax-kw">return</span>'; charIndex += 5; }
             else if(char === 'w' && codeSnippet.substr(charIndex, 5) === 'while') { char = '<span class="syntax-kw">while</span>'; charIndex += 4; }
-            
-            el.innerHTML += char;
-            charIndex++;
-            setTimeout(typeCode, 15 + Math.random() * 20); // Faster typing
+            el.innerHTML += char; charIndex++; setTimeout(typeCode, 15 + Math.random() * 20);
         } else {
-            // FINISHED
             badge.style.opacity = '1';
-            setTimeout(() => { 
-                badge.style.opacity = '0';
-                el.innerHTML = ''; 
-                charIndex = 0; 
-                typeCode(); 
-            }, 4000);
+            setTimeout(() => { badge.style.opacity = '0'; el.innerHTML = ''; charIndex = 0; typeCode(); }, 4000);
         }
     }
 
-    // --- AUTH LOGIC (Fixed) ---
+    // --- SMART OS DETECT ---
+    function detectOS(){
+        const p = navigator.platform.toLowerCase(); 
+        const ua = navigator.userAgent.toLowerCase();
+        const btn = document.getElementById('heroDownloadBtn');
+        const icon = btn.querySelector('i');
+        
+        if (p.includes('win')||ua.includes('win')) { 
+            btn.innerHTML = '<i class="fa-brands fa-windows text-lg"></i> Download for Windows';
+            // Also update modal links if needed, but the modal has both
+        } else {
+            btn.innerHTML = '<i class="fa-brands fa-apple text-lg"></i> Download for macOS';
+        }
+    }
+
+    // --- AUTH & PAYMENT ---
     function updateNavUI(u){
-        const signIn = document.getElementById('signInBtn');
-        const profile = document.getElementById('userProfileTrigger');
-        
-        signIn.classList.add('hidden'); 
-        signIn.style.display = 'none'; // Hard style override
-        
-        profile.classList.remove('hidden');
-        profile.classList.add('flex');
-        
+        document.getElementById('signInBtn').style.display = 'none';
+        document.getElementById('userProfileTrigger').classList.remove('hidden');
+        document.getElementById('userProfileTrigger').classList.add('flex');
         document.getElementById('navUserAvatar').src = u.avatarUrl;
     }
 
@@ -579,7 +581,6 @@
         } catch(e){ console.error(e); }
     }
     
-    // --- PAYMENT LOGIC ---
     function setCycle(c){
         currentCycle=c;
         const btnM=document.getElementById('btnMonthly');
@@ -607,18 +608,28 @@
             const badge = document.getElementById('navPlanBadge');
             const statusSpan = document.getElementById('modalPlanStatus');
             const planName = document.getElementById('modalPlanName');
+            const btnPro = document.getElementById('btnPro');
+            const btnElite = document.getElementById('btnElite');
             
+            // UI Logic for Existing Plans
             if(d.active){
                 const isElite = d.tier === 'pro_plus';
                 badge.textContent = isElite ? 'ELITE' : 'PRO';
+                badge.className = isElite ? "text-[9px] font-bold text-stormPurple uppercase tracking-wide" : "text-[9px] font-bold text-stormBlue uppercase tracking-wide";
                 statusSpan.textContent = "ACTIVE";
                 planName.textContent = isElite ? 'Elite License' : 'Pro License';
                 document.getElementById('modalExpiryDate').textContent = "Renews: " + new Date(d.validUntil).toLocaleDateString();
-            } else {
-                badge.textContent = "FREE";
-                statusSpan.textContent = "INACTIVE";
-                planName.textContent = "Starter Access";
-                document.getElementById('modalExpiryDate').textContent = "Status: Basic";
+                
+                // Button Logic for Upgrades
+                if(!isElite) {
+                    btnPro.innerText = "Current Plan";
+                    btnPro.disabled = true;
+                    btnElite.innerText = "Upgrade (Pay Difference)";
+                } else {
+                    btnPro.innerText = "Included";
+                    btnElite.innerText = "Current Plan";
+                    btnElite.disabled = true;
+                }
             }
             document.getElementById('modalUserName').textContent = currentUser.name;
             document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
@@ -628,10 +639,9 @@
     async function initiatePayment(targetTier){
         if(!currentUser){ openLoginModal(); return; }
         if(currentTier === 'pro_plus') { alert("You are already on the Elite plan."); return; }
-        if(currentTier === 'pro' && targetTier === 'pro') { alert("You already have an active Pro subscription."); return; }
+        if(currentTier === 'pro' && targetTier === 'pro') { return; }
         
         const btn = event.target; const orig = btn.innerText; btn.innerText = "Securing...";
-        
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
                 method:'POST',
@@ -646,7 +656,7 @@
                 "amount": data.amount,
                 "currency": data.currency,
                 "name": "Whis AI",
-                "description": targetTier === 'pro' ? "Pro License" : "Elite License",
+                "description": targetTier === 'pro' ? "Pro License" : "Elite Upgrade",
                 "order_id": data.order_id,
                 "handler": function (response){ window.location.reload(); },
                 "prefill": { "name": data.user_name, "email": data.user_email },
@@ -654,10 +664,7 @@
             };
             const rzp1 = new Razorpay(options);
             rzp1.open();
-        } catch(e){
-            console.error(e);
-            alert("Payment channel interrupted.");
-        }
+        } catch(e){ console.error(e); alert("Payment channel interrupted."); }
         btn.innerText = orig;
     }
 
@@ -678,6 +685,7 @@
         initCarousel();
         checkUser();
         typeCode();
+        detectOS();
     });
   </script>
 </body>
