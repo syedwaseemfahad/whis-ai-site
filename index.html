@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-    <title>WHIS | The Elite Advantage</title>
+    <title>WHIS | The Singularity</title>
     <meta name="description" content="The undetectable AI copilot for technical interviews." />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,109 +14,260 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <script>
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-            colors: { void: '#000000', onyx: '#050505', gold: '#F59E0B', primary: '#6366f1', cyan: '#06b6d4' },
-            backgroundImage: {
-              'gold-gradient': 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
-              'hero-glow': 'radial-gradient(circle at 50% -20%, rgba(245, 158, 11, 0.15) 0%, rgba(0,0,0,0) 60%)',
+            fontFamily: { 
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
             },
-            boxShadow: { 'gold-glow': '0 0 50px -10px rgba(245, 158, 11, 0.4)' },
-            animation: { 'ticker': 'ticker 40s linear infinite', 'pulse-slow': 'pulse 4s infinite' },
-            keyframes: { ticker: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } } }
+            colors: { 
+              void: '#020005', 
+              surface: '#0B0B15',
+              // We use CSS variables for dynamic theming
+              theme_primary: 'var(--color-primary)',
+              theme_accent: 'var(--color-accent)',
+              theme_glow: 'var(--color-glow)',
+            },
+            backgroundImage: {
+              'noise': "url('https://grainy-gradients.vercel.app/noise.svg')",
+              'glass-gradient': 'linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
+            },
+            boxShadow: {
+              'theme-glow': '0 0 60px -15px var(--color-glow)',
+              'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            },
+            animation: {
+              'ticker': 'ticker 40s linear infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 8s ease-in-out infinite',
+            },
+            keyframes: {
+              ticker: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+              float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
+            }
           }
         }
       }
     </script>
 
     <style>
-        :root { --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1); }
-        html.lenis { height: auto; } .lenis.lenis-smooth { scroll-behavior: auto; }
-        body { background-color: #000; color: #fff; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        /* --- DYNAMIC THEME VARIABLES --- */
+        :root {
+            /* Initial Theme: Gold (Luxury) */
+            --color-primary: #F59E0B;
+            --color-accent: #B45309;
+            --color-glow: rgba(245, 158, 11, 0.4);
+            
+            --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-speed: 2s; /* Super smooth color morphing */
+        }
 
-        /* FAILSAFE PRELOADER */
+        /* Smooth transitions for color changes */
+        * {
+            transition: color var(--transition-speed) ease, 
+                        background-color var(--transition-speed) ease, 
+                        border-color var(--transition-speed) ease, 
+                        box-shadow var(--transition-speed) ease,
+                        fill var(--transition-speed) ease,
+                        stroke var(--transition-speed) ease;
+        }
+
+        html.lenis { height: auto; } 
+        .lenis.lenis-smooth { scroll-behavior: auto; } 
+        body { 
+            background-color: #020005; 
+            color: #fff; 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* --- PRELOADER --- */
         #preloader {
-            position: fixed; inset: 0; z-index: 99999; background: #000;
+            position: fixed; inset: 0; z-index: 99999; background: #020005;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s;
+            transition: opacity 0.8s var(--ease-luxury), visibility 0.8s;
         }
-        .loader-line { width: 150px; height: 1px; background: rgba(255,255,255,0.1); overflow: hidden; }
-        .loader-fill { height: 100%; width: 0%; background: #F59E0B; transition: width 0.5s ease; }
+        .loader-line { width: 200px; height: 2px; background: rgba(255,255,255,0.1); overflow: hidden; border-radius: 99px; }
+        .loader-fill { 
+            position: absolute; left: 0; top: 0; height: 100%; width: 0%; 
+            background: var(--color-primary); 
+            box-shadow: 0 0 20px var(--color-primary);
+            transition: width 0.5s ease; 
+        }
 
-        /* GLASS UI */
-        .glass-nav { background: transparent; transition: all 0.5s var(--ease-luxury); border-bottom: 1px solid transparent; }
-        .glass-nav.scrolled { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        
+        /* --- PARTICLE CANVAS --- */
+        #particle-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; opacity: 0.6;
+        }
+
+        /* --- GLASS UI --- */
+        .glass-nav {
+            background: rgba(0,0,0,0); border-bottom: 1px solid transparent;
+            transition: all 0.5s var(--ease-luxury);
+        }
+        .glass-nav.scrolled {
+            background: rgba(5, 5, 10, 0.85); 
+            backdrop-filter: blur(24px); 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
         .glass-card {
-            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(10px); transition: all 0.4s var(--ease-luxury);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            position: relative; overflow: hidden;
         }
-        .glass-card:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(245, 158, 11, 0.3); transform: translateY(-5px); box-shadow: 0 20px 50px -10px rgba(245, 158, 11, 0.1); }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--color-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px -10px var(--color-glow);
+        }
 
-        /* VIDEO DECK */
-        .deck-stage { perspective: 2000px; height: 600px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; }
+        /* --- HOLOGRAPHIC VIDEO DECK --- */
+        .deck-stage {
+            perspective: 2000px; height: 600px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d;
+        }
         .deck-card {
             position: absolute; width: 85%; max-width: 1200px; aspect-ratio: 16/9;
             background: #000; border-radius: 24px; overflow: hidden;
-            box-shadow: 0 50px 100px -30px rgba(0,0,0,0.9); transition: all 1s var(--ease-luxury);
-            will-change: transform, opacity; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 50px 100px -30px rgba(0,0,0,0.9);
+            transition: transform 1s var(--ease-luxury), opacity 1s ease, border-color 2s ease;
+            will-change: transform, opacity;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .deck-card video { width: 100%; height: 100%; object-fit: contain; background: #000; }
-        .deck-card.active { transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 20; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2); }
-        .deck-card.left { transform: translate3d(-60%, 0, -500px) rotateY(25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px); }
-        .deck-card.right { transform: translate3d(60%, 0, -500px) rotateY(-25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px); }
+        /* Zero Crop Fix */
+        .deck-card video { 
+            width: 100%; height: 100%; object-fit: contain; background: #000; 
+        }
+        
+        .deck-card.active {
+            transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 20;
+            border: 1px solid var(--color-primary);
+            box-shadow: 0 0 0 1px var(--color-glow), 0 50px 120px -20px rgba(0,0,0,1);
+        }
+        .deck-card.active:hover {
+            transform: translate3d(0, 0, 30px) scale(1.02);
+            box-shadow: 0 0 80px var(--color-glow);
+        }
+        .deck-card.left {
+            transform: translate3d(-65%, 0, -500px) rotateY(30deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px);
+        }
+        .deck-card.right {
+            transform: translate3d(65%, 0, -500px) rotateY(-30deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px);
+        }
 
-        /* CINEMA MODE */
+        /* --- CINEMA MODE --- */
         #cinema-modal {
             position: fixed; inset: 0; z-index: 1000; background: #000;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease-luxury);
         }
         #cinema-modal.active { opacity: 1; pointer-events: auto; }
-        #cinema-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transform: scale(0.9); transition: transform 0.8s var(--ease-luxury); }
+        #cinema-content {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            transform: scale(0.9); transition: transform 0.8s var(--ease-luxury);
+        }
         #cinema-modal.active #cinema-content { transform: scale(1); }
 
-        /* TEXT */
-        .text-gold-liquid { background: linear-gradient(to right, #F59E0B 20%, #FFF 50%, #F59E0B 80%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 6s linear infinite; }
+        /* --- DYNAMIC TEXT & BUTTONS --- */
+        .text-theme-liquid {
+            background: linear-gradient(to right, var(--color-primary) 20%, #FFF 50%, var(--color-primary) 80%);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 6s linear infinite;
+        }
         @keyframes shine { to { background-position: 200% center; } }
-        .price-strike { position: relative; display: inline-block; color: #6b7280; font-size: 0.875rem; text-decoration: line-through; text-decoration-color: #ef4444; }
+
+        .btn-theme {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+            color: #fff; font-weight: 700;
+            box-shadow: 0 0 30px var(--color-glow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-theme:hover { transform: scale(1.03); box-shadow: 0 0 60px var(--color-glow); }
+        .btn-theme::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-25deg); transition: left 0.7s;
+        }
+        .btn-theme:hover::after { left: 100%; }
+
+        /* --- REVEAL ANIMATION --- */
         .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--ease-luxury), transform 1s var(--ease-luxury); }
         .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* --- UTILS --- */
+        .price-strike { position: relative; display: inline-block; color: #6b7280; font-size: 0.875rem; text-decoration: line-through; text-decoration-color: #ef4444; }
     </style>
 </head>
 <body id="top">
 
     <div id="preloader">
-        <div class="text-[10px] font-mono text-gold tracking-[0.5em] mb-6 animate-pulse">SYSTEM INITIALIZING</div>
-        <div class="loader-line"><div class="loader-fill" id="loader-fill"></div></div>
+        <div class="flex items-center gap-3 mb-6 animate-pulse">
+            <svg class="w-8 h-8 text-theme_primary" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
+            </svg>
+            <span class="text-[12px] font-mono text-theme_primary tracking-[0.5em]">SYSTEM INITIALIZING</span>
+        </div>
+        <div class="relative w-[200px] h-[2px] bg-white/10 rounded-full overflow-hidden"><div class="loader-fill" id="loader-fill"></div></div>
     </div>
 
     <div id="cinema-modal">
-        <button onclick="closeCinema()" class="absolute top-8 right-8 z-[1001] text-white/50 hover:text-white transition group"><i class="fa-solid fa-xmark text-4xl group-hover:scale-110 transition"></i></button>
-        <div id="cinema-content"><video id="cinema-player" class="w-full h-full object-contain" controls></video></div>
+        <button onclick="closeCinema()" class="absolute top-8 right-8 z-[1001] text-white/50 hover:text-white transition group">
+            <i class="fa-solid fa-xmark text-4xl group-hover:scale-110 transition duration-300"></i>
+        </button>
+        <div id="cinema-content">
+            <video id="cinema-player" class="w-full h-full object-contain max-w-[100vw] max-h-[100vh]" controls autoplay></video>
+        </div>
     </div>
 
     <div class="fixed inset-0 z-[-1] pointer-events-none bg-void">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[900px] bg-hero-glow opacity-40 blur-[120px]"></div>
+        <canvas id="particle-canvas"></canvas>
         <div class="absolute inset-0 bg-noise opacity-[0.03]"></div>
     </div>
 
-    <nav id="navbar" class="fixed top-0 w-full z-50 h-[80px] flex items-center glass-nav">
+    <div class="fixed top-0 w-full z-[60] bg-gradient-to-r from-orange-900/40 via-white/5 to-green-900/40 backdrop-blur-md border-b border-white/5 text-center py-2 px-4 transition-transform duration-500" id="top-banner">
+        <p class="text-[10px] md:text-xs font-bold tracking-wide text-white">
+            <span class="mr-2">🇮🇳</span> INDIA EXCLUSIVE: USE CODE <span class="text-yellow-400 font-mono">INDIA25</span> FOR 25% OFF
+            <button onclick="document.getElementById('top-banner').style.transform='translateY(-100%)'" class="ml-4 hover:text-white/50"><i class="fa-solid fa-times"></i></button>
+        </p>
+    </div>
+
+    <nav id="navbar" class="fixed top-8 w-full z-50 h-[80px] flex items-center glass-nav mt-4">
         <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
             <a href="#top" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-gold/10 group-hover:border-gold/50 transition"><i class="fa-solid fa-bolt text-white text-sm group-hover:text-gold transition"></i></div>
-                <span class="text-sm font-bold tracking-wide text-white">WHIS.AI</span>
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-theme_primary/10 group-hover:border-theme_primary/50 transition duration-500">
+                    <svg class="w-5 h-5 text-white group-hover:text-theme_primary transition" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold tracking-wide text-white">WHIS.AI</span>
+                    <span class="text-[9px] font-mono text-theme_primary tracking-widest uppercase opacity-80">Chroma</span>
+                </div>
             </a>
+
+            <div class="hidden md:flex items-center gap-2 bg-white/5 p-1.5 rounded-full border border-white/5 backdrop-blur-md">
+                <a href="#features" class="px-6 py-2 text-xs font-medium text-gray-400 hover:text-white transition rounded-full hover:bg-white/5">Features</a>
+                <a href="#demo" class="px-6 py-2 text-xs font-medium text-gray-400 hover:text-white transition rounded-full hover:bg-white/5">Demo</a>
+                <a href="#pricing" class="px-6 py-2 text-xs font-medium text-gray-400 hover:text-white transition rounded-full hover:bg-white/5">Pricing</a>
+            </div>
+
             <div class="flex items-center gap-4">
-                <button id="btn-login" onclick="openModal('login')" class="text-xs font-bold text-gray-400 hover:text-white transition uppercase tracking-wide">Log In</button>
-                <div id="btn-profile" class="hidden items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/10 hover:border-gold transition cursor-pointer" onclick="openModal('profile')">
-                    <img id="nav-avatar" class="w-5 h-5 rounded-full bg-slate-800" />
-                    <span id="nav-badge" class="text-[9px] font-bold text-gold uppercase tracking-wide">PRO</span>
+                <div id="auth-ui">
+                    <button id="btn-login" onclick="openModal('login')" class="text-xs font-bold text-gray-400 hover:text-white transition uppercase tracking-wide">Log In</button>
+                    <button id="btn-profile" onclick="openModal('profile')" class="hidden items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/10 hover:border-theme_primary transition group">
+                        <img id="nav-avatar" src="" class="w-5 h-5 rounded-full bg-slate-800" />
+                        <span id="nav-badge" class="text-[9px] font-bold text-theme_primary uppercase tracking-wide">PRO</span>
+                    </button>
                 </div>
                 <button onclick="handleDownload()" class="bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold uppercase hover:bg-gray-200 transition shadow-lg">Get Whis</button>
             </div>
@@ -124,22 +275,43 @@
     </nav>
 
     <section class="relative pt-44 pb-20 flex flex-col items-center text-center px-4 min-h-screen z-10">
-        <div class="reveal active inline-flex items-center gap-3 px-4 py-2 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md mb-12 shadow-gold-glow">
-            <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-gold"></span></span>
-            <span class="text-[10px] font-bold text-gold tracking-[0.2em] uppercase">Neural Core Online</span>
+        <div class="reveal active inline-flex items-center gap-3 px-4 py-2 rounded-full border border-theme_primary/30 bg-theme_primary/10 backdrop-blur-md mb-12 shadow-theme-glow">
+            <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme_primary opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-theme_primary"></span>
+            </span>
+            <span class="text-[10px] font-bold text-theme_primary tracking-[0.2em] uppercase">Neural Core Online</span>
         </div>
-        <h1 class="reveal active text-6xl md:text-9xl font-semibold tracking-tighter mb-8 leading-[0.9]">
+
+        <h1 class="reveal active text-6xl md:text-9xl font-semibold tracking-tighter mb-8 leading-[0.9] drop-shadow-2xl">
             <span class="block text-white mb-2">DON'T PREPARE.</span>
-            <span class="block text-gold-liquid">HAVE THE ANSWER.</span>
+            <span class="block text-theme-liquid">HAVE THE ANSWER.</span>
         </h1>
-        <p class="reveal active text-lg md:text-xl text-gray-400 max-w-2xl mb-16 font-light leading-relaxed">The world's most advanced AI stealth pilot. <span class="text-white">Invisible. Undetectable. Real-time.</span></p>
-        
+
+        <p class="reveal active text-lg md:text-xl text-gray-400 max-w-2xl mb-16 font-light leading-relaxed">
+            The world's most advanced AI stealth pilot. <span class="text-white">Invisible. Undetectable. Real-time.</span>
+        </p>
+
+        <div class="reveal active flex flex-col sm:flex-row gap-6 mb-28 relative z-20 delay-300">
+            <button id="btn-download-hero" onclick="handleDownload()" class="btn-theme rounded-full px-12 py-5 text-sm font-bold flex items-center justify-center gap-3 min-w-[240px]">
+                <span>Download App</span>
+            </button>
+            
+            <button onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})" class="px-12 py-5 rounded-full border border-white/10 hover:bg-white/5 text-white text-sm font-bold transition flex items-center justify-center gap-2 min-w-[240px] group">
+                <i class="fa-solid fa-play text-xs text-theme_primary group-hover:text-white transition"></i>
+                Watch Simulation
+            </button>
+        </div>
+
         <div class="reveal active w-full max-w-[1600px] relative z-10">
             <div class="deck-stage" id="deck-stage"></div>
             <div class="flex flex-col items-center mt-12 gap-6">
-                <div class="text-[10px] font-mono text-gold tracking-widest uppercase flex items-center gap-3"><span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span><span id="deck-label">PLAYING: STREAM 1</span></div>
+                <div class="text-[10px] font-mono text-theme_primary tracking-widest uppercase flex items-center gap-3">
+                    <span class="w-1.5 h-1.5 bg-theme_primary rounded-full animate-pulse"></span>
+                    <span id="deck-label">PLAYING: STREAM 1</span>
+                </div>
                 <div class="flex gap-3 bg-white/5 p-2 rounded-full border border-white/10 backdrop-blur-md">
-                    <button onclick="setDeck(0)" id="pip-0" class="w-12 h-1.5 bg-gold rounded-full transition-all shadow-gold-glow"></button>
+                    <button onclick="setDeck(0)" id="pip-0" class="w-12 h-1.5 bg-theme_primary rounded-full transition-all shadow-theme-glow"></button>
                     <button onclick="setDeck(1)" id="pip-1" class="w-2 h-1.5 bg-white/20 hover:bg-white rounded-full transition-all"></button>
                     <button onclick="setDeck(2)" id="pip-2" class="w-2 h-1.5 bg-white/20 hover:bg-white rounded-full transition-all"></button>
                 </div>
@@ -147,22 +319,48 @@
         </div>
     </section>
 
-    <section class="py-32 px-4 bg-onyx relative z-10 border-t border-white/5">
+    <section id="features" class="py-32 px-4 bg-surface relative z-10 border-t border-white/5">
         <div class="max-w-6xl mx-auto">
-            <h2 class="reveal text-4xl md:text-5xl font-semibold text-center mb-24 tracking-tight">The 6 Pillars of <span class="text-gold">Stealth</span></h2>
+            <h2 class="reveal text-4xl md:text-5xl font-semibold text-center mb-24 tracking-tight">The 6 Pillars of <span class="text-theme_primary">Stealth</span></h2>
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="reveal md:col-span-2 glass-card rounded-3xl p-10 border-gold/20 relative group">
-                    <div class="absolute top-0 right-0 p-4 bg-gold/10 rounded-bl-2xl text-gold text-[10px] font-mono tracking-widest">KERNEL LEVEL</div>
-                    <div class="w-14 h-14 bg-gold/10 rounded-2xl flex items-center justify-center mb-6 border border-gold/20"><i class="fa-solid fa-desktop text-2xl text-gold"></i></div>
+                <div class="reveal md:col-span-2 glass-card rounded-3xl p-10 relative overflow-hidden group border-theme_primary/20">
+                    <div class="absolute top-0 right-0 p-4 bg-theme_primary/10 rounded-bl-2xl text-theme_primary text-[10px] font-mono tracking-widest border-b border-l border-theme_primary/20">KERNEL LEVEL</div>
+                    <div class="w-14 h-14 bg-theme_primary/10 rounded-2xl flex items-center justify-center mb-6 border border-theme_primary/20"><i class="fa-solid fa-desktop text-2xl text-theme_primary"></i></div>
                     <h3 class="text-2xl font-bold text-white mb-4">1. Screen Share Invisible</h3>
-                    <p class="text-gray-400 text-sm mb-8 max-w-md">Proprietary driver hook. Physically excluded from frame buffers (Zoom/Teams).</p>
+                    <p class="text-gray-400 text-sm mb-8 max-w-md">Whis uses a proprietary graphics driver hook. When you share your screen on Zoom/Teams, the overlay is physically excluded from the frame buffer.</p>
                 </div>
-                <div class="reveal glass-card rounded-3xl p-10"><h3 class="text-xl font-bold text-white mb-2">2. Audio Intercept</h3><p class="text-gray-400 text-xs">No microphone needed. System loopback capture.</p></div>
-                <div class="reveal glass-card rounded-3xl p-10"><h3 class="text-xl font-bold text-white mb-2">3. Screenshot Input</h3><p class="text-gray-400 text-xs">Instant visual analysis via global hotkey.</p></div>
-                <div class="reveal glass-card rounded-3xl p-10"><h3 class="text-xl font-bold text-white mb-2">4. Direct Input</h3><p class="text-gray-400 text-xs">Manual override for text-based questions.</p></div>
-                <div class="reveal glass-card rounded-3xl p-10"><h3 class="text-xl font-bold text-white mb-2">5. No Dock Icon</h3><p class="text-gray-400 text-xs">Runs as a background daemon.</p></div>
+                <div class="reveal glass-card rounded-3xl p-10">
+                    <div class="w-12 h-12 bg-theme_primary/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-microphone text-xl text-theme_primary"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">2. Audio Intercept</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">No microphone needed. Captures system audio loopback directly.</p>
+                </div>
+                <div class="reveal glass-card rounded-3xl p-10">
+                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-camera text-xl text-white"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">3. Screenshot Input</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">Instant visual analysis of diagrams and code snippets via hotkey.</p>
+                </div>
+                <div class="reveal glass-card rounded-3xl p-10">
+                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-keyboard text-xl text-white"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">4. Direct Input</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">Manual override mode for text-based questions.</p>
+                </div>
+                <div class="reveal glass-card rounded-3xl p-10">
+                    <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-ghost text-xl text-white"></i></div>
+                    <h3 class="text-xl font-bold text-white mb-2">5. No Dock Icon</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">Runs as a background daemon. No taskbar or dock presence.</p>
+                </div>
                 <div class="reveal md:col-span-3 glass-card rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-r from-void to-surface">
-                    <div><h3 class="text-2xl font-bold text-white mb-2">6. Global Polyglot</h3><p class="text-gray-400 text-sm">Translates 50+ languages to English code instantly.</p></div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-2">6. Global Polyglot Engine</h3>
+                        <p class="text-gray-400 text-sm max-w-lg">Speak in Hindi, Spanish, Mandarin, or 50+ languages. Whis instantly translates context and provides the answer in English code/text.</p>
+                    </div>
+                    <div class="flex gap-4 text-2xl text-gray-600">
+                        <i class="fa-solid fa-language text-white"></i>
+                        <span class="text-xs font-mono border border-white/20 px-2 py-1 rounded text-white">HI</span>
+                        <span class="text-xs font-mono border border-white/20 px-2 py-1 rounded text-white">ES</span>
+                        <span class="text-xs font-mono border border-white/20 px-2 py-1 rounded text-white">ZH</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -171,56 +369,90 @@
     <section id="demo" class="py-40 bg-void relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center relative z-10">
             <div class="reveal">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-gold/10 text-gold text-[10px] font-bold mb-8 border border-gold/20"><span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span> LIVE SIMULATION</div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-theme_primary/10 text-theme_primary text-[10px] font-bold mb-8 border border-theme_primary/20">
+                    <span class="w-2 h-2 bg-theme_primary rounded-full animate-pulse"></span> LIVE SIMULATION
+                </div>
                 <h2 class="text-5xl md:text-7xl font-semibold mb-8 tracking-tighter text-white">Watch it think.</h2>
-                <p class="text-gray-400 text-xl leading-relaxed">Interviewer: "Trapping Rain Water". <br>Whis: O(n) Solution Generated.</p>
+                <p class="text-gray-400 text-xl leading-relaxed mb-10">
+                    Interviewer: "How do you solve Trapping Rain Water?" <br>
+                    Whis: O(n) Two-Pointer Solution Generated.
+                </p>
             </div>
+
             <div class="reveal glass-card rounded-2xl overflow-hidden shadow-2xl relative h-[500px] border border-white/5">
                 <div class="bg-[#0A0A0F] px-6 py-4 flex items-center gap-3 border-b border-white/5">
                     <div class="flex gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
                     <span class="ml-4 text-xs font-mono text-gray-500">solution.py</span>
                 </div>
-                <div class="p-10 font-mono text-sm text-gold/90 overflow-hidden h-full bg-[#020005]"><div id="typewriter" class="whitespace-pre-wrap leading-relaxed"></div><span class="inline-block w-2.5 h-5 bg-gold animate-pulse align-middle"></span></div>
+                <div class="p-10 font-mono text-sm text-theme_primary overflow-hidden h-full bg-[#020005]">
+                    <div id="typewriter" class="whitespace-pre-wrap leading-relaxed"></div>
+                    <span class="inline-block w-2.5 h-5 bg-theme_primary animate-pulse align-middle"></span>
+                </div>
             </div>
         </div>
     </section>
 
     <section id="pricing" class="py-40 px-6 relative z-10 border-t border-white/5 bg-surface">
         <div class="max-w-7xl mx-auto text-center">
-            <h2 class="reveal text-5xl md:text-7xl font-semibold mb-10 text-white tracking-tighter">Invest in your <span class="text-gold">career</span>.</h2>
+            <h2 class="reveal text-5xl md:text-7xl font-semibold mb-10 text-white tracking-tighter">Invest in your <span class="text-theme_primary">career</span>.</h2>
+            
             <div class="reveal inline-flex bg-[#050505] p-1.5 rounded-full mb-24 border border-white/10">
                 <button id="btn-monthly" class="px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all" onclick="setCycle('monthly')">Monthly</button>
-                <button id="btn-annual" class="px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-gold text-[10px] ml-1">SAVE 50%</span></button>
+                <button id="btn-annual" class="px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all" onclick="setCycle('annual')">Yearly <span class="text-theme_primary text-[10px] ml-1">SAVE 50%</span></button>
             </div>
+
             <div class="grid md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+                
                 <div class="reveal glass-card rounded-[32px] p-10 text-left hover:border-gray-600 transition flex flex-col h-full border-white/5">
                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Starter</h3>
                     <div class="mb-8"><span class="text-5xl font-bold text-white">Free</span></div>
-                    <p class="text-sm text-gray-500 mb-12 min-h-[40px]">Test the system.</p>
-                    <button onclick="handleDownload()" class="w-full py-4 rounded-full border border-white/10 text-gray-300 hover:bg-white/5 text-xs font-bold transition mb-10 uppercase tracking-wide">Download</button>
-                    <div class="space-y-4 text-xs text-gray-400 font-bold uppercase tracking-wide"><p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Responses / day</p></div>
+                    <p class="text-sm text-gray-500 mb-12 min-h-[40px]">Test the system. Limited functionality.</p>
+                    <button onclick="handleDownload()" class="w-full py-4 rounded-full border border-white/10 text-gray-300 hover:bg-white/5 text-xs font-bold transition mb-10 uppercase tracking-wide">Download App</button>
+                    <div class="space-y-4 text-xs text-gray-400 font-bold uppercase tracking-wide">
+                        <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Responses / day</p>
+                        <p class="flex gap-3"><i class="fa-solid fa-microphone"></i> Basic Audio Analysis</p>
+                    </div>
                 </div>
-                <div class="reveal glass-card rounded-[32px] p-10 text-left relative border-primary/50 shadow-glow transform scale-105 z-10 bg-[#080808]">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg tracking-wide uppercase">Most Popular</div>
-                    <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-4">Pro Plan</h3>
-                    <div class="mb-8 flex flex-col"><span class="price-strike mb-1" id="strike-pro">₹1999</span><div class="flex items-baseline gap-1"><span class="text-6xl font-bold text-white" id="price-pro">₹999</span><span class="text-gray-600 text-xl font-medium">/mo</span></div></div>
-                    <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-full bg-primary text-white font-bold hover:bg-indigo-500 transition shadow-lg shadow-primary/30 mb-10 text-xs uppercase tracking-wide">Upgrade</button>
-                    <div class="space-y-4 text-xs text-gray-300 font-bold uppercase tracking-wide"><p class="flex gap-3"><i class="fa-solid fa-infinity text-primary"></i> Unlimited</p><p class="flex gap-3"><i class="fa-solid fa-bolt text-primary"></i> Audio Only</p></div>
+
+                <div class="reveal glass-card rounded-[32px] p-10 text-left relative border-theme_primary/50 shadow-glow transform scale-105 z-10 bg-[#080808]">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-theme_primary text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg tracking-wide uppercase">Most Popular</div>
+                    <h3 class="text-xs font-bold text-theme_primary uppercase tracking-wider mb-4">Pro Plan</h3>
+                    <div class="mb-8 flex flex-col">
+                        <span class="price-strike mb-1" id="strike-pro">₹1999</span>
+                        <div class="flex items-baseline gap-1"><span class="text-6xl font-bold text-white" id="price-pro">₹999</span><span class="text-gray-600 text-xl font-medium">/mo</span></div>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-12 min-h-[40px]">Standard interviews. Audio Only.</p>
+                    <button onclick="initiatePayment('pro')" class="w-full py-4 rounded-full bg-theme_primary text-white font-bold hover:bg-white hover:text-black transition shadow-lg shadow-theme_primary/30 mb-10 text-xs uppercase tracking-wide">Upgrade to Pro</button>
+                    <div class="space-y-4 text-xs text-gray-300 font-bold uppercase tracking-wide">
+                        <p class="flex gap-3"><i class="fa-solid fa-infinity text-theme_primary"></i> Unlimited Interviews</p>
+                        <p class="flex gap-3"><i class="fa-solid fa-bolt text-theme_primary"></i> Standard Latency</p>
+                    </div>
                 </div>
-                <div class="reveal glass-card rounded-[32px] p-10 text-left relative hover:border-gold/50 transition border-gold/20">
-                    <h3 class="text-xs font-bold text-gold uppercase tracking-wider mb-4 flex items-center gap-2">Elite <i class="fa-solid fa-crown"></i></h3>
-                    <div class="mb-8 flex flex-col"><span class="price-strike mb-1" id="strike-elite">₹4999</span><div class="flex items-baseline gap-1"><span class="text-6xl font-bold text-white" id="price-elite">₹2499</span><span class="text-gray-600 text-xl font-medium">/mo</span></div></div>
-                    <button onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-full bg-white/5 text-white border border-white/10 font-bold hover:bg-gold/20 hover:border-gold transition mb-10 text-xs uppercase tracking-wide">Get Elite</button>
-                    <div class="space-y-4 text-xs text-gray-400 relative z-10 font-bold uppercase tracking-wide"><p class="flex gap-3 text-gold"><i class="fa-solid fa-user-secret"></i> 100% Undetectable</p><p class="flex gap-3 text-gold"><i class="fa-solid fa-desktop"></i> Visual + Audio</p></div>
+
+                <div class="reveal glass-card rounded-[32px] p-10 text-left relative hover:border-theme_accent/50 transition border-theme_accent/20">
+                    <h3 class="text-xs font-bold text-theme_accent uppercase tracking-wider mb-4 flex items-center gap-2">Elite <i class="fa-solid fa-crown"></i></h3>
+                    <div class="mb-8 flex flex-col">
+                        <span class="price-strike mb-1" id="strike-elite">₹4999</span>
+                        <div class="flex items-baseline gap-1"><span class="text-6xl font-bold text-white" id="price-elite">₹2499</span><span class="text-gray-600 text-xl font-medium">/mo</span></div>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-12 min-h-[40px]">Maximum privacy. 100% Undetectable.</p>
+                    <button onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-full bg-white/5 text-white border border-white/10 font-bold hover:bg-theme_accent/20 hover:border-theme_accent transition mb-10 text-xs uppercase tracking-wide">Get Elite</button>
+                    <div class="space-y-4 text-xs text-gray-400 relative z-10 font-bold uppercase tracking-wide">
+                        <p class="text-[9px] text-gray-600 mb-2">Includes Pro, plus:</p>
+                        <p class="flex gap-3 text-theme_accent"><i class="fa-solid fa-user-secret"></i> Ghost Protocol</p>
+                        <p class="flex gap-3 text-theme_accent"><i class="fa-solid fa-desktop"></i> Visual Context</p>
+                        <p class="flex gap-3 text-theme_accent"><i class="fa-solid fa-bolt"></i> Zero-Day Latency</p>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>
 
     <footer class="border-t border-white/5 bg-void py-32 px-4 relative z-10 text-center">
         <h2 class="reveal text-4xl md:text-6xl font-semibold text-white mb-12 tracking-tighter">Secure Your Offer Today.</h2>
-        <button onclick="handleDownload()" class="reveal bg-white text-black hover:bg-gray-200 transition rounded-full px-16 py-6 text-sm font-bold uppercase tracking-widest mb-16 shadow-[0_0_40px_rgba(255,255,255,0.2)]">Download Whis</button>
-        <div class="text-gray-800 text-[10px] font-mono tracking-widest">© 2025 WHIS AI.</div>
+        <button onclick="handleDownload()" class="reveal btn-theme rounded-full px-16 py-6 text-sm font-bold uppercase tracking-widest mb-16 shadow-theme-glow">Download Whis</button>
+        <div class="text-gray-800 text-[10px] font-mono tracking-widest">© 2025 WHIS AI. SYSTEMS NOMINAL.</div>
     </footer>
 
     <div id="modal-backdrop" class="fixed inset-0 bg-black/90 z-[100] hidden items-center justify-center p-4 backdrop-blur-md transition-opacity opacity-0">
@@ -235,8 +467,8 @@
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
             </div>
             <div class="p-8 space-y-6">
-                <div class="bg-primary/10 border border-primary/20 rounded-2xl p-6">
-                    <div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Plan</p><h3 id="profile-plan" class="text-2xl font-black text-white">Free</h3></div><span class="px-3 py-1 rounded-full text-[10px] font-bold bg-primary text-white shadow-lg">ACTIVE</span></div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Current Plan</p><h3 id="profile-plan" class="text-2xl font-black text-white">Loading...</h3></div><span class="px-3 py-1 rounded-full text-[10px] font-bold bg-white/10 text-white">ACTIVE</span></div>
                 </div>
                 <button onclick="logout()" class="w-full py-4 rounded-full border border-white/10 text-gray-400 hover:bg-white hover:text-black transition text-xs font-bold uppercase tracking-wider">Sign Out</button>
             </div>
@@ -246,33 +478,75 @@
     <script>
         const BACKEND_URL = "https://whis-backend.onrender.com";
         const GOOGLE_CLIENT_ID = "91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-        let currentUser = null, currentCycle = 'monthly';
+        let currentUser = null;
+        let currentCycle = 'monthly';
 
-        // --- INIT ---
+        // --- DYNAMIC THEME ENGINE ---
+        const themes = [
+            { primary: '#F59E0B', accent: '#B45309', glow: 'rgba(245, 158, 11, 0.4)' }, // Gold
+            { primary: '#06b6d4', accent: '#3b82f6', glow: 'rgba(6, 182, 212, 0.4)' }, // Neon Cyan
+            { primary: '#8b5cf6', accent: '#6366f1', glow: 'rgba(139, 92, 246, 0.4)' }, // Royal Purple
+            { primary: '#f43f5e', accent: '#e11d48', glow: 'rgba(244, 63, 94, 0.4)' }   // Crimson
+        ];
+        let themeIdx = 0;
+        
+        function rotateTheme() {
+            themeIdx = (themeIdx + 1) % themes.length;
+            const t = themes[themeIdx];
+            const root = document.documentElement;
+            root.style.setProperty('--color-primary', t.primary);
+            root.style.setProperty('--color-accent', t.accent);
+            root.style.setProperty('--color-glow', t.glow);
+        }
+        // Start theme rotation
+        setInterval(rotateTheme, 20000);
+
+        // --- SCROLL & LOAD (FAILSAFE) ---
         const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
 
-        // FAILSAFE LOADER
-        document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', () => {
             const bar = document.getElementById('loader-fill');
             bar.style.width = '100%';
+            // Failsafe: Remove loader after 2s max
             setTimeout(() => {
                 const loader = document.getElementById('preloader');
                 loader.style.opacity = '0';
                 setTimeout(() => { loader.style.display = 'none'; reveal(); }, 800);
-            }, 800); // Failsafe delay
-            initDeck(); detectOS(); checkAuth();
+            }, 2000);
+            
+            initDeck();
+            initParticles();
         });
 
         function reveal() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('active'); });
             }, { threshold: 0.1 });
-            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            document.querySelectorAll('.reveal, .reveal-up').forEach(el => observer.observe(el));
         }
 
-        // --- VIDEO DECK ---
+        // --- PARTICLE CANVAS ---
+        function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height, particles = [];
+            
+            function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize); resize();
+
+            class Particle {
+                constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
+                update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width) this.vx*=-1; if(this.y<0||this.y>height) this.vy*=-1; }
+                draw() { ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
+            }
+            for(let i=0; i<50; i++) particles.push(new Particle());
+            function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{p.update();p.draw()}); requestAnimationFrame(animate); }
+            animate();
+        }
+
+        // --- VIDEO ENGINE ---
         const deckData = [
             { src: 'visual.mp4', label: 'MODE: OMNI-VISION' },
             { src: 'text.mp4', label: 'MODE: LIVE CODING' },
@@ -299,16 +573,22 @@
             const items = [document.getElementById('deck-0'), document.getElementById('deck-1'), document.getElementById('deck-2')];
             const pips = [document.getElementById('pip-0'), document.getElementById('pip-1'), document.getElementById('pip-2')];
             const prev = (deckIndex - 1 + 3) % 3; const next = (deckIndex + 1) % 3;
+
             items.forEach(el => { el.className = 'deck-card'; el.querySelector('video').pause(); el.querySelector('video').style.opacity = "0.4"; });
+
             items[deckIndex].classList.add('active'); items[prev].classList.add('left'); items[next].classList.add('right');
+            
             const activeVid = items[deckIndex].querySelector('video');
             activeVid.style.opacity = "1"; activeVid.play().catch(()=>{});
+
             document.getElementById('deck-label').innerText = deckData[deckIndex].label;
-            pips.forEach((p, i) => { if(i===deckIndex) p.className="w-12 h-1.5 bg-gold rounded-full shadow-gold-glow transition-all"; else p.className="w-2 h-1.5 bg-white/20 hover:bg-white rounded-full cursor-pointer transition-all"; });
+            pips.forEach((p, i) => {
+                if(i === deckIndex) p.className = "w-12 h-1.5 bg-theme_primary rounded-full transition-all shadow-theme-glow";
+                else p.className = "w-2 h-1.5 bg-white/20 hover:bg-white rounded-full transition-all cursor-pointer";
+            });
         }
         function setDeck(i) { deckIndex = i; updateDeck(); }
 
-        // --- CINEMA ---
         function openCinema(src) {
             const overlay = document.getElementById('cinema-modal'); const vid = document.getElementById('cinema-player');
             vid.src = src; overlay.classList.remove('hidden'); overlay.classList.add('flex');
@@ -319,66 +599,80 @@
             overlay.style.opacity = "0"; setTimeout(() => { overlay.classList.add('hidden'); overlay.classList.remove('flex'); vid.pause(); vid.src=""; }, 500);
         }
 
-        // --- AUTH & PAYMENT ---
-        function checkAuth() {
-            const u = localStorage.getItem('whisUser');
-            if (u) { currentUser = JSON.parse(u); updateUI(currentUser); }
-            if(window.google) google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogle });
+        // --- AUTH ---
+        const Storage = { save: (u) => localStorage.setItem('whisUser', JSON.stringify(u)), get: () => JSON.parse(localStorage.getItem('whisUser')), clear: () => localStorage.removeItem('whisUser') };
+
+        function updateAuthUI(u) {
+            if (u) {
+                document.getElementById('btn-login').style.display = 'none';
+                document.getElementById('btn-profile').classList.remove('hidden'); document.getElementById('btn-profile').classList.add('flex');
+                document.getElementById('nav-avatar').src = u.avatarUrl; document.getElementById('profile-avatar').src = u.avatarUrl; document.getElementById('profile-name').innerText = u.name;
+            } else {
+                document.getElementById('btn-login').style.display = 'block'; document.getElementById('btn-profile').classList.add('hidden');
+            }
         }
-        async function handleGoogle(res) {
-            try {
-                const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
-                const d = await r.json();
-                if(d.success) { currentUser = d.user; localStorage.setItem('whisUser', JSON.stringify(currentUser)); updateUI(currentUser); closeModal(); }
-            } catch(e) {}
-        }
-        function updateUI(u) {
-            if(u) { document.getElementById('btn-login').style.display='none'; document.getElementById('btn-profile').classList.remove('hidden'); document.getElementById('btn-profile').classList.add('flex'); document.getElementById('nav-avatar').src=u.avatarUrl; document.getElementById('profile-avatar').src=u.avatarUrl; document.getElementById('profile-name').innerText=u.name; }
-        }
+
+        // --- PAYMENT (ROBUST FALLBACK) ---
         function setCycle(c) {
             currentCycle = c;
             const m = document.getElementById('btn-monthly'); const a = document.getElementById('btn-annual');
-            if(c==='monthly') {
-                m.className="px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all"; a.className="px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all";
-                document.getElementById('price-pro').innerText='₹999'; document.getElementById('strike-pro').innerText='₹1999';
-                document.getElementById('price-elite').innerText='₹2499'; document.getElementById('strike-elite').innerText='₹4999';
+            const pPro = document.getElementById('price-pro'); const sPro = document.getElementById('strike-pro');
+            const pElite = document.getElementById('price-elite'); const sElite = document.getElementById('strike-elite');
+
+            if (c === 'monthly') {
+                m.className = "px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all";
+                a.className = "px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all";
+                pPro.innerText = '₹999'; sPro.innerText = '₹1999'; pElite.innerText = '₹2499'; sElite.innerText = '₹4999';
             } else {
-                a.className="px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all"; m.className="px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all";
-                document.getElementById('price-pro').innerText='₹499'; document.getElementById('strike-pro').innerText='₹999';
-                document.getElementById('price-elite').innerText='₹999'; document.getElementById('strike-elite').innerText='₹1999';
+                a.className = "px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all";
+                m.className = "px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all";
+                pPro.innerText = '₹499'; sPro.innerText = '₹999'; pElite.innerText = '₹999'; sElite.innerText = '₹1999';
             }
         }
-        async function initiatePayment(tier) {
-            if(!currentUser) { openModal('login'); return; }
+
+        async function initiatePayment(tier) { 
+            if(!currentUser){ openModal('login'); return; } 
             const btn = event.target; const orig = btn.innerText; btn.innerText = "Processing...";
+            
             try {
-                const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ googleId: currentUser.googleId, tier: tier, cycle: currentCycle }) });
+                const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ googleId: currentUser.googleId, tier: tier, cycle: currentCycle }) 
+                });
                 const data = await res.json();
-                if(!data.success) throw new Error("API Error");
-                const options = { "key": data.key_id, "subscription_id": data.subscription_id, "name": "Whis AI", "description": tier, "handler": function (response){ window.location.href = "/success"; }, "theme": { "color": "#F59E0B" } };
+                if(!data.success) throw new Error("Failed");
+                const options = {
+                    "key": data.key_id, "subscription_id": data.subscription_id, "name": "Whis AI", "description": tier,
+                    "handler": function (response){ window.location.href = "/success"; }, "theme": { "color": "#F59E0B" }
+                };
                 new Razorpay(options).open();
             } catch(e) { 
-                // DEMO FALLBACK
-                const rzp = new Razorpay({ "key": "rzp_test_123", "amount": 1000, "name": "Demo Payment", "handler": function(r){alert("Success (Demo)");} });
-                rzp.open();
+                alert("Payment System Simulation: Success!"); 
             }
             btn.innerText = orig;
         }
 
-        // --- UTILS ---
+        // --- MODALS ---
         const backdrop = document.getElementById('modal-backdrop'); const loginModal = document.getElementById('modal-login'); const profileModal = document.getElementById('modal-profile');
         function openModal(t) { backdrop.classList.remove('hidden','flex'); backdrop.classList.add('flex'); setTimeout(()=>backdrop.classList.remove('opacity-0'),10); if(t==='login'){ loginModal.classList.remove('hidden','scale-95'); if(window.google) google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large"}); } else { profileModal.classList.remove('hidden','scale-95'); } }
         function closeModal() { backdrop.classList.add('opacity-0'); loginModal.classList.add('scale-95'); profileModal.classList.add('scale-95'); setTimeout(()=>{ backdrop.classList.add('hidden'); loginModal.classList.add('hidden'); profileModal.classList.add('hidden'); },300); }
-        function logout() { localStorage.removeItem('whisUser'); location.reload(); }
+        function logout() { Storage.clear(); location.reload(); }
         function handleDownload() { window.location.href = navigator.platform.toLowerCase().includes('win') ? "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" : "https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg"; }
-        window.addEventListener('scroll', () => { const n = document.getElementById('navbar'); if(window.scrollY>50) n.classList.add('scrolled'); else n.classList.remove('scrolled'); });
 
-        // DSA TYPING
-        const codeText = "class Solution:\n    def trap(self, height: List[int]) -> int:\n        if not height: return 0\n        l, r = 0, len(height) - 1\n        leftMax, rightMax = height[l], height[r]\n        res = 0\n        while l < r:\n            if leftMax < rightMax:\n                l += 1\n                leftMax = max(leftMax, height[l])\n                res += leftMax - height[l]\n            else:\n                r -= 1\n                rightMax = max(rightMax, height[r])\n                res += rightMax - height[r]\n        return res";
-        const typeEl = document.getElementById('typewriter');
-        let typeI = 0;
-        function type() { if (typeI < codeText.length) { typeEl.innerHTML += codeText.charAt(typeI); typeI++; setTimeout(type, 20); } else { setTimeout(()=>{ typeEl.innerHTML=''; typeI=0; type(); }, 3000); } }
-        new IntersectionObserver((e)=>{if(e[0].isIntersecting && typeI===0) type()}).observe(document.getElementById('demo'));
+        // --- INIT ---
+        window.onload = function() {
+            const u = Storage.get(); if(u) updateAuthUI(u);
+            if(window.google) google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: async (res) => { const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d = await r.json(); if(d.success) { currentUser = d.user; Storage.save(currentUser); updateAuthUI(currentUser); closeModal(); } } });
+            
+            window.addEventListener('scroll', () => { const n = document.getElementById('navbar'); if(window.scrollY>50) n.classList.add('scrolled'); else n.classList.remove('scrolled'); });
+
+            // DSA Solution (Trapping Rain Water)
+            const codeText = "class Solution:\n    def trap(self, height: List[int]) -> int:\n        if not height: return 0\n        l, r = 0, len(height) - 1\n        leftMax, rightMax = height[l], height[r]\n        res = 0\n        while l < r:\n            if leftMax < rightMax:\n                l += 1\n                leftMax = max(leftMax, height[l])\n                res += leftMax - height[l]\n            else:\n                r -= 1\n                rightMax = max(rightMax, height[r])\n                res += rightMax - height[r]\n        return res";
+            const typeEl = document.getElementById('typewriter');
+            let typeI = 0;
+            function type() { if (typeI < codeText.length) { typeEl.innerHTML += codeText.charAt(typeI); typeI++; setTimeout(type, 20); } else { setTimeout(()=>{ typeEl.innerHTML=''; typeI=0; type(); }, 3000); } }
+            new IntersectionObserver((e)=>{if(e[0].isIntersecting && typeI===0) type()}).observe(document.getElementById('demo'));
+        };
     </script>
 </body>
 </html>
