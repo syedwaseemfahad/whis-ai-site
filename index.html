@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-    <title>WHIS | The Elite Advantage</title>
-    <meta name="description" content="The undetectable AI copilot for elite engineers." />
+    <title>WHIS | The Singularity</title>
+    <meta name="description" content="The undetectable AI copilot for technical interviews." />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -14,37 +14,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <script>
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: { 
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
-            },
+            fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
             colors: { 
-              void: '#000000', 
-              onyx: '#050505',
-              gold: '#F59E0B',     /* Elite Gold */
-              gold_dim: '#92400e',
-              primary: '#6366f1',  
-              cyan: '#06b6d4',
+              void: '#000000', onyx: '#050505', gold: '#F59E0B', gold_dim: '#92400e', primary: '#6366f1', cyan: '#06b6d4',
             },
             backgroundImage: {
               'gold-gradient': 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)',
-              'noise': "url('https://grainy-gradients.vercel.app/noise.svg')",
               'hero-glow': 'radial-gradient(circle at 50% -20%, rgba(245, 158, 11, 0.15) 0%, rgba(0,0,0,0) 60%)',
             },
             boxShadow: {
               'gold-glow': '0 0 50px -10px rgba(245, 158, 11, 0.4)',
-              'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
             },
             animation: {
               'ticker': 'ticker 40s linear infinite',
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
               ticker: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
@@ -58,15 +46,9 @@
         :root { --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1); }
         html.lenis { height: auto; } 
         .lenis.lenis-smooth { scroll-behavior: auto; } 
-        
-        body { 
-            background-color: #000; 
-            color: #fff; 
-            overflow-x: hidden; 
-            -webkit-font-smoothing: antialiased; 
-        }
+        body { background-color: #000; color: #fff; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* --- PRELOADER --- */
+        /* --- PRELOADER (FAILSAFE) --- */
         #preloader {
             position: fixed; inset: 0; z-index: 99999; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -76,12 +58,8 @@
         .loader-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #F59E0B; transition: width 0.5s ease; }
 
         /* --- GLASS UI --- */
-        .glass-nav {
-            background: rgba(0,0,0,0); transition: all 0.5s var(--ease-luxury); border-bottom: 1px solid transparent;
-        }
-        .glass-nav.scrolled {
-            background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        .glass-nav { background: rgba(0,0,0,0); transition: all 0.5s var(--ease-luxury); border-bottom: 1px solid transparent; }
+        .glass-nav.scrolled { background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.02);
@@ -91,15 +69,13 @@
         }
         .glass-card:hover {
             background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(245, 158, 11, 0.3); /* Gold Border */
+            border-color: rgba(245, 158, 11, 0.3);
             transform: translateY(-5px);
             box-shadow: 0 20px 50px -10px rgba(245, 158, 11, 0.1);
         }
 
-        /* --- HOLOGRAPHIC VIDEO DECK --- */
-        .deck-stage {
-            perspective: 2000px; height: 600px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d;
-        }
+        /* --- VIDEO DECK --- */
+        .deck-stage { perspective: 2000px; height: 600px; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; }
         .deck-card {
             position: absolute; width: 85%; max-width: 1200px; aspect-ratio: 16/9;
             background: #000; border-radius: 24px; overflow: hidden;
@@ -109,50 +85,30 @@
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.05);
         }
-        /* Ensure 16:9 ratio is respected, content is contained (no crop), background is black */
-        .deck-card video { 
-            width: 100%; height: 100%; object-fit: contain; background: #000; 
-        }
-        
+        .deck-card video { width: 100%; height: 100%; object-fit: contain; background: #000; }
         .deck-card.active {
             transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 20;
             border: 1px solid rgba(245, 158, 11, 0.4);
             box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), 0 50px 120px -20px rgba(0,0,0,1);
         }
-        .deck-card.active:hover {
-            transform: translate3d(0, 0, 20px) scale(1.02);
-            border-color: #F59E0B;
-            box-shadow: 0 0 60px rgba(245, 158, 11, 0.3);
-        }
-        .deck-card.left {
-            transform: translate3d(-60%, 0, -500px) rotateY(25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px);
-        }
-        .deck-card.right {
-            transform: translate3d(60%, 0, -500px) rotateY(-25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px);
-        }
+        .deck-card.active:hover { transform: translate3d(0, 0, 20px) scale(1.02); border-color: #F59E0B; box-shadow: 0 0 60px rgba(245, 158, 11, 0.3); }
+        .deck-card.left { transform: translate3d(-60%, 0, -500px) rotateY(25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px); }
+        .deck-card.right { transform: translate3d(60%, 0, -500px) rotateY(-25deg); opacity: 0.2; z-index: 10; pointer-events: none; filter: blur(5px); }
 
-        /* --- CINEMA MODE (IMMERSIVE) --- */
+        /* --- CINEMA MODE --- */
         #cinema-modal {
             position: fixed; inset: 0; z-index: 1000; background: #000;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease-luxury);
         }
         #cinema-modal.active { opacity: 1; pointer-events: auto; }
-        
-        /* The container scales up */
         #cinema-content {
-            width: 100%; height: 100%; 
-            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
             transform: scale(0.9); transition: transform 0.8s var(--ease-luxury);
         }
         #cinema-modal.active #cinema-content { transform: scale(1); }
-        
-        #cinema-player {
-            width: 100%; height: 100%; object-fit: contain;
-            box-shadow: 0 0 100px rgba(245, 158, 11, 0.1);
-        }
 
-        /* --- TEXT & BUTTONS --- */
+        /* --- TEXT --- */
         .text-gold-liquid {
             background: linear-gradient(to right, #F59E0B 20%, #FFF 50%, #F59E0B 80%);
             background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -175,16 +131,10 @@
         }
         .btn-gold:hover::after { left: 100%; }
 
-        /* --- REVEAL --- */
+        /* --- ANIM --- */
         .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--ease-luxury), transform 1s var(--ease-luxury); }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        
-        /* Strikethrough Price */
-        .price-strike { position: relative; display: inline-block; color: #6b7280; font-size: 0.875rem; }
-        .price-strike::after {
-            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px;
-            background: #ef4444; transform: rotate(-10deg);
-        }
+        .price-strike { position: relative; display: inline-block; color: #6b7280; font-size: 0.875rem; text-decoration: line-through; text-decoration-color: #ef4444; }
     </style>
 </head>
 <body id="top">
@@ -257,9 +207,7 @@
         </p>
 
         <div class="reveal active w-full max-w-[1600px] relative z-10">
-            <div class="deck-stage" id="deck-stage">
-                </div>
-            
+            <div class="deck-stage" id="deck-stage"></div>
             <div class="flex flex-col items-center mt-12 gap-6">
                 <div class="text-[10px] font-mono text-gold tracking-widest uppercase flex items-center gap-3">
                     <span class="w-1.5 h-1.5 bg-gold rounded-full animate-pulse"></span>
@@ -274,7 +222,7 @@
         </div>
     </section>
 
-    <section id="features" class="py-32 px-4 bg-surface relative z-10 border-t border-white/5">
+    <section id="features" class="py-32 px-4 bg-onyx relative z-10 border-t border-white/5">
         <div class="max-w-6xl mx-auto">
             <h2 class="reveal text-4xl md:text-5xl font-semibold text-center mb-24 tracking-tight">The 6 Pillars of <span class="text-gold">Stealth</span></h2>
             
@@ -285,31 +233,26 @@
                     <h3 class="text-2xl font-bold text-white mb-4">1. Screen Share Invisible</h3>
                     <p class="text-gray-400 text-sm mb-8 max-w-md">Whis uses a proprietary graphics driver hook. When you share your screen on Zoom/Teams, the overlay is physically excluded from the frame buffer.</p>
                 </div>
-                
                 <div class="reveal glass-card rounded-3xl p-10">
                     <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-microphone text-xl text-primary"></i></div>
                     <h3 class="text-xl font-bold text-white mb-2">2. Audio Intercept</h3>
                     <p class="text-gray-400 text-xs leading-relaxed">No microphone needed. Captures system audio loopback directly.</p>
                 </div>
-
                 <div class="reveal glass-card rounded-3xl p-10">
                     <div class="w-12 h-12 bg-cyan/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-camera text-xl text-cyan"></i></div>
                     <h3 class="text-xl font-bold text-white mb-2">3. Screenshot Input</h3>
                     <p class="text-gray-400 text-xs leading-relaxed">Instant visual analysis of diagrams and code snippets via hotkey.</p>
                 </div>
-
                 <div class="reveal glass-card rounded-3xl p-10">
                     <div class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-keyboard text-xl text-accent"></i></div>
                     <h3 class="text-xl font-bold text-white mb-2">4. Direct Input</h3>
                     <p class="text-gray-400 text-xs leading-relaxed">Manual override mode for text-based questions.</p>
                 </div>
-
                 <div class="reveal glass-card rounded-3xl p-10">
                     <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-6"><i class="fa-solid fa-ghost text-xl text-white"></i></div>
                     <h3 class="text-xl font-bold text-white mb-2">5. No Dock Icon</h3>
                     <p class="text-gray-400 text-xs leading-relaxed">Runs as a background daemon. No taskbar or dock presence.</p>
                 </div>
-
                 <div class="reveal md:col-span-3 glass-card rounded-3xl p-10 flex flex-col md:flex-row items-center justify-between gap-8 bg-gradient-to-r from-void to-surface">
                     <div>
                         <h3 class="text-2xl font-bold text-white mb-2">6. Global Polyglot Engine</h3>
@@ -334,7 +277,7 @@
                 </div>
                 <h2 class="text-5xl md:text-7xl font-semibold mb-8 tracking-tighter text-white">Watch it think.</h2>
                 <p class="text-gray-400 text-xl leading-relaxed mb-10">
-                    The interviewer asks "Trapping Rain Water". Whis analyzes. The O(n) solution renders instantly.
+                    The interviewer asks "Trapping Rain Water". Whis analyzes. The solution renders instantly.
                 </p>
             </div>
 
@@ -361,7 +304,6 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
-                
                 <div class="reveal glass-card rounded-[32px] p-10 text-left hover:border-gray-600 transition flex flex-col h-full border-white/5">
                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Starter</h3>
                     <div class="mb-8"><span class="text-5xl font-bold text-white">Free</span></div>
@@ -399,11 +341,10 @@
                     <div class="space-y-4 text-xs text-gray-400 relative z-10 font-bold uppercase tracking-wide">
                         <p class="text-[9px] text-gray-600 mb-2">Includes Pro, plus:</p>
                         <p class="flex gap-3 text-gold"><i class="fa-solid fa-user-secret"></i> Ghost Protocol</p>
-                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-desktop"></i> Visual Context</p>
-                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-globe"></i> Polyglot Support</p>
+                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-layer-group"></i> Private HUD</p>
+                        <p class="flex gap-3 text-gold"><i class="fa-solid fa-bolt"></i> Zero-Day Latency</p>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
@@ -451,15 +392,32 @@
         let currentUser = null;
         let currentCycle = 'monthly';
 
-        // --- SCROLL & LOAD ---
+        // --- PRELOADER ---
         const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
 
+        // Failsafe Preloader Removal
         window.addEventListener('load', () => {
-            document.getElementById('loader-bar').style.width = '100%';
-            setTimeout(() => { document.getElementById('preloader').style.opacity = '0'; setTimeout(() => { document.getElementById('preloader').style.display = 'none'; reveal(); }, 800); }, 600);
+            const bar = document.getElementById('loader-fill');
+            bar.style.width = '100%';
+            setTimeout(() => {
+                const loader = document.getElementById('preloader');
+                loader.style.opacity = '0';
+                setTimeout(() => { 
+                    loader.style.display = 'none'; 
+                    reveal(); 
+                }, 800);
+            }, 600);
         });
+        // Backup removal in case load hangs
+        setTimeout(() => {
+            const loader = document.getElementById('preloader');
+            if(loader && loader.style.display !== 'none') {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; reveal(); }, 800);
+            }
+        }, 3000);
 
         function reveal() {
             const observer = new IntersectionObserver((entries) => {
@@ -468,7 +426,7 @@
             document.querySelectorAll('.reveal, .reveal-up').forEach(el => observer.observe(el));
         }
 
-        // --- VIDEO ENGINE (CINEMA + AUTO FLOW) ---
+        // --- VIDEO ENGINE (AUTO FLOW + CINEMA) ---
         const deckData = [
             { src: 'visual.mp4', label: 'MODE: OMNI-VISION' },
             { src: 'text.mp4', label: 'MODE: LIVE CODING' },
@@ -485,9 +443,11 @@
                 
                 const vid = document.createElement('video');
                 vid.src = item.src; vid.muted = true; vid.playsInline = true; vid.preload = "none";
+                vid.className = "w-full h-full object-contain bg-black";
                 
-                // Events
-                el.onclick = () => { if(i===deckIndex) openCinema(item.src); else setDeck(i); };
+                // Click -> Cinema Mode
+                el.onclick = () => openCinema(item.src);
+                // End -> Next Video
                 vid.onended = () => { if(i===deckIndex) setDeck((deckIndex + 1) % 3); };
 
                 el.appendChild(vid); stage.appendChild(el);
@@ -510,13 +470,13 @@
 
             document.getElementById('deck-label').innerText = deckData[deckIndex].label;
             pips.forEach((p, i) => {
-                if(i === deckIndex) p.className = "w-12 h-1.5 bg-gold rounded-full transition-all shadow-gold-glow";
+                if(i === deckIndex) p.className = "w-12 h-1.5 bg-cyan rounded-full transition-all shadow-glow";
                 else p.className = "w-2 h-1.5 bg-white/20 hover:bg-white rounded-full transition-all cursor-pointer";
             });
         }
         function setDeck(i) { deckIndex = i; updateDeck(); }
 
-        // --- CINEMA MODE ---
+        // --- CINEMA ---
         function openCinema(src) {
             const overlay = document.getElementById('cinema-modal');
             const vid = document.getElementById('cinema-player');
@@ -541,8 +501,8 @@
         function updateAuthUI(u) {
             if (u) {
                 document.getElementById('btn-login').style.display = 'none';
-                const p = document.getElementById('btn-profile');
-                p.classList.remove('hidden'); p.classList.add('flex');
+                document.getElementById('btn-profile').classList.remove('hidden');
+                document.getElementById('btn-profile').classList.add('flex');
                 document.getElementById('nav-avatar').src = u.avatarUrl;
                 document.getElementById('profile-avatar').src = u.avatarUrl;
                 document.getElementById('profile-name').innerText = u.name;
@@ -559,7 +519,7 @@
                 const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
                 const d = await r.json();
                 document.getElementById('nav-badge').innerText = d.active ? 'PRO' : 'FREE';
-                document.getElementById('profile-plan').innerText = d.active ? (d.tier === 'pro_plus' ? 'Elite' : 'Pro') : 'Free Starter';
+                document.getElementById('profile-plan').innerText = d.active ? (d.tier === 'pro_plus' ? 'Elite (Stealth)' : 'Pro') : 'Free Starter';
                 document.getElementById('profile-expiry').innerText = d.active ? new Date(d.validUntil).toLocaleDateString() : 'Forever';
             } catch(e) {}
         }
@@ -567,30 +527,29 @@
         // --- PRICING LOGIC ---
         function setCycle(c) {
             currentCycle = c;
-            const m = document.getElementById('btn-monthly');
-            const a = document.getElementById('btn-annual');
+            const m = document.getElementById('btn-monthly'); const a = document.getElementById('btn-annual');
             const pPro = document.getElementById('price-pro'); const sPro = document.getElementById('strike-pro');
             const pElite = document.getElementById('price-elite'); const sElite = document.getElementById('strike-elite');
 
             if (c === 'monthly') {
-                m.className = "px-10 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all toggle-btn-active";
-                a.className = "px-10 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all toggle-btn-inactive";
+                m.className = "px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all toggle-btn-active";
+                a.className = "px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all toggle-btn-inactive";
                 pPro.innerText = '₹999'; sPro.innerText = '₹1999';
                 pElite.innerText = '₹2499'; sElite.innerText = '₹4999';
             } else {
-                a.className = "px-10 py-3 rounded-full text-sm font-semibold bg-white text-black shadow-lg transition-all toggle-btn-active";
-                m.className = "px-10 py-3 rounded-full text-sm font-semibold text-white/50 hover:text-white transition-all toggle-btn-inactive";
+                a.className = "px-10 py-3 rounded-full text-sm font-bold bg-white text-black shadow-lg transition-all toggle-btn-active";
+                m.className = "px-10 py-3 rounded-full text-sm font-bold text-gray-500 hover:text-white transition-all toggle-btn-inactive";
                 pPro.innerText = '₹499'; sPro.innerText = '₹999';
                 pElite.innerText = '₹999'; sElite.innerText = '₹1999';
             }
         }
 
-        // --- PAYMENT ENGINE (ROBUST) ---
         async function initiatePayment(tier) { 
             if(!currentUser){ openModal('login'); return; } 
             
             const btn = event.target; const orig = btn.innerText; btn.innerText = "Processing...";
             
+            // Payment Logic with Fallback for Demo
             try {
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`, {
                     method: 'POST',
@@ -599,11 +558,19 @@
                 });
                 const data = await res.json();
                 
-                // Fallback simulation for demo if backend is offline/unreachable
+                // If backend fails (e.g. localhost/demo), simulate success UI
                 if(!data.success && !data.key_id) {
-                    console.warn("Backend Unreachable. Simulating success.");
-                    // In a real scenario, throw error. For demo visual:
-                    alert("Order created! Redirecting to Razorpay...");
+                    console.warn("Backend Unreachable. Simulating flow.");
+                    // In real production, remove this block
+                    const demoOptions = {
+                        "key": "rzp_test_demo123", // Dummy key
+                        "amount": 100, // Dummy amount
+                        "name": "Whis AI (Demo)",
+                        "description": "Simulation Payment",
+                        "handler": function(res){ alert("Payment Success Simulation!"); window.location.href="/success"; }
+                    };
+                    const rzpDemo = new Razorpay(demoOptions);
+                    rzpDemo.open();
                     btn.innerText = orig;
                     return;
                 }
@@ -619,7 +586,14 @@
                 new Razorpay(options).open();
             } catch(e) { 
                 console.error(e);
-                alert("Payment Gateway Initialized (Simulation)."); 
+                // Fallback for demo visualization
+                const rzpDemo = new Razorpay({
+                    "key": "rzp_test_123456",
+                    "amount": 1000,
+                    "name": "Whis AI Demo",
+                    "handler": function(r){ alert("Demo Payment Success"); }
+                });
+                rzpDemo.open();
             }
             btn.innerText = orig;
         }
@@ -653,11 +627,9 @@
                 google.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
                     callback: async (res) => {
-                        try {
-                            const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
-                            const d = await r.json();
-                            if(d.success) { currentUser = d.user; Storage.save(currentUser); updateAuthUI(currentUser); closeModal(); }
-                        } catch(e) {}
+                        const r = await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
+                        const d = await r.json();
+                        if(d.success) { currentUser = d.user; Storage.save(currentUser); updateAuthUI(currentUser); closeModal(); }
                     }
                 });
             }
