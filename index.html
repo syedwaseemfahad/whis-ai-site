@@ -391,7 +391,7 @@
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Audio Ingestion</p>
                     <p class="flex gap-3 text-red-400"><i class="fa-solid fa-video"></i> Visible on Screenshare</p>
                 </div>
-                <button id="btnPro" onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition">Upgrade</button>
+                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed">Upgrade</button>
             </div>
 
             <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-accent">
@@ -404,7 +404,7 @@
                     <p class="flex gap-3"><i class="fa-solid fa-keyboard text-accent"></i> Direct Input Mode</p>
                     <p class="flex gap-3"><i class="fa-solid fa-user-secret text-accent"></i> Ghost Dock (No Icon)</p>
                 </div>
-                <button id="btnElite" onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-xs font-bold uppercase transition shadow-lg">Get Elite</button>
+                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-xs font-bold uppercase transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">Get Elite</button>
             </div>
         </div>
     </div>
@@ -591,10 +591,9 @@
     const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
     
-    // Global Config (Will be fetched)
     let PRICING_CONFIG = {
-        pro: { monthly: 999, annual_per_month: 499, discount: 0 },
-        pro_plus: { monthly: 2499, annual_per_month: 999, discount: 0 }
+        pro: { monthly: 999.00, annual_per_month: 499.00, discount: 0 },
+        pro_plus: { monthly: 2499.00, annual_per_month: 999.00, discount: 0 }
     };
 
     function detectOS(){
@@ -610,6 +609,9 @@
             if(res.ok) {
                 PRICING_CONFIG = await res.json();
                 updatePricingUI();
+                // Enable buttons after data load
+                document.getElementById('btnPro').disabled = false;
+                document.getElementById('btnElite').disabled = false;
             }
         } catch(e) { console.error("Pricing Fetch Error", e); }
     }
@@ -636,10 +638,10 @@
     
     function formatPrice(amount, discount) {
         if(discount > 0) {
-            const discounted = Math.round(amount * (1 - discount/100));
-            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60">₹${amount}</span>`;
+            const discounted = (amount * (1 - discount/100)).toFixed(2);
+            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60">₹${amount.toFixed(2)}</span>`;
         }
-        return `₹${amount}`;
+        return `₹${amount.toFixed(2)}`;
     }
 
     function setCycle(c){
@@ -657,21 +659,20 @@
         const proDiv = document.getElementById('pricePro');
         const eliteDiv = document.getElementById('priceStealth');
         
-        let proPrice = 0, elitePrice = 0;
+        let proPrice = 0.00, elitePrice = 0.00;
         let proDisc = PRICING_CONFIG.pro.discount;
         let eliteDisc = PRICING_CONFIG.pro_plus.discount;
 
         if (currentCycle === 'monthly') {
             proPrice = PRICING_CONFIG.pro.monthly;
             elitePrice = PRICING_CONFIG.pro_plus.monthly;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}`;
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
         } else {
             proPrice = PRICING_CONFIG.pro.annual_per_month;
             elitePrice = PRICING_CONFIG.pro_plus.annual_per_month;
-            // Added explicit "per month (billed annually)" text
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/mo (billed yearly)</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/mo (billed yearly)</span>`;
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
         }
     }
 
@@ -761,7 +762,7 @@
         typeCode();
         checkUser();
         detectOS();
-        fetchPricingConfig(); // New fetch
+        fetchPricingConfig();
         setTimeout(initPhysics, 500);
     });
   </script>
