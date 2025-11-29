@@ -2,10 +2,17 @@
 <html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
-  <title>Whis — Obsidian Luxe</title>
-  <meta name="description" content="Whis — the ultra‑stealth interview co‑pilot. Lightning fast. Invisible. Obsidian Luxe UI."/>
-  <meta name="theme-color" content="#0B0C0E"/>
+  <title>Whis — Thunderstorm Edition ⚡️</title>
+  <meta name="description" content="Whis — ultra‑stealth interview copilot. Thunderstorm Edition: cinematic videos, luxurious UI, lightning performance."/>
+  <meta name="theme-color" content="#0A0B0D"/>
+  <meta property="og:title" content="Whis — Thunderstorm Edition"/>
+  <meta property="og:description" content="Cinematic, premium, and invisible. Walk in with Whis; walk out with the offer."/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+
+  <!-- Preconnect & Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,79 +24,106 @@
         extend: {
           fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
           colors: {
-            obsidian: '#0B0C0E',
-            ink: '#0E1013',
-            slatehi: 'rgba(255,255,255,.86)',
-            accent: '#F5D273'
+            obsidian: '#0A0B0D',
+            ink: '#0C0D11',
+            storm: '#B0C6FF',
+            bolt: '#E7F0FF',
+            gold: '#F5D273',
           },
           boxShadow: {
-            luxe: '0 0 0 1px rgba(255,255,255,.06), 0 30px 80px -20px rgba(0,0,0,.65)',
-            glow: '0 0 40px rgba(245,210,115,.18)'
+            luxe: '0 0 0 1px rgba(255,255,255,.08), 0 30px 80px -20px rgba(0,0,0,.75)',
+            glow: '0 0 40px rgba(176,198,255,.22)'
           },
           animation: {
             shimmer: 'shimmer 3s linear infinite',
-            fadeIn: 'fadeIn .9s ease-out forwards'
+            fadeIn: 'fadeIn .9s ease-out forwards',
+            lightning: 'lightning 6s ease-in-out infinite',
+            float: 'float 8s ease-in-out infinite',
           },
           keyframes: {
             shimmer: { from:{ backgroundPosition:'0 0' }, to:{ backgroundPosition:'-200% 0' }},
-            fadeIn: { '0%': { opacity:0, transform:'translateY(10px)' }, '100%': { opacity:1, transform:'translateY(0)' } }
+            fadeIn: { '0%': { opacity:0, transform:'translateY(12px)' }, '100%': { opacity:1, transform:'translateY(0)' } },
+            lightning: {
+              '0%, 94%, 100%': { opacity: 0 },
+              '95%': { opacity: .2 },
+              '96%': { opacity: .6 },
+              '97%': { opacity: .1 },
+              '98%': { opacity: .5 },
+            },
+            float: { '0%,100%':{ transform:'translateY(0)' }, '50%':{ transform:'translateY(-6px)' } }
           }
         }
       }
     }
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    html,body{height:100%;background:#0B0C0E}
-    body{color:#fff;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-    /* BACKDROP — Obsidian Luxe */
-    .backdrop{position:fixed;inset:0;pointer-events:none;z-index:0}
-    .vignette{position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 20%, rgba(255,255,255,.06) 0%, transparent 55%), radial-gradient(70% 70% at 50% 100%, rgba(255,255,255,.04) 0%, transparent 65%)}
-    .noise{position:absolute;inset:0;background:url('https://grainy-gradients.vercel.app/noise.svg');opacity:.035;mix-blend:soft-light}
-    .griddots{position:absolute;inset:0;background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);background-size: 22px 22px;mask-image:linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);opacity:.18}
+  <style>
+    :root{
+      --bg:#0A0B0D; --ink:#0C0D11; --bolt:#E7F0FF; --storm:#B0C6FF; --gold:#F5D273;
+    }
+    html,body{height:100%; background:var(--bg)}
+    body{color:#fff; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden}
+
+    /* BACKDROP — Thunderstorm */
+    .backdrop{position:fixed; inset:0; pointer-events:none; z-index:0}
+    .vignette{position:absolute; inset:0; background:
+      radial-gradient(65% 50% at 50% 10%, rgba(255,255,255,.06) 0%, transparent 60%),
+      radial-gradient(80% 60% at 50% 100%, rgba(255,255,255,.045) 0%, transparent 70%)}
+    .noise{position:absolute; inset:0; background:url('https://grainy-gradients.vercel.app/noise.svg'); opacity:.035; mix-blend:soft-light}
+    .grid{position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size:22px 22px; mask-image:linear-gradient(to bottom, transparent, black 20%, black 80%, transparent); opacity:.16}
+    .flash{position:absolute; inset:0; background:radial-gradient(80% 60% at 40% 10%, rgba(183,200,255,.25), transparent 60%); filter:blur(12px); opacity:0; animation:lightning 7.5s ease-in-out infinite}
 
     /* GLASS + BUTTONS */
-    .glass{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08)}
-    .btn-shine{background:linear-gradient(110deg,#111827 45%,#1f2937 55%,#111827);background-size:200% 100%;animation:shimmer 3s linear infinite;border:1px solid rgba(255,255,255,.1)}
+    .glass{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025)); border:1px solid rgba(255,255,255,.08)}
+    .btn-shine{background:linear-gradient(110deg,#0f172a 45%,#1f2937 55%,#0f172a); background-size:200% 100%; animation:shimmer 3s linear infinite; border:1px solid rgba(255,255,255,.1)}
 
-    /* VIDEO FIT — no cropping, perfect fit in box */
+    /* VIDEO FIT — guaranteed full fit without cropping */
     .video-wrap{position:relative}
-    .video-frame{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#0C0D11}
+    .video-frame{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#0C0D11}
     .video-frame::-webkit-media-controls{display:none!important}
 
-    /* TYPOGRAPHY */
-    .stroke-title{-webkit-text-stroke:1px rgba(255,255,255,.35)}
+    /* Tilt interaction */
+    .tilt{transform-style:preserve-3d; will-change:transform}
 
-    /* NAV */
-    .navglass{backdrop-filter: blur(14px)}
+    /* Accessibility: reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none!important; transition:none!important}
+    }
   </style>
 </head>
 <body>
-  <!-- minimal scroll progress -->
-  <div id="progress" class="fixed top-0 left-0 h-[2px] bg-[linear-gradient(90deg,rgba(245,210,115,.6),rgba(255,255,255,.8),rgba(245,210,115,.6))] w-0 z-[60]"></div>
+  <!-- Scroll progress -->
+  <div id="progress" class="fixed top-0 left-0 h-[2px] bg-[linear-gradient(90deg,rgba(176,198,255,.7),rgba(255,255,255,.9),rgba(176,198,255,.7))] w-0 z-[60]"></div>
 
   <!-- BACKGROUND -->
-  <div class="backdrop">
+  <div class="backdrop" aria-hidden="true">
     <div class="vignette"></div>
-    <div class="griddots"></div>
+    <div class="grid"></div>
     <div class="noise"></div>
+    <div class="flash"></div>
   </div>
 
   <!-- NAV -->
   <nav id="nav" class="fixed top-0 z-50 w-full h-[64px] md:h-[76px] flex items-center transition-all">
     <div class="mx-auto w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-3 group">
-        <!-- Thunderstorm logo (lightning in a circle), premium monotone + accent -->
+      <a href="#" class="flex items-center gap-3 group" aria-label="Whis home">
+        <!-- Thunderstorm mark -->
         <span class="inline-grid place-items-center w-9 h-9 rounded-full bg-white/5 border border-white/10 shadow-luxe">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-label="Whis logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-label="Whis logo">
             <circle cx="12" cy="12" r="9.5" stroke="rgba(255,255,255,.55)"/>
-            <path d="M13.8 2.5 6.6 13.2h4.6l-1 8.3 7.2-10.7h-4.7l1-7.3Z" fill="#F5D273"/>
+            <path d="M13.8 2.5 6.6 13.2h4.6l-1 8.3 7.2-10.7h-4.7l1-7.3Z" fill="url(#g)"/>
+            <defs>
+              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#E7F0FF"/>
+                <stop offset="1" stop-color="#B0C6FF"/>
+              </linearGradient>
+            </defs>
           </svg>
         </span>
         <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition">whis.ai</span>
       </a>
-      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 navglass">
+      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10 backdrop-blur-md">
         <a href="#how" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">How It Works</a>
         <a href="#security" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">Safety</a>
         <a href="#faq" class="px-5 py-1.5 text-xs text-slate-400 hover:text-white hover:bg-white/5 rounded-full">FAQ</a>
@@ -98,8 +132,8 @@
       <div class="flex items-center gap-2">
         <button id="signInBtn" onclick="openLoginModal()" class="hidden md:inline text-xs font-medium text-slate-400 hover:text-white">Sign in</button>
         <button id="smartDownloadBtn" class="btn-shine px-4 py-2 rounded-full text-[11px] md:text-xs font-bold text-white shadow-glow">Get The Advantage</button>
-        <button id="userProfileTrigger" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition group">
-          <img id="navUserAvatar" src="" class="w-6 h-6 rounded-full bg-slate-800 object-cover"/>
+        <button id="userProfileTrigger" onclick="openProfileModal()" class="hidden items-center gap-2 bg-white/5 pr-3 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition group" aria-label="Open profile">
+          <img id="navUserAvatar" src="" class="w-6 h-6 rounded-full bg-slate-800 object-cover" alt="User avatar"/>
           <span id="navPlanBadge" class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">PRO</span>
         </button>
       </div>
@@ -110,11 +144,10 @@
   <header id="hero" class="relative pt-28 md:pt-40 pb-8 md:pb-14">
     <div class="max-w-6xl mx-auto px-6 text-center">
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6 animate-fadeIn">
-        <span class="w-1.5 h-1.5 rounded-full bg-[color:var(--accent,#F5D273)]" style="box-shadow:0 0 10px rgba(245,210,115,.7)"></span>
-        Obsidian Luxe Edition
+        Thunderstorm Edition
       </div>
 
-      <h1 class="stroke-title text-4xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[1.05] mb-6">
+      <h1 class="text-4xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] mb-6">
         <span class="block bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent">Don't Just Prepare.</span>
         <span class="block text-white">Own The Room.</span>
       </h1>
@@ -125,7 +158,7 @@
 
       <div class="mt-8 flex flex-col md:flex-row items-center justify-center gap-3">
         <button id="ctaPrimary" class="btn-shine inline-flex items-center justify-center rounded-xl px-8 py-3.5 text-sm font-semibold text-white shadow-glow">
-          <i id="osIcon" class="fa-brands fa-apple mr-2 text-lg"></i> <span id="osText">Get Whis for macOS</span>
+          <i id="osIcon" class="fa-brands fa-apple mr-2 text-lg" aria-hidden="true"></i> <span id="osText">Get Whis for macOS</span>
         </button>
         <button onclick="document.getElementById('showcase').scrollIntoView({behavior:'smooth'})" class="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold bg-white/10 hover:bg-white/20 border border-white/10">See It In Action</button>
       </div>
@@ -137,38 +170,53 @@
     <div class="max-w-[1400px] mx-auto px-4 md:px-6">
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
         <!-- BIG LEFT -->
-        <article class="lg:col-span-3 rounded-3xl overflow-hidden glass shadow-luxe">
+        <article class="tilt lg:col-span-3 rounded-3xl overflow-hidden glass shadow-luxe will-change-transform">
           <div class="video-wrap aspect-[16/9] md:aspect-[21/9]">
-            <video class="video-frame" src="visual.mp4" poster="visual_poster.jpg" muted playsinline preload="metadata" loop></video>
-            <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] uppercase tracking-widest border border-white/15">Mode: Reading Screen</div>
-              <h3 class="mt-3 text-lg md:text-2xl font-semibold">See. Understand. Solve.</h3>
+            <video class="video-frame" src="visual.mp4" poster="visual_poster.jpg" muted playsinline preload="metadata" loop aria-label="Reading screen demo"></video>
+            <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-between gap-3">
+              <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] uppercase tracking-widest border border-white/15">Mode: Reading Screen</div>
+                <h3 class="mt-3 text-lg md:text-2xl font-semibold">See. Understand. Solve.</h3>
+              </div>
+              <button class="group inline-flex items-center gap-2 text-xs bg-white/10 hover:bg-white/20 border border-white/10 px-3 py-2 rounded-full" onclick="toggleMute(this)" aria-label="Toggle mute">
+                <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i><span class="hidden md:inline">Mute</span>
+              </button>
             </div>
           </div>
         </article>
         <!-- RIGHT TOP -->
-        <article class="lg:col-span-2 rounded-3xl overflow-hidden glass shadow-luxe">
+        <article class="tilt lg:col-span-2 rounded-3xl overflow-hidden glass shadow-luxe">
           <div class="video-wrap aspect-[16/9] md:aspect-[16/10]">
-            <video class="video-frame" src="text.mp4" poster="text_poster.jpg" muted playsinline preload="metadata" loop></video>
-            <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] uppercase tracking-widest border border-white/15">Mode: Generating Code</div>
-              <h3 class="mt-3 text-lg md:text-2xl font-semibold">Before They Finish Asking.</h3>
+            <video class="video-frame" src="text.mp4" poster="text_poster.jpg" muted playsinline preload="metadata" loop aria-label="Generating code demo"></video>
+            <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-between gap-3">
+              <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] uppercase tracking-widest border border-white/15">Mode: Generating Code</div>
+                <h3 class="mt-3 text-lg md:text-2xl font-semibold">Before They Finish Asking.</h3>
+              </div>
+              <button class="group inline-flex items-center gap-2 text-xs bg-white/10 hover:bg-white/20 border border-white/10 px-3 py-2 rounded-full" onclick="toggleMute(this)" aria-label="Toggle mute">
+                <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i><span class="hidden md:inline">Mute</span>
+              </button>
             </div>
           </div>
         </article>
         <!-- RIGHT BOTTOM -->
-        <article class="lg:col-span-2 rounded-3xl overflow-hidden glass shadow-luxe">
+        <article class="tilt lg:col-span-2 rounded-3xl overflow-hidden glass shadow-luxe">
           <div class="video-wrap aspect-[16/9] md:aspect-[21/9]">
-            <video class="video-frame" src="audio.mp4" poster="audio_poster.jpg" muted playsinline preload="metadata" loop></video>
-            <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] uppercase tracking-widest border border-white/15">Mode: Listening</div>
-              <h3 class="mt-3 text-lg md:text-2xl font-semibold">Capture Every Word. No Panic.</h3>
+            <video class="video-frame" src="audio.mp4" poster="audio_poster.jpg" muted playsinline preload="metadata" loop aria-label="Listening demo"></video>
+            <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-between gap-3">
+              <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[11px] uppercase tracking-widest border border-white/15">Mode: Listening</div>
+                <h3 class="mt-3 text-lg md:text-2xl font-semibold">Capture Every Word. No Panic.</h3>
+              </div>
+              <button class="group inline-flex items-center gap-2 text-xs bg-white/10 hover:bg-white/20 border border-white/10 px-3 py-2 rounded-full" onclick="toggleMute(this)" aria-label="Toggle mute">
+                <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i><span class="hidden md:inline">Mute</span>
+              </button>
             </div>
           </div>
         </article>
       </div>
 
-      <!-- marquee brands (subtle) -->
+      <!-- marquee brands -->
       <div class="mt-10 md:mt-14 opacity-80">
         <div class="relative overflow-hidden rounded-2xl glass">
           <div class="flex gap-16 whitespace-nowrap animate-[marquee_36s_linear_infinite] will-change-transform py-4 px-6">
@@ -195,7 +243,7 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <div class="glass rounded-3xl p-6 md:p-8 hover:bg-white/[0.04] transition">
-          <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-accent mb-5"><i class="fa-solid fa-bolt"></i></div>
+          <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-storm mb-5"><i class="fa-solid fa-bolt"></i></div>
           <h3 class="text-white font-semibold mb-2">Totally Invisible</h3>
           <p class="text-sm text-slate-400">Share your screen with confidence. Whis hides from screen‑sharing tools. You see the answer. They see nothing.</p>
         </div>
@@ -296,15 +344,30 @@
       <div class="glass rounded-full px-3 py-2 border border-white/10 shadow-luxe backdrop-blur-xl flex items-center gap-2">
         <span class="hidden sm:inline text-[11px] text-slate-300">Ready when you are</span>
         <button onclick="openDownloadModal()" class="px-4 py-2 rounded-full bg-white text-black text-[11px] font-bold">Download</button>
-        <button id="cmdkOpen2" class="px-3 py-2 rounded-full bg-white/10 border border-white/10 text-[11px]">Quick Actions ⌘K</button>
+        <button id="cmdkOpen" class="px-3 py-2 rounded-full bg-white/10 border border-white/10 text-[11px]">Quick Actions ⌘K</button>
       </div>
     </div>
   </footer>
 
+  <!-- Command Palette -->
+  <dialog id="cmdk" class="backdrop:bg-black/70 rounded-2xl w-[92%] max-w-xl border border-white/10 bg-[#0B0C0E]/90 p-0 overflow-hidden">
+    <div class="p-3 border-b border-white/10 flex items-center gap-2">
+      <i class="fa-solid fa-magnifying-glass text-slate-500"></i>
+      <input id="cmdkInput" placeholder="Search actions…" class="w-full bg-transparent outline-none text-sm text-white placeholder:text-slate-500"/>
+      <button onclick="closeCmdk()" class="text-slate-500 hover:text-white text-sm px-2">Esc</button>
+    </div>
+    <div id="cmdkList" class="max-h-64 overflow-auto text-sm">
+      <button class="w-full text-left px-4 py-3 hover:bg-white/5">Download for macOS</button>
+      <button class="w-full text-left px-4 py-3 hover:bg-white/5">Download for Windows</button>
+      <button class="w-full text-left px-4 py-3 hover:bg-white/5">Open Pricing</button>
+      <button class="w-full text-left px-4 py-3 hover:bg-white/5">Sign In</button>
+    </div>
+  </dialog>
+
   <!-- MODALS -->
   <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative"><button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button><h3 class="text-lg font-medium text-white mb-2">Welcome Back</h3><p class="text-sm text-slate-500 mb-6">Sign in to manage your subscription.</p><div id="googleBtnContainer" class="flex justify-center h-[44px]"></div></div></div>
   <div id="downloadModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="glass rounded-2xl p-8 max-w-md w-full shadow-2xl relative"><button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button><h2 class="text-lg font-medium text-white mb-2">Start Winning.</h2><div class="space-y-3"><a id="macDl" href="#" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-apple mr-3"></i> macOS</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a><a id="winDl" href="#" class="flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition group"><span class="text-sm font-medium text-white"><i class="fa-brands fa-windows mr-3"></i> Windows</span><i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i></a></div></div></div>
-  <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl ring-1 ring-white/10"><div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800 object-cover" /><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div class="p-6 space-y-6"><div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div><button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button></div></div></div>
+  <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] hidden items-center justify-center p-4"><div class="bg-[#0A0A0A] border border-white/10 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl ring-1 ring-white/10"><div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5"><div class="flex items-center gap-3"><img id="modalUserAvatar" class="w-10 h-10 rounded-full bg-slate-800 object-cover" alt="User avatar"/><div class="font-medium text-white text-sm" id="modalUserName"></div></div><button onclick="closeProfileModal()" class="text-slate-600 hover:text-white"><i class="fa-solid fa-times"></i></button></div><div class="p-6 space-y-6"><div class="bg-white/5 border border-white/5 rounded-lg p-5"><div class="flex justify-between items-start mb-4"><div><p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Subscription</p><h3 id="modalPlanName" class="text-xl font-bold text-white">Loading...</h3></div><span id="modalPlanStatus" class="px-2 py-1 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">ACTIVE</span></div><div class="text-xs text-slate-400 flex justify-between border-t border-white/5 pt-3"><span>Valid Until:</span><span id="modalExpiryDate" class="text-white font-mono">--</span></div></div><button onclick="logout()" class="w-full py-3 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white transition text-xs font-bold uppercase tracking-wider">Sign Out</button></div></div></div>
 
   <!-- SCRIPTS -->
   <script>
@@ -315,6 +378,8 @@
     const downloadModal = document.getElementById('downloadModal');
     const profileModal = document.getElementById('profileModal');
     const progress = document.getElementById('progress');
+    const cmdk = document.getElementById('cmdk');
+    const cmdkInput = document.getElementById('cmdkInput');
 
     let currentUser = null;
 
@@ -323,6 +388,8 @@
       checkUser();
       initVideoAutoplay();
       initScrollProgress();
+      initTilt();
+      initCmdk();
     });
 
     function detectOS(){
@@ -349,14 +416,47 @@
       const vids = document.querySelectorAll('video.video-frame');
       const io = new IntersectionObserver((entries)=>{
         entries.forEach(e=>{ if(e.isIntersecting){ e.target.muted = true; e.target.play().catch(()=>{}); } else { e.target.pause(); } })
-      }, { threshold: .2 });
+      }, { threshold: .25 });
       vids.forEach(v=> io.observe(v));
+    }
+
+    function toggleMute(btn){
+      const wrap = btn.closest('.video-wrap');
+      const v = wrap.querySelector('video');
+      v.muted = !v.muted;
+      btn.querySelector('i').className = v.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+      if(!v.paused) v.play().catch(()=>{});
     }
 
     function initScrollProgress(){
       const h = document.documentElement;
       const up = ()=>{ const st = h.scrollTop; const sh = h.scrollHeight - h.clientHeight; const pct = Math.max(0, Math.min(1, st/sh)); progress.style.width = (pct*100)+'%'; };
       document.addEventListener('scroll', up, { passive:true }); up();
+    }
+
+    function initTilt(){
+      const els = document.querySelectorAll('.tilt');
+      els.forEach(el=>{
+        el.addEventListener('mousemove', (e)=>{
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width; const y = (e.clientY - r.top) / r.height;
+          const rx = (y - .5) * 6; const ry = (x - .5) * -8;
+          el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+        });
+        el.addEventListener('mouseleave', ()=>{ el.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)'; });
+      });
+    }
+
+    function initCmdk(){
+      const open = ()=>{ cmdk.showModal(); setTimeout(()=>cmdkInput.focus(),0); };
+      const close = ()=>{ try{ cmdk.close(); }catch(_){} };
+      document.getElementById('cmdkOpen')?.addEventListener('click', open);
+      document.getElementById('cmdkOpen2')?.addEventListener('click', open);
+      window.addEventListener('keydown', (e)=>{
+        if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); open(); }
+        if(e.key==='Escape' && cmdk.open){ e.preventDefault(); close(); }
+      });
+      window.closeCmdk = close;
     }
 
     // Auth UI
