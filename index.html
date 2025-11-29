@@ -11,443 +11,424 @@
       theme: {
         extend: {
           fontFamily: { 
-            sans: ['SF Pro Display', 'Inter', '-apple-system', 'system-ui', 'sans-serif'], 
+            sans: ['SF Pro Display', 'Inter', '-apple-system', 'sans-serif'], 
             mono: ['JetBrains Mono', 'Fira Code', 'monospace'] 
           },
           colors: { 
-            page: '#020202', 
-            accent: '#00f2ff',
-            stormPurple: '#7c3aed',
-            glass: 'rgba(255, 255, 255, 0.05)'
+            page: '#010101', 
+            accent: 'var(--accent-color)',
+            glass: 'rgba(255, 255, 255, 0.03)'
           },
           animation: { 
             'scroll': 'scroll 40s linear infinite',
+            'hue-cycle': 'hueCycle 30s infinite linear',
+            'float': 'float 8s ease-in-out infinite',
             'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 6s ease-in-out infinite',
           },
           keyframes: {
-            scroll: {
-                '0%': { transform: 'translateX(0)' },
-                '100%': { transform: 'translateX(-100%)' }
-            },
-            float: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-10px)' }
-            }
+            scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
+            hueCycle: { '0%': { filter: 'hue-rotate(0deg)' }, '100%': { filter: 'hue-rotate(360deg)' } },
+            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-15px)' } }
           }
         }
       }
     }
   </script>
   
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
   <style>
-    /* --- ULTRA PREMIUM AESTHETICS --- */
-    body { background-color: #020202; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    /* --- GLOBAL VARIABLES (Dynamic Color) --- */
+    :root {
+        --accent-color: #00f2ff;
+        --accent-glow: rgba(0, 242, 255, 0.15);
+    }
 
-    /* Intro Typography */
+    /* --- BASE AESTHETICS --- */
+    body { 
+        background-color: #010101; 
+        color: white; 
+        font-family: 'Inter', sans-serif; 
+        overflow-x: hidden; 
+        transition: background 0.5s;
+    }
+
+    /* The "Flow" Background */
+    .flow-bg {
+        position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        background: radial-gradient(circle at 15% 50%, rgba(0, 50, 255, 0.04), transparent 40%),
+                    radial-gradient(circle at 85% 30%, rgba(150, 0, 255, 0.04), transparent 40%);
+    }
+
+    /* --- INTRO TYPOGRAPHY --- */
+    .intro-container { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
     .intro-text {
-        font-family: 'SF Pro Display', sans-serif;
-        font-weight: 400;
+        font-size: 2rem;
+        font-weight: 300;
         letter-spacing: -0.02em;
-        background: linear-gradient(to bottom, #fff, #666);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: white;
         opacity: 0;
-        transform: scale(0.95);
+        transform: translateY(20px);
         transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .intro-active { opacity: 1; transform: scale(1); }
-
-    /* Liquid Text */
-    .text-liquid {
-        background: linear-gradient(90deg, #ffffff, #7c3aed, #00f2ff, #ffffff);
-        background-size: 300% 100%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shimmerText 8s infinite linear;
-    }
-    @keyframes shimmerText { 0%, 100% { backgroundPosition: 0% 50% } 50% { backgroundPosition: 100% 50% } }
-
-    /* Glass Panels */
-    .glass-nav { background: rgba(2, 2, 2, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .glass-card { 
-        background: linear-gradient(180deg, rgba(20, 20, 20, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%); 
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08); 
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-    }
-    .glass-card:hover {
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.8);
-    }
-
-    /* Magnetic Video Physics */
-    .video-card-container {
-        position: relative;
-        border-radius: 16px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.1);
-        transform-style: preserve-3d;
-    }
-    .video-sheen {
+        text-align: center;
         position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
-        pointer-events: none;
-        z-index: 10;
+    }
+    @media(min-width: 768px) { .intro-text { font-size: 3.5rem; } }
+    .intro-active { opacity: 1; transform: translateY(0); }
+    .intro-exit { opacity: 0; transform: translateY(-20px) scale(0.95); }
+
+    /* --- PHYSICS CARD ENGINE --- */
+    .physics-card {
+        background: rgba(15, 15, 15, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    /* The "Sheen" Layer */
+    .physics-card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
         opacity: 0;
-        transition: opacity 0.3s;
+        transition: opacity 0.5s;
+        pointer-events: none;
+        z-index: 2;
     }
-    .video-card-container:hover .video-sheen { opacity: 1; }
+    .physics-card:hover::before { opacity: 1; }
+    .physics-card:hover { 
+        border-color: rgba(255, 255, 255, 0.15); 
+        transform: translateY(-2px);
+    }
 
-    /* Infinite Scroller */
-    .scroller-mask { -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent); }
+    /* --- CAROUSEL (3D + Physics) --- */
+    .carousel-container { perspective: 1500px; display: flex; justify-content: center; align-items: center; height: 350px; position: relative; }
+    @media (min-width: 768px) { .carousel-container { height: 500px; } }
     
-    /* Code Editor */
-    .editor-window { background: #050505; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; box-shadow: 0 30px 80px -20px rgba(0,0,0,1); }
-    .syntax-kw { color: #c084fc; font-weight: bold; }
-
-    /* Bento Grid Features */
-    .bento-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; }
-
-    /* Pricing Glow */
-    .pricing-elite {
-        border: 1px solid rgba(124, 58, 237, 0.4);
-        box-shadow: 0 0 50px -10px rgba(124, 58, 237, 0.1);
-        background: radial-gradient(circle at top, rgba(124,58,237,0.08), transparent 70%), linear-gradient(180deg, rgba(15,15,20,0.8), rgba(2,2,2,0.9));
+    .carousel-item { 
+        position: absolute; 
+        width: 80%; md:width: 65%; 
+        aspect-ratio: 16/9; 
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        border-radius: 16px; 
+        overflow: hidden; 
+        background: #000; 
+        border: 1px solid rgba(255,255,255,0.1); 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
-    .pricing-elite:hover { box-shadow: 0 0 80px -20px rgba(124, 58, 237, 0.3); border-color: #7c3aed; }
+    @media (min-width: 768px) { .carousel-item { width: 65%; } }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #020202; }
-    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: rgba(255,255,255,0.3); }
+    .item-left { z-index: 10; transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); opacity: 0.3; pointer-events: none; }
+    .item-right { z-index: 10; transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); opacity: 0.3; pointer-events: none; }
+    .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
+
+    /* --- SCROLLER --- */
+    .scroller-mask { -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent); }
+
+    /* --- EDITOR & BARS --- */
+    .editor-window { background: #080808; border-radius: 12px; }
+    .syntax-kw { color: #c084fc; font-weight: bold; }
+    .bar { width: 3px; background: white; border-radius: 4px; animation: wave 1s ease-in-out infinite; }
+    @keyframes wave { 0%, 100% { height: 10px; opacity: 0.3; } 50% { height: 24px; opacity: 1; } }
+
+    /* --- PRICING SPECIAL --- */
+    .pricing-elite {
+        background: radial-gradient(circle at top, rgba(124,58,237,0.1), rgba(0,0,0,0) 70%), rgba(15,15,15,0.6);
+        border: 1px solid rgba(124, 58, 237, 0.3);
+    }
   </style>
 </head>
-<body class="selection:bg-cyan-500/30 selection:text-white">
+<body class="animate-hue-cycle">
 
-  <div id="intro-layer" class="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
-      <div class="relative w-full max-w-4xl text-center px-6">
-          <h1 id="intro-text-1" class="text-3xl md:text-5xl intro-text absolute inset-0 m-auto h-fit">Your Potential Deserves More</h1>
-          <h1 id="intro-text-2" class="text-3xl md:text-5xl intro-text absolute inset-0 m-auto h-fit">You have come to the right place</h1>
+  <div id="intro-layer" class="fixed inset-0 z-[9999] bg-black pointer-events-none">
+      <div class="intro-container">
+          <h1 id="intro-text-1" class="intro-text">Your Potential Deserves More</h1>
+          <h1 id="intro-text-2" class="intro-text">You have come to the right place</h1>
       </div>
   </div>
 
-  <div class="fixed inset-0 z-0 pointer-events-none">
-    <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
-    <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-blue-900/10 rounded-full blur-[150px] animate-pulse-slow"></div>
-    <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-purple-900/10 rounded-full blur-[150px] animate-pulse-slow" style="animation-delay: 2s"></div>
-  </div>
+  <div class="flow-bg"></div>
+  <div class="fixed inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
 
-  <nav class="fixed top-0 w-full z-50 glass-nav h-[80px] flex items-center justify-center">
-    <div class="w-full max-w-7xl px-6 flex items-center justify-between">
+  <nav class="fixed top-0 w-full z-50 h-[72px] md:h-[80px] flex items-center justify-center bg-black/50 backdrop-blur-xl border-b border-white/5">
+    <div class="w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] transition">
-            <path d="M16 2L2 9L16 16L30 9L16 2Z" fill="white" fill-opacity="0.8"/>
-            <path d="M16 30L30 23L16 16L2 23L16 30Z" fill="white" fill-opacity="0.4"/>
-            <path d="M2 9V23L16 16V2L2 9Z" fill="white" fill-opacity="0.6"/>
-            <path d="M30 9V23L16 16V2L30 9Z" fill="white" fill-opacity="0.2"/>
-        </svg>
-        <span class="text-lg font-bold tracking-tight text-white">Whis-AI</span>
+        <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-white/30 transition">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <span class="text-base md:text-lg font-bold tracking-tight text-white">Whis-AI</span>
       </a>
       
-      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
-        <a href="#features" class="px-6 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Features</a>
-        <a href="#demo" class="px-6 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Demo</a>
-        <a href="#pricing" class="px-6 py-2 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition uppercase tracking-wider">Pricing</a>
+      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5">
+        <a href="#features" class="px-5 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Features</a>
+        <a href="#demo" class="px-5 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Demo</a>
+        <a href="#pricing" class="px-5 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Pricing</a>
       </div>
 
-      <div class="flex items-center gap-5">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-bold text-slate-400 hover:text-white transition uppercase tracking-wider">Sign In</button>
+      <div class="flex items-center gap-4">
+          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition">Sign In</button>
           
-          <button onclick="openDownloadModal()" class="relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold uppercase tracking-wider overflow-hidden group transition-transform hover:scale-105 shadow-[0_0_25px_rgba(255,255,255,0.2)]">
-             <span class="relative z-10" id="navDownloadText">Get App</span>
-             <div class="absolute inset-0 bg-gradient-to-r from-accent via-white to-accent opacity-0 group-hover:opacity-30 transition"></div>
-          </button>
-          
-          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-accent/50 transition group">
-            <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover ring-2 ring-black" />
+          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition">
+            <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover" />
             <span id="navPlanBadge" class="text-[9px] font-bold text-accent uppercase tracking-wide">PRO</span>
           </button>
       </div>
     </div>
   </nav>
 
-  <section class="relative pt-40 md:pt-48 pb-10 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-16 flex flex-col items-center">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 text-slate-300 backdrop-blur-md shadow-lg">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Stealth Active
+  <section class="relative pt-36 md:pt-48 pb-20 overflow-hidden flex flex-col items-center">
+    <div class="relative z-10 text-center max-w-5xl px-6 mb-12 flex flex-col items-center">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 text-slate-300 backdrop-blur-md">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Stealth Active
       </div>
       
-      <h1 class="text-5xl md:text-8xl font-bold tracking-tighter leading-[0.95] mb-8 text-white">
+      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-8 text-white">
         Dominate The Interview.<br>
-        <span class="text-liquid drop-shadow-[0_0_60px_rgba(0,242,255,0.3)]">Silence The Doubt.</span>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-400 to-slate-600 animate-pulse-slow">Silence The Doubt.</span>
       </h1>
       
-      <p class="text-lg text-slate-400 max-w-xl mx-auto mb-10 font-medium leading-relaxed">
-        Your potential deserves more.<br>
-        <span class="text-white">You have come to the right place.</span>
+      <p class="text-base md:text-lg text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed font-light">
+        The unfair advantage for high-stakes engineering.<br>
+        <span class="text-white">Invisible. Real-time. Unbeatable.</span>
       </p>
 
       <div class="flex flex-col items-center gap-4 w-full md:w-auto px-6">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-12 py-4 rounded-xl bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-accent hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center justify-center gap-3">
-            <i class="fa-brands fa-apple text-lg"></i> Download for Mac
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+            Download Client
         </button>
-        <p class="text-[10px] text-slate-500 font-mono mt-2 opacity-80">
-            A tool you will only uninstall after signing the offer letter that changes your life.
+        <p class="text-[10px] text-slate-500 font-mono mt-2 opacity-60">
+            You will only uninstall this after signing your offer letter.
         </p>
       </div>
     </div>
 
-    <div class="w-full max-w-6xl mx-auto mb-24 relative scroller-mask">
+    <div class="w-full max-w-6xl mx-auto mb-20 relative scroller-mask px-6">
         <div class="flex overflow-hidden group">
-            <div class="flex gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center opacity-50 grayscale hover:grayscale-0 transition duration-500">
-                <i class="fa-brands fa-google text-3xl"></i>
-                <i class="fa-brands fa-meta text-3xl"></i>
-                <i class="fa-brands fa-amazon text-3xl"></i>
-                <i class="fa-brands fa-apple text-3xl"></i>
-                <i class="fa-brands fa-uber text-3xl"></i>
-                <i class="fa-brands fa-microsoft text-3xl"></i>
-                <i class="fa-brands fa-airbnb text-3xl"></i>
-                <i class="fa-brands fa-google text-3xl"></i>
-                <i class="fa-brands fa-meta text-3xl"></i>
-                <i class="fa-brands fa-amazon text-3xl"></i>
-                <i class="fa-brands fa-apple text-3xl"></i>
-                <i class="fa-brands fa-uber text-3xl"></i>
-                <i class="fa-brands fa-microsoft text-3xl"></i>
-                <i class="fa-brands fa-airbnb text-3xl"></i>
+            <div class="flex gap-12 md:gap-24 animate-scroll group-hover:[animation-play-state:paused] items-center opacity-40 grayscale hover:grayscale-0 transition duration-500">
+                <i class="fa-brands fa-google text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-meta text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-amazon text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-apple text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-uber text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-microsoft text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-google text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-meta text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-amazon text-2xl md:text-3xl"></i>
+                <i class="fa-brands fa-apple text-2xl md:text-3xl"></i>
             </div>
         </div>
     </div>
 
-    <div class="w-full relative z-20 mb-20 md:mb-32">
-        <div class="carousel-container relative flex justify-center items-center h-[500px]" id="carouselContainer"></div>
-        <div class="text-center mt-8">
-             <p id="featureLabel" class="text-xs font-mono text-accent uppercase tracking-[0.3em] opacity-80">Visual Context Analysis</p>
+    <div class="w-full relative z-20 mb-20">
+        <div class="carousel-container" id="carouselContainer"></div>
+        <div class="text-center mt-6">
+             <p id="featureLabel" class="text-[10px] font-mono text-white/40 uppercase tracking-[0.3em]">System Design</p>
         </div>
     </div>
   </section>
 
-  <section id="features" class="py-24 border-t border-white/5 bg-[#020202]">
+  <section id="demo" class="py-24 border-t border-white/5 bg-black/20">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-bold text-white mb-16 text-center tracking-tight">The Unfair Advantage.</h2>
+          <div class="flex flex-col lg:flex-row gap-12 items-center">
+              <div class="flex-1 w-full space-y-8">
+                  <h2 class="text-3xl md:text-5xl font-medium text-white tracking-tight">Live Synthesis.</h2>
+                  <p class="text-slate-400 text-lg font-light">Whis listens, understands, and codes in real-time. Zero latency.</p>
+                  
+                  <div class="physics-card p-8">
+                      <div class="flex items-center gap-4 mb-6">
+                          <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Audio Feed</span>
+                      </div>
+                      <div class="flex items-center gap-1 h-12 opacity-80">
+                          <div class="bar h-4"></div><div class="bar h-8"></div><div class="bar h-5"></div><div class="bar h-10"></div>
+                          <div class="bar h-6"></div><div class="bar h-12"></div><div class="bar h-4"></div><div class="bar h-8"></div>
+                      </div>
+                      <p class="mt-6 text-sm text-slate-400 italic">"Write a Python solution for Trapping Rain Water..."</p>
+                  </div>
+              </div>
+
+              <div class="flex-1 w-full">
+                  <div class="physics-card p-0 border border-white/10 bg-[#050505]">
+                      <div class="px-4 py-3 border-b border-white/5 flex gap-2">
+                          <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                          <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                      </div>
+                      <div class="p-6 font-mono text-xs md:text-sm text-slate-300 leading-relaxed h-[320px] overflow-hidden relative">
+                          <span id="typewriter"></span><span class="w-2 h-4 bg-white inline-block animate-pulse ml-1 align-middle"></span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section id="features" class="py-24 border-t border-white/5">
+      <div class="max-w-7xl mx-auto px-6">
+          <h2 class="text-3xl font-medium text-white mb-16 text-center">The Unfair Advantage.</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="glass-card p-8 rounded-2xl hover:bg-white/5">
-                  <div class="bento-icon"><i class="fa-solid fa-ghost text-purple-400"></i></div>
-                  <h3 class="text-white font-bold mb-2">Total Invisibility</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Completely invisible to screenshare tools (Zoom, Teams, Meet) and anti-cheat software.</p>
+              <div class="physics-card p-8 group">
+                  <i class="fa-solid fa-ghost text-2xl text-purple-400 mb-6 group-hover:scale-110 transition"></i>
+                  <h3 class="text-white font-bold mb-2">Total Stealth</h3>
+                  <p class="text-sm text-slate-400">Invisible to Zoom, Teams, and Proctoring tools. No screen capture trace.</p>
               </div>
-              
-              <div class="glass-card p-8 rounded-2xl hover:bg-white/5">
-                  <div class="bento-icon"><i class="fa-solid fa-crop-simple text-blue-400"></i></div>
-                  <h3 class="text-white font-bold mb-2">Visual Input</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Instantly analyze diagrams, system designs, and code snippets via discreet screenshot.</p>
+              <div class="physics-card p-8 group">
+                  <i class="fa-solid fa-eye text-2xl text-blue-400 mb-6 group-hover:scale-110 transition"></i>
+                  <h3 class="text-white font-bold mb-2">Visual Context</h3>
+                  <p class="text-sm text-slate-400">Captures system design diagrams and whiteboard problems instantly.</p>
               </div>
-
-              <div class="glass-card p-8 rounded-2xl hover:bg-white/5">
-                  <div class="bento-icon"><i class="fa-solid fa-microphone-lines text-red-400"></i></div>
-                  <h3 class="text-white font-bold mb-2">Voice Synthesis</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Whis listens to the interviewer's question and types the solution before they finish speaking.</p>
+              <div class="physics-card p-8 group">
+                  <i class="fa-solid fa-microphone text-2xl text-red-400 mb-6 group-hover:scale-110 transition"></i>
+                  <h3 class="text-white font-bold mb-2">Voice Input</h3>
+                  <p class="text-sm text-slate-400">Transcribes interviewer questions and generates answers before they finish.</p>
               </div>
-
-              <div class="glass-card p-8 rounded-2xl hover:bg-white/5">
-                  <div class="bento-icon"><i class="fa-solid fa-eye-slash text-slate-400"></i></div>
-                  <h3 class="text-white font-bold mb-2">Zero Footprint</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">No dock icon. No taskbar item. No background process traces. Only you know it's there.</p>
+              <div class="physics-card p-8 group">
+                  <i class="fa-solid fa-eye-slash text-2xl text-slate-400 mb-6 group-hover:scale-110 transition"></i>
+                  <h3 class="text-white font-bold mb-2">Ghost Dock</h3>
+                  <p class="text-sm text-slate-400">No dock icon, no taskbar presence. Controlled via global hotkeys.</p>
               </div>
-
-              <div class="glass-card p-8 rounded-2xl hover:bg-white/5">
-                  <div class="bento-icon"><i class="fa-solid fa-keyboard text-green-400"></i></div>
+              <div class="physics-card p-8 group">
+                  <i class="fa-solid fa-keyboard text-2xl text-green-400 mb-6 group-hover:scale-110 transition"></i>
                   <h3 class="text-white font-bold mb-2">Direct Input</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Type specific queries or clarify requirements manually without switching windows.</p>
+                  <p class="text-sm text-slate-400">Type queries manually for clarifications without switching windows.</p>
               </div>
-
-              <div class="glass-card p-8 rounded-2xl hover:bg-white/5">
-                  <div class="bento-icon"><i class="fa-solid fa-language text-yellow-400"></i></div>
-                  <h3 class="text-white font-bold mb-2">Universal Polyglot</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed">Speak or read in any language. Whis translates, solves, and answers in flawless English.</p>
+              <div class="physics-card p-8 group">
+                  <i class="fa-solid fa-language text-2xl text-yellow-400 mb-6 group-hover:scale-110 transition"></i>
+                  <h3 class="text-white font-bold mb-2">Polyglot</h3>
+                  <p class="text-sm text-slate-400">Translates any language (Mandarin, Hindi, Spanish) to English solutions live.</p>
               </div>
           </div>
       </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-[#030303] overflow-hidden">
-      <div class="max-w-7xl mx-auto px-6 mb-12 text-center">
-          <h2 class="text-2xl font-bold text-white tracking-tight">Verified Outcomes.</h2>
-      </div>
-      <div class="flex gap-6 overflow-x-auto pb-12 px-6 snap-x scroller-mask no-scrollbar" style="-webkit-overflow-scrolling: touch;">
-          <div class="glass-card p-8 rounded-2xl min-w-[300px] md:min-w-[400px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. I signed the offer yesterday."</p>
-              <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10"></div><div><p class="text-xs font-bold text-white">James K.</p><p class="text-[10px] text-slate-500">Google, L5</p></div></div>
-          </div>
-          <div class="glass-card p-8 rounded-2xl min-w-[300px] md:min-w-[400px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE."</p>
-              <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10"></div><div><p class="text-xs font-bold text-white">Sarah M.</p><p class="text-[10px] text-slate-500">Amazon, SDE II</p></div></div>
-          </div>
-          <div class="glass-card p-8 rounded-2xl min-w-[300px] md:min-w-[400px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"Worth every penny. The ROI on this tool is infinite. One job offer pays for a lifetime of subscriptions."</p>
-              <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-slate-800 border border-white/10"></div><div><p class="text-xs font-bold text-white">David R.</p><p class="text-[10px] text-slate-500">Netflix, Senior</p></div></div>
-          </div>
-      </div>
-  </section>
-
-  <section id="pricing" class="py-24 border-t border-white/5 bg-[#020202]">
+  <section id="pricing" class="py-24 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-6 text-center">
-        <h2 class="text-4xl font-bold text-white mb-6">Invest In Your Future.</h2>
-        <p class="text-slate-400 mb-12">One offer pays for a lifetime of subscriptions.</p>
+        <h2 class="text-4xl font-medium text-white mb-6">Invest In Your Future.</h2>
+        <p class="text-slate-400 mb-12">One offer pays for a lifetime.</p>
         
-        <div class="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mb-16">
-           <button id="btnMonthly" class="px-8 py-3 rounded-lg text-xs font-bold bg-white text-black shadow-lg" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-8 py-3 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly</button>
+        <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-16">
+           <button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnAnnual" class="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <div class="glass-card p-10 rounded-3xl text-left flex flex-col">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto items-start">
+            <div class="physics-card p-8 text-left flex flex-col">
                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Starter</h3>
-                <div class="text-5xl font-bold text-white mb-4">Free</div>
-                <div class="space-y-4 text-xs text-slate-400 font-bold mb-8 flex-grow">
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-check text-white"></i> 10 Daily Uses</p>
-                    <p class="flex gap-3 items-center opacity-50 line-through"><i class="fa-solid fa-xmark"></i> Stealth Mode</p>
-                </div>
-                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-bold transition uppercase tracking-widest">Download</button>
+                <div class="text-4xl font-bold text-white mb-4">Free</div>
+                <button onclick="openDownloadModal()" class="w-full py-3 rounded-lg border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-bold uppercase transition mt-auto">Download</button>
             </div>
 
-            <div class="glass-card p-10 rounded-3xl text-left border border-accent/20 flex flex-col relative overflow-hidden">
-                <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Pro License</h3>
-                <div class="text-5xl font-bold text-white mb-4" id="pricePro">₹999</div>
-                <div class="space-y-4 text-xs text-slate-300 font-bold mb-8 flex-grow">
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-infinity text-accent"></i> Unlimited Uses</p>
-                    <p class="flex gap-3 items-center text-red-400"><i class="fa-solid fa-video"></i> Visible on Screenshare</p>
+            <div class="physics-card p-8 text-left flex flex-col border-white/20">
+                <h3 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Pro License</h3>
+                <div class="text-4xl font-bold text-white mb-4" id="pricePro">₹999</div>
+                <div class="space-y-3 text-xs text-slate-300 mb-8">
+                    <p>• Unlimited Syntheses</p>
+                    <p>• Visual Context</p>
+                    <p class="text-red-400">• Visible on Screenshare</p>
                 </div>
-                <button id="btnPro" onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold transition uppercase tracking-widest shadow-lg">Upgrade</button>
+                <button id="btnPro" onclick="initiatePayment('pro')" class="w-full py-3 rounded-lg bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition">Upgrade</button>
             </div>
 
-            <div class="pricing-elite p-10 rounded-3xl text-left flex flex-col relative overflow-hidden">
-                <h3 class="text-xs font-bold text-stormPurple uppercase tracking-widest mb-4 flex items-center gap-2">Elite <i class="fa-solid fa-crown text-[10px]"></i></h3>
-                <div class="text-5xl font-bold text-white mb-4" id="priceStealth">₹2499</div>
-                <div class="space-y-4 text-xs text-white font-bold mb-8 flex-grow">
-                    <p class="flex gap-3 items-center text-stormPurple"><i class="fa-solid fa-shield-halved"></i> 100% Undetectable</p>
-                    <p class="flex gap-3 items-center text-stormPurple"><i class="fa-solid fa-ghost"></i> Invisible to Screenshare</p>
+            <div class="physics-card pricing-elite p-8 text-left flex flex-col relative">
+                <div class="absolute top-4 right-4 text-purple-400 text-xs"><i class="fa-solid fa-crown"></i></div>
+                <h3 class="text-xs font-bold text-purple-400 uppercase tracking-widest mb-4">Elite</h3>
+                <div class="text-4xl font-bold text-white mb-4" id="priceStealth">₹2499</div>
+                <div class="space-y-3 text-xs text-white mb-8">
+                    <p>• 100% Undetectable</p>
+                    <p>• Invisible to Screenshare</p>
+                    <p>• Ghost Mode</p>
                 </div>
-                <button id="btnElite" onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-stormPurple text-white hover:bg-purple-600 text-xs font-bold transition uppercase tracking-widest shadow-lg">Get Elite</button>
+                <button id="btnElite" onclick="initiatePayment('pro_plus')" class="w-full py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-xs font-bold uppercase transition shadow-lg">Get Elite</button>
             </div>
         </div>
     </div>
   </section>
 
-  <footer class="border-t border-white/5 py-12 bg-black text-center">
-      <div class="max-w-7xl mx-auto px-6">
-          <p class="text-white font-medium mb-6">Built for those who refuse to lose.</p>
-          <a href="#pricing" class="inline-block px-8 py-3 rounded-full border border-white/10 hover:bg-white hover:text-black transition text-xs font-bold uppercase tracking-widest mb-10">View Plans</a>
-          <div class="text-[10px] text-slate-700 font-mono">&copy; 2025 Whis-AI. Systems Operational.</div>
-      </div>
-  </footer>
-
-  <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
-      <div class="glass-card rounded-2xl p-10 max-w-sm w-full text-center border border-white/10 relative shadow-2xl">
+  <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4">
+      <div class="physics-card p-10 max-w-sm w-full text-center">
         <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-xl font-bold text-white mb-6">Authenticate</h3>
-        <div id="googleBtnContainer" class="flex justify-center h-[44px]"></div>
+        <h3 class="text-lg font-medium text-white mb-8">Authenticate</h3>
+        <div id="googleBtnContainer" class="flex justify-center"></div>
       </div>
   </div>
 
-  <div id="downloadModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-8 max-w-md w-full border border-white/10 relative shadow-2xl">
+  <div id="downloadModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4">
+    <div class="physics-card p-8 max-w-md w-full">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-xl font-bold text-white mb-6">Select Architecture</h3>
+        <h3 class="text-lg font-medium text-white mb-6">Select Platform</h3>
         <div class="space-y-3">
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 border border-white/5 transition group">
-                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> Mac (Apple Silicon)</span>
-                <i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i>
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition">
+                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-lg"></i> macOS</span>
+                <i class="fa-solid fa-arrow-right text-slate-500"></i>
             </a>
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 border border-white/5 transition group">
-                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-windows text-xl"></i> Windows</span>
-                <i class="fa-solid fa-download text-slate-500 group-hover:text-white"></i>
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition">
+                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-windows text-lg"></i> Windows</span>
+                <i class="fa-solid fa-arrow-right text-slate-500"></i>
             </a>
         </div>
     </div>
   </div>
   
-  <div id="profileModal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden items-center justify-center p-4">
-    <div class="glass-card rounded-2xl p-0 max-w-sm w-full border border-white/10 overflow-hidden relative shadow-2xl">
-        <div class="p-6 text-center">
-            <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-accent p-1" />
-            <h3 id="modalUserName" class="text-lg font-bold text-white">Agent</h3>
-            <div class="bg-white/5 rounded-xl p-5 text-left border border-white/5 mb-6 mt-6">
-                <div class="flex justify-between items-center mb-3">
-                    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Status</p>
-                    <span id="modalPlanStatus" class="px-2 py-0.5 rounded text-[9px] font-bold bg-white/10 text-white">CHECKING</span>
-                </div>
-                <div class="flex justify-between items-end">
-                    <span id="modalPlanName" class="text-xl font-bold text-white tracking-tight">Loading...</span>
-                    <span id="modalExpiryDate" class="text-[10px] font-mono text-slate-400">--/--/----</span>
-                </div>
+  <div id="profileModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] hidden items-center justify-center p-4">
+    <div class="physics-card p-6 max-w-sm w-full text-center">
+        <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+        <img id="modalUserAvatar" class="w-16 h-16 rounded-full mx-auto mb-4 border border-white/20" />
+        <h3 id="modalUserName" class="text-lg font-bold text-white mb-6">User</h3>
+        <div class="bg-white/5 rounded-lg p-4 text-left mb-6">
+            <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
+            <div class="flex justify-between items-baseline">
+                <span id="modalPlanName" class="text-xl font-bold text-white">Free</span>
+                <span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">ACTIVE</span>
             </div>
-            <button onclick="logout()" class="w-full py-3 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition text-xs font-bold uppercase tracking-wider">Logout</button>
         </div>
+        <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase">Sign Out</button>
     </div>
   </div>
 
   <script>
-    // --- 1. SMOOTH INTRO SEQUENCE ---
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
-    
-    async function playIntroSequence() {
-        const layer = document.getElementById('intro-layer');
-        const t1 = document.getElementById('intro-text-1');
-        const t2 = document.getElementById('intro-text-2');
-
-        await wait(500);
-        // T1 In
-        t1.classList.add('intro-active');
-        await wait(1000); // Hold 1s
-        // T1 Out
-        t1.classList.remove('intro-active');
-        await wait(800); // Gap
-        // T2 In
-        t2.classList.add('intro-active');
-        await wait(1000); // Hold 1s
-        // T2 Out
-        t2.classList.remove('intro-active');
-        await wait(500);
-        // Layer Fade
-        layer.style.transition = "opacity 1s ease";
-        layer.style.opacity = "0";
-        await wait(1000);
-        layer.style.display = 'none';
-    }
-
-    // --- 2. VIDEO PHYSICS (MAGNETIC EFFECT) ---
-    function initVideoPhysics() {
-        const cards = document.querySelectorAll('.carousel-item');
-        document.addEventListener('mousemove', (e) => {
-            const active = document.querySelector('.item-center');
-            if(!active) return;
-            
-            const rect = active.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Apply gradient position
-            active.style.setProperty('--x', `${x}px`);
-            active.style.setProperty('--y', `${y}px`);
+    // --- 1. GLOBAL PHYSICS ENGINE (The "Sheen") ---
+    function initPhysics() {
+        const cards = document.querySelectorAll('.physics-card, .carousel-item');
+        document.body.addEventListener('mousemove', (e) => {
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
         });
     }
 
-    // --- CAROUSEL LOGIC ---
+    // --- 2. SMOOTH 2-STEP INTRO ---
+    function playIntro() {
+        const t1 = document.getElementById('intro-text-1');
+        const t2 = document.getElementById('intro-text-2');
+        const layer = document.getElementById('intro-layer');
+
+        // Sequence
+        setTimeout(() => t1.classList.add('intro-active'), 500); // 1. Show Text 1
+        setTimeout(() => t1.classList.remove('intro-active'), 1500); // 2. Hide Text 1 (at 1.5s)
+        setTimeout(() => t1.classList.add('intro-exit'), 1500);
+        
+        setTimeout(() => t2.classList.add('intro-active'), 2200); // 3. Show Text 2 (gap 700ms)
+        setTimeout(() => t2.classList.remove('intro-active'), 3200); // 4. Hide Text 2 (at 3.2s)
+        setTimeout(() => t2.classList.add('intro-exit'), 3200);
+
+        setTimeout(() => { layer.style.opacity = '0'; }, 3800); // 5. Fade layer
+        setTimeout(() => { layer.style.display = 'none'; }, 4500);
+    }
+
+    // --- 3. VIDEO CAROUSEL (Fixed & Physics) ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
         { src: 'text.mp4', label: 'CODE SYNTHESIS' },
@@ -460,19 +441,15 @@
         container.innerHTML = '';
         videos.forEach((v, i) => {
             const div = document.createElement('div');
-            // Add physics container class
-            div.className = 'carousel-item video-card-container';
+            // Physics class added to items
+            div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
-            
-            const sheen = document.createElement('div');
-            sheen.className = 'video-sheen';
             
             const video = document.createElement('video');
             video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
-            // Prevent cropping
+            // FIXED: Contain ensures full video visibility
             video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
             
-            div.appendChild(sheen);
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -487,7 +464,7 @@
         videos.forEach((_, i) => {
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
-            el.className = 'carousel-item video-card-container transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
+            el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
             
             if(i === activeIndex) {
                 el.classList.add('item-center');
@@ -507,65 +484,73 @@
     }
     setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
-    // --- APP CONFIG ---
+    // --- 4. CODE TYPEWRITER (Restored) ---
+    const codeSnippet = `class Solution:
+    def trap(self, height: List[int]) -> int:
+        if not height: return 0
+        l, r = 0, len(height) - 1
+        leftMax, rightMax = height[l], height[r]
+        res = 0
+        while l < r:
+            if leftMax < rightMax:
+                l += 1
+                leftMax = max(leftMax, height[l])
+                res += leftMax - height[l]
+            else:
+                r -= 1
+                rightMax = max(rightMax, height[r])
+                res += rightMax - height[r]
+        return res`;
+    let charIndex = 0;
+    function typeCode() {
+        const el = document.getElementById('typewriter');
+        if (charIndex < codeSnippet.length) {
+            let char = codeSnippet.charAt(charIndex);
+            if(char === 'd' && codeSnippet.substr(charIndex, 3) === 'def') { char = '<span class="syntax-kw">def</span>'; charIndex += 2; }
+            else if(char === 'r' && codeSnippet.substr(charIndex, 6) === 'return') { char = '<span class="syntax-kw">return</span>'; charIndex += 5; }
+            else if(char === 'w' && codeSnippet.substr(charIndex, 5) === 'while') { char = '<span class="syntax-kw">while</span>'; charIndex += 4; }
+            el.innerHTML += char; charIndex++; setTimeout(typeCode, 20);
+        } else {
+            setTimeout(() => { el.innerHTML = ''; charIndex = 0; typeCode(); }, 3000);
+        }
+    }
+
+    // --- 5. LOGIC (Auth/Payment/OS) ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
-    let currentUser = null;
-    let currentCycle = 'monthly';
-    let currentTier = 'free';
+    let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
 
     function detectOS(){
         const p = navigator.platform.toLowerCase(); 
         const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
-        const navText = document.getElementById('navDownloadText');
-        
         if (p.includes('win')||ua.includes('win')) { 
             btn.innerHTML = '<i class="fa-brands fa-windows text-lg"></i> Download for Windows';
-            navText.innerText = "Get Windows App";
         } else {
-            btn.innerHTML = '<i class="fa-brands fa-apple text-lg"></i> Download for Mac';
-            navText.innerText = "Get Mac App";
+            btn.innerHTML = '<i class="fa-brands fa-apple text-lg"></i> Download for macOS';
         }
     }
 
-    function updateNavUI(u){
-        document.getElementById('signInBtn').style.display = 'none';
-        document.getElementById('userProfileTrigger').classList.remove('hidden');
-        document.getElementById('userProfileTrigger').classList.add('flex');
-        document.getElementById('navUserAvatar').src = u.avatarUrl;
-    }
-
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
+    function updateNavUI(u){ document.getElementById('signInBtn').style.display='none'; document.getElementById('userProfileTrigger').classList.remove('hidden'); document.getElementById('userProfileTrigger').classList.add('flex'); document.getElementById('navUserAvatar').src = u.avatarUrl; }
     
     async function handleGoogleRes(res){
         try {
             const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
             const d=await r.json();
-            if(d.success){
-                localStorage.setItem('whisUser',JSON.stringify(d.user));
-                currentUser=d.user;
-                updateNavUI(currentUser);
-                fetchUserStatus();
-                closeLoginModal();
-            }
+            if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateNavUI(currentUser); fetchUserStatus(); closeLoginModal(); }
         } catch(e){ console.error(e); }
     }
     
     function setCycle(c){
         currentCycle=c;
-        const btnM=document.getElementById('btnMonthly');
-        const btnA=document.getElementById('btnAnnual');
+        const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual');
         if(c==='monthly'){
-            btnM.className="px-8 py-3 rounded-lg text-xs font-bold bg-white text-black shadow-lg transition-all";
-            btnA.className="px-8 py-3 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition-all";
-            document.getElementById('pricePro').innerHTML='₹999';
-            document.getElementById('priceStealth').innerHTML='₹2499';
+            btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
+            document.getElementById('pricePro').innerText='₹999'; document.getElementById('priceStealth').innerText='₹2499';
         } else {
-            btnA.className="px-8 py-3 rounded-lg text-xs font-bold bg-white text-black shadow-lg transition-all";
-            btnM.className="px-8 py-3 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition-all";
-            document.getElementById('pricePro').innerHTML='₹499';
-            document.getElementById('priceStealth').innerHTML='₹999';
+            btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
+            document.getElementById('pricePro').innerText='₹499'; document.getElementById('priceStealth').innerText='₹999';
         }
     }
 
@@ -575,79 +560,49 @@
             const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
             const d = await r.json();
             if(d.active) currentTier = d.tier; else currentTier = 'free';
-            
             const badge = document.getElementById('navPlanBadge');
-            const statusSpan = document.getElementById('modalPlanStatus');
-            const planName = document.getElementById('modalPlanName');
-            const btnPro = document.getElementById('btnPro');
-            const btnElite = document.getElementById('btnElite');
-            
             if(d.active){
-                const isElite = d.tier === 'pro_plus';
-                badge.textContent = isElite ? 'ELITE' : 'PRO';
-                badge.className = isElite ? "text-[9px] font-bold text-stormPurple uppercase tracking-wide" : "text-[9px] font-bold text-accent uppercase tracking-wide";
-                statusSpan.textContent = "ACTIVE";
-                planName.textContent = isElite ? 'Elite License' : 'Pro License';
-                document.getElementById('modalExpiryDate').textContent = "Renews: " + new Date(d.validUntil).toLocaleDateString();
-                
-                if(!isElite) {
-                    btnPro.innerText = "Current Plan";
-                    btnPro.disabled = true;
-                    // --- UPGRADE LOGIC VISUAL ---
-                    btnElite.innerText = "Upgrade (Pay Difference)";
-                } else {
-                    btnPro.innerText = "Included";
-                    btnElite.innerText = "Current Plan";
-                    btnElite.disabled = true;
-                }
+                badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
+                document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
+                document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
+                const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
+                if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
+                if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
             }
-            document.getElementById('modalUserName').textContent = currentUser.name;
+            document.getElementById('modalUserName').innerText = currentUser.name;
             document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
         } catch(e){}
     }
 
     async function initiatePayment(targetTier){
         if(!currentUser){ openLoginModal(); return; }
-        if(currentTier === 'pro_plus') { alert("You are already on the Elite plan."); return; }
-        if(currentTier === 'pro' && targetTier === 'pro') { return; }
+        if(currentTier === 'pro_plus') return;
+        if(currentTier === 'pro' && targetTier === 'pro') return;
         
-        const btn = event.target; const orig = btn.innerText; btn.innerText = "Securing...";
-        
-        // --- 7. UPGRADE LOGIC FLAG ---
         const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        
+        const btn = event.target; const orig = btn.innerText; btn.innerText = "...";
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                // Sending isUpgrade flag to backend to handle the 1500 vs 2499 logic
+                method:'POST', headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({googleId:currentUser.googleId, tier:targetTier, cycle:currentCycle, isUpgrade: isUpgrade})
             });
             const data = await res.json();
-            if(!data.order_id) throw new Error("Order creation failed");
-
-            const options = {
-                "key": data.key_id,
-                "amount": data.amount,
-                "currency": data.currency,
-                "name": "Whis AI",
-                "description": isUpgrade ? "Elite Upgrade" : (targetTier === 'pro' ? "Pro License" : "Elite License"),
-                "order_id": data.order_id,
-                "handler": function (response){ window.location.reload(); },
-                "prefill": { "name": data.user_name, "email": data.user_email },
-                "theme": { "color": "#00f2ff" }
-            };
-            const rzp1 = new Razorpay(options);
-            rzp1.open();
-        } catch(e){ console.error(e); alert("Payment channel interrupted."); }
+            if(data.order_id){
+                const rzp1 = new Razorpay({
+                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
+                    "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
+                    "handler": function (response){ window.location.reload(); },
+                    "theme": { "color": "#7c3aed" }
+                });
+                rzp1.open();
+            }
+        } catch(e){ console.error(e); }
         btn.innerText = orig;
     }
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
-    const loginModal=document.getElementById('loginModal');
-    const downloadModal=document.getElementById('downloadModal');
-    const profileModal=document.getElementById('profileModal');
+    const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
     function openLoginModal(){loginModal.classList.remove('hidden');loginModal.classList.add('flex');if(window.google){google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "240"});}}
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
@@ -656,11 +611,13 @@
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
     document.addEventListener("DOMContentLoaded", () => {
-        playIntroSequence();
+        playIntro();
         initCarousel();
-        initVideoPhysics();
+        typeCode();
         checkUser();
         detectOS();
+        // Delay physics init slightly to ensure DOM render
+        setTimeout(initPhysics, 500);
     });
   </script>
 </body>
