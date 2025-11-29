@@ -189,7 +189,7 @@
           
           <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition">
             <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover" />
-            <span id="navPlanBadge" class="text-[9px] font-bold text-accent uppercase tracking-wide">PRO</span>
+            <span id="navPlanBadge" class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">FREE</span>
           </button>
       </div>
     </div>
@@ -215,7 +215,7 @@
         <button id="heroDownloadBtn" onclick="openDownloadModal()" class="px-10 py-4 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center gap-3">
             <i class="fa-brands fa-apple text-xl"></i> Download Client
         </button>
-        <p class="text-[10px] text-slate-500 font-mono opacity-70">
+        <p class="text-[10px] text-slate-500 font-mono opacity-80 font-semibold tracking-wide">
             You will only uninstall this after signing your offer letter.
         </p>
       </div>
@@ -266,10 +266,17 @@
                   </div>
               </div>
 
-              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[340px] flex flex-col">
-                  <div class="px-4 py-3 border-b border-white/5 flex gap-2">
-                      <div class="w-3 h-3 rounded-full bg-white/10"></div>
-                      <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col">
+                  <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
+                      <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                      </div>
+                      <div class="flex gap-4 text-[10px] font-mono font-bold text-slate-500">
+                          <span class="text-accent cursor-pointer">PYTHON</span>
+                          <span class="hover:text-white cursor-pointer transition">C++</span>
+                          <span class="hover:text-white cursor-pointer transition">JAVA</span>
+                      </div>
                   </div>
                   <div class="p-6 flex-grow overflow-hidden relative">
                       <pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300"></pre>
@@ -403,8 +410,16 @@
     </div>
   </section>
 
-  <footer class="py-12 bg-black text-center border-t border-white/5">
-      <p class="text-slate-500 text-xs">Built for those who refuse to lose.</p>
+  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6">
+    <div class="flex flex-wrap justify-center gap-6 text-slate-500 text-xs font-medium">
+        <a href="/contact" class="hover:text-white transition">Contact</a>
+        <a href="/shipping-policy" class="hover:text-white transition">Shipping Policy</a>
+        <a href="/support" class="hover:text-white transition">Support</a>
+        <a href="/terms" class="hover:text-white transition">Terms</a>
+        <a href="/refund-policy" class="hover:text-white transition">Refund Policy</a>
+        <a href="/privacy" class="hover:text-white transition">Privacy</a>
+    </div>
+    <p class="text-slate-600 text-[10px]">Built for those who refuse to lose.</p>
   </footer>
 
   <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
@@ -443,6 +458,7 @@
                 <span id="modalPlanName" class="text-xl font-bold text-white">Free</span>
                 <span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">ACTIVE</span>
             </div>
+            <div id="modalPlanValidity" class="text-[10px] text-slate-400 mt-2"></div>
         </div>
         <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition">Sign Out</button>
     </div>
@@ -609,7 +625,19 @@
     }
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
-    function updateNavUI(u){ document.getElementById('signInBtn').style.display='none'; document.getElementById('userProfileTrigger').classList.remove('hidden'); document.getElementById('userProfileTrigger').classList.add('flex'); document.getElementById('navUserAvatar').src = u.avatarUrl; }
+    
+    function updateNavUI(u){ 
+        document.getElementById('signInBtn').style.display='none'; 
+        const profileTrigger = document.getElementById('userProfileTrigger');
+        profileTrigger.classList.remove('hidden'); 
+        profileTrigger.classList.add('flex'); 
+        document.getElementById('navUserAvatar').src = u.avatarUrl; 
+        
+        // Fix: Hide Badge by default, logic will show it in fetchUserStatus
+        document.getElementById('navPlanBadge').innerText = "FREE";
+        document.getElementById('navPlanBadge').classList.remove('text-accent');
+        document.getElementById('navPlanBadge').classList.add('text-slate-400');
+    }
     
     async function handleGoogleRes(res){
         try {
@@ -637,14 +665,39 @@
             const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
             const d = await r.json();
             if(d.active) currentTier = d.tier; else currentTier = 'free';
+            
             const badge = document.getElementById('navPlanBadge');
+            const validityEl = document.getElementById('modalPlanValidity');
+            
             if(d.active){
+                // PAID TIER
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
+                badge.classList.remove('text-slate-400');
+                badge.classList.add('text-accent');
+
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
+                
+                // Show validity if available
+                if(d.expiry || d.validUntil) {
+                    const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
+                    validityEl.innerText = "Valid until: " + dateStr;
+                } else {
+                    validityEl.innerText = "Active Subscription";
+                }
+
                 const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
                 if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
                 if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
+            } else {
+                // FREE TIER
+                badge.innerText = 'FREE';
+                badge.classList.add('text-slate-400');
+                badge.classList.remove('text-accent');
+                
+                document.getElementById('modalPlanName').innerText = 'Free Tier';
+                document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
+                validityEl.innerText = "Lifetime Free Access";
             }
             document.getElementById('modalUserName').innerText = currentUser.name;
             document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
