@@ -591,10 +591,8 @@
     const GOOGLE_CLIENT_ID="91011354786-0giqfdd547vj6ojkk26qdj4jucl5v07p.apps.googleusercontent.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
     
-    let PRICING_CONFIG = {
-        pro: { monthly: 999.00, annual_per_month: 499.00, discount: 0 },
-        pro_plus: { monthly: 2499.00, annual_per_month: 999.00, discount: 0 }
-    };
+    // No hardcoded defaults here anymore
+    let PRICING_CONFIG = null;
 
     function detectOS(){
         const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
@@ -637,6 +635,7 @@
     }
     
     function formatPrice(amount, discount) {
+        if (!amount) return "...";
         if(discount > 0) {
             const discounted = (amount * (1 - discount/100)).toFixed(2);
             return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60">₹${amount.toFixed(2)}</span>`;
@@ -656,6 +655,8 @@
     }
 
     function updatePricingUI() {
+        if (!PRICING_CONFIG) return; // Wait for fetch
+        
         const proDiv = document.getElementById('pricePro');
         const eliteDiv = document.getElementById('priceStealth');
         
