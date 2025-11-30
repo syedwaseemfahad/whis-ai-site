@@ -113,22 +113,24 @@
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL --- */
+    /* --- CAROUSEL FIXES (UPDATED FOR MOBILE) --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
         justify-content: center; 
         align-items: center; 
-        height: 250px; 
+        height: 280px; /* Adjusted for mobile */
         position: relative; 
+        margin-top: 20px;
+        margin-bottom: 20px;
     }
     @media (min-width: 768px) { 
-        .carousel-container { height: 650px; } 
+        .carousel-container { height: 650px; margin-top: 0; } 
     }
     
     .carousel-item { 
         position: absolute; 
-        width: 95%; 
+        width: 90%; /* Mobile width */
         aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
         border-radius: 16px; 
@@ -138,12 +140,22 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
     @media (min-width: 768px) { 
-        .carousel-item { width: 85%; } 
+        .carousel-item { width: 85%; } /* Desktop width */
     }
     
+    /* Center Item */
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
-    .item-left { z-index: 10; transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); opacity: 0.3; }
-    .item-right { z-index: 10; transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); opacity: 0.3; }
+    
+    /* Side Items - Mobile Optimized (Stacked tighter) */
+    .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
+    .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
+    
+    /* Side Items - Desktop (Wider spread) */
+    @media (min-width: 768px) {
+        .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
+        .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
+    }
+
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
     /* --- CODE EDITOR --- */
@@ -221,7 +233,7 @@
   </nav>
 
   <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-t border-white/10 p-3 pb-6 grid grid-cols-2 gap-3">
-      <a href="#mobile-demo" class="py-3.5 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2">
+      <a href="#demo" class="py-3.5 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
       <button onclick="openDownloadModal()" class="py-3.5 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_15px_var(--accent-glow)]">
@@ -269,7 +281,7 @@
       </a>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto mb-32 relative scroller-mask px-6">
+    <div class="w-full max-w-7xl mx-auto mb-10 relative scroller-mask px-6">
         <div class="flex overflow-hidden group">
             <div class="flex gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center opacity-40 grayscale hover:grayscale-0 transition duration-500">
                 <i class="fa-brands fa-google text-3xl"></i><i class="fa-brands fa-meta text-3xl"></i><i class="fa-brands fa-amazon text-3xl"></i>
@@ -280,23 +292,7 @@
         </div>
     </div>
 
-    <div id="mobile-demo" class="md:hidden w-full px-6 mb-20 scroll-mt-24">
-        <p class="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">See how it works (Silently)</p>
-        
-        <div id="mobile-video-container" class="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black">
-             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10 flex flex-col justify-end p-4 pointer-events-none">
-                 <p class="text-white font-bold text-sm mb-0.5">Live Assistant Demo</p>
-                 <p class="text-[10px] text-slate-300">Whis-AI generating code instantly.</p>
-             </div>
-             
-             <video src="visual.mp4" class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline></video>
-             
-             <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-                 </div>
-        </div>
-    </div>
-
-    <div class="hidden md:block w-full relative z-20 mb-2">
+    <div class="w-full relative z-20 mb-2">
         <div class="carousel-container" id="carouselContainer"></div>
         <div class="text-center mt-4">
              <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p>
@@ -688,7 +684,13 @@
             div.id = `c-item-${i}`;
             const video = document.createElement('video');
             video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
-            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
+            // On Mobile: Use object-contain. On Desktop: Use object-cover (or consistent style)
+            // Added simple logic: width < 768 -> contain, else -> cover (default)
+            if(window.innerWidth < 768) {
+               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
+            } else {
+               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; // Changed to contain for safety on all screens
+            }
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -783,15 +785,6 @@
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- CUSTOM MOBILE LOGIC (OS DETECTION) ---
-    function optimizeMobileVideo() {
-        const video = document.querySelector('#mobile-video-container video');
-        if(video) {
-            // Force reset aspect ratio logic if needed
-            video.style.objectFit = "cover";
-        }
-    }
-
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
@@ -811,7 +804,6 @@
         // CUSTOM LOGIC: Detect if NOT Win/Mac (Mobile/Linux)
         if (!isWin && !isMac) {
              btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
-             optimizeMobileVideo(); // Apply custom mobile video fix
         } else if (isWin) {
              btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial (Windows)';
         } else if (isMac) {
