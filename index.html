@@ -606,10 +606,21 @@
     let GOOGLE_CLIENT_ID = null;
 
     function detectOS(){
-        const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
+        const p = navigator.platform.toLowerCase(); 
+        const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
-        if (p.includes('win')||ua.includes('win')) btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
-        else btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
+        
+        // Strict Checks
+        if (p.includes('win') || ua.includes('win')) {
+            // It is Windows
+            btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
+        } else if (p.includes('mac') || ua.includes('mac') || p.includes('iphone') || p.includes('ipad')) {
+            // It is Mac/iOS
+            btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
+        } else {
+            // It is Linux, Android, or Unknown -> Show Generic "Windows/Mac" so they know it's a desktop app
+            btn.innerHTML = '<i class="fa-brands fa-apple text-lg"></i><i class="fa-brands fa-windows text-lg ml-2"></i><span class="ml-2">Download for Windows/Mac</span>';
+        }
     }
 
     async function fetchPricingConfig() {
