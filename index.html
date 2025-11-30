@@ -282,17 +282,17 @@
 
     <div id="mobile-demo" class="md:hidden w-full px-6 mb-20 scroll-mt-24">
         <p class="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">See how it works (Silently)</p>
-        <div class="relative w-full h-[60vh] rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black">
-             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10 flex flex-col justify-end p-6 pointer-events-none">
-                 <p class="text-white font-bold mb-1">Live Interview Assistant</p>
-                 <p class="text-xs text-slate-300">Whis-AI transcribing & solving instantly.</p>
+        
+        <div id="mobile-video-container" class="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10 flex flex-col justify-end p-4 pointer-events-none">
+                 <p class="text-white font-bold text-sm mb-0.5">Live Assistant Demo</p>
+                 <p class="text-[10px] text-slate-300">Whis-AI generating code instantly.</p>
              </div>
-             <video src="visual.mp4" class="absolute inset-0 w-full h-full object-contain opacity-80" autoplay loop muted playsinline></video>
+             
+             <video src="visual.mp4" class="absolute inset-0 w-full h-full object-cover" autoplay loop muted playsinline></video>
+             
              <div class="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-                 <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
-                     <i class="fa-solid fa-volume-xmark text-white"></i>
                  </div>
-             </div>
         </div>
     </div>
 
@@ -783,6 +783,15 @@
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
+    // --- CUSTOM MOBILE LOGIC (OS DETECTION) ---
+    function optimizeMobileVideo() {
+        const video = document.querySelector('#mobile-video-container video');
+        if(video) {
+            // Force reset aspect ratio logic if needed
+            video.style.objectFit = "cover";
+        }
+    }
+
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
@@ -799,12 +808,14 @@
         const isWin = p.includes('win') || ua.includes('windows');
         const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone') && !ua.includes('ipad');
 
-        if (isWin) {
+        // CUSTOM LOGIC: Detect if NOT Win/Mac (Mobile/Linux)
+        if (!isWin && !isMac) {
+             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
+             optimizeMobileVideo(); // Apply custom mobile video fix
+        } else if (isWin) {
              btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial (Windows)';
         } else if (isMac) {
              btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial (macOS)';
-        } else {
-             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
         }
     }
 
