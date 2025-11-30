@@ -113,7 +113,7 @@
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL FIXES --- */
+    /* --- CAROUSEL --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
@@ -229,7 +229,7 @@
       </button>
   </div>
 
-  <a href="https://wa.me/1234567890" target="_blank" class="fixed bottom-24 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
+  <a href="https://wa.me/9092435258" target="_blank" class="fixed bottom-24 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
       <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
       <span class="absolute right-14 bg-white text-black text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
   </a>
@@ -239,7 +239,7 @@
       
       <div class="animate-float mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 backdrop-blur-md">
           <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-          🔥 156 signups today
+          <span id="signup-badge-text">🔥 150+ signups today</span>
       </div>
       
       <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-6 text-white">
@@ -305,6 +305,53 @@
              <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p>
         </div>
     </div>
+  </section>
+
+  <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
+      <div class="max-w-7xl mx-auto px-6">
+          <div class="grid lg:grid-cols-2 gap-16 items-center">
+              <div class="space-y-8">
+                  <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">Live Synthesis.</h2>
+                  <p class="text-slate-400 text-lg font-light leading-relaxed">
+                      Whis listens to audio and sees your screen. It writes the optimal solution in your IDE's language instantly.
+                  </p>
+                  
+                  <div class="physics-card p-8">
+                      <div class="flex items-center gap-4 mb-6">
+                          <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Audio Stream</span>
+                      </div>
+                      <div class="flex items-center gap-1 h-12 opacity-80">
+                          <div class="w-1 bg-white rounded-full h-4 animate-pulse"></div>
+                          <div class="w-1 bg-white rounded-full h-8 animate-pulse delay-75"></div>
+                          <div class="w-1 bg-white rounded-full h-12 animate-pulse delay-150"></div>
+                          <div class="w-1 bg-white rounded-full h-6 animate-pulse delay-100"></div>
+                          <div class="w-1 bg-white rounded-full h-10 animate-pulse delay-200"></div>
+                          <div class="w-1 bg-white rounded-full h-5 animate-pulse delay-75"></div>
+                      </div>
+                      <p class="mt-6 text-sm text-slate-400 italic">"Solve the Trapping Rain Water problem using two pointers..."</p>
+                  </div>
+              </div>
+
+              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col">
+                  <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
+                      <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                      </div>
+                      <div class="flex gap-4 text-[10px] font-mono font-bold text-slate-500">
+                          <span class="text-accent cursor-pointer">PYTHON</span>
+                          <span class="hover:text-white cursor-pointer transition">C++</span>
+                          <span class="hover:text-white cursor-pointer transition">JAVA</span>
+                      </div>
+                  </div>
+                  <div class="p-6 flex-grow overflow-hidden relative">
+                      <pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300"></pre>
+                      <span id="cursor" class="absolute w-2 h-4 bg-accent animate-pulse"></span>
+                  </div>
+              </div>
+          </div>
+      </div>
   </section>
 
   <section class="py-20 border-t border-white/5 bg-black/40">
@@ -677,6 +724,68 @@
     }
     setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
+    // --- 1. CODE TYPEWRITER (Formatted) ---
+    const codeLines = [
+        { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
+        { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
+        { text: "        if not ", class: "keyword" }, { text: "height: ", class: "" }, { text: "return ", class: "keyword" }, { text: "0\n", class: "number" },
+        { text: "        l, r = ", class: "" }, { text: "0", class: "number" }, { text: ", len(height) - ", class: "" }, { text: "1\n", class: "number" },
+        { text: "        leftMax, rightMax = height[l], height[r]\n", class: "" },
+        { text: "        res = ", class: "" }, { text: "0\n", class: "number" },
+        { text: "        while ", class: "keyword" }, { text: "l < r:\n", class: "" },
+        { text: "            if ", class: "keyword" }, { text: "leftMax < rightMax:\n", class: "" },
+        { text: "                l += ", class: "" }, { text: "1\n", class: "number" },
+        { text: "                leftMax = max(leftMax, height[l])\n", class: "" },
+        { text: "                res += leftMax - height[l]\n", class: "" },
+        { text: "            else", class: "keyword" }, { text: ":\n", class: "" },
+        { text: "                r -= ", class: "" }, { text: "1\n", class: "number" },
+        { text: "                rightMax = max(rightMax, height[r])\n", class: "" },
+        { text: "                res += rightMax - height[r]\n", class: "" },
+        { text: "        return ", class: "keyword" }, { text: "res", class: "" }
+    ];
+    let currentPart = 0; let currentChar = 0;
+    function typeCode() {
+        const el = document.getElementById('code-display');
+        const cursor = document.getElementById('cursor');
+        if (currentPart < codeLines.length) {
+            const part = codeLines[currentPart];
+            let span = el.lastElementChild;
+            if (currentChar === 0 || !span) {
+                span = document.createElement('span');
+                if (part.class) span.className = part.class;
+                el.appendChild(span);
+            }
+            span.textContent += part.text[currentChar];
+            currentChar++;
+            if (currentChar >= part.text.length) {
+                currentPart++;
+                currentChar = 0;
+            }
+            setTimeout(typeCode, 15);
+        } else {
+            setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
+        }
+    }
+
+    // --- DYNAMIC SIGNUP COUNTER (Hour * Hour) ---
+    function updateDynamicSignups() {
+        // Get IST Time (UTC+5:30)
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const istDate = new Date(utc + istOffset);
+        
+        let hour = istDate.getHours(); // 0-23
+        
+        // Formula: Hour * Hour (e.g., 2PM = 14 * 14 = 196)
+        // If hour is 0 (midnight), avoid 0 signups by showing something minimal like 15.
+        let count = hour * hour;
+        if(count === 0) count = 15; 
+        
+        const badge = document.getElementById('signup-badge-text');
+        if(badge) badge.innerText = `🔥 ${count} signups today`;
+    }
+
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
@@ -882,9 +991,11 @@
     document.addEventListener("DOMContentLoaded", () => {
         playIntro();
         initCarousel();
+        typeCode();
         checkUser();
         detectOS();
         fetchPricingConfig();
+        updateDynamicSignups();
         setTimeout(initPhysics, 500);
     });
   </script>
