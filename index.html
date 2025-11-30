@@ -56,6 +56,7 @@
         color: white; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
+        padding-bottom: 80px; /* Space for sticky bar */
         animation: colorCycle 60s infinite linear;
     }
 
@@ -111,22 +112,22 @@
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL FIXES (UPDATED SIZE & SPACING) --- */
+    /* --- CAROUSEL FIXES --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
         justify-content: center; 
         align-items: center; 
-        height: 250px; /* Mobile height */
+        height: 250px; 
         position: relative; 
     }
     @media (min-width: 768px) { 
-        .carousel-container { height: 650px; } /* Increased desktop height for larger videos */
+        .carousel-container { height: 650px; } 
     }
     
     .carousel-item { 
         position: absolute; 
-        width: 95%; /* Increased mobile width */
+        width: 95%; 
         aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
         border-radius: 16px; 
@@ -136,7 +137,7 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
     @media (min-width: 768px) { 
-        .carousel-item { width: 85%; } /* Increased desktop width (was 65%) */
+        .carousel-item { width: 85%; } 
     }
     
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
@@ -166,6 +167,25 @@
         -webkit-mask-composite: xor; mask-composite: exclude;
         pointer-events: none;
     }
+
+    /* --- MOBILE SPECIFIC --- */
+    .snap-mandatory-x {
+        scroll-snap-type: x mandatory;
+    }
+    .snap-center {
+        scroll-snap-align: center;
+    }
+    .faq-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .faq-active .faq-content {
+        max-height: 200px;
+    }
+    .faq-active i {
+        transform: rotate(180deg);
+    }
   </style>
 </head>
 <body>
@@ -181,7 +201,7 @@
       <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
   </div>
 
-  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/60 backdrop-blur-xl border-b border-white/5">
+  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-accent transition-colors duration-1000">
@@ -199,7 +219,7 @@
       <div class="flex items-center gap-5">
           <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition">Sign In</button>
           
-          <button onclick="openDownloadModal()" class="group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
              <span class="relative z-10">Get App</span>
              <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-20 transition duration-300"></div>
           </button>
@@ -212,44 +232,64 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-6 left-0 right-0 z-40 px-6 flex justify-center pointer-events-none">
-      <button onclick="openDownloadModal()" class="pointer-events-auto shadow-[0_0_20px_var(--accent-glow)] bg-[var(--accent)] text-black font-bold py-3 px-8 rounded-full text-sm w-full max-w-xs transition-transform hover:scale-105">
-          Download App
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-t border-white/10 p-3 pb-6 flex gap-3">
+      <a href="#mobile-demo" class="flex-1 py-3.5 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10">
+          Watch Demo
+      </a>
+      <button onclick="openDownloadModal()" class="flex-1 py-3.5 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_15px_var(--accent-glow)]">
+          Start Free Trial
       </button>
   </div>
 
-  <section class="relative pt-40 md:pt-52 pb-12 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-16 flex flex-col items-center">
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] mb-10 text-slate-300 backdrop-blur-md">
-        <span class="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_10px_var(--accent)]"></span> Systems Nominal
+  <a href="https://wa.me/1234567890" target="_blank" class="fixed bottom-24 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
+      <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
+      <span class="absolute right-14 bg-white text-black text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
+  </a>
+
+  <section class="relative pt-32 md:pt-52 pb-12 overflow-hidden flex flex-col items-center">
+    <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
+      
+      <div class="animate-float mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 backdrop-blur-md">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+          🔥 156 new signups today
       </div>
       
-      <h1 class="text-5xl md:text-8xl font-medium tracking-tight leading-[0.95] mb-8 text-white">
+      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-6 text-white">
         Dominate The Interview.<br>
         <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] transition-colors duration-1000">Silence The Doubt.</span>
       </h1>
       
-      <p class="text-lg text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-        Get hired faster — with an AI that helps you silently during interviews.<br>
+      <p class="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-light">
+        Get hired faster with an AI that helps you silently during interviews.<br>
         <span class="text-white font-medium">Invisible. Real-time. Undetectable.</span>
       </p>
-      <div class="flex flex-col items-center gap-6">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="px-10 py-4 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center gap-3">
-            <i class="fa-brands fa-apple text-xl"></i> Download Client
+
+      <div class="flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-3">
+            <i class="fa-brands fa-apple text-xl"></i> Start Free Trial
         </button>
+        <a href="#mobile-demo" class="md:hidden w-full py-4 rounded-xl border border-white/20 text-white text-sm font-bold flex justify-center items-center gap-2">
+            <i class="fa-solid fa-play"></i> Watch Demo
+        </a>
+      </div>
+
+      <div class="flex justify-center gap-4 mt-4 text-[10px] text-slate-500 font-mono">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> No setup</span>
+          <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> Free to start</span>
+          <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> Undetectable</span>
+      </div>
         
-        <div class="flex items-center gap-4 text-[11px] text-slate-500 font-medium bg-white/5 px-4 py-2 rounded-full border border-white/5 mt-2">
-            <span class="text-slate-300">Designed for job seekers — works on:</span>
-            <div class="flex gap-3 opacity-80">
-                <span class="flex items-center gap-1"><i class="fa-solid fa-video"></i> Zoom</span>
-                <span class="flex items-center gap-1"><i class="fa-brands fa-google"></i> Meet</span>
-                <span class="flex items-center gap-1"><i class="fa-brands fa-microsoft"></i> Teams</span>
+      <div class="flex items-center gap-4 text-[11px] text-slate-500 font-medium bg-white/5 px-4 py-2 rounded-full border border-white/5 mt-8">
+            <span class="text-slate-300 hidden md:inline">Works on:</span>
+            <div class="flex gap-4 opacity-80 w-full justify-between md:justify-start">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-video text-blue-400"></i> Zoom</span>
+                <span class="flex items-center gap-1"><i class="fa-brands fa-google text-green-400"></i> Meet</span>
+                <span class="flex items-center gap-1"><i class="fa-brands fa-microsoft text-purple-400"></i> Teams</span>
             </div>
-        </div>
       </div>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto mb-20 relative scroller-mask px-6">
+    <div class="w-full max-w-7xl mx-auto mb-10 relative scroller-mask px-6">
         <div class="flex overflow-hidden group">
             <div class="flex gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center opacity-40 grayscale hover:grayscale-0 transition duration-500">
                 <i class="fa-brands fa-google text-3xl"></i><i class="fa-brands fa-meta text-3xl"></i><i class="fa-brands fa-amazon text-3xl"></i>
@@ -260,7 +300,23 @@
         </div>
     </div>
 
-    <div class="w-full relative z-20 mb-2">
+    <div id="mobile-demo" class="md:hidden w-full px-6 mb-16 scroll-mt-24">
+        <p class="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">See it in action</p>
+        <div class="relative w-full aspect-[9/16] rounded-2xl overflow-hidden border border-white/20 shadow-2xl bg-black">
+             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10 flex flex-col justify-end p-6">
+                 <p class="text-white font-bold mb-1">Live Interview Assistant</p>
+                 <p class="text-xs text-slate-300">Whis-AI transcribing & solving instantly.</p>
+             </div>
+             <video src="visual.mp4" class="absolute inset-0 w-full h-full object-cover opacity-60" autoplay loop muted playsinline></video>
+             <div class="absolute inset-0 flex items-center justify-center z-0">
+                 <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                     <i class="fa-solid fa-volume-xmark text-white"></i>
+                 </div>
+             </div>
+        </div>
+    </div>
+
+    <div class="hidden md:block w-full relative z-20 mb-2">
         <div class="carousel-container" id="carouselContainer"></div>
         <div class="text-center mt-4">
              <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p>
@@ -268,7 +324,80 @@
     </div>
   </section>
 
-  <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
+  <section class="md:hidden py-12 border-t border-white/5 bg-white/5">
+      <div class="px-6 mb-6">
+          <h2 class="text-2xl font-medium text-white">How It Works</h2>
+      </div>
+      <div class="flex overflow-x-auto gap-4 px-6 snap-mandatory-x no-scrollbar pb-6">
+          <div class="snap-center shrink-0 w-[280px] physics-card p-6 bg-black border border-white/10">
+              <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-4 text-accent font-bold">1</div>
+              <h3 class="text-white font-bold mb-2">Turn On Whis-AI</h3>
+              <p class="text-sm text-slate-400">Launch the app. It runs silently in the background.</p>
+          </div>
+           <div class="snap-center shrink-0 w-[280px] physics-card p-6 bg-black border border-white/10">
+              <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-4 text-accent font-bold">2</div>
+              <h3 class="text-white font-bold mb-2">Join Interview</h3>
+              <p class="text-sm text-slate-400">Zoom, Meet, or Teams. Whis listens to the audio.</p>
+          </div>
+           <div class="snap-center shrink-0 w-[280px] physics-card p-6 bg-black border border-white/10">
+              <div class="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center mb-4 text-accent font-bold">3</div>
+              <h3 class="text-white font-bold mb-2">See Answers</h3>
+              <p class="text-sm text-slate-400">Solutions appear instantly on your screen overlay.</p>
+          </div>
+      </div>
+  </section>
+
+  <section class="py-20 border-t border-white/5">
+      <div class="max-w-7xl mx-auto px-6">
+          <h2 class="text-3xl font-medium text-white mb-12 text-center">The Difference.</h2>
+          <div class="grid md:grid-cols-2 gap-6">
+              <div class="p-8 rounded-2xl bg-red-500/5 border border-red-500/10 relative overflow-hidden">
+                  <div class="absolute top-4 right-4 text-red-500 opacity-20 text-4xl"><i class="fa-solid fa-xmark"></i></div>
+                  <h3 class="text-red-400 font-bold mb-4 uppercase tracking-widest text-xs">Without Whis-AI</h3>
+                  <ul class="space-y-4 text-slate-400 text-sm">
+                      <li class="flex gap-3"><i class="fa-solid fa-circle-xmark text-red-900 mt-1"></i> Nervous silence & stuttering</li>
+                      <li class="flex gap-3"><i class="fa-solid fa-circle-xmark text-red-900 mt-1"></i> Getting stuck on edge cases</li>
+                      <li class="flex gap-3"><i class="fa-solid fa-circle-xmark text-red-900 mt-1"></i> "I'll get back to you on that"</li>
+                  </ul>
+              </div>
+              <div class="p-8 rounded-2xl bg-green-500/5 border border-green-500/20 relative overflow-hidden shadow-[0_0_30px_rgba(0,255,100,0.05)]">
+                  <div class="absolute top-4 right-4 text-green-500 opacity-20 text-4xl"><i class="fa-solid fa-check"></i></div>
+                  <h3 class="text-green-400 font-bold mb-4 uppercase tracking-widest text-xs">With Whis-AI</h3>
+                  <ul class="space-y-4 text-slate-300 text-sm font-medium">
+                      <li class="flex gap-3"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i> Instant optimal code solutions</li>
+                      <li class="flex gap-3"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i> Structured system design answers</li>
+                      <li class="flex gap-3"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i> "You're hired."</li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="py-20 border-t border-white/5 bg-black/40">
+      <div class="max-w-4xl mx-auto px-6 text-center">
+          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
+              <span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span>
+          </div>
+          <h2 class="text-3xl font-medium text-white mb-8">They see nothing. You see everything.</h2>
+          
+          <div class="relative w-full aspect-video bg-[#1a1a1a] rounded-xl overflow-hidden border border-white/10 shadow-2xl group">
+              <div class="absolute inset-0 flex items-center justify-center bg-[#222]">
+                  <p class="text-slate-600 font-bold text-xl">Interviewer's Screen (Clean)</p>
+              </div>
+              <div class="absolute inset-0 bg-black/60 backdrop-blur-sm border-2 border-accent/50 m-4 rounded flex items-center justify-center animate-pulse-slow">
+                  <div class="text-center">
+                      <p class="text-accent font-mono font-bold text-xl mb-2">WHIS-AI OVERLAY ACTIVE</p>
+                      <p class="text-white text-sm">Visible only to you.</p>
+                  </div>
+              </div>
+              <div class="absolute bottom-4 left-0 right-0 text-center">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest">Ghost Mode Enabled</span>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section id="demo" class="py-20 border-t border-white/5">
       <div class="max-w-7xl mx-auto px-6">
           <div class="grid lg:grid-cols-2 gap-16 items-center">
               <div class="space-y-8">
@@ -318,7 +447,6 @@
   <section id="features" class="py-32 border-t border-white/5">
       <div class="max-w-7xl mx-auto px-6">
           <h2 class="text-3xl font-medium text-white mb-16 text-center">The Unfair Advantage.</h2>
-          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="physics-card p-8 hover:bg-white/5 transition">
                   <i class="fa-solid fa-ghost text-2xl text-purple-400 mb-6"></i>
@@ -362,7 +490,6 @@
               <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i class="fa-solid fa-arrow-right text-white"></i></button>
           </div>
       </div>
-      
       <div class="flex gap-6 overflow-x-auto pb-12 px-6 snap-x no-scrollbar" style="-webkit-overflow-scrolling: touch;">
           <div class="physics-card p-8 min-w-[350px] snap-center">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
@@ -438,7 +565,42 @@
     </div>
   </section>
 
-  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6">
+  <section class="py-20 border-t border-white/5 bg-white/5">
+      <div class="max-w-3xl mx-auto px-6">
+          <h2 class="text-2xl font-medium text-white mb-8 text-center">Frequently Asked.</h2>
+          <div class="space-y-4">
+              <div class="border border-white/10 rounded-xl bg-black overflow-hidden" onclick="this.classList.toggle('faq-active')">
+                  <div class="p-4 flex justify-between items-center cursor-pointer">
+                      <span class="text-sm font-bold text-slate-200">Is it really undetectable?</span>
+                      <i class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
+                  </div>
+                  <div class="faq-content bg-white/5 px-4">
+                      <p class="text-xs text-slate-400 py-4">Yes. Whis-AI uses a proprietary overlay technology that bypasses screen capture hooks used by Zoom, Teams, and standard proctoring software. It does not inject code into the browser.</p>
+                  </div>
+              </div>
+               <div class="border border-white/10 rounded-xl bg-black overflow-hidden" onclick="this.classList.toggle('faq-active')">
+                  <div class="p-4 flex justify-between items-center cursor-pointer">
+                      <span class="text-sm font-bold text-slate-200">Which operating systems?</span>
+                      <i class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
+                  </div>
+                  <div class="faq-content bg-white/5 px-4">
+                      <p class="text-xs text-slate-400 py-4">We support macOS (Apple Silicon & Intel) and Windows 10/11. Linux support is coming soon.</p>
+                  </div>
+              </div>
+               <div class="border border-white/10 rounded-xl bg-black overflow-hidden" onclick="this.classList.toggle('faq-active')">
+                  <div class="p-4 flex justify-between items-center cursor-pointer">
+                      <span class="text-sm font-bold text-slate-200">Can I try it for free?</span>
+                      <i class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
+                  </div>
+                  <div class="faq-content bg-white/5 px-4">
+                      <p class="text-xs text-slate-400 py-4">Absolutely. The Starter plan gives you 10 free syntheses every day forever. No credit card required to start.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12">
     <div class="flex flex-wrap justify-center gap-6 text-slate-500 text-xs font-medium">
         <a href="/contact" class="hover:text-white transition">Contact</a>
         <a href="/shipping-policy" class="hover:text-white transition">Shipping Policy</a>
@@ -506,6 +668,9 @@
   <script>
     // --- PHYSICS ENGINE ---
     function initPhysics() {
+        // Disable heavy physics on mobile for performance
+        if(window.innerWidth < 768) return;
+        
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
         document.body.addEventListener('mousemove', (e) => {
             cards.forEach(card => {
@@ -643,13 +808,13 @@
         const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone') && !ua.includes('ipad');
 
         if (isWin) {
-             btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
+             btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial (Windows)';
         } else if (isMac) {
-             btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
+             btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial (macOS)';
         } else {
              // Fallback for Linux, Android, iOS, or unknown
              // Shows both icons to indicate desktop platform availability
-             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Download for Windows/Mac';
+             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
         }
     }
 
