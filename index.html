@@ -606,10 +606,23 @@
     let GOOGLE_CLIENT_ID = null;
 
     function detectOS(){
-        const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
+        const p = navigator.platform.toLowerCase(); 
+        const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
-        if (p.includes('win')||ua.includes('win')) btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
-        else btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
+
+        // Logic: Strictly Windows, Strictly Mac, OR Fallback
+        const isWin = p.includes('win') || ua.includes('windows');
+        const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone') && !ua.includes('ipad');
+
+        if (isWin) {
+             btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
+        } else if (isMac) {
+             btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
+        } else {
+             // Fallback for Linux, Android, iOS, or unknown
+             // Shows both icons to indicate desktop platform availability
+             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Download for Windows/Mac';
+        }
     }
 
     async function fetchPricingConfig() {
