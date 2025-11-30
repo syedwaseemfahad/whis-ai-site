@@ -213,7 +213,7 @@
 
       <div class="flex flex-col items-center gap-6">
         <button id="heroDownloadBtn" onclick="openDownloadModal()" class="px-10 py-4 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center gap-3">
-            <i class="fa-brands fa-apple text-xl"></i><i class="fa-brands fa-windows text-xl ml-1"></i> Download for Windows/Mac
+            <i class="fa-brands fa-apple text-xl"></i> Download Client
         </button>
         <p class="text-[10px] text-slate-500 font-mono opacity-80 font-semibold tracking-wide">
             You will only uninstall this after signing your offer letter.
@@ -606,22 +606,10 @@
     let GOOGLE_CLIENT_ID = null;
 
     function detectOS(){
-        const p = navigator.platform.toLowerCase(); 
-        const ua = navigator.userAgent.toLowerCase();
+        const p = navigator.platform.toLowerCase(); const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
-        
-        // Strict Checks
-        if (p.includes('win') || ua.includes('win')) {
-            // It is Windows
-            btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
-        } else if (p.includes('mac') || ua.includes('mac') || p.includes('iphone') || p.includes('ipad')) {
-            // It is Mac/iOS
-            btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
-        } else {
-            // It is Linux, Android, or Unknown -> Show Generic "Windows/Mac"
-            // The default HTML already has this, but we reinforce it here
-            btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i><i class="fa-brands fa-windows text-xl ml-1"></i> Download for Windows/Mac';
-        }
+        if (p.includes('win')||ua.includes('win')) btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
+        else btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
     }
 
     async function fetchPricingConfig() {
