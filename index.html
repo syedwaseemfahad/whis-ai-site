@@ -84,17 +84,6 @@
         overflow: hidden;
         transition: transform 0.2s ease, border-color 1s;
     }
-    .physics-card::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-        z-index: 2;
-    }
-    .physics-card:hover::before { opacity: 1; }
     .physics-card:hover { border-color: rgba(255, 255, 255, 0.2); }
 
     /* --- INTRO SEQUENCE --- */
@@ -113,13 +102,14 @@
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL FIXES (UPDATED FOR MOBILE & OVERLAP) --- */
+    /* --- CAROUSEL FIXES (UPDATED FOR MOBILE SIZE) --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
         justify-content: center; 
         align-items: center; 
-        height: 280px; /* Adjusted for mobile */
+        /* UPDATED: Much bigger height on mobile */
+        height: 500px; 
         position: relative; 
         margin-top: 20px;
         margin-bottom: 20px;
@@ -130,7 +120,8 @@
     
     .carousel-item { 
         position: absolute; 
-        width: 90%; /* Mobile width */
+        /* UPDATED: Wider on mobile */
+        width: 95%; 
         aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
         border-radius: 16px; 
@@ -140,18 +131,17 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
     @media (min-width: 768px) { 
-        /* FIX: Added max-height to prevent overlap on wide screens */
         .carousel-item { width: 85%; max-height: 100%; } 
     }
     
     /* Center Item */
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
     
-    /* Side Items - Mobile Optimized (Stacked tighter) */
+    /* Side Items - Mobile */
     .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
     .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
     
-    /* Side Items - Desktop (Wider spread) */
+    /* Side Items - Desktop */
     @media (min-width: 768px) {
         .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
         .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
@@ -161,25 +151,22 @@
     
     /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
-    .keyword { color: #c678dd; } /* Purple */
-    .function { color: #61afef; } /* Blue */
-    .string { color: #98c379; } /* Green */
-    .number { color: #d19a66; } /* Orange */
+    .keyword { color: #c678dd; } 
+    .function { color: #61afef; } 
+    .string { color: #98c379; } 
+    .number { color: #d19a66; } 
 
     /* --- SCROLL HIDE --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     /* --- PRICING ELITE GLOW --- */
-    .pricing-elite {
-        position: relative;
-    }
+    .pricing-elite { position: relative; }
     .pricing-elite::after {
         content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px;
         background: linear-gradient(180deg, var(--accent), transparent 60%);
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events: none;
+        -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
     }
 
     /* --- MOBILE SPECIFIC --- */
@@ -250,39 +237,126 @@
   <section class="relative pt-32 md:pt-52 pb-12 overflow-hidden flex flex-col items-center">
     <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
       
-      <div class="animate-float mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 backdrop-blur-md">
-          <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-          <span id="signup-badge-text">🔥 150+ signups today</span>
-      </div>
-      
-      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-6 text-white">
-        Never Freeze In An<br>
-        <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] transition-colors duration-1000">Interview Again.</span>
+      <h1 class="text-4xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-white">
+        🚀 Get Interview-Ready in 24 Hours<br>
+        <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] transition-colors duration-1000">With an AI That Helps You Answer Anything.</span>
       </h1>
       
-      <p class="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-light">
-        The invisible AI copilot that whispers the right answers to you instantly.<br>
-        <span class="text-white font-medium">Real-time. Undetectable. Works on Zoom/Meet/Teams.</span>
+      <p class="text-base md:text-xl text-slate-300 max-w-3xl mx-auto mb-8 leading-relaxed font-light">
+        Whis-AI whispers real-time answers during Zoom, Meet, or Teams interviews.<br>
+        <span class="text-white font-medium">No prep. No awkward silence. Just confidence → offers → salary jumps.</span>
       </p>
 
-      <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-3">
-            <i class="fa-brands fa-apple text-xl"></i> Start Free Trial
+      <div class="flex flex-col w-full gap-4 md:flex-row md:justify-center md:w-auto mb-6">
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-8 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-2">
+            👉 Start Free Trial (No Card Needed)
+        </button>
+        <button onclick="document.getElementById('demo').scrollIntoView()" class="w-full md:w-auto px-8 py-4 rounded-xl md:rounded-full border border-white/20 bg-white/5 text-white text-sm font-bold hover:bg-white/10 transition duration-300 flex justify-center items-center gap-2">
+            🧪 Take the 10-Second Skill Check
         </button>
       </div>
 
-      <div class="flex justify-center gap-4 mt-4 text-[10px] text-slate-500 font-mono">
-          <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> No credit card</span>
-          <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> Cancel anytime</span>
-          <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> Undetectable</span>
+      <div class="flex flex-wrap justify-center gap-6 items-center bg-white/5 border border-white/10 rounded-full px-6 py-2 backdrop-blur-md">
+          <div class="flex items-center gap-2">
+             <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+             <span id="signup-badge-text" class="text-xs font-bold text-white">🔥 1,137 signups today</span>
+          </div>
+          <div class="hidden md:block w-px h-4 bg-white/10"></div>
+          <div class="flex items-center gap-1">
+             <div class="flex text-accent text-[10px] gap-0.5">
+                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+             </div>
+             <span class="text-xs text-slate-400 ml-1">Based on early user feedback</span>
+          </div>
+          <div class="hidden md:block w-px h-4 bg-white/10"></div>
+          <div class="text-xs text-slate-400">
+             <i class="fa-regular fa-clock mr-1"></i> Free trial slots reset at midnight
+          </div>
       </div>
-        
-      <a href="#demo" class="mt-6 text-xs text-slate-400 hover:text-white border-b border-dashed border-slate-600 pb-0.5">
-          Take a 5-second skill check → See if Whis-AI fits you
-      </a>
+      
+      <div class="flex justify-center gap-4 mt-6 text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-lock text-green-500"></i> 100% Undetectable</span>
+          <span class="flex items-center gap-1"><i class="fa-solid fa-video text-green-500"></i> Works on Zoom/Meet</span>
+          <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-green-500"></i> No Setup Needed</span>
+      </div>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto mb-10 md:mb-24 relative scroller-mask px-6">
+    <div class="w-full border-y border-white/5 bg-white/[0.02] py-8 mb-12">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+            <div class="flex flex-col items-center gap-2">
+                <i class="fa-solid fa-microphone text-accent text-2xl mb-1"></i>
+                <h4 class="text-xs font-bold text-white">Real-Time Whispering</h4>
+                <p class="text-[10px] text-slate-500">Answers appear while you speak</p>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <i class="fa-solid fa-desktop text-accent text-2xl mb-1"></i>
+                <h4 class="text-xs font-bold text-white">Works Everywhere</h4>
+                <p class="text-[10px] text-slate-500">Zoom, Meet, Teams supported</p>
+            </div>
+             <div class="flex flex-col items-center gap-2">
+                <i class="fa-solid fa-brain text-accent text-2xl mb-1"></i>
+                <h4 class="text-xs font-bold text-white">Covers All Topics</h4>
+                <p class="text-[10px] text-slate-500">DSA, System Design, Behavioral</p>
+            </div>
+             <div class="flex flex-col items-center gap-2">
+                <i class="fa-solid fa-eye-slash text-accent text-2xl mb-1"></i>
+                <h4 class="text-xs font-bold text-white">100% Undetectable</h4>
+                <p class="text-[10px] text-slate-500">Never appears on screen share</p>
+            </div>
+             <div class="flex flex-col items-center gap-2 col-span-2 md:col-span-1">
+                <i class="fa-solid fa-rocket text-accent text-2xl mb-1"></i>
+                <h4 class="text-xs font-bold text-white">Confidence Mode</h4>
+                <p class="text-[10px] text-slate-500">Helps you speak naturally</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-6 mb-20 text-center">
+        <h2 class="text-2xl md:text-3xl font-medium text-white mb-8">🧠 Why Whis-AI Helps You Perform Better</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-left">
+            <div class="bg-white/5 border border-white/10 p-6 rounded-xl">
+                <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 flex-shrink-0"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white mb-1">Removes Anxiety Freezes</p>
+                        <p class="text-xs text-slate-400">Eliminates the fear of blanking out, keeping your mind clear.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/5 border border-white/10 p-6 rounded-xl">
+                 <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 flex-shrink-0"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white mb-1">Structured Like Top 1%</p>
+                        <p class="text-xs text-slate-400">Guides your answers to match senior engineering standards.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/5 border border-white/10 p-6 rounded-xl">
+                 <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 flex-shrink-0"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white mb-1">Instant Clarity</p>
+                        <p class="text-xs text-slate-400">Get unstuck immediately when you encounter a tricky edge case.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white/5 border border-white/10 p-6 rounded-xl">
+                 <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 flex-shrink-0"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white mb-1">Senior Presence</p>
+                        <p class="text-xs text-slate-400">Makes you sound more confident, composed, and hireable.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-6">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Loved by engineers preparing for roles at:</p>
+    </div>
+    <div class="w-full max-w-7xl mx-auto mb-10 relative scroller-mask px-6">
         <div class="flex overflow-hidden group">
             <div class="flex gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center opacity-40 grayscale hover:grayscale-0 transition duration-500">
                 <i class="fa-brands fa-google text-3xl"></i><i class="fa-brands fa-meta text-3xl"></i><i class="fa-brands fa-amazon text-3xl"></i>
@@ -303,17 +377,20 @@
 
   <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
       <div class="max-w-7xl mx-auto px-6">
+          <div class="text-center mb-12">
+               <span class="px-3 py-1 rounded-full border border-accent/20 bg-accent/5 text-accent text-[10px] font-bold uppercase tracking-widest">📍 See Whis-AI in Action (10 Seconds)</span>
+          </div>
           <div class="grid lg:grid-cols-2 gap-16 items-center">
               <div class="space-y-8">
-                  <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">Live Synthesis.</h2>
+                  <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">Live Interview Copilot.</h2>
                   <p class="text-slate-400 text-lg font-light leading-relaxed">
-                      Whis listens to audio and sees your screen. It writes the optimal solution in your IDE's language instantly.
+                      Imagine having a senior principal engineer whispering the optimal solution in your ear. That's Whis-AI.
                   </p>
                   
                   <div class="physics-card p-8">
                       <div class="flex items-center gap-4 mb-6">
                           <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Audio Stream</span>
+                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Zoom Audio Stream</span>
                       </div>
                       <div class="flex items-center gap-1 h-12 opacity-80">
                           <div class="w-1 bg-white rounded-full h-4 animate-pulse"></div>
@@ -321,65 +398,35 @@
                           <div class="w-1 bg-white rounded-full h-12 animate-pulse delay-150"></div>
                           <div class="w-1 bg-white rounded-full h-6 animate-pulse delay-100"></div>
                           <div class="w-1 bg-white rounded-full h-10 animate-pulse delay-200"></div>
-                          <div class="w-1 bg-white rounded-full h-5 animate-pulse delay-75"></div>
                       </div>
-                      <p class="mt-6 text-sm text-slate-400 italic">"Solve the Trapping Rain Water problem using two pointers..."</p>
+                      <p class="mt-6 text-sm text-slate-400 italic">"Interviewer: How would you optimize the DB queries for high traffic?"</p>
                   </div>
               </div>
 
-              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col">
-                  <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
-                      <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
-                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
-                      </div>
-                      <div class="flex gap-4 text-[10px] font-mono font-bold text-slate-500">
-                          <span class="text-accent cursor-pointer">PYTHON</span>
-                          <span class="hover:text-white cursor-pointer transition">C++</span>
-                          <span class="hover:text-white cursor-pointer transition">JAVA</span>
-                      </div>
+              <div class="physics-card p-0 bg-[#1a1a1a] border border-white/10 h-[500px] flex flex-col relative overflow-hidden">
+                  <div class="absolute top-4 right-4 z-20 bg-black/80 text-white text-[10px] px-2 py-1 rounded border border-white/10">Speaker View</div>
+                  
+                  <div class="h-1/2 bg-[#222] flex items-center justify-center border-b border-black">
+                       <i class="fa-solid fa-user-tie text-6xl text-slate-700"></i>
                   </div>
-                  <div class="p-6 flex-grow overflow-hidden relative">
-                      <pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300"></pre>
-                      <span id="cursor" class="absolute w-2 h-4 bg-accent animate-pulse"></span>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <section class="py-20 border-t border-white/5 bg-black/40">
-      <div class="max-w-4xl mx-auto px-6 text-center">
-          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
-              <span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span>
-          </div>
-          <h2 class="text-3xl font-medium text-white mb-8">They see nothing. You see everything.</h2>
-          
-          <div class="grid grid-cols-2 gap-4 md:gap-8 max-w-3xl mx-auto mb-8">
-               <div class="bg-[#1a1a1a] p-4 rounded-xl border border-white/10">
-                   <p class="text-[10px] text-slate-500 uppercase mb-2">Interviewer Sees</p>
-                   <div class="aspect-video bg-[#222] rounded flex items-center justify-center">
-                       <i class="fa-solid fa-user text-slate-600 text-3xl"></i>
-                   </div>
-                   <p class="text-xs text-slate-400 mt-2">Just you. No overlays.</p>
-               </div>
-               <div class="bg-[#1a1a1a] p-4 rounded-xl border border-accent/20 relative overflow-hidden">
-                   <p class="text-[10px] text-accent uppercase mb-2">You See</p>
-                   <div class="aspect-video bg-[#222] rounded flex items-center justify-center relative overflow-hidden">
-                       <i class="fa-solid fa-user text-slate-600 text-3xl"></i>
-                       <div class="absolute right-2 top-2 bottom-2 w-1/3 bg-black/80 border-l border-accent/50 p-2">
-                           <div class="h-1 w-full bg-accent mb-1"></div>
-                           <div class="h-1 w-2/3 bg-slate-600 mb-1"></div>
-                           <div class="h-1 w-3/4 bg-slate-600"></div>
+                  
+                  <div class="h-1/2 bg-[#222] flex items-center justify-center relative">
+                       <i class="fa-solid fa-user text-6xl text-slate-600"></i>
+                       
+                       <div class="absolute bottom-4 left-4 right-4 bg-black/90 border-l-4 border-accent p-4 rounded-r-lg shadow-2xl transform transition-all duration-500 hover:scale-105">
+                           <p class="text-[10px] text-accent font-bold uppercase mb-1">Whisper Suggestion:</p>
+                           <p class="text-xs text-white leading-relaxed">
+                               "Suggest implementing <span class="text-yellow-300">Read Replicas</span> for scaling read operations and <span class="text-yellow-300">Sharding</span> for write throughput. Mention <span class="text-yellow-300">Consistent Hashing</span>."
+                           </p>
                        </div>
-                   </div>
-                   <p class="text-xs text-white mt-2">Live answers & hints.</p>
-               </div>
-          </div>
-          
-          <div class="flex justify-center gap-6 text-xs text-slate-500">
-               <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> No browser injection</span>
-               <span class="flex items-center gap-2"><i class="fa-solid fa-eye-slash"></i> Hidden from screen share</span>
+                  </div>
+                  
+                  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 bg-black/80 p-2 rounded-full border border-white/10">
+                      <i class="fa-solid fa-microphone text-white p-2"></i>
+                      <i class="fa-solid fa-video text-white p-2"></i>
+                      <i class="fa-solid fa-phone-slash text-red-500 p-2"></i>
+                  </div>
+              </div>
           </div>
       </div>
   </section>
@@ -387,7 +434,6 @@
   <section id="features" class="py-32 border-t border-white/5">
       <div class="max-w-7xl mx-auto px-6">
           <h2 class="text-3xl font-medium text-white mb-16 text-center">The Unfair Advantage.</h2>
-          
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="physics-card p-8 hover:bg-white/5 transition">
                   <i class="fa-solid fa-ghost text-2xl text-purple-400 mb-6"></i>
@@ -400,101 +446,29 @@
                   <p class="text-sm text-slate-400">Captures system design diagrams and whiteboard problems instantly.</p>
               </div>
               <div class="physics-card p-8 hover:bg-white/5 transition">
-                  <i class="fa-solid fa-microphone text-2xl text-red-400 mb-6"></i>
-                  <h3 class="text-white font-bold mb-2">Voice Input</h3>
-                  <p class="text-sm text-slate-400">Transcribes interviewer questions and generates answers before they finish.</p>
-              </div>
-              <div class="physics-card p-8 hover:bg-white/5 transition">
-                  <i class="fa-solid fa-eye-slash text-2xl text-slate-400 mb-6"></i>
-                  <h3 class="text-white font-bold mb-2">Ghost Dock</h3>
-                  <p class="text-sm text-slate-400">No dock icon, no taskbar presence. Controlled via global hotkeys.</p>
-              </div>
-              <div class="physics-card p-8 hover:bg-white/5 transition">
                   <i class="fa-solid fa-keyboard text-2xl text-green-400 mb-6"></i>
                   <h3 class="text-white font-bold mb-2">Direct Input</h3>
                   <p class="text-sm text-slate-400">Type queries manually for clarifications without switching windows.</p>
               </div>
-              <div class="physics-card p-8 hover:bg-white/5 transition">
-                  <i class="fa-solid fa-language text-2xl text-yellow-400 mb-6"></i>
-                  <h3 class="text-white font-bold mb-2">Polyglot</h3>
-                  <p class="text-sm text-slate-400">Translates any language (Mandarin, Hindi, Spanish) to English solutions live.</p>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <section class="py-20 border-t border-white/5">
-      <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 text-center">The Difference.</h2>
-          <div class="grid md:grid-cols-2 gap-6">
-              <div class="p-8 rounded-2xl bg-red-500/5 border border-red-500/10 relative overflow-hidden">
-                  <div class="absolute top-4 right-4 text-red-500 opacity-20 text-4xl"><i class="fa-solid fa-xmark"></i></div>
-                  <h3 class="text-red-400 font-bold mb-4 uppercase tracking-widest text-xs">Without Whis-AI</h3>
-                  <ul class="space-y-4 text-slate-400 text-sm">
-                      <li class="flex gap-3"><i class="fa-solid fa-circle-xmark text-red-900 mt-1"></i> Blank pauses & panic</li>
-                      <li class="flex gap-3"><i class="fa-solid fa-circle-xmark text-red-900 mt-1"></i> "I'll get back to you on that"</li>
-                      <li class="flex gap-3"><i class="fa-solid fa-circle-xmark text-red-900 mt-1"></i> Missed opportunity</li>
-                  </ul>
-              </div>
-              <div class="p-8 rounded-2xl bg-green-500/5 border border-green-500/20 relative overflow-hidden shadow-[0_0_30px_rgba(0,255,100,0.05)]">
-                  <div class="absolute top-4 right-4 text-green-500 opacity-20 text-4xl"><i class="fa-solid fa-check"></i></div>
-                  <h3 class="text-green-400 font-bold mb-4 uppercase tracking-widest text-xs">With Whis-AI</h3>
-                  <ul class="space-y-4 text-slate-300 text-sm font-medium">
-                      <li class="flex gap-3"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i> Structured, confident answers</li>
-                      <li class="flex gap-3"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i> Optimal code solutions instantly</li>
-                      <li class="flex gap-3"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i> Offer letter secured</li>
-                  </ul>
-              </div>
-          </div>
-      </div>
-  </section>
-  
-  <section class="py-32 border-t border-white/5 bg-[#050505] overflow-hidden">
-      <div class="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end">
-          <h2 class="text-3xl font-medium text-white">Verified Outcomes.</h2>
-          <div class="flex gap-2">
-              <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i class="fa-solid fa-arrow-left text-white"></i></button>
-              <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10"><i class="fa-solid fa-arrow-right text-white"></i></button>
-          </div>
-      </div>
-      <div class="flex gap-6 overflow-x-auto pb-12 px-6 snap-x no-scrollbar" style="-webkit-overflow-scrolling: touch;">
-          <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. I signed the offer yesterday."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">James K.</p><p class="text-[10px] text-slate-500">Google, L5</p></div></div>
-          </div>
-          <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. Magic."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Sarah M.</p><p class="text-[10px] text-slate-500">Amazon, SDE II</p></div></div>
-          </div>
-          <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"Worth every penny. The ROI on this tool is infinite. One job offer pays for a lifetime of subscriptions. Just get it."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">David R.</p><p class="text-[10px] text-slate-500">Netflix, Senior</p></div></div>
-          </div>
-           <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"Visual context feature saved me. It analyzed the system design diagram on the whiteboard and gave me the scalability bottlenecks."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Elena G.</p><p class="text-[10px] text-slate-500">Meta, E4</p></div></div>
-          </div>
-           <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"English isn't my first language. Whis translated my thoughts into professional answers live. Total game changer."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Michael T.</p><p class="text-[10px] text-slate-500">Uber, L4</p></div></div>
-          </div>
-           <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"The ghost dock feature is essential. I had to screen share my whole desktop and no one noticed a thing."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Priya S.</p><p class="text-[10px] text-slate-500">Microsoft, SDE II</p></div></div>
           </div>
       </div>
   </section>
 
   <section id="pricing" class="py-32 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-6 text-center">
-        <h2 class="text-4xl font-medium text-white mb-6">Invest In Your Future.</h2>
-        <p class="text-slate-400 mb-12">One offer pays for a lifetime.</p>
+        
+        <div class="mb-12">
+            <h2 class="text-4xl font-medium text-white mb-4">Invest In Your Future.</h2>
+            <div class="inline-block bg-yellow-500/10 border border-yellow-500/20 px-4 py-2 rounded-lg">
+                <p class="text-yellow-400 text-sm font-bold">⚠️ You don’t have to subscribe yet.</p>
+            </div>
+            <p class="text-slate-400 mt-4 text-sm">
+                <span class="text-white"><i class="fa-solid fa-check text-green-500 mr-1"></i> Free Skill Check</span> &nbsp;•&nbsp; 
+                <span class="text-white"><i class="fa-solid fa-check text-green-500 mr-1"></i> Free First Session</span> &nbsp;•&nbsp; 
+                <span class="text-white"><i class="fa-solid fa-check text-green-500 mr-1"></i> No Credit Card</span>
+            </p>
+            <p class="text-slate-500 text-xs mt-2">Upgrade only if you feel results.</p>
+        </div>
         
         <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-16">
            <button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition" onclick="setCycle('monthly')">Monthly</button>
@@ -509,7 +483,6 @@
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Daily Syntheses</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Basic Code Gen</p>
                     <p class="flex gap-3 opacity-50"><i class="fa-solid fa-xmark"></i> No Stealth Mode</p>
-                    <p class="flex gap-3 opacity-50"><i class="fa-solid fa-xmark"></i> No Visual Context</p>
                 </div>
                 <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-bold uppercase transition">Download</button>
             </div>
@@ -520,8 +493,6 @@
                 <div class="space-y-4 text-xs text-slate-300 mb-8 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Unlimited Syntheses</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Visual Context Analysis</p>
-                    <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Audio Ingestion</p>
-                    <p class="flex gap-3 text-red-400"><i class="fa-solid fa-video"></i> Visible on Screenshare</p>
                 </div>
                 <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed">Upgrade</button>
             </div>
@@ -533,7 +504,6 @@
                 <div class="space-y-4 text-xs text-white mb-8 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
                     <p class="flex gap-3"><i class="fa-solid fa-ghost text-accent"></i> Invisible to Screenshare</p>
-                    <p class="flex gap-3"><i class="fa-solid fa-keyboard text-accent"></i> Direct Input Mode</p>
                     <p class="flex gap-3"><i class="fa-solid fa-user-secret text-accent"></i> Ghost Dock (No Icon)</p>
                 </div>
                 <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-xs font-bold uppercase transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">Get Elite</button>
@@ -552,27 +522,24 @@
                       <i class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
                   </div>
                   <div class="faq-content bg-white/5 px-4">
-                      <p class="text-xs text-slate-400 py-4">Yes. Whis-AI uses a proprietary overlay technology that bypasses screen capture hooks used by Zoom, Teams, and standard proctoring software. It does not inject code into the browser.</p>
+                      <p class="text-xs text-slate-400 py-4">Yes. Whis-AI uses a proprietary overlay technology that bypasses screen capture hooks used by Zoom, Teams, and standard proctoring software.</p>
                   </div>
               </div>
-               <div class="border border-white/10 rounded-xl bg-black overflow-hidden" onclick="this.classList.toggle('faq-active')">
-                  <div class="p-4 flex justify-between items-center cursor-pointer">
-                      <span class="text-sm font-bold text-slate-200">Which operating systems?</span>
-                      <i class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
-                  </div>
-                  <div class="faq-content bg-white/5 px-4">
-                      <p class="text-xs text-slate-400 py-4">We support macOS (Apple Silicon & Intel) and Windows 10/11. Linux support is coming soon.</p>
-                  </div>
-              </div>
-               <div class="border border-white/10 rounded-xl bg-black overflow-hidden" onclick="this.classList.toggle('faq-active')">
-                  <div class="p-4 flex justify-between items-center cursor-pointer">
-                      <span class="text-sm font-bold text-slate-200">Can I try it for free?</span>
-                      <i class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
-                  </div>
-                  <div class="faq-content bg-white/5 px-4">
-                      <p class="text-xs text-slate-400 py-4">Absolutely. The Starter plan gives you 10 free syntheses every day forever. No credit card required to start.</p>
-                  </div>
-              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="py-24 bg-accent/5 border-t border-accent/10">
+      <div class="max-w-2xl mx-auto px-6 text-center">
+          <h2 class="text-3xl font-bold text-white mb-4">Ready for your next job?</h2>
+          <p class="text-slate-300 mb-8">Your skills aren’t the problem. Your communication under pressure is. <br>Start now — takes less than 30 seconds.</p>
+          <div class="flex flex-col gap-4 justify-center md:flex-row">
+              <button onclick="openDownloadModal()" class="px-8 py-4 rounded-full bg-white text-black font-bold hover:scale-105 transition shadow-lg">
+                  👉 Start Free Trial
+              </button>
+              <button onclick="document.getElementById('demo').scrollIntoView()" class="px-8 py-4 rounded-full border border-white/20 text-white font-bold hover:bg-white/10 transition">
+                  🧪 Try Skill Check First
+              </button>
           </div>
       </div>
   </section>
@@ -580,14 +547,29 @@
   <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12">
     <div class="flex flex-wrap justify-center gap-6 text-slate-500 text-xs font-medium">
         <a href="/contact" class="hover:text-white transition">Contact</a>
-        <a href="/shipping-policy" class="hover:text-white transition">Shipping Policy</a>
-        <a href="/support" class="hover:text-white transition">Support</a>
         <a href="/terms" class="hover:text-white transition">Terms</a>
-        <a href="/refund-policy" class="hover:text-white transition">Refund Policy</a>
         <a href="/privacy" class="hover:text-white transition">Privacy</a>
     </div>
     <p class="text-slate-600 text-[10px]">Built for those who refuse to lose.</p>
   </footer>
+
+  <div id="exitPopup" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-opacity duration-300 opacity-0">
+      <div class="physics-card p-10 max-w-md w-full text-center relative border border-accent/30 shadow-[0_0_100px_rgba(0,242,255,0.2)]">
+        <button onclick="closeExitPopup()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+        
+        <div class="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-6">
+             <i class="fa-solid fa-hand text-3xl text-accent"></i>
+        </div>
+        
+        <h3 class="text-2xl font-bold text-white mb-2">Wait — don’t leave unprepared.</h3>
+        <p class="text-slate-300 text-sm mb-8">Interview slots are filling up. Take the free skill check first (10 seconds) to see if you are ready.</p>
+        
+        <button onclick="closeExitPopup(); document.getElementById('demo').scrollIntoView();" class="w-full py-4 rounded-xl bg-accent text-black font-bold hover:brightness-110 transition mb-3">
+            🧪 Start Skill Check
+        </button>
+        <button onclick="closeExitPopup()" class="text-xs text-slate-500 hover:text-white">No, I'll prepare on my own</button>
+      </div>
+  </div>
 
   <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
       <div class="physics-card p-10 max-w-sm w-full text-center relative border border-white/20 shadow-2xl">
@@ -597,27 +579,16 @@
       </div>
   </div>
 
-  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-      <div class="physics-card p-8 max-w-sm w-full text-center border border-green-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-              <i class="fa-solid fa-check text-2xl text-green-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Upgrade Complete</h3>
-          <p class="text-slate-400 text-sm mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
-          <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition">Initialize System</button>
-      </div>
-  </div>
-
   <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
     <div class="physics-card p-8 max-w-md w-full border border-white/10">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-lg font-medium text-white mb-6">Select Platform</h3>
         <div class="space-y-3">
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
+            <a href="#" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
                 <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
                 <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i>
             </a>
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
+            <a href="#" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
                 <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-windows text-xl"></i> Windows</span>
                 <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i>
             </a>
@@ -636,7 +607,6 @@
                 <span id="modalPlanName" class="text-xl font-bold text-white">Free</span>
                 <span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">ACTIVE</span>
             </div>
-            <div id="modalPlanValidity" class="text-[10px] text-slate-400 mt-2"></div>
         </div>
         <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition">Sign Out</button>
     </div>
@@ -658,16 +628,6 @@
         });
     }
 
-    // --- 5. CINEMATIC INTRO LOGIC (FASTER & COMBINED) ---
-    function playIntro() {
-        const t1 = document.getElementById('intro-text');
-        const layer = document.getElementById('intro-layer');
-        // Faster sequence
-        setTimeout(() => t1.classList.add('intro-active'), 100);
-        setTimeout(() => { layer.style.opacity = '0'; }, 2000); 
-        setTimeout(() => { layer.style.display = 'none'; }, 2500);
-    }
-
     // --- CAROUSEL ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
@@ -685,13 +645,7 @@
             div.id = `c-item-${i}`;
             const video = document.createElement('video');
             video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
-            // On Mobile: Use object-contain. On Desktop: Use object-cover (or consistent style)
-            // Added simple logic: width < 768 -> contain, else -> cover (default)
-            if(window.innerWidth < 768) {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
-            } else {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; // Changed to contain for safety on all screens
-            }
+            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -724,93 +678,69 @@
     }
     setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
-    // --- 1. CODE TYPEWRITER (Formatted) ---
-    const codeLines = [
-        { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
-        { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
-        { text: "        if not ", class: "keyword" }, { text: "height: ", class: "" }, { text: "return ", class: "keyword" }, { text: "0\n", class: "number" },
-        { text: "        l, r = ", class: "" }, { text: "0", class: "number" }, { text: ", len(height) - ", class: "" }, { text: "1\n", class: "number" },
-        { text: "        leftMax, rightMax = height[l], height[r]\n", class: "" },
-        { text: "        res = ", class: "" }, { text: "0\n", class: "number" },
-        { text: "        while ", class: "keyword" }, { text: "l < r:\n", class: "" },
-        { text: "            if ", class: "keyword" }, { text: "leftMax < rightMax:\n", class: "" },
-        { text: "                l += ", class: "" }, { text: "1\n", class: "number" },
-        { text: "                leftMax = max(leftMax, height[l])\n", class: "" },
-        { text: "                res += leftMax - height[l]\n", class: "" },
-        { text: "            else", class: "keyword" }, { text: ":\n", class: "" },
-        { text: "                r -= ", class: "" }, { text: "1\n", class: "number" },
-        { text: "                rightMax = max(rightMax, height[r])\n", class: "" },
-        { text: "                res += rightMax - height[r]\n", class: "" },
-        { text: "        return ", class: "keyword" }, { text: "res", class: "" }
-    ];
-    let currentPart = 0; let currentChar = 0;
-    function typeCode() {
-        const el = document.getElementById('code-display');
-        const cursor = document.getElementById('cursor');
-        if (currentPart < codeLines.length) {
-            const part = codeLines[currentPart];
-            let span = el.lastElementChild;
-            if (currentChar === 0 || !span) {
-                span = document.createElement('span');
-                if (part.class) span.className = part.class;
-                el.appendChild(span);
-            }
-            span.textContent += part.text[currentChar];
-            currentChar++;
-            if (currentChar >= part.text.length) {
-                currentPart++;
-                currentChar = 0;
-            }
-            setTimeout(typeCode, 15);
-        } else {
-            setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
+    // --- EXIT INTENT LOGIC ---
+    let exitIntentTriggered = false;
+    
+    // Desktop: Mouse Leave
+    document.addEventListener('mouseleave', (e) => {
+        if (e.clientY < 0 && !exitIntentTriggered) {
+            triggerExitPopup();
         }
+    });
+
+    // Mobile: Scroll Up Trigger (Simplified)
+    let lastScrollTop = 0;
+    window.addEventListener("scroll", function() {
+       let st = window.pageYOffset || document.documentElement.scrollTop;
+       if (st < lastScrollTop && st > 500 && !exitIntentTriggered) {
+           // User is scrolling up after scrolling down significantly
+           // Optional: triggerExitPopup(); // Uncomment if you want aggressive mobile popup
+       }
+       lastScrollTop = st <= 0 ? 0 : st;
+    }, false);
+
+    function triggerExitPopup() {
+        exitIntentTriggered = true;
+        const popup = document.getElementById('exitPopup');
+        popup.classList.remove('hidden');
+        popup.classList.add('flex');
+        setTimeout(() => popup.classList.remove('opacity-0'), 10);
     }
 
-    // --- DYNAMIC SIGNUP COUNTER (Hour * Hour) ---
+    function closeExitPopup() {
+        const popup = document.getElementById('exitPopup');
+        popup.classList.add('opacity-0');
+        setTimeout(() => {
+            popup.classList.add('hidden');
+            popup.classList.remove('flex');
+        }, 300);
+    }
+
+    // --- DYNAMIC SIGNUPS ---
     function updateDynamicSignups() {
-        // Get IST Time (UTC+5:30)
         const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const istDate = new Date(utc + istOffset);
-        
-        let hour = istDate.getHours(); // 0-23
-        
-        // Formula: Hour * Hour (e.g., 2PM = 14 * 14 = 196)
-        // If hour is 0 (midnight), avoid 0 signups by showing something minimal like 15.
-        let count = hour * hour;
-        count = count+942;
+        const hour = now.getHours();
+        let count = (hour * hour) + 942;
         if(count === 0) count = 15; 
-        
         const badge = document.getElementById('signup-badge-text');
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- BACKEND LOGIC ---
+    // --- STANDARD MODAL & AUTH LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
-    let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
-    
-    // FETCHED FROM BACKEND
-    let PRICING_CONFIG = null;
-    let GOOGLE_CLIENT_ID = null;
+    let currentUser = null, currentCycle = 'monthly';
+    let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
 
     function detectOS(){
         const p = navigator.platform.toLowerCase(); 
         const ua = navigator.userAgent.toLowerCase();
         const btn = document.getElementById('heroDownloadBtn');
-
         const isWin = p.includes('win') || ua.includes('windows');
-        const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone') && !ua.includes('ipad');
-
-        // CUSTOM LOGIC: Detect if NOT Win/Mac (Mobile/Linux)
-        if (!isWin && !isMac) {
-             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
-        } else if (isWin) {
-             btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial (Windows)';
-        } else if (isMac) {
-             btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial (macOS)';
-        }
+        const isMac = (p.includes('mac') || ua.includes('macintosh'));
+        
+        if (isWin) btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial (Windows)';
+        else if (isMac) btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial (macOS)';
+        else btn.innerHTML = '👉 Start Free Trial';
     }
 
     async function fetchPricingConfig() {
@@ -827,23 +757,20 @@
         } catch(e) { console.error("Config Fetch Error", e); }
     }
 
-    function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
+    function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); }catch(e){} } }
     
     function updateNavUI(u){ 
         document.getElementById('signInBtn').style.display='none'; 
-        const profileTrigger = document.getElementById('userProfileTrigger');
-        profileTrigger.classList.remove('hidden'); 
-        profileTrigger.classList.add('flex'); 
+        const pt = document.getElementById('userProfileTrigger');
+        pt.classList.remove('hidden'); pt.classList.add('flex'); 
         document.getElementById('navUserAvatar').src = u.avatarUrl; 
-        document.getElementById('navPlanBadge').innerText = "FREE";
-        document.getElementById('navPlanBadge').classList.add('text-slate-400');
     }
     
     async function handleGoogleRes(res){
         try {
             const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
             const d=await r.json();
-            if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateNavUI(currentUser); fetchUserStatus(); closeLoginModal(); }
+            if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateNavUI(currentUser); closeLoginModal(); }
         } catch(e){ console.error(e); }
     }
     
@@ -851,7 +778,7 @@
         if (!amount) return "...";
         if(discount > 0) {
             const discounted = Math.floor(amount * (1 - discount/100)); 
-            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${Math.floor(amount)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${Math.floor(amount)}</span>`;
         }
         return `₹${Math.floor(amount)}`;
     }
@@ -871,105 +798,17 @@
         if (!PRICING_CONFIG) return;
         const proDiv = document.getElementById('pricePro');
         const eliteDiv = document.getElementById('priceStealth');
-        let proPrice = 0.00, elitePrice = 0.00;
-        let proDisc = PRICING_CONFIG.pro.discount;
-        let eliteDisc = PRICING_CONFIG.pro_plus.discount;
-
+        let proPrice = 0, elitePrice = 0;
+        
         if (currentCycle === 'monthly') {
             proPrice = PRICING_CONFIG.pro.monthly;
             elitePrice = PRICING_CONFIG.pro_plus.monthly;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
         } else {
             proPrice = PRICING_CONFIG.pro.annual_per_month;
             elitePrice = PRICING_CONFIG.pro_plus.annual_per_month;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
         }
-    }
-
-    async function fetchUserStatus() {
-        if(!currentUser) return;
-        try {
-            const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
-            const d = await r.json();
-            if(d.active) currentTier = d.tier; else currentTier = 'free';
-            const badge = document.getElementById('navPlanBadge');
-            const validityEl = document.getElementById('modalPlanValidity');
-            if(d.active){
-                badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
-                badge.classList.remove('text-slate-400');
-                badge.classList.add('text-accent');
-                document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
-                document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
-                if(d.expiry || d.validUntil) {
-                    const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
-                    validityEl.innerText = "Valid until: " + dateStr;
-                } else {
-                    validityEl.innerText = "Active Subscription";
-                }
-                const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
-                if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
-                if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
-            } else {
-                badge.innerText = 'FREE';
-                badge.classList.add('text-slate-400');
-                badge.classList.remove('text-accent');
-                document.getElementById('modalPlanName').innerText = 'Free Tier';
-                document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
-                validityEl.innerText = "Lifetime Free Access";
-            }
-            document.getElementById('modalUserName').innerText = currentUser.name;
-            document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
-        } catch(e){}
-    }
-
-    async function initiatePayment(targetTier){
-        if(!currentUser){ openLoginModal(); return; }
-        if(currentTier === 'pro_plus') return;
-        if(currentTier === 'pro' && targetTier === 'pro') return;
-        
-        const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        const btn = event.target; const orig = btn.innerText; btn.innerText = "...";
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({googleId:currentUser.googleId, tier:targetTier, cycle:currentCycle, isUpgrade: isUpgrade})
-            });
-            const data = await res.json();
-            if(data.order_id){
-                const rzp1 = new Razorpay({
-                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
-                    "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
-                    "handler": async function (response){ 
-                        try {
-                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_signature: response.razorpay_signature
-                                })
-                            });
-                            const verifyData = await verifyRes.json();
-                            if(verifyData.success){
-                                document.getElementById('successModal').classList.remove('hidden');
-                                document.getElementById('successModal').classList.add('flex');
-                            } else {
-                                alert("Verification Failed. Contact Support.");
-                            }
-                        } catch(e) {
-                            console.error(e);
-                            alert("Network Error during verification.");
-                        }
-                    },
-                    "theme": { "color": "#00f2ff" }
-                });
-                rzp1.open();
-            }
-        } catch(e){ console.error(e); }
-        btn.innerText = orig;
+        proDiv.innerHTML = `${formatPrice(proPrice, PRICING_CONFIG.pro.discount)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/mo</span>`;
+        eliteDiv.innerHTML = `${formatPrice(elitePrice, PRICING_CONFIG.pro_plus.discount)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/mo</span>`;
     }
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
@@ -981,19 +820,18 @@
         if(window.google && GOOGLE_CLIENT_ID){
             google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
-        } else { console.warn("Google Auth not ready"); }
+        }
     }
     
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
-    function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
+    function openProfileModal(){if(currentUser)profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
     document.addEventListener("DOMContentLoaded", () => {
-        playIntro();
+        setTimeout(() => document.getElementById('intro-layer').style.display = 'none', 1000); // Quick intro bypass
         initCarousel();
-        typeCode();
         checkUser();
         detectOS();
         fetchPricingConfig();
