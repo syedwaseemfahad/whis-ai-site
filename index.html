@@ -22,10 +22,12 @@
             'scroll': 'scroll 40s linear infinite',
             'float': 'float 8s ease-in-out infinite',
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
           },
           keyframes: {
             scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
-            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+            glow: { 'from': { boxShadow: '0 0 10px -10px var(--accent)' }, 'to': { boxShadow: '0 0 30px var(--accent-glow)' } }
           }
         }
       }
@@ -68,7 +70,6 @@
         100% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.4); }
     }
 
-    /* Use the dynamic color */
     .text-accent { color: var(--accent); transition: color 1s; }
     .bg-accent { background-color: var(--accent); transition: background-color 1s; }
     .border-accent { border-color: var(--accent); transition: border-color 1s; }
@@ -84,42 +85,15 @@
         overflow: hidden;
         transition: transform 0.2s ease, border-color 1s;
     }
-    .physics-card::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-        z-index: 2;
-    }
-    .physics-card:hover::before { opacity: 1; }
     .physics-card:hover { border-color: rgba(255, 255, 255, 0.2); }
 
-    /* --- INTRO SEQUENCE --- */
-    .intro-overlay {
-        position: fixed; inset: 0; z-index: 9999;
-        background: black;
-        display: flex; align-items: center; justify-content: center;
-        pointer-events: none;
-        padding: 20px;
-    }
-    .intro-text {
-        font-size: 2rem; md:font-size: 3rem; font-weight: 300; letter-spacing: -0.02em;
-        background: linear-gradient(to bottom, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        opacity: 0; transform: scale(0.95); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        text-align: center; width: 100%; max-width: 800px;
-    }
-    .intro-active { opacity: 1; transform: scale(1); }
-
-    /* --- CAROUSEL FIXES (UPDATED FOR MOBILE & OVERLAP) --- */
+    /* --- CAROUSEL --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
         justify-content: center; 
         align-items: center; 
-        height: 280px; /* Adjusted for mobile */
+        height: 280px; 
         position: relative; 
         margin-top: 20px;
         margin-bottom: 20px;
@@ -130,7 +104,7 @@
     
     .carousel-item { 
         position: absolute; 
-        width: 90%; /* Mobile width */
+        width: 90%; 
         aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
         border-radius: 16px; 
@@ -140,49 +114,37 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
     @media (min-width: 768px) { 
-        /* FIX: Added max-height to prevent overlap on wide screens */
         .carousel-item { width: 85%; max-height: 100%; } 
     }
     
-    /* Center Item */
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
-    
-    /* Side Items - Mobile Optimized (Stacked tighter) */
     .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
     .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
-    
-    /* Side Items - Desktop (Wider spread) */
     @media (min-width: 768px) {
         .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
         .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
     }
-
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
     /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
-    .keyword { color: #c678dd; } /* Purple */
-    .function { color: #61afef; } /* Blue */
-    .string { color: #98c379; } /* Green */
-    .number { color: #d19a66; } /* Orange */
+    .keyword { color: #c678dd; } 
+    .function { color: #61afef; } 
+    .string { color: #98c379; } 
+    .number { color: #d19a66; } 
 
-    /* --- SCROLL HIDE --- */
+    /* --- UTILS --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* --- PRICING ELITE GLOW --- */
-    .pricing-elite {
-        position: relative;
-    }
+    
+    .pricing-elite { position: relative; }
     .pricing-elite::after {
         content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px;
         background: linear-gradient(180deg, var(--accent), transparent 60%);
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events: none;
+        -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
     }
 
-    /* --- MOBILE SPECIFIC --- */
     .snap-mandatory-x { scroll-snap-type: x mandatory; }
     .snap-center { scroll-snap-align: center; }
     .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
@@ -191,10 +153,6 @@
   </style>
 </head>
 <body>
-
-  <div id="intro-layer" class="intro-overlay">
-      <h1 id="intro-text" class="intro-text">Your Potential Deserves More.<br>You have come to the right place.</h1>
-  </div>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
       <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-[var(--accent)] rounded-full blur-[150px] opacity-10 transition-colors duration-1000"></div>
@@ -220,8 +178,8 @@
       <div class="flex items-center gap-5">
           <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition">Sign In</button>
           
-          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-             <span class="relative z-10">Get App</span>
+          <button id="navDownloadBtn" onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+             <span class="relative z-10" id="navBtnText">Get App</span>
              <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-20 transition duration-300"></div>
           </button>
           
@@ -233,12 +191,12 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-t border-white/10 p-3 pb-6 grid grid-cols-2 gap-3">
+  <div id="mobileBottomBar" class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-lg border-t border-white/10 p-3 pb-6 grid grid-cols-2 gap-3">
       <a href="#demo" class="py-3.5 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
-      <button onclick="openDownloadModal()" class="py-3.5 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_15px_var(--accent-glow)]">
-          Start Free Trial
+      <button onclick="openLoginModal()" class="py-3.5 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_15px_var(--accent-glow)] animate-pulse-slow">
+          Create Free Account
       </button>
   </div>
 
@@ -250,7 +208,7 @@
   <section class="relative pt-32 md:pt-52 pb-12 overflow-hidden flex flex-col items-center">
     <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
       
-      <div class="animate-float mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 backdrop-blur-md">
+      <div class="animate-float mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 backdrop-blur-md cursor-pointer hover:bg-red-500/20 transition">
           <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
           <span id="signup-badge-text">🔥 150+ signups today</span>
       </div>
@@ -266,12 +224,18 @@
       </p>
 
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-3">
-            <i class="fa-brands fa-apple text-xl"></i> Start Free Trial
+        <button id="heroDownloadBtn" onclick="handleHeroClick()" class="w-full md:w-auto px-12 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.3)] flex justify-center items-center gap-3 animate-glow">
+            <span id="heroBtnIcon"><i class="fa-solid fa-download"></i></span> 
+            <span id="heroBtnText">Get Started For Free</span>
         </button>
       </div>
+      <div class="md:hidden flex w-full justify-center">
+           <button onclick="openLoginModal()" class="w-full max-w-xs px-8 py-4 rounded-xl bg-white text-black font-bold shadow-lg">
+               Start Free Trial
+           </button>
+      </div>
 
-      <div class="flex justify-center gap-4 mt-4 text-[10px] text-slate-500 font-mono">
+      <div class="flex justify-center gap-4 mt-6 text-[10px] text-slate-500 font-mono">
           <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> No credit card</span>
           <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> Cancel anytime</span>
           <span class="flex items-center gap-1"><i class="fa-solid fa-check text-green-500"></i> Undetectable</span>
@@ -448,7 +412,7 @@
           </div>
       </div>
   </section>
-  
+   
   <section class="py-32 border-t border-white/5 bg-[#050505] overflow-hidden">
       <div class="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end">
           <h2 class="text-3xl font-medium text-white">Verified Outcomes.</h2>
@@ -477,16 +441,6 @@
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
               <p class="text-sm text-slate-300 leading-relaxed mb-6">"Visual context feature saved me. It analyzed the system design diagram on the whiteboard and gave me the scalability bottlenecks."</p>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Elena G.</p><p class="text-[10px] text-slate-500">Meta, E4</p></div></div>
-          </div>
-           <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"English isn't my first language. Whis translated my thoughts into professional answers live. Total game changer."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Michael T.</p><p class="text-[10px] text-slate-500">Uber, L4</p></div></div>
-          </div>
-           <div class="physics-card p-8 min-w-[350px] snap-center">
-              <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6">"The ghost dock feature is essential. I had to screen share my whole desktop and no one noticed a thing."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Priya S.</p><p class="text-[10px] text-slate-500">Microsoft, SDE II</p></div></div>
           </div>
       </div>
   </section>
@@ -643,6 +597,65 @@
   </div>
 
   <script>
+    // --- 1. STRICT OS DETECTION & OPTIMIZATION (Runs Instantly) ---
+    // Defined globally so we can access variables
+    let detectedOS = 'unknown';
+    let isMobile = false;
+
+    function detectAndOptimize() {
+        const ua = navigator.userAgent.toLowerCase();
+        const p = navigator.platform.toLowerCase();
+        
+        const heroBtn = document.getElementById('heroDownloadBtn');
+        const heroIcon = document.getElementById('heroBtnIcon');
+        const heroText = document.getElementById('heroBtnText');
+        const navBtnText = document.getElementById('navBtnText');
+
+        // Check Mobile
+        isMobile = /iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(ua);
+        
+        if (isMobile) {
+            // Mobile Optimization: Push for Account Creation (Lead Gen)
+            detectedOS = 'mobile';
+            if(heroText) heroText.innerText = "Create Free Account";
+            if(heroIcon) heroIcon.innerHTML = '<i class="fa-solid fa-user-plus"></i>';
+            if(navBtnText) navBtnText.innerText = "Sign Up";
+        } else {
+            // Desktop Optimization: Push for Specific Download
+            if (p.includes('win') || ua.includes('windows')) {
+                detectedOS = 'windows';
+                if(heroText) heroText.innerText = "Download for Windows";
+                if(heroIcon) heroIcon.innerHTML = '<i class="fa-brands fa-windows text-xl"></i>';
+            } else if (p.includes('mac') || ua.includes('macintosh')) {
+                detectedOS = 'mac';
+                if(heroText) heroText.innerText = "Download for macOS";
+                if(heroIcon) heroIcon.innerHTML = '<i class="fa-brands fa-apple text-xl"></i>';
+            } else {
+                detectedOS = 'linux'; // Fallback
+                if(heroText) heroText.innerText = "Download App";
+            }
+        }
+    }
+
+    // Run immediately
+    detectAndOptimize();
+
+    // Handle Hero Click based on OS
+    function handleHeroClick() {
+        if (isMobile) {
+            openLoginModal(); // Capture lead on mobile
+        } else {
+            // On desktop, specific download logic
+            if (detectedOS === 'mac') {
+                 window.location.href = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v1.0.0/Whis-1.0.0-arm64.dmg";
+            } else if (detectedOS === 'windows') {
+                 window.location.href = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.0.windows/Whis.Setup.1.0.1.exe";
+            } else {
+                openDownloadModal(); // Fallback
+            }
+        }
+    }
+
     // --- PHYSICS ENGINE ---
     function initPhysics() {
         if(window.innerWidth < 768) return;
@@ -656,16 +669,6 @@
                 card.style.setProperty('--mouse-y', `${y}px`);
             });
         });
-    }
-
-    // --- 5. CINEMATIC INTRO LOGIC (FASTER & COMBINED) ---
-    function playIntro() {
-        const t1 = document.getElementById('intro-text');
-        const layer = document.getElementById('intro-layer');
-        // Faster sequence
-        setTimeout(() => t1.classList.add('intro-active'), 100);
-        setTimeout(() => { layer.style.opacity = '0'; }, 2000); 
-        setTimeout(() => { layer.style.display = 'none'; }, 2500);
     }
 
     // --- CAROUSEL ---
@@ -685,13 +688,8 @@
             div.id = `c-item-${i}`;
             const video = document.createElement('video');
             video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
-            // On Mobile: Use object-contain. On Desktop: Use object-cover (or consistent style)
-            // Added simple logic: width < 768 -> contain, else -> cover (default)
-            if(window.innerWidth < 768) {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
-            } else {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; // Changed to contain for safety on all screens
-            }
+            // Safer object-fit for all screens
+            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; 
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -724,7 +722,7 @@
     }
     setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
-    // --- 1. CODE TYPEWRITER (Formatted) ---
+    // --- TYPEWRITER ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -767,22 +765,16 @@
         }
     }
 
-    // --- DYNAMIC SIGNUP COUNTER (Hour * Hour) ---
+    // --- DYNAMIC SIGNUPS ---
     function updateDynamicSignups() {
-        // Get IST Time (UTC+5:30)
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const istDate = new Date(utc + istOffset);
-        
-        let hour = istDate.getHours(); // 0-23
-        
-        // Formula: Hour * Hour (e.g., 2PM = 14 * 14 = 196)
-        // If hour is 0 (midnight), avoid 0 signups by showing something minimal like 15.
+        let hour = istDate.getHours();
         let count = hour * hour;
         count = count+942;
         if(count === 0) count = 15; 
-        
         const badge = document.getElementById('signup-badge-text');
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
@@ -790,28 +782,8 @@
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
-    
-    // FETCHED FROM BACKEND
     let PRICING_CONFIG = null;
     let GOOGLE_CLIENT_ID = null;
-
-    function detectOS(){
-        const p = navigator.platform.toLowerCase(); 
-        const ua = navigator.userAgent.toLowerCase();
-        const btn = document.getElementById('heroDownloadBtn');
-
-        const isWin = p.includes('win') || ua.includes('windows');
-        const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone') && !ua.includes('ipad');
-
-        // CUSTOM LOGIC: Detect if NOT Win/Mac (Mobile/Linux)
-        if (!isWin && !isMac) {
-             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
-        } else if (isWin) {
-             btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial (Windows)';
-        } else if (isMac) {
-             btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial (macOS)';
-        }
-    }
 
     async function fetchPricingConfig() {
         try {
@@ -991,11 +963,9 @@
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
     document.addEventListener("DOMContentLoaded", () => {
-        playIntro();
         initCarousel();
         typeCode();
         checkUser();
-        detectOS();
         fetchPricingConfig();
         updateDynamicSignups();
         setTimeout(initPhysics, 500);
