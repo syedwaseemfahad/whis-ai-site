@@ -66,7 +66,9 @@
         color: white; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
-        padding-bottom: 80px; /* Space for sticky bar */
+        padding-bottom: 80px; 
+        /* Optimization: will-change helps browser anticipate changes */
+        will-change: --accent;
         animation: colorCycle 60s infinite linear;
     }
 
@@ -123,7 +125,7 @@
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL FIXES --- */
+    /* --- CAROUSEL STYLES (New Play Button Logic) --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
@@ -148,7 +150,7 @@
         background: #000; 
         border: 1px solid rgba(255,255,255,0.1); 
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        cursor: pointer; /* Interaction cursor */
+        cursor: pointer; /* Makes it clickable */
     }
     @media (min-width: 768px) { 
         .carousel-item { width: 85%; max-height: 100%; } 
@@ -163,31 +165,36 @@
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
-    /* --- NEW PLAY BUTTON & VIDEO STYLES --- */
-    .play-btn {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 64px; height: 64px; border-radius: 50%;
-        background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Beautiful Play Button */
+    .play-btn-overlay {
+        position: absolute; inset: 0;
         display: flex; align-items: center; justify-content: center;
-        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        background: rgba(0,0,0,0.3);
+        transition: all 0.3s;
         z-index: 30;
+    }
+    .play-btn {
+        width: 60px; height: 60px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
-    /* Glow on hover */
-    .carousel-item:hover .play-btn { 
-        background: rgba(255, 255, 255, 0.1); 
+    .carousel-item:hover .play-btn {
+        transform: scale(1.1);
+        background: var(--accent);
         border-color: var(--accent);
         box-shadow: 0 0 30px var(--accent-glow);
-        transform: translate(-50%, -50%) scale(1.1);
     }
-    /* Hide button when video plays */
-    .video-active .play-btn { 
-        opacity: 0; 
-        transform: translate(-50%, -50%) scale(0.5);
-        pointer-events: none; 
-    }
-    .video-active { border-color: white !important; }
+    .play-btn i { color: white; font-size: 20px; margin-left: 4px; transition: color 0.3s; }
+    .carousel-item:hover .play-btn i { color: black; }
+    
+    /* When playing, hide button */
+    .is-playing .play-btn-overlay { opacity: 0; pointer-events: none; }
+    .is-playing video { opacity: 1 !important; }
 
     /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
@@ -693,32 +700,45 @@
   </div>
 
   <script>
-    // --- PHYSICS ENGINE ---
+    // --- OPTIMIZED PHYSICS ENGINE (FIXED THE HANG) ---
+    // Using requestAnimationFrame to prevent main thread blocking
+    let mouseX = 0, mouseY = 0;
+    let physicsRequestId = null;
+
     function initPhysics() {
         if(window.innerWidth < 768) return;
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
-        document.body.addEventListener('mousemove', (e) => {
+        
+        function updateCards() {
             cards.forEach(card => {
                 const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+                const x = mouseX - rect.left;
+                const y = mouseY - rect.top;
                 card.style.setProperty('--mouse-x', `${x}px`);
                 card.style.setProperty('--mouse-y', `${y}px`);
             });
+            physicsRequestId = null;
+        }
+
+        document.body.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            if (!physicsRequestId) {
+                physicsRequestId = requestAnimationFrame(updateCards);
+            }
         });
     }
 
-    // --- 5. CINEMATIC INTRO LOGIC (FASTER & COMBINED) ---
+    // --- CINEMATIC INTRO LOGIC ---
     function playIntro() {
         const t1 = document.getElementById('intro-text');
         const layer = document.getElementById('intro-layer');
-        // Faster sequence
         setTimeout(() => t1.classList.add('intro-active'), 100);
         setTimeout(() => { layer.style.opacity = '0'; }, 2000); 
         setTimeout(() => { layer.style.display = 'none'; }, 2500);
     }
 
-    // --- CAROUSEL (UPDATED FOR CLICK-TO-PLAY) ---
+    // --- CAROUSEL LOGIC (CLICK TO PLAY) ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
         { src: 'text.mp4', label: 'CODE SYNTHESIS' },
@@ -734,15 +754,13 @@
             const div = document.createElement('div');
             div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
-            
-            // Interactive Click Handler
             div.onclick = () => handleCarouselClick(i);
 
             // Structure: Video + Play Button Overlay
             div.innerHTML = `
-                <video src="${v.src}" muted playsinline loop style="width:100%; height:100%; object-fit:contain; background:#000; opacity:0.6; transition:opacity 0.5s ease;"></video>
-                <div class="play-btn">
-                    <i class="fa-solid fa-play text-white text-xl ml-1"></i>
+                <video src="${v.src}" playsinline loop style="width:100%; height:100%; object-fit:contain; background:#000; opacity:0.6; transition:opacity 0.5s ease;"></video>
+                <div class="play-btn-overlay">
+                    <div class="play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
             `;
             container.appendChild(div);
@@ -767,7 +785,7 @@
     }
 
     function handleCarouselClick(index) {
-        stopAutoRotation(); // User interacted, take control
+        stopAutoRotation(); // User interacted, stop spinning
         
         if (index !== activeIndex) {
             // Clicked a side card -> Rotate to it
@@ -784,18 +802,13 @@
         const vid = item.querySelector('video');
         
         if (vid.paused) {
-            // Play logic
-            vid.muted = false; // Unmute on interaction
+            // Play
+            item.classList.add('is-playing');
             vid.play().catch(()=>{});
-            item.classList.add('video-active');
-            vid.style.opacity = '1';
         } else {
-            // Pause logic
+            // Pause
+            item.classList.remove('is-playing');
             vid.pause();
-            item.classList.remove('video-active');
-            vid.style.opacity = '0.7'; // Return to dim state
-            // Optionally restart rotation if they pause? 
-            // Better UX: keep it paused so they can look at the frame.
         }
     }
 
@@ -808,16 +821,15 @@
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
             
-            // Reset state for everyone first
+            // Reset base classes
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
             
             if(i === activeIndex) {
                 el.classList.add('item-center');
-                // Ensure video is paused if we just rotated to it (unless already active)
-                if(!el.classList.contains('video-active')) {
+                // Ensure paused unless user explicitly clicked (handled in toggleVideo)
+                if(!el.classList.contains('is-playing')) {
                     vid.pause();
                     vid.currentTime = 0;
-                    vid.style.opacity = '0.7'; // Center is slightly brighter
                 }
             } else {
                 // Side items
@@ -826,14 +838,13 @@
                 // Force reset side items
                 vid.pause();
                 vid.currentTime = 0;
-                el.classList.remove('video-active');
-                vid.style.opacity = '0.4'; // Side items dim
+                el.classList.remove('is-playing');
             }
         });
         document.getElementById('featureLabel').innerText = videos[activeIndex].label;
     }
 
-    // --- 1. CODE TYPEWRITER (Formatted) ---
+    // --- CODE TYPEWRITER (Optimized Speed) ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -870,13 +881,14 @@
                 currentPart++;
                 currentChar = 0;
             }
-            setTimeout(typeCode, 15);
+            // OPTIMIZATION: Increased delay to 30ms (from 15ms) to save CPU
+            setTimeout(typeCode, 30);
         } else {
             setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
         }
     }
 
-    // --- DYNAMIC SIGNUP COUNTER (Hour * Hour) ---
+    // --- DYNAMIC SIGNUP COUNTER ---
     function updateDynamicSignups() {
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
@@ -895,8 +907,6 @@
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
-    
-    // FETCHED FROM BACKEND
     let PRICING_CONFIG = null;
     let GOOGLE_CLIENT_ID = null;
 
@@ -1028,35 +1038,24 @@
         } catch(e){}
     }
 
-    // --- PAYMENT LOGIC (UPDATED FOR DUAL GATEWAY) ---
+    // --- PAYMENT LOGIC ---
     let selectedTierForPayment = null; 
     const paymentModal = document.getElementById('paymentModal');
 
-    // 1. Trigger Payment Selection
     function initiatePayment(targetTier) {
         if(!currentUser){ openLoginModal(); return; }
-        
-        // Check if valid upgrade
         if(currentTier === 'pro_plus') return;
         if(currentTier === 'pro' && targetTier === 'pro') return;
-
         selectedTierForPayment = targetTier;
         openPaymentModal();
     }
 
-    // 2. Open Modal & Initialize PayPal
     function openPaymentModal() {
         paymentModal.classList.remove('hidden'); 
         paymentModal.classList.add('flex');
-        
-        // Clear previous buttons
         document.getElementById('paypal-button-container').innerHTML = '';
-
-        // Render PayPal Buttons
         paypal.Buttons({
             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-            
-            // Setup Transaction
             createOrder: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                     method: 'POST',
@@ -1070,8 +1069,6 @@
                 const orderData = await res.json();
                 return orderData.id; 
             },
-
-            // On Approve
             onApprove: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
                     method: 'POST',
@@ -1081,7 +1078,6 @@
                         googleId: currentUser.googleId
                     })
                 });
-                
                 const details = await res.json();
                 if (details.success) {
                     closePaymentModal();
@@ -1091,7 +1087,6 @@
                     alert("PayPal transaction verification failed.");
                 }
             },
-            
             onError: function (err) {
                 console.error('PayPal Error', err);
                 alert("Payment could not be processed with PayPal.");
@@ -1104,11 +1099,9 @@
         paymentModal.classList.remove('flex');
     }
 
-    // 3. Razorpay Specific Logic
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
         const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        
         const btn = event.currentTarget; 
         const orig = btn.innerHTML; 
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
@@ -1173,7 +1166,6 @@
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
-    
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         if(window.google && GOOGLE_CLIENT_ID){
@@ -1181,7 +1173,6 @@
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
         } else { console.warn("Google Auth not ready"); }
     }
-    
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
