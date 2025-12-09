@@ -12,8 +12,7 @@
   <meta charset="UTF-8" />
   <title>Whis-AI – The Invisible Interview Assistant</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
-  <meta name="theme-color" content="#000000" />
-    
+   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -31,7 +30,6 @@
             'scroll': 'scroll 40s linear infinite',
             'float': 'float 8s ease-in-out infinite',
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'pulse-fast': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             'blob': 'blob 20s infinite',
           },
           keyframes: {
@@ -48,21 +46,21 @@
       }
     }
   </script>
-    
+   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+   
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
-     
+    
   <style>
     /* --- VIBRANT COLOR ENGINE --- */
     :root {
         --accent: #00f2ff;
         --accent-glow: rgba(0, 242, 255, 0.4);
     }
-     
+    
     @property --accent {
         syntax: '<color>';
         initial-value: #00f2ff;
@@ -74,29 +72,28 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        overflow-x: hidden;
-        scroll-behavior: smooth;
+        overflow-x: hidden; /* Prevent horizontal scrolling */
     }
 
     body { 
         background-color: #000000; 
         color: white; 
         font-family: 'Inter', sans-serif; 
-        padding-bottom: 120px; /* Space for dock */
+        padding-bottom: 140px; /* Extra padding for floating dock */
         animation: colorCycle 60s infinite linear;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        touch-action: manipulation; /* Improves touch response */
+        touch-action: manipulation;
     }
 
-    /* Film Grain Overlay */
+    /* Film Grain Overlay - The "Premium" Secret */
     .noise-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
         pointer-events: none;
         z-index: 5;
         background: url('https://grainy-gradients.vercel.app/noise.svg');
-        opacity: 0.05;
+        opacity: 0.06;
         mix-blend-mode: overlay;
     }
 
@@ -124,10 +121,9 @@
         position: relative;
         overflow: hidden;
         transition: transform 0.2s ease, border-color 1s;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        will-change: transform; /* Performance Boost */
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); /* Deep shadow */
     }
-     
+    
     /* Desktop Hover Effects */
     @media (min-width: 768px) {
         .physics-card::before {
@@ -144,33 +140,31 @@
         .physics-card:hover { border-color: rgba(255, 255, 255, 0.2); }
     }
 
-    /* --- MOBILE FLOATING DOCK (CONVERSION OPTIMIZED) --- */
+    /* --- FLOATING DOCK (The Fix) --- */
+    /* This ensures it sticks to the viewport, not the document */
     .mobile-dock-container {
         position: fixed;
-        bottom: 20px;
-        left: 12px;
-        right: 12px;
+        bottom: 24px; /* Move up slightly for "floating" look */
+        left: 16px;
+        right: 16px;
         z-index: 9999;
-        display: none;
-        animation: floatUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        display: none; /* Hidden on desktop */
     }
-    @keyframes floatUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
     @media (max-width: 768px) {
         .mobile-dock-container { display: flex; }
     }
-     
+    
     .dock-glass {
         width: 100%;
-        background: rgba(10, 10, 10, 0.85);
+        background: rgba(15, 15, 15, 0.9);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 24px;
-        padding: 6px;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0,0,0,1);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 20px;
+        padding: 8px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0,0,0,1);
         display: grid;
-        grid-template-columns: 1fr 1.5fr; /* Larger button for CTA */
+        grid-template-columns: 1fr 1.2fr;
         gap: 8px;
         align-items: center;
     }
@@ -186,7 +180,7 @@
         margin-top: 20px;
         margin-bottom: 20px;
     }
-     
+    
     .carousel-item { 
         position: absolute; 
         width: 90%; 
@@ -206,18 +200,17 @@
         .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); opacity: 0.3; }
         .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); opacity: 0.3; }
     }
-     
-    /* Mobile: Simpler Stack */
+    
+    /* Mobile: Stack them properly */
     @media (max-width: 767px) {
-        .carousel-item { width: 92%; left: 4%; border-radius: 12px; }
-        .item-left { transform: scale(0.9) translateY(10px); opacity: 0; pointer-events: none; z-index: -1; }
-        .item-right { transform: scale(0.9) translateY(10px); opacity: 0; pointer-events: none; z-index: -1; }
-        .item-center { transform: scale(1); opacity: 1; z-index: 10; border-color: var(--accent); }
+        .carousel-item { width: 95%; left: 2.5%; }
+        .item-left { transform: translateX(-105%) scale(0.9); opacity: 0; pointer-events: none; }
+        .item-right { transform: translateX(105%) scale(0.9); opacity: 0; pointer-events: none; }
     }
 
-    .item-center { z-index: 20; box-shadow: 0 0 40px var(--accent-glow); }
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
-     
+    
     /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #c678dd; } 
@@ -228,12 +221,6 @@
     /* --- SCROLL HIDE --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    /* Logo Scroller fade mask */
-    .scroller-mask {
-        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-        -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    }
 
     /* --- MOBILE UTILS --- */
     .snap-mandatory-x { scroll-snap-type: x mandatory; }
@@ -249,7 +236,7 @@
         transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
     }
     .reveal-visible { opacity: 1; transform: translateY(0); }
-     
+    
     /* Intro */
     .intro-overlay {
         position: fixed; inset: 0; z-index: 9999; background: black;
@@ -278,7 +265,7 @@
       <div class="absolute bottom-[-10%] right-[-20%] w-[80vw] h-[80vh] bg-blue-900/30 rounded-full blur-[120px] opacity-[0.12] animate-blob animation-delay-2000"></div>
   </div>
 
-  <nav class="fixed top-0 w-full z-50 h-[60px] md:h-[70px] flex items-center justify-center bg-black/70 backdrop-blur-xl border-b border-white/5 transition-all duration-300" id="navbar">
+  <nav class="fixed top-0 w-full z-50 h-[70px] flex items-center justify-center bg-black/70 backdrop-blur-xl border-b border-white/5 transition-all duration-300" id="navbar">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 group z-50">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-accent transition-colors duration-1000">
@@ -294,7 +281,7 @@
       </div>
 
       <div class="flex items-center gap-4 z-50">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-300 hover:text-white transition px-2 py-2 border border-white/10 rounded-lg md:border-none">Sign In</button>
+          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition px-2 py-2">Sign In</button>
           
           <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
              <span class="relative z-10">Get App</span>
@@ -309,22 +296,22 @@
     </div>
   </nav>
 
-  <section class="relative pt-28 md:pt-52 pb-12 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-8 md:mb-10 flex flex-col items-center">
+  <section class="relative pt-36 md:pt-52 pb-12 overflow-hidden flex flex-col items-center">
+    <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
       
-      <div class="animate-float mb-6 md:mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-md reveal-on-scroll shadow-lg cursor-pointer hover:bg-white/10 transition">
+      <div class="animate-float mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-md reveal-on-scroll shadow-lg">
           <span class="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_10px_var(--accent)]"></span>
           <span id="signup-badge-text" class="tracking-wide">🔥 150+ signups today</span>
       </div>
       
-      <h1 class="text-[2.2rem] md:text-8xl font-medium tracking-tighter leading-[1.05] md:leading-[1] mb-6 text-white reveal-on-scroll" style="transition-delay: 100ms;">
+      <h1 class="text-[2.75rem] md:text-8xl font-medium tracking-tighter leading-[1.05] md:leading-[1] mb-6 text-white reveal-on-scroll" style="transition-delay: 100ms;">
         Never Freeze In An<br>
         <span class="text-accent drop-shadow-[0_0_40px_var(--accent-glow)] transition-colors duration-1000">Interview Again.</span>
       </h1>
       
-      <p class="text-[14px] md:text-lg text-slate-400 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed font-light reveal-on-scroll px-2" style="transition-delay: 200ms;">
+      <p class="text-[15px] md:text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-light reveal-on-scroll px-4" style="transition-delay: 200ms;">
         The invisible AI copilot that whispers the right answers to you instantly.
-        <span class="text-slate-200 font-normal block mt-1">Real-time. Undetectable. Works on Zoom/Meet.</span>
+        <span class="text-slate-200 font-normal block mt-1">Real-time. Undetectable. Works on Zoom/Meet/Teams.</span>
       </p>
 
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto reveal-on-scroll" style="transition-delay: 300ms;">
@@ -333,20 +320,20 @@
         </button>
       </div>
 
-      <div class="mt-4 md:mt-6 reveal-on-scroll animate-pulse-slow" style="transition-delay: 350ms;">
+      <div class="mt-6 reveal-on-scroll animate-pulse-slow" style="transition-delay: 350ms;">
          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-[11px] font-bold text-accent tracking-wide shadow-[0_0_15px_rgba(0,242,255,0.1)]">
             <i class="fa-solid fa-gift"></i> Includes 3 Free Full-Access Sessions
          </span>
       </div>
 
-      <div class="flex justify-center flex-wrap gap-4 mt-6 text-[10px] text-slate-500 font-mono reveal-on-scroll tracking-tight uppercase" style="transition-delay: 400ms;">
+      <div class="flex justify-center flex-wrap gap-4 mt-4 text-[10px] text-slate-500 font-mono reveal-on-scroll tracking-tight uppercase" style="transition-delay: 400ms;">
           <span class="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded"><i class="fa-solid fa-check text-accent"></i> No credit card</span>
           <span class="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded"><i class="fa-solid fa-check text-accent"></i> Cancel anytime</span>
           <span class="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded"><i class="fa-solid fa-check text-accent"></i> Undetectable</span>
       </div>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto mb-8 md:mb-24 relative scroller-mask px-0 reveal-on-scroll">
+    <div class="w-full max-w-7xl mx-auto mb-12 md:mb-24 relative scroller-mask px-6 reveal-on-scroll">
         <div class="flex overflow-hidden group border-y border-white/5 py-6 bg-white/[0.01]">
             <div class="flex gap-12 md:gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center opacity-30 grayscale hover:grayscale-0 transition duration-500">
                 <i class="fa-brands fa-google text-2xl md:text-3xl"></i><i class="fa-brands fa-meta text-2xl md:text-3xl"></i><i class="fa-brands fa-amazon text-2xl md:text-3xl"></i>
@@ -356,7 +343,7 @@
         </div>
     </div>
 
-    <div class="w-full relative z-20 mb-2 reveal-on-scroll px-2 md:px-0">
+    <div class="w-full relative z-20 mb-2 reveal-on-scroll">
         <div class="carousel-container" id="carouselContainer"></div>
         <div class="text-center mt-6">
               <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.4em] font-bold">Visual Analysis</p>
@@ -364,7 +351,7 @@
     </div>
   </section>
 
-  <section id="demo" class="py-16 md:py-20 border-t border-white/5 bg-black/40">
+  <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
       <div class="max-w-7xl mx-auto px-6">
           <div class="grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
               <div class="space-y-6 md:space-y-8 reveal-on-scroll">
@@ -412,7 +399,7 @@
       </div>
   </section>
 
-  <section class="py-16 md:py-20 border-t border-white/5 bg-black/40">
+  <section class="py-20 border-t border-white/5 bg-black/40">
       <div class="max-w-4xl mx-auto px-6 text-center">
           <div class="reveal-on-scroll">
             <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
@@ -442,12 +429,17 @@
                    <p class="text-[11px] text-white mt-3 font-medium">Live answers & hints.</p>
                </div>
           </div>
+          
+          <div class="flex flex-col md:flex-row justify-center gap-3 md:gap-8 text-xs text-slate-500 reveal-on-scroll opacity-60">
+               <span class="flex items-center justify-center gap-2"><i class="fa-solid fa-shield-halved"></i> No browser injection</span>
+               <span class="flex items-center justify-center gap-2"><i class="fa-solid fa-eye-slash"></i> Hidden from screen share</span>
+          </div>
       </div>
   </section>
 
-  <section id="features" class="py-16 md:py-32 border-t border-white/5">
+  <section id="features" class="py-24 md:py-32 border-t border-white/5">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 md:mb-16 text-center reveal-on-scroll tracking-tight">The Unfair Advantage.</h2>
+          <h2 class="text-3xl font-medium text-white mb-16 text-center reveal-on-scroll tracking-tight">The Unfair Advantage.</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition reveal-on-scroll group">
@@ -471,11 +463,58 @@
                   <h3 class="text-white font-bold mb-2 text-lg">Voice Input</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Transcribes interviewer questions and generates answers before they finish.</p>
               </div>
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition reveal-on-scroll group">
+                  <div class="w-12 h-12 rounded-full bg-slate-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                      <i class="fa-solid fa-eye-slash text-xl text-slate-400"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-2 text-lg">Ghost Dock</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">No dock icon, no taskbar presence. Controlled via global hotkeys.</p>
+              </div>
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition reveal-on-scroll group" style="transition-delay: 100ms;">
+                  <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                      <i class="fa-solid fa-keyboard text-xl text-green-400"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-2 text-lg">Direct Input</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Type queries manually for clarifications without switching windows.</p>
+              </div>
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition reveal-on-scroll group" style="transition-delay: 200ms;">
+                  <div class="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                      <i class="fa-solid fa-language text-xl text-yellow-400"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-2 text-lg">Polyglot</h3>
+                  <p class="text-sm text-slate-400 leading-relaxed">Translates any language (Mandarin, Hindi, Spanish) to English solutions live.</p>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <section class="py-20 border-t border-white/5">
+      <div class="max-w-7xl mx-auto px-6">
+          <h2 class="text-3xl font-medium text-white mb-12 text-center reveal-on-scroll tracking-tight">The Difference.</h2>
+          <div class="grid md:grid-cols-2 gap-6">
+              <div class="p-8 rounded-3xl bg-red-500/[0.03] border border-red-500/10 relative overflow-hidden reveal-on-scroll">
+                  <div class="absolute top-4 right-4 text-red-500 opacity-20 text-4xl"><i class="fa-solid fa-xmark"></i></div>
+                  <h3 class="text-red-400 font-bold mb-6 uppercase tracking-widest text-xs">Without Whis-AI</h3>
+                  <ul class="space-y-4 text-slate-400 text-sm">
+                      <li class="flex gap-4 items-center"><span class="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-xmark text-red-500 text-xs"></i></span> Blank pauses & panic</li>
+                      <li class="flex gap-4 items-center"><span class="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-xmark text-red-500 text-xs"></i></span> "I'll get back to you on that"</li>
+                      <li class="flex gap-4 items-center"><span class="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-xmark text-red-500 text-xs"></i></span> Missed opportunity</li>
+                  </ul>
+              </div>
+              <div class="p-8 rounded-3xl bg-green-500/[0.03] border border-green-500/20 relative overflow-hidden shadow-[0_0_30px_rgba(0,255,100,0.02)] reveal-on-scroll">
+                  <div class="absolute top-4 right-4 text-green-500 opacity-20 text-4xl"><i class="fa-solid fa-check"></i></div>
+                  <h3 class="text-green-400 font-bold mb-6 uppercase tracking-widest text-xs">With Whis-AI</h3>
+                  <ul class="space-y-4 text-slate-200 text-sm font-medium">
+                      <li class="flex gap-4 items-center"><span class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-check text-green-500 text-xs"></i></span> Structured, confident answers</li>
+                      <li class="flex gap-4 items-center"><span class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-check text-green-500 text-xs"></i></span> Optimal code solutions instantly</li>
+                      <li class="flex gap-4 items-center"><span class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-check text-green-500 text-xs"></i></span> Offer letter secured</li>
+                  </ul>
+              </div>
           </div>
       </div>
   </section>
    
-  <section class="py-16 md:py-32 border-t border-white/5 bg-[#050505] overflow-hidden">
+  <section class="py-24 md:py-32 border-t border-white/5 bg-[#050505] overflow-hidden">
       <div class="max-w-7xl mx-auto px-6 mb-8 md:mb-12 flex justify-between items-end reveal-on-scroll">
           <h2 class="text-3xl font-medium text-white tracking-tight">Verified Outcomes.</h2>
           <div class="hidden md:flex gap-2">
@@ -484,36 +523,43 @@
           </div>
       </div>
       <div class="flex gap-4 md:gap-6 overflow-x-auto pb-12 px-6 snap-x snap-mandatory-x no-scrollbar reveal-on-scroll" style="-webkit-overflow-scrolling: touch;">
-          <div class="physics-card p-6 md:p-8 min-w-[85vw] md:min-w-[350px] snap-center flex flex-col justify-between border-white/10">
+          <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[350px] snap-center flex flex-col justify-between">
               <div>
                   <div class="flex gap-1 text-accent text-[10px] mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
                   <p class="text-sm text-slate-300 leading-relaxed mb-6">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. I signed the offer yesterday."</p>
               </div>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">James K.</p><p class="text-[10px] text-slate-500">Google, L5</p></div></div>
           </div>
-          <div class="physics-card p-6 md:p-8 min-w-[85vw] md:min-w-[350px] snap-center flex flex-col justify-between border-white/10">
+          <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[350px] snap-center flex flex-col justify-between">
               <div>
                   <div class="flex gap-1 text-accent text-[10px] mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
                   <p class="text-sm text-slate-300 leading-relaxed mb-6">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. Magic."</p>
               </div>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Sarah M.</p><p class="text-[10px] text-slate-500">Amazon, SDE II</p></div></div>
           </div>
-          <div class="physics-card p-6 md:p-8 min-w-[85vw] md:min-w-[350px] snap-center flex flex-col justify-between border-white/10">
+          <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[350px] snap-center flex flex-col justify-between">
               <div>
                   <div class="flex gap-1 text-accent text-[10px] mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
                   <p class="text-sm text-slate-300 leading-relaxed mb-6">"Worth every penny. The ROI on this tool is infinite. One job offer pays for a lifetime of subscriptions. Just get it."</p>
               </div>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">David R.</p><p class="text-[10px] text-slate-500">Netflix, Senior</p></div></div>
           </div>
+           <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[350px] snap-center flex flex-col justify-between">
+              <div>
+                  <div class="flex gap-1 text-accent text-[10px] mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                  <p class="text-sm text-slate-300 leading-relaxed mb-6">"Visual context feature saved me. It analyzed the system design diagram on the whiteboard and gave me the scalability bottlenecks."</p>
+              </div>
+              <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div><p class="text-xs font-bold text-white">Elena G.</p><p class="text-[10px] text-slate-500">Meta, E4</p></div></div>
+          </div>
       </div>
   </section>
 
-  <section id="pricing" class="py-16 md:py-32 border-t border-white/5">
+  <section id="pricing" class="py-24 md:py-32 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-6 text-center">
         <h2 class="text-3xl md:text-4xl font-medium text-white mb-6 reveal-on-scroll tracking-tight">Invest In Your Future.</h2>
-        <p class="text-slate-400 mb-10 reveal-on-scroll">One offer pays for a lifetime.</p>
+        <p class="text-slate-400 mb-12 reveal-on-scroll">One offer pays for a lifetime.</p>
         
-        <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-10 md:mb-16 reveal-on-scroll">
+        <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-12 md:mb-16 reveal-on-scroll">
            <button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition active:scale-95 shadow-lg" onclick="setCycle('monthly')">Monthly</button>
            <button id="btnAnnual" class="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition active:scale-95" onclick="setCycle('annual')">Yearly</button>
         </div>
@@ -560,7 +606,7 @@
     </div>
   </section>
 
-  <section class="py-16 md:py-20 border-t border-white/5 bg-white/5">
+  <section class="py-20 border-t border-white/5 bg-white/5">
       <div class="max-w-3xl mx-auto px-6">
           <h2 class="text-2xl font-medium text-white mb-8 text-center reveal-on-scroll">Frequently Asked.</h2>
           <div class="space-y-4 reveal-on-scroll">
@@ -610,10 +656,10 @@
 
   <div class="mobile-dock-container">
       <div class="dock-glass">
-          <a href="#demo" class="py-4 rounded-xl text-white text-[12px] font-bold text-center flex items-center justify-center gap-2 hover:bg-white/5 active:scale-95 transition">
-              <i class="fa-solid fa-play text-[10px]"></i> Demo
+          <a href="#demo" class="py-3.5 rounded-xl text-white text-[11px] font-bold text-center flex items-center justify-center gap-2 hover:bg-white/5 active:scale-95 transition">
+              <i class="fa-solid fa-play text-[9px]"></i> Demo
           </a>
-          <button onclick="openDownloadModal()" class="py-4 rounded-xl bg-white text-black text-[12px] font-bold text-center shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 transition animate-pulse-fast">
+          <button onclick="openDownloadModal()" class="py-3.5 rounded-xl bg-white text-black text-[11px] font-bold text-center shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 transition">
               Start Free Trial
           </button>
       </div>
@@ -855,11 +901,11 @@
         const isWin = p.includes('win') || ua.includes('windows');
         const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone') && !ua.includes('ipad');
         if (!isWin && !isMac) {
-             btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
+              btn.innerHTML = '<span class="flex items-center gap-2"><i class="fa-brands fa-windows text-xl"></i><i class="fa-brands fa-apple text-xl"></i></span> Start Free Trial';
         } else if (isWin) {
-             btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial ';
+              btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Start Free Trial ';
         } else if (isMac) {
-             btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial ';
+              btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Start Free Trial ';
         }
     }
 
