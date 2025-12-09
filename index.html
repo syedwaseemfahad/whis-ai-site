@@ -49,7 +49,7 @@
   <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
     
   <style>
-    /* --- VIBRANT COLOR ENGINE --- */
+    /* --- OPTIMIZED CSS ENGINE --- */
     :root {
         --accent: #00f2ff;
         --accent-glow: rgba(0, 242, 255, 0.4);
@@ -67,47 +67,45 @@
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
         padding-bottom: 80px; 
-        /* Optimization: will-change helps browser anticipate changes */
-        will-change: --accent;
-        animation: colorCycle 60s infinite linear;
-    }
-
-    @keyframes colorCycle {
-        0% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.4); }
-        25% { --accent: #b000ff; --accent-glow: rgba(176, 0, 255, 0.4); }
-        50% { --accent: #ff0055; --accent-glow: rgba(255, 0, 85, 0.4); }
-        75% { --accent: #00ff9d; --accent-glow: rgba(0, 255, 157, 0.4); }
-        100% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.4); }
+        /* Removed heavy color animation on body to save CPU */
     }
 
     /* Use the dynamic color */
-    .text-accent { color: var(--accent); transition: color 1s; }
-    .bg-accent { background-color: var(--accent); transition: background-color 1s; }
-    .border-accent { border-color: var(--accent); transition: border-color 1s; }
-    .shadow-accent { box-shadow: 0 0 30px var(--accent-glow); transition: box-shadow 1s; }
+    .text-accent { color: #00f2ff; }
+    .bg-accent { background-color: #00f2ff; }
+    .border-accent { border-color: #00f2ff; }
+    .shadow-accent { box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
 
     /* --- PHYSICS CARD --- */
     .physics-card {
         background: rgba(10, 10, 10, 0.6);
-        backdrop-filter: blur(20px);
+        /* Reduced blur for performance */
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 24px;
         position: relative;
         overflow: hidden;
-        transition: transform 0.2s ease, border-color 1s;
+        transition: transform 0.2s ease;
+        /* Promote to layer to avoid repaint */
+        transform: translateZ(0);
+        will-change: transform; 
     }
-    .physics-card::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
-        opacity: 0;
-        transition: opacity 0.5s;
-        pointer-events: none;
-        z-index: 2;
+    
+    /* Only enable the flashlight effect on devices that support hover (Mouse) */
+    @media (hover: hover) {
+        .physics-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .physics-card:hover::before { opacity: 1; }
     }
-    .physics-card:hover::before { opacity: 1; }
-    .physics-card:hover { border-color: rgba(255, 255, 255, 0.2); }
 
     /* --- INTRO SEQUENCE --- */
     .intro-overlay {
@@ -125,7 +123,7 @@
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL STYLES (New Play Button Logic) --- */
+    /* --- CAROUSEL STYLES --- */
     .carousel-container { 
         perspective: 1200px; 
         display: flex; 
@@ -150,22 +148,24 @@
         background: #000; 
         border: 1px solid rgba(255,255,255,0.1); 
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        cursor: pointer; /* Makes it clickable */
+        cursor: pointer; 
+        /* Optimization */
+        backface-visibility: hidden;
     }
     @media (min-width: 768px) { 
         .carousel-item { width: 85%; max-height: 100%; } 
     }
     
-    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: #00f2ff; box-shadow: 0 0 50px rgba(0, 242, 255, 0.4); }
     .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
     .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
     @media (min-width: 768px) {
         .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
         .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
     }
-    .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
+    .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
     
-    /* Beautiful Play Button */
+    /* Play Button Overlay */
     .play-btn-overlay {
         position: absolute; inset: 0;
         display: flex; align-items: center; justify-content: center;
@@ -177,22 +177,21 @@
         width: 60px; height: 60px;
         background: rgba(255,255,255,0.1);
         backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255,255,255,0.3);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: transform 0.3s;
         box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
     .carousel-item:hover .play-btn {
         transform: scale(1.1);
-        background: var(--accent);
-        border-color: var(--accent);
-        box-shadow: 0 0 30px var(--accent-glow);
+        background: #00f2ff;
+        border-color: #00f2ff;
     }
     .play-btn i { color: white; font-size: 20px; margin-left: 4px; transition: color 0.3s; }
     .carousel-item:hover .play-btn i { color: black; }
     
-    /* When playing, hide button */
     .is-playing .play-btn-overlay { opacity: 0; pointer-events: none; }
     .is-playing video { opacity: 1 !important; }
 
@@ -203,23 +202,9 @@
     .string { color: #98c379; } 
     .number { color: #d19a66; } 
 
-    /* --- SCROLL HIDE --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* --- PRICING ELITE GLOW --- */
-    .pricing-elite { position: relative; }
-    .pricing-elite::after {
-        content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px;
-        background: linear-gradient(180deg, var(--accent), transparent 60%);
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events: none;
-    }
-
-    /* --- MOBILE SPECIFIC --- */
-    .snap-mandatory-x { scroll-snap-type: x mandatory; }
-    .snap-center { scroll-snap-align: center; }
     .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
     .faq-active .faq-content { max-height: 200px; }
     .faq-active i { transform: rotate(180deg); }
@@ -231,13 +216,12 @@
       <h1 id="intro-text" class="intro-text">Your Potential Deserves More.<br>You have come to the right place.</h1>
   </div>
 
-  <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-[var(--accent)] rounded-full blur-[150px] opacity-10 transition-colors duration-1000"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900/10 rounded-full blur-[150px] opacity-10"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
+  <div class="fixed inset-0 z-0 pointer-events-none bg-black">
+      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-[#00f2ff] rounded-full blur-[100px] opacity-[0.05]"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900 rounded-full blur-[100px] opacity-[0.05]"></div>
   </div>
 
-  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5">
+  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-md border-b border-white/5">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-accent transition-colors duration-1000">
@@ -257,7 +241,7 @@
           
           <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
              <span class="relative z-10">Get App</span>
-             <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-20 transition duration-300"></div>
+             <div class="absolute inset-0 bg-[#00f2ff] opacity-0 group-hover:opacity-20 transition duration-300"></div>
           </button>
           
           <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition">
@@ -268,11 +252,11 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-t border-white/10 p-3 pb-6 grid grid-cols-2 gap-3">
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-t border-white/10 p-3 pb-6 grid grid-cols-2 gap-3">
       <a href="#demo" class="py-3.5 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
-      <button onclick="openDownloadModal()" class="py-3.5 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_15px_var(--accent-glow)]">
+      <button onclick="openDownloadModal()" class="py-3.5 rounded-xl bg-[#00f2ff] text-black text-xs font-bold text-center shadow-[0_0_15px_rgba(0,242,255,0.4)]">
           Start Free Trial
       </button>
   </div>
@@ -292,7 +276,7 @@
       
       <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-6 text-white">
         Never Freeze In An<br>
-        <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] transition-colors duration-1000">Interview Again.</span>
+        <span class="text-accent drop-shadow-[0_0_30px_rgba(0,242,255,0.4)] transition-colors duration-1000">Interview Again.</span>
       </h1>
       
       <p class="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-light">
@@ -700,33 +684,54 @@
   </div>
 
   <script>
-    // --- OPTIMIZED PHYSICS ENGINE (FIXED THE HANG) ---
-    // Using requestAnimationFrame to prevent main thread blocking
-    let mouseX = 0, mouseY = 0;
-    let physicsRequestId = null;
-
+    // --- STABLE PHYSICS ENGINE (Cached Rects + Mobile Guard) ---
+    // Fixes "hanging" by calculating positions ONLY on resize, not every frame.
+    
+    let physicsEnabled = true;
+    let cardCache = []; 
+    
     function initPhysics() {
-        if(window.innerWidth < 768) return;
-        const cards = document.querySelectorAll('.physics-card, .carousel-item');
-        
-        function updateCards() {
-            cards.forEach(card => {
-                const rect = card.getBoundingClientRect();
-                const x = mouseX - rect.left;
-                const y = mouseY - rect.top;
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
-            });
-            physicsRequestId = null;
+        // 1. Mobile Guard
+        if(window.innerWidth < 768 || 'ontouchstart' in window) {
+            physicsEnabled = false;
+            return; 
         }
 
+        const cards = document.querySelectorAll('.physics-card, .carousel-item');
+        
+        // 2. Cache Rects (Run once on load/resize)
+        function cachePositions() {
+            cardCache = Array.from(cards).map(card => ({
+                el: card,
+                rect: card.getBoundingClientRect()
+            }));
+        }
+        
+        // Initial Cache
+        setTimeout(cachePositions, 500); // Wait for layout to settle
+        window.addEventListener('resize', cachePositions);
+        window.addEventListener('scroll', cachePositions, { passive: true });
+
+        // 3. Optimized Mouse Move (No layout thrashing)
         document.body.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            if (!physicsRequestId) {
-                physicsRequestId = requestAnimationFrame(updateCards);
-            }
-        });
+            if(!physicsEnabled) return;
+            
+            // Use requestAnimationFrame to prevent event flooding
+            requestAnimationFrame(() => {
+                const mx = e.clientX;
+                const my = e.clientY;
+                
+                cardCache.forEach(item => {
+                    const x = mx - item.rect.left;
+                    const y = my - item.rect.top;
+                    // Only update if mouse is somewhat close to save CPU
+                    if (x > -100 && x < item.rect.width + 100 && y > -100 && y < item.rect.height + 100) {
+                         item.el.style.setProperty('--mouse-x', `${x}px`);
+                         item.el.style.setProperty('--mouse-y', `${y}px`);
+                    }
+                });
+            });
+        }, { passive: true });
     }
 
     // --- CINEMATIC INTRO LOGIC ---
@@ -738,7 +743,7 @@
         setTimeout(() => { layer.style.display = 'none'; }, 2500);
     }
 
-    // --- CAROUSEL LOGIC (CLICK TO PLAY) ---
+    // --- CAROUSEL LOGIC (LAZY LOAD + CLICK TO PLAY) ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
         { src: 'text.mp4', label: 'CODE SYNTHESIS' },
@@ -756,9 +761,9 @@
             div.id = `c-item-${i}`;
             div.onclick = () => handleCarouselClick(i);
 
-            // Structure: Video + Play Button Overlay
+            // Added preload="none" to prevent memory crash on load
             div.innerHTML = `
-                <video src="${v.src}" playsinline loop style="width:100%; height:100%; object-fit:contain; background:#000; opacity:0.6; transition:opacity 0.5s ease;"></video>
+                <video preload="none" src="${v.src}" playsinline loop style="width:100%; height:100%; object-fit:contain; background:#000; opacity:0.6; transition:opacity 0.5s ease;"></video>
                 <div class="play-btn-overlay">
                     <div class="play-btn"><i class="fa-solid fa-play"></i></div>
                 </div>
@@ -785,14 +790,12 @@
     }
 
     function handleCarouselClick(index) {
-        stopAutoRotation(); // User interacted, stop spinning
+        stopAutoRotation(); 
         
         if (index !== activeIndex) {
-            // Clicked a side card -> Rotate to it
             activeIndex = index;
             updateCarousel();
         } else {
-            // Clicked center card -> Toggle Play/Pause
             toggleVideo(index);
         }
     }
@@ -802,11 +805,9 @@
         const vid = item.querySelector('video');
         
         if (vid.paused) {
-            // Play
             item.classList.add('is-playing');
-            vid.play().catch(()=>{});
+            vid.play().catch(e => console.log("Video play interrupted"));
         } else {
-            // Pause
             item.classList.remove('is-playing');
             vid.pause();
         }
@@ -821,30 +822,24 @@
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
             
-            // Reset base classes
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
             
             if(i === activeIndex) {
                 el.classList.add('item-center');
-                // Ensure paused unless user explicitly clicked (handled in toggleVideo)
                 if(!el.classList.contains('is-playing')) {
                     vid.pause();
-                    vid.currentTime = 0;
+                    // Do not reset time to 0 to avoid jitter
                 }
             } else {
-                // Side items
                 el.classList.add(i === prev ? 'item-left' : (i === next ? 'item-right' : 'item-hidden'));
-                
-                // Force reset side items
                 vid.pause();
-                vid.currentTime = 0;
                 el.classList.remove('is-playing');
             }
         });
         document.getElementById('featureLabel').innerText = videos[activeIndex].label;
     }
 
-    // --- CODE TYPEWRITER (Optimized Speed) ---
+    // --- CODE TYPEWRITER (Throttled) ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -881,7 +876,6 @@
                 currentPart++;
                 currentChar = 0;
             }
-            // OPTIMIZATION: Increased delay to 30ms (from 15ms) to save CPU
             setTimeout(typeCode, 30);
         } else {
             setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
