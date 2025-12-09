@@ -148,6 +148,7 @@
         background: #000; 
         border: 1px solid rgba(255,255,255,0.1); 
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        cursor: pointer; /* Interaction cursor */
     }
     @media (min-width: 768px) { 
         .carousel-item { width: 85%; max-height: 100%; } 
@@ -162,6 +163,32 @@
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
+    /* --- NEW PLAY BUTTON & VIDEO STYLES --- */
+    .play-btn {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 64px; height: 64px; border-radius: 50%;
+        background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        z-index: 30;
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    /* Glow on hover */
+    .carousel-item:hover .play-btn { 
+        background: rgba(255, 255, 255, 0.1); 
+        border-color: var(--accent);
+        box-shadow: 0 0 30px var(--accent-glow);
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    /* Hide button when video plays */
+    .video-active .play-btn { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.5);
+        pointer-events: none; 
+    }
+    .video-active { border-color: white !important; }
+
     /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #c678dd; } 
@@ -691,13 +718,14 @@
         setTimeout(() => { layer.style.display = 'none'; }, 2500);
     }
 
-    // --- CAROUSEL ---
+    // --- CAROUSEL (UPDATED FOR CLICK-TO-PLAY) ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
         { src: 'text.mp4', label: 'CODE SYNTHESIS' },
         { src: 'audio.mp4', label: 'AUDIO INGESTION' }
     ];
     let activeIndex = 0;
+    let carouselInterval = null;
     
     function initCarousel() {
         const container = document.getElementById('carouselContainer');
@@ -706,44 +734,104 @@
             const div = document.createElement('div');
             div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
-            const video = document.createElement('video');
-            video.src = v.src; video.muted = true; video.loop = true; video.playsInline = true;
-            if(window.innerWidth < 768) {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
-            } else {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; 
-            }
-            div.appendChild(video);
+            
+            // Interactive Click Handler
+            div.onclick = () => handleCarouselClick(i);
+
+            // Structure: Video + Play Button Overlay
+            div.innerHTML = `
+                <video src="${v.src}" muted playsinline loop style="width:100%; height:100%; object-fit:contain; background:#000; opacity:0.6; transition:opacity 0.5s ease;"></video>
+                <div class="play-btn">
+                    <i class="fa-solid fa-play text-white text-xl ml-1"></i>
+                </div>
+            `;
             container.appendChild(div);
         });
         updateCarousel();
+        startAutoRotation();
+    }
+
+    function startAutoRotation() {
+        if(carouselInterval) clearInterval(carouselInterval);
+        carouselInterval = setInterval(() => { 
+            activeIndex = (activeIndex + 1) % videos.length; 
+            updateCarousel(); 
+        }, 4000);
+    }
+
+    function stopAutoRotation() {
+        if(carouselInterval) {
+            clearInterval(carouselInterval);
+            carouselInterval = null;
+        }
+    }
+
+    function handleCarouselClick(index) {
+        stopAutoRotation(); // User interacted, take control
+        
+        if (index !== activeIndex) {
+            // Clicked a side card -> Rotate to it
+            activeIndex = index;
+            updateCarousel();
+        } else {
+            // Clicked center card -> Toggle Play/Pause
+            toggleVideo(index);
+        }
+    }
+
+    function toggleVideo(index) {
+        const item = document.getElementById(`c-item-${index}`);
+        const vid = item.querySelector('video');
+        
+        if (vid.paused) {
+            // Play logic
+            vid.muted = false; // Unmute on interaction
+            vid.play().catch(()=>{});
+            item.classList.add('video-active');
+            vid.style.opacity = '1';
+        } else {
+            // Pause logic
+            vid.pause();
+            item.classList.remove('video-active');
+            vid.style.opacity = '0.7'; // Return to dim state
+            // Optionally restart rotation if they pause? 
+            // Better UX: keep it paused so they can look at the frame.
+        }
     }
 
     function updateCarousel() {
         const total = videos.length;
         const prev = (activeIndex - 1 + total) % total;
         const next = (activeIndex + 1) % total;
+        
         videos.forEach((_, i) => {
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
+            
+            // Reset state for everyone first
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
+            
             if(i === activeIndex) {
                 el.classList.add('item-center');
-                vid.play().catch(()=>{});
-                vid.style.opacity = '1';
-            } else if (i === prev) {
-                el.classList.add('item-left');
-                vid.pause(); vid.style.opacity = '0.4';
-            } else if (i === next) {
-                el.classList.add('item-right');
-                vid.pause(); vid.style.opacity = '0.4';
+                // Ensure video is paused if we just rotated to it (unless already active)
+                if(!el.classList.contains('video-active')) {
+                    vid.pause();
+                    vid.currentTime = 0;
+                    vid.style.opacity = '0.7'; // Center is slightly brighter
+                }
             } else {
-                el.classList.add('item-hidden');
+                // Side items
+                el.classList.add(i === prev ? 'item-left' : (i === next ? 'item-right' : 'item-hidden'));
+                
+                // Force reset side items
+                vid.pause();
+                vid.currentTime = 0;
+                el.classList.remove('video-active');
+                vid.style.opacity = '0.4'; // Side items dim
             }
         });
         document.getElementById('featureLabel').innerText = videos[activeIndex].label;
     }
-    setInterval(() => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }, 4000);
 
     // --- 1. CODE TYPEWRITER (Formatted) ---
     const codeLines = [
