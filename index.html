@@ -13,7 +13,7 @@
   <title>Whis-AI – The Ultimate Interview Cheat Code</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <meta name="description" content="The undetectable AI copilot that solves interview problems in real-time. Get the job, guaranteed.">
-  
+   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -48,10 +48,10 @@
       }
     }
   </script>
-  
+   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  
+   
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
@@ -735,19 +735,33 @@
   </div>
 
   <script>
-    // --- 1. CORE PHYSICS & ANIMATIONS ---
+    // --- 1. CORE PHYSICS & ANIMATIONS (FIXED: THROTTLED) ---
     function initPhysics() {
         if(window.innerWidth < 768) return; // Save mobile battery
+
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
-        document.body.addEventListener('mousemove', (e) => {
-            cards.forEach(card => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
-            });
-        });
+        let ticking = false; // Flag to prevent multiple firing
+
+        document.addEventListener('mousemove', (e) => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const mouseX = e.clientX;
+                    const mouseY = e.clientY;
+
+                    cards.forEach(card => {
+                        const rect = card.getBoundingClientRect();
+                        const x = mouseX - rect.left;
+                        const y = mouseY - rect.top;
+                        
+                        // Optimized CSS update
+                        card.style.setProperty('--mouse-x', `${x}px`);
+                        card.style.setProperty('--mouse-y', `${y}px`);
+                    });
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true }); // Passive listener for better scrolling perf
     }
 
     function playIntro() {
@@ -842,7 +856,7 @@
                 
                 // When video ends, go to next slide
                 vid.onended = () => {
-                     nextSlide();
+                      nextSlide();
                 };
                 
             } else if (i === prev) {
@@ -893,6 +907,8 @@
     
     function typeCode() {
         const el = document.getElementById('code-display');
+        if(!el) return; // Safety check
+
         if (currentPart < codeLines.length) {
             const part = codeLines[currentPart];
             let span = el.lastElementChild;
