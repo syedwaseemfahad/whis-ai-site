@@ -85,6 +85,10 @@
         animation: colorCycle 60s infinite linear;
     }
 
+    /* Typography Adjustments for Mobile */
+    p { font-size: 16px; line-height: 1.6; }
+    @media (min-width: 768px) { p { font-size: 18px; } }
+
     /* GPU Acceleration for smooth scrolling on low-end devices */
     * {
         backface-visibility: hidden;
@@ -155,7 +159,7 @@
     .carousel-container { 
         perspective: 1000px; 
         display: flex; justify-content: center; align-items: center; 
-        height: 300px; position: relative; margin: 20px 0;
+        height: 250px; position: relative; margin: 20px 0;
     }
     @media (min-width: 768px) { .carousel-container { height: 600px; margin: 0; } }
     
@@ -170,14 +174,26 @@
     @media (min-width: 768px) { .carousel-item { width: 80%; } }
     
     .item-center { z-index: 30; transform: translate3d(0,0,0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 60px var(--accent-glow); }
-    .item-left { z-index: 10; transform: translate3d(-15%, 0, -100px) scale(0.85); opacity: 0.3; }
-    .item-right { z-index: 10; transform: translate3d(15%, 0, -100px) scale(0.85); opacity: 0.3; }
+    .item-left { z-index: 10; transform: translate3d(-10%, 0, -100px) scale(0.85); opacity: 0.3; }
+    .item-right { z-index: 10; transform: translate3d(10%, 0, -100px) scale(0.85); opacity: 0.3; }
     @media (min-width: 768px) {
         .item-left { transform: translate3d(-50%, 0, -200px) rotateY(15deg) scale(0.85); }
         .item-right { transform: translate3d(50%, 0, -200px) rotateY(-15deg) scale(0.85); }
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
+    /* Overlay Title on Video */
+    .video-label-overlay {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        z-index: 5;
+    }
+    .item-center .video-label-overlay { opacity: 1; }
+
     /* Cinematic Fullscreen Mobile */
     .cinematic-fullscreen {
         position: fixed !important;
@@ -193,7 +209,7 @@
     }
 
     /* --- CODE EDITOR --- */
-    pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
+    pre { white-space: pre-wrap; margin: 0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
     .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
 
     /* --- UI ELEMENTS --- */
@@ -271,10 +287,10 @@
       <span class="absolute right-14 bg-black/80 border border-white/10 text-white text-[10px] font-bold py-1 px-3 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none">24/7 Support</span>
   </a>
 
-  <section class="relative pt-32 md:pt-48 pb-12 flex flex-col items-center overflow-hidden">
+  <section class="relative pt-24 md:pt-48 pb-12 flex flex-col items-center overflow-hidden">
     <div class="relative z-10 text-center max-w-6xl px-6 mb-2 flex flex-col items-center">
       
-      <div class="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-md shadow-lg">
+      <div class="mb-6 md:mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-md shadow-lg">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -282,12 +298,12 @@
           <span id="signup-badge-text">🔥 150+ candidates active now</span>
       </div>
       
-      <h1 class="text-5xl md:text-8xl font-medium tracking-tight leading-[0.95] mb-8 text-white">
+      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-6 md:mb-8 text-white">
         Never Freeze In An<br>
         <span class="text-accent drop-shadow-[0_0_40px_var(--accent-glow)]">Interview Again.</span>
       </h1>
       
-      <p class="text-base md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+      <p class="text-base md:text-xl text-slate-400 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed font-light px-2">
         The tool you need to get the offer. It sees the screen. It hears the question. It writes the code for you. 
         <span class="text-white font-medium block mt-2">Undetectable. Fast. Flawless.</span>
       </p>
@@ -303,14 +319,14 @@
         </button>
       </div>
 
-      <div class="flex flex-wrap justify-center gap-6 mt-8 text-[11px] text-slate-500 font-mono uppercase tracking-wider">
+      <div class="flex flex-wrap justify-center gap-4 md:gap-6 mt-8 text-[11px] text-slate-500 font-mono uppercase tracking-wider">
           <span class="flex items-center gap-2"><i class="fa-solid fa-check text-accent"></i> No Credit Card</span>
           <span class="flex items-center gap-2"><i class="fa-solid fa-check text-accent"></i> 100% Undetectable</span>
           <span class="flex items-center gap-2"><i class="fa-solid fa-check text-accent"></i> Mac & Windows</span>
       </div>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto mt-12 mb-20 relative scroller-mask px-6 opacity-40 z-30">
+    <div class="w-full max-w-7xl mx-auto mt-8 md:mt-12 mb-12 md:mb-20 relative scroller-mask px-6 opacity-40 z-30">
         <div class="flex overflow-hidden group">
             <div class="flex gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center text-white/50 hover:text-white transition duration-500">
                 <i class="fa-brands fa-google text-3xl"></i><i class="fa-brands fa-meta text-3xl"></i><i class="fa-brands fa-amazon text-3xl"></i>
@@ -325,23 +341,28 @@
         <div class="carousel-container" id="carouselContainer"></div>
         <div class="text-center mt-6">
               <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.4em] animate-pulse">SYSTEM INITIALIZED</p>
-              <p class="md:hidden text-[9px] text-slate-600 mt-2 uppercase tracking-wide">Press & Hold video to expand</p>
+              <div class="md:hidden mt-3 flex items-center justify-center gap-2">
+                 <i class="fa-solid fa-fingerprint text-slate-500 text-xs"></i>
+                 <p class="text-[10px] text-slate-500 uppercase tracking-wide">Press & Hold video to expand</p>
+              </div>
         </div>
     </div>
   </section>
 
-  <section id="demo" class="py-24 border-t border-white/5 bg-black/40 relative">
+  
+
+  <section id="demo" class="py-16 md:py-24 border-t border-white/5 bg-black/40 relative">
       <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
       
       <div class="max-w-7xl mx-auto px-6">
-          <div class="grid lg:grid-cols-2 gap-16 items-center">
-              <div class="space-y-8">
-                  <h2 class="text-4xl md:text-6xl font-medium text-white tracking-tight">Real-time<br><span class="text-slate-500">Coding Genius.</span></h2>
-                  <p class="text-slate-400 text-lg font-light leading-relaxed">
+          <div class="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
+              <div class="space-y-6 md:space-y-8">
+                  <h2 class="text-3xl md:text-6xl font-medium text-white tracking-tight">Real-time<br><span class="text-slate-500">Coding Genius.</span></h2>
+                  <p class="text-slate-400 text-base md:text-lg font-light leading-relaxed">
                       Whis listens to the audio stream and captures your screen context. It identifies the algorithm, handles edge cases, and types the optimal solution directly into your IDE.
                   </p>
                   
-                  <div class="physics-card p-8 bg-[#0a0a0a]">
+                  <div class="physics-card p-6 md:p-8 bg-[#0a0a0a]">
                       <div class="flex items-center gap-4 mb-6">
                           <div class="flex h-3 w-3 relative">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -363,7 +384,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col shadow-2xl shadow-black/50">
+              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[400px] md:h-[500px] flex flex-col shadow-2xl shadow-black/50">
                   <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center bg-white/5">
                       <div class="flex gap-2">
                         <div class="w-3 h-3 rounded-full bg-red-500/20"></div>
@@ -376,7 +397,7 @@
                           <span>Service.java</span>
                       </div>
                   </div>
-                  <div class="p-6 flex-grow overflow-hidden relative">
+                  <div class="p-4 md:p-6 flex-grow overflow-x-auto relative no-scrollbar">
                       <pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300 font-mono"></pre>
                       <span id="cursor" class="absolute w-2 h-5 bg-accent animate-pulse inline-block align-middle ml-1"></span>
                   </div>
@@ -389,12 +410,12 @@
       </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-black relative overflow-hidden">
+  <section class="py-16 md:py-24 border-t border-white/5 bg-black relative overflow-hidden">
       <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
           <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6 backdrop-blur">
               <span class="text-xs font-bold text-accent">🛡️ Military-Grade Stealth</span>
           </div>
-          <h2 class="text-3xl md:text-5xl font-medium text-white mb-12">They see nothing.<br>You see everything.</h2>
+          <h2 class="text-3xl md:text-5xl font-medium text-white mb-8 md:mb-12">They see nothing.<br>You see everything.</h2>
           
           <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
                 <div class="group relative">
@@ -432,7 +453,7 @@
                 </div>
           </div>
           
-          <div class="flex flex-wrap justify-center gap-8 text-xs text-slate-500 font-mono">
+          <div class="flex flex-wrap justify-center gap-6 md:gap-8 text-xs text-slate-500 font-mono">
                 <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> No browser extensions</span>
                 <span class="flex items-center gap-2"><i class="fa-solid fa-eye-slash"></i> Bypass Screen Capture APIs</span>
                 <span class="flex items-center gap-2"><i class="fa-solid fa-ghost"></i> Ghost Dock Icon</span>
@@ -440,12 +461,12 @@
       </div>
   </section>
 
-  <section id="features" class="py-32 border-t border-white/5 bg-[#050505]">
+  <section id="features" class="py-16 md:py-32 border-t border-white/5 bg-[#050505]">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-16 text-center">The Unfair Advantage.</h2>
+          <h2 class="text-3xl font-medium text-white mb-12 md:mb-16 text-center">The Unfair Advantage.</h2>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="physics-card p-8 hover:bg-white/5 transition group">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
                   <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
                       <i class="fa-solid fa-ghost text-xl text-purple-400"></i>
                   </div>
@@ -453,7 +474,7 @@
                   <p class="text-sm text-slate-400 leading-relaxed">Invisible to Zoom, Teams, and Proctoring tools. No screen capture trace. You are a ghost.</p>
               </div>
               
-              <div class="physics-card p-8 hover:bg-white/5 transition group">
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
                   <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
                       <i class="fa-solid fa-eye text-xl text-blue-400"></i>
                   </div>
@@ -461,7 +482,7 @@
                   <p class="text-sm text-slate-400 leading-relaxed">It sees the whiteboard. It solves the system design diagram. It understands the architecture.</p>
               </div>
 
-              <div class="physics-card p-8 hover:bg-white/5 transition group">
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
                   <div class="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
                       <i class="fa-solid fa-microphone text-xl text-red-400"></i>
                   </div>
@@ -469,7 +490,7 @@
                   <p class="text-sm text-slate-400 leading-relaxed">Interviewer asks a question? Whis hears it and generates the answer before they finish speaking.</p>
               </div>
               
-               <div class="physics-card p-8 hover:bg-white/5 transition group">
+               <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
                   <div class="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
                       <i class="fa-solid fa-language text-xl text-yellow-400"></i>
                   </div>
@@ -477,7 +498,7 @@
                   <p class="text-sm text-slate-400 leading-relaxed">Translates Mandarin, Hindi, or Spanish questions into English solutions instantly.</p>
               </div>
               
-              <div class="physics-card p-8 hover:bg-white/5 transition group">
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
                   <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
                       <i class="fa-solid fa-keyboard text-xl text-green-400"></i>
                   </div>
@@ -485,7 +506,7 @@
                   <p class="text-sm text-slate-400 leading-relaxed">Need to clarify? Type directly into the overlay without Alt-Tabbing or switching windows.</p>
               </div>
               
-              <div class="physics-card p-8 hover:bg-white/5 transition group">
+              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
                   <div class="w-12 h-12 rounded-lg bg-slate-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
                       <i class="fa-solid fa-bolt text-xl text-white"></i>
                   </div>
@@ -496,9 +517,9 @@
       </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-[#080808]">
-      <div class="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end">
-          <h2 class="text-3xl font-medium text-white">Verified Outcomes.</h2>
+  <section class="py-16 md:py-24 border-t border-white/5 bg-[#080808]">
+      <div class="max-w-7xl mx-auto px-6 mb-8 md:mb-12 flex justify-between items-end">
+          <h2 class="text-2xl md:text-3xl font-medium text-white">Verified Outcomes.</h2>
           <div class="flex gap-2">
               <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition"><i class="fa-solid fa-arrow-left text-white"></i></button>
               <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition"><i class="fa-solid fa-arrow-right text-white"></i></button>
@@ -506,7 +527,7 @@
       </div>
       
       <div class="flex gap-6 overflow-x-auto pb-12 px-6 snap-x mandatory no-scrollbar" style="-webkit-overflow-scrolling: touch;">
-          <div class="physics-card p-8 min-w-[320px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
+          <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
               <p class="text-sm text-slate-300 leading-relaxed mb-6 font-light">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. The interviewer was impressed by my 'intuition'."</p>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4">
@@ -515,7 +536,7 @@
               </div>
           </div>
           
-           <div class="physics-card p-8 min-w-[320px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
+           <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
               <p class="text-sm text-slate-300 leading-relaxed mb-6 font-light">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. It paid for itself 100x over."</p>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4">
@@ -524,7 +545,7 @@
               </div>
           </div>
           
-           <div class="physics-card p-8 min-w-[320px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
+           <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
               <p class="text-sm text-slate-300 leading-relaxed mb-6 font-light">"English isn't my first language. Whis translated my thoughts into professional answers live. It gave me the confidence I needed."</p>
               <div class="flex items-center gap-3 border-t border-white/5 pt-4">
@@ -535,22 +556,28 @@
       </div>
   </section>
 
-  <section id="pricing" class="py-32 border-t border-white/5 relative">
+  <section id="pricing" class="py-16 md:py-32 border-t border-white/5 relative">
     <div class="max-w-7xl mx-auto px-6 text-center">
-        <h2 class="text-4xl font-medium text-white mb-6">Invest In Your Career.</h2>
-        <p class="text-slate-400 mb-12">One job offer pays for a lifetime of subscriptions.</p>
+        <div class="mb-12 max-w-3xl mx-auto">
+            <h2 class="text-3xl md:text-5xl font-medium text-white mb-6">Invest In Your Career.</h2>
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-accent/5 to-transparent border-l-2 border-accent text-left">
+                <p class="text-slate-200 text-sm md:text-lg italic font-light">
+                    "We build for your success, not just for revenue. We only win when you get the offer. <span class="text-accent not-italic font-bold">Your career breakthrough is our priority.</span>"
+                </p>
+            </div>
+        </div>
         
-        <div class="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mb-16 relative">
+        <div class="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mb-12 relative">
            <button id="btnMonthly" class="px-8 py-2.5 rounded-lg text-xs font-bold bg-white text-black transition shadow-lg" onclick="setCycle('monthly')">Monthly</button>
            <button id="btnAnnual" class="px-8 py-2.5 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly (-20%)</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto items-stretch">
             
-            <div class="physics-card p-8 text-left flex flex-col h-full border-accent/40 shadow-[0_0_30px_rgba(0,242,255,0.05)] relative group">
+            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-accent/40 shadow-[0_0_30px_rgba(0,242,255,0.05)] relative group">
                 <div class="absolute top-0 right-0 bg-accent text-black text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">Start Here</div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Starter</h3>
-                <div class="text-5xl font-bold text-white mb-2">Free</div>
+                <div class="text-4xl md:text-5xl font-bold text-white mb-2">Free</div>
                 <p class="text-xs text-slate-400 mb-8">No credit card needed</p>
                 <div class="space-y-4 text-xs text-slate-400 mb-8 flex-grow">
                     <div class="flex gap-3 font-bold text-white bg-white/5 p-3 rounded-lg border border-accent/20">
@@ -566,9 +593,9 @@
                 <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-white text-black hover:scale-105 transition duration-300 text-xs font-bold uppercase shadow-lg group-hover:shadow-accent/20">Download Now</button>
             </div>
 
-            <div class="physics-card p-8 text-left flex flex-col h-full border-white/10 hover:border-white/20">
+            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-white/10 hover:border-white/20">
                 <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4">Pro License</h3>
-                <div class="text-5xl font-bold text-white mb-6" id="pricePro">...</div>
+                <div class="text-4xl md:text-5xl font-bold text-white mb-6" id="pricePro">...</div>
                 <div class="space-y-4 text-xs text-slate-300 mb-8 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Unlimited Syntheses</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Visual Context Analysis</p>
@@ -578,10 +605,10 @@
                 <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white/5 text-white hover:bg-white/10 border border-white/10 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed">Upgrade to Pro</button>
             </div>
 
-            <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5">
+            <div class="physics-card pricing-elite p-6 md:p-8 text-left flex flex-col h-full bg-[#050505] shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5">
                 <div class="absolute top-6 right-6 p-2 rounded-full bg-accent/10"><i class="fa-solid fa-crown text-accent text-xl animate-pulse-slow"></i></div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Elite License</h3>
-                <div class="text-5xl font-bold text-white mb-6" id="priceStealth">...</div>
+                <div class="text-4xl md:text-5xl font-bold text-white mb-6" id="priceStealth">...</div>
                 <div class="space-y-4 text-xs text-white mb-8 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
                     <p class="flex gap-3"><i class="fa-solid fa-ghost text-accent"></i> Invisible to Screenshare</p>
@@ -595,7 +622,7 @@
     </div>
   </section>
 
-  <section class="py-20 border-t border-white/5 bg-white/5">
+  <section class="py-16 md:py-20 border-t border-white/5 bg-white/5">
       <div class="max-w-3xl mx-auto px-6">
           <h2 class="text-2xl font-medium text-white mb-10 text-center">Frequently Asked Questions.</h2>
           <div class="space-y-4">
@@ -789,13 +816,25 @@
             div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
             
+            // Container for Video and Overlay
+            const wrapper = document.createElement('div');
+            wrapper.className = "relative w-full h-full";
+
             // Create video
             const video = document.createElement('video');
             video.src = v.src; 
             video.muted = true; 
             video.playsInline = true;
-            // IMPORTANT: Removed 'loop' to allow detection of end
             video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
+            
+            // Create Label Overlay (New Requirement)
+            const labelOverlay = document.createElement('div');
+            labelOverlay.className = "video-label-overlay";
+            labelOverlay.innerHTML = `<h3 class="text-white text-lg font-bold">${v.label}</h3><p class="text-[10px] text-accent uppercase tracking-widest mt-1">Live Processing</p>`;
+
+            wrapper.appendChild(video);
+            wrapper.appendChild(labelOverlay);
+            div.appendChild(wrapper);
             
             // Mobile Expansion Logic
             let touchTimer;
@@ -807,7 +846,7 @@
                     touchTimer = setTimeout(() => {
                         video.classList.add('cinematic-fullscreen');
                         video.muted = false; // Optional: unmute on expand
-                    }, 1000); // 1 second hold
+                    }, 800); // Slightly faster
                 }
             };
             
@@ -823,7 +862,6 @@
             div.addEventListener('touchend', endTouch);
             div.addEventListener('touchcancel', endTouch);
 
-            div.appendChild(video);
             container.appendChild(div);
         });
         updateCarousel();
@@ -989,7 +1027,7 @@
                 fetchUserStatus(); 
             }catch(e){localStorage.removeItem('whisUser');} 
         } 
-    }
+    } 
     
     function updateNavUI(u){ 
         document.getElementById('signInBtn').style.display='none'; 
