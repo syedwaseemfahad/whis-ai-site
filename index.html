@@ -26,7 +26,7 @@
             mono: ['JetBrains Mono', 'Fira Code', 'monospace'] 
           },
           colors: { 
-            page: '#050505', 
+            page: '#000000', 
             glass: 'rgba(255, 255, 255, 0.03)',
             accent: 'var(--accent)',
           },
@@ -37,6 +37,8 @@
             'blob': 'blob 10s infinite',
             'pop-in': 'popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
             'timer': 'timerPulse 1s linear infinite',
+            'aurora': 'aurora 20s linear infinite',
+            'shimmer': 'shimmer 2s linear infinite',
           },
           keyframes: {
             scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
@@ -47,9 +49,17 @@
               '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
               '100%': { transform: 'translate(0px, 0px) scale(1)' },
             },
+            aurora: {
+                '0%': { backgroundPosition: '50% 50%, 50% 50%' },
+                '100%': { backgroundPosition: '350% 50%, 350% 50%' }
+            },
+            shimmer: {
+                '0%': { backgroundPosition: '-1000px 0' },
+                '100%': { backgroundPosition: '1000px 0' }
+            },
             popIn: {
-                '0%': { opacity: '0', transform: 'scale(0.8) translateY(20px)' },
-                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+                '0%': { opacity: '0', transform: 'scale(0.8) translateY(20px) rotateX(10deg)' },
+                '100%': { opacity: '1', transform: 'scale(1) translateY(0) rotateX(0deg)' }
             },
             timerPulse: {
                 '0%, 100%': { opacity: '1', transform: 'scale(1)' },
@@ -61,7 +71,7 @@
     }
   </script>
     
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -69,11 +79,14 @@
   <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
     
   <style>
-    /* --- CORE AESTHETICS --- */
+    /* --- ULTRA PREMIUM AESTHETICS --- */
     :root {
         --accent: #00f2ff;
-        --accent-glow: rgba(0, 242, 255, 0.4);
+        --accent-glow: rgba(0, 242, 255, 0.5);
+        --accent-secondary: #ff00ff;
         --gold: #FFD700;
+        --mouse-x: 50%;
+        --mouse-y: 50%;
     }
     
     @property --accent {
@@ -85,73 +98,101 @@
     html {
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
+        background: #000;
     }
 
     body { 
-        background-color: #050505; 
+        background-color: #000000; 
         color: #e2e8f0; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
         padding-bottom: 90px;
         -webkit-font-smoothing: antialiased;
-        animation: colorCycle 60s infinite linear;
+        animation: colorCycle 30s infinite alternate; /* Faster, more vibrant cycle */
     }
 
-    /* Typography Adjustments for Mobile */
-    p { font-size: 16px; line-height: 1.6; }
-    @media (min-width: 768px) { p { font-size: 18px; } }
-
-    /* GPU Acceleration */
-    * {
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
+    /* Film Grain Overlay */
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9998;
+        mix-blend-mode: overlay;
     }
 
     @keyframes colorCycle {
-        0% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.3); }
-        33% { --accent: #8b5cf6; --accent-glow: rgba(139, 92, 246, 0.3); }
-        66% { --accent: #10b981; --accent-glow: rgba(16, 185, 129, 0.3); }
-        100% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.3); }
+        0% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.6); }
+        25% { --accent: #ff0055; --accent-glow: rgba(255, 0, 85, 0.6); } /* Hot Pink */
+        50% { --accent: #ccff00; --accent-glow: rgba(204, 255, 0, 0.6); } /* Cyber Lime */
+        75% { --accent: #8b5cf6; --accent-glow: rgba(139, 92, 246, 0.6); } /* Electric Purple */
+        100% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.6); }
     }
 
-    /* --- UTILITIES --- */
-    .text-accent { color: var(--accent); transition: color 1.5s; }
-    .bg-accent { background-color: var(--accent); transition: background-color 1.5s; }
-    .border-accent { border-color: var(--accent); transition: border-color 1.5s; }
-    .shadow-accent { box-shadow: 0 0 30px var(--accent-glow); transition: box-shadow 1.5s; }
+    /* Typography Upgrades */
+    p { font-size: 16px; line-height: 1.6; letter-spacing: -0.01em; }
+    @media (min-width: 768px) { p { font-size: 18px; } }
     
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+    .text-gradient {
+        background: linear-gradient(135deg, #fff 30%, #999);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .text-gradient-accent {
+        background: linear-gradient(135deg, var(--accent) 0%, #fff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    /* --- PHYSICS CARD --- */
+    /* --- PHYSICS CARD 2.0 (Glass + Spotlight) --- */
     .physics-card {
-        background: linear-gradient(180deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);
-        backdrop-filter: blur(20px);
+        background: rgba(10, 10, 10, 0.6);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 24px;
         position: relative;
         overflow: hidden;
-        transition: transform 0.2s ease, border-color 0.5s;
+        transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
         will-change: transform;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
     }
+    
+    /* The Spotlight Effect */
     .physics-card::before {
         content: "";
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+        background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.08), transparent 40%);
         opacity: 0;
         transition: opacity 0.5s;
         pointer-events: none;
         z-index: 2;
     }
-    .physics-card:hover::before { opacity: 1; }
-    .physics-card:hover { border-color: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+    
+    /* The Glow Border on Hover */
+    .physics-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 24px;
+        padding: 1px;
+        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), var(--accent), transparent 60%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+        z-index: 3;
+    }
 
-    /* --- INTRO ANIMATION --- */
+    .physics-card:hover::before, .physics-card:hover::after { opacity: 1; }
+    .physics-card:hover { transform: translateY(-4px) scale(1.005); border-color: rgba(255,255,255,0.15); }
+
+    /* --- INTRO --- */
     .intro-overlay {
         position: fixed; inset: 0; z-index: 9999;
         background: #000;
@@ -160,503 +201,538 @@
         transition: opacity 0.8s ease-out;
     }
     .intro-text {
-        font-size: 2.5rem; font-weight: 300; letter-spacing: -0.03em;
+        font-size: 3rem; font-weight: 800; letter-spacing: -0.05em;
         background: linear-gradient(to bottom, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        opacity: 0; transform: scale(0.95); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0; transform: scale(0.9) translateY(20px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
     }
-    .intro-active { opacity: 1; transform: scale(1); }
+    .intro-active { opacity: 1; transform: scale(1) translateY(0); }
 
     /* --- CAROUSEL 3D --- */
     .carousel-container { 
-        perspective: 1000px; 
+        perspective: 1200px; 
         display: flex; justify-content: center; align-items: center; 
-        height: 250px; position: relative; margin: 20px 0;
+        height: 280px; position: relative; margin: 30px 0;
     }
     @media (min-width: 768px) { .carousel-container { height: 600px; margin: 0; } }
     
     .carousel-item { 
-        position: absolute; width: 90%; aspect-ratio: 16/9; 
+        position: absolute; width: 85%; aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
-        border-radius: 16px; overflow: hidden; background: #000; 
+        border-radius: 20px; overflow: hidden; background: #000; 
         border: 1px solid rgba(255,255,255,0.1); 
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.9);
         will-change: transform, opacity;
     }
-    @media (min-width: 768px) { .carousel-item { width: 80%; } }
+    @media (min-width: 768px) { .carousel-item { width: 70%; border-radius: 24px; } }
     
-    .item-center { z-index: 30; transform: translate3d(0,0,0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 60px var(--accent-glow); }
-    .item-left { z-index: 10; transform: translate3d(-10%, 0, -100px) scale(0.85); opacity: 0.3; }
-    .item-right { z-index: 10; transform: translate3d(10%, 0, -100px) scale(0.85); opacity: 0.3; }
+    .item-center { 
+        z-index: 30; 
+        transform: translate3d(0,0,0) scale(1); 
+        opacity: 1; 
+        border-color: var(--accent); 
+        box-shadow: 0 0 100px -20px var(--accent-glow); 
+    }
+    
+    .item-left { 
+        z-index: 10; 
+        transform: translate3d(-15%, 0, -150px) rotateY(10deg) scale(0.9); 
+        opacity: 0.4; 
+        filter: blur(2px) grayscale(100%);
+    }
+    .item-right { 
+        z-index: 10; 
+        transform: translate3d(15%, 0, -150px) rotateY(-10deg) scale(0.9); 
+        opacity: 0.4; 
+        filter: blur(2px) grayscale(100%);
+    }
+    
     @media (min-width: 768px) {
-        .item-left { transform: translate3d(-50%, 0, -200px) rotateY(15deg) scale(0.85); }
-        .item-right { transform: translate3d(50%, 0, -200px) rotateY(-15deg) scale(0.85); }
+        .item-left { transform: translate3d(-60%, 0, -300px) rotateY(25deg) scale(0.8); }
+        .item-right { transform: translate3d(60%, 0, -300px) rotateY(-25deg) scale(0.8); }
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
     /* Overlay Title on Video */
     .video-label-overlay {
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-        padding: 20px;
-        opacity: 0;
-        transition: opacity 0.5s;
-        z-index: 5;
+        position: absolute; bottom: 0; left: 0; right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,1), transparent);
+        padding: 30px; opacity: 0; transition: opacity 0.5s; z-index: 5;
     }
     .item-center .video-label-overlay { opacity: 1; }
 
     /* Cinematic Fullscreen Mobile */
     .cinematic-fullscreen {
-        position: fixed !important;
-        top: 0; left: 0; right: 0; bottom: 0;
-        width: 100vw !important;
-        height: 100vh !important;
-        transform: none !important;
-        z-index: 9999 !important;
-        border-radius: 0 !important;
-        border: none !important;
-        object-fit: contain;
-        background: black;
+        position: fixed !important; top: 0; left: 0; right: 0; bottom: 0;
+        width: 100vw !important; height: 100vh !important;
+        transform: none !important; z-index: 9999 !important;
+        border-radius: 0 !important; border: none !important;
+        object-fit: contain; background: black;
     }
 
     /* --- CODE EDITOR --- */
     pre { white-space: pre-wrap; margin: 0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
-    .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
+    .keyword { color: #ff79c6; font-weight: bold; } 
+    .function { color: #8be9fd; font-style: italic; } 
+    .string { color: #f1fa8c; } 
+    .number { color: #bd93f9; } 
+    .comment { color: #6272a4; }
 
     /* --- UI ELEMENTS --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .pricing-elite { position: relative; overflow: hidden; }
-    .pricing-elite::after {
-        content: ''; position: absolute; inset: 0; border-radius: 24px; padding: 2px;
-        background: linear-gradient(180deg, var(--accent), transparent 80%);
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events: none;
-    }
-
-    .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-    .faq-active .faq-content { max-height: 300px; }
-    .faq-active i { transform: rotate(180deg); }
+    .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .faq-active .faq-content { max-height: 500px; }
+    .faq-active i { transform: rotate(180deg); color: var(--accent); }
+    .faq-active { border-color: var(--accent) !important; background: rgba(255,255,255,0.02); }
 
     .snap-center { scroll-snap-align: center; }
 
-    /* CELEBRATION MODAL */
+    /* BUTTON GLOW ANIMATION */
+    .btn-glow-anim {
+        background: linear-gradient(90deg, var(--accent), #fff, var(--accent));
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+        color: #000;
+    }
+
+    /* CELEBRATION MODAL GOD RAYS */
     .celebration-bg {
-        background: radial-gradient(circle at center, #1a1600 0%, #000000 70%);
+        background: radial-gradient(circle at center, rgba(20,20,20,0.95) 0%, #000000 100%);
     }
-    .celebration-glow {
-        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6);
-    }
-    .shine-button {
-        position: relative;
-        overflow: hidden;
-    }
-    .shine-button::after {
-        content: '';
+    .god-rays {
         position: absolute;
-        top: 0; left: -100%;
-        width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        animation: shine 2s infinite;
+        top: -50%; left: -50%; right: -50%; bottom: -50%;
+        background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(255, 215, 0, 0.1) 20deg, transparent 40deg, rgba(255, 215, 0, 0.1) 60deg, transparent 80deg, rgba(255, 215, 0, 0.1) 100deg, transparent 120deg);
+        animation: rotateRays 20s linear infinite;
+        pointer-events: none;
+        z-index: 0;
     }
-    @keyframes shine {
-        100% { left: 100%; }
+    @keyframes rotateRays { 100% { transform: rotate(360deg); } }
+
+    /* Mobile Island Nav */
+    .nav-island {
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
 
   <div id="intro-layer" class="intro-overlay">
-      <h1 id="intro-text" class="intro-text">Crush The Interview.<br><span class="text-accent text-3xl md:text-5xl mt-4 block">Welcome to Whis-AI</span></h1>
+      <h1 id="intro-text" class="intro-text">
+        Crush The Interview.<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-400 to-slate-600 text-3xl md:text-5xl mt-6 block font-light tracking-widest uppercase">System Initializing...</span>
+      </h1>
   </div>
 
   <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vh] bg-[var(--accent)] rounded-full blur-[120px] opacity-[0.08] animate-blob"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900 rounded-full blur-[120px] opacity-[0.1] animate-blob" style="animation-delay: 2s"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
+      <div class="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] opacity-20 animate-aurora mix-blend-screen"
+           style="background: radial-gradient(circle at 50% 50%, var(--accent), transparent 50%), radial-gradient(circle at 80% 20%, #8b5cf6, transparent 40%); filter: blur(80px);">
+      </div>
+       <div class="absolute top-0 right-0 w-[50vw] h-[50vh] bg-blue-900/20 rounded-full blur-[120px] animate-blob"></div>
+      <div class="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-purple-900/20 rounded-full blur-[120px] animate-blob" style="animation-delay: 2s"></div>
   </div>
 
-  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center celebration-bg backdrop-blur-xl transition-opacity duration-500">
-      <button onclick="closeCelebration()" class="absolute top-6 right-6 text-white/50 hover:text-white transition transform hover:scale-110 z-50">
-          <i class="fa-solid fa-xmark text-3xl"></i>
+  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center celebration-bg backdrop-blur-2xl transition-opacity duration-500">
+      <div class="god-rays"></div> <button onclick="closeCelebration()" class="absolute top-8 right-8 text-white/30 hover:text-white transition transform hover:scale-125 z-50 p-2">
+          <i class="fa-solid fa-xmark text-4xl"></i>
       </button>
 
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-          <div class="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[100px] animate-pulse"></div>
-          <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s"></div>
-      </div>
-      
-      <div class="relative z-10 text-center p-6 max-w-xl w-full transform scale-0 animate-pop-in flex flex-col items-center">
-          
-          <div class="w-20 h-20 mb-8 rounded-full border-2 border-yellow-500/30 flex items-center justify-center relative bg-black/40 backdrop-blur-md animate-timer">
-              <span id="countdownTimer" class="text-3xl font-mono font-bold text-yellow-400">10</span>
+      <div class="relative z-10 text-center p-8 max-w-xl w-full transform scale-0 animate-pop-in flex flex-col items-center">
+          <div class="w-24 h-24 mb-10 rounded-full border border-yellow-500/30 flex items-center justify-center relative bg-black/60 backdrop-blur-xl animate-timer shadow-[0_0_50px_rgba(255,215,0,0.2)]">
+              <span id="countdownTimer" class="text-4xl font-mono font-bold text-yellow-400">10</span>
               <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 36 36">
-                  <path class="text-yellow-500/20" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <path class="text-yellow-500/10" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="1"/>
+                  <path class="text-yellow-400 drop-shadow-[0_0_10px_rgba(255,215,0,0.8)]" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="2"/>
               </svg>
           </div>
 
-          <div class="w-24 h-24 mx-auto mb-6 bg-yellow-500/10 rounded-full flex items-center justify-center border border-yellow-500/50 shadow-[0_0_60px_rgba(255,215,0,0.2)]">
-              <i class="fa-solid fa-gift text-5xl text-yellow-400 animate-bounce"></i>
+          <div class="mb-8 relative">
+              <div class="absolute inset-0 bg-yellow-400 blur-3xl opacity-20"></div>
+              <i class="fa-solid fa-gift text-6xl text-yellow-400 animate-bounce relative z-10 drop-shadow-[0_0_25px_rgba(255,215,0,0.6)]"></i>
           </div>
           
-          <h2 class="text-4xl md:text-6xl font-black text-white mb-2 celebration-glow uppercase italic tracking-tighter">Congratulations!</h2>
-          <p class="text-lg md:text-2xl text-yellow-200 font-bold mb-6 tracking-wide">You Unlocked 3 Free Sessions</p>
+          <h2 class="text-5xl md:text-7xl font-black text-white mb-2 uppercase italic tracking-tighter drop-shadow-2xl">Congratulations!</h2>
+          <div class="h-1 w-24 bg-gradient-to-r from-transparent via-yellow-500 to-transparent mb-6"></div>
+          <p class="text-xl md:text-2xl text-yellow-100 font-bold mb-8 tracking-wide">You Unlocked <span class="text-yellow-400">3 Free Elite Sessions</span></p>
           
-          <div class="bg-white/5 border border-white/10 rounded-xl p-5 mb-8 backdrop-blur-md w-full">
-              <p class="text-slate-300 text-sm leading-relaxed">
-                  Your account has been flagged for a <span class="text-yellow-400 font-bold">Special Starter Boost</span>. 
-                  Experience the full power of Whis-AI elite mode completely free.
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10 backdrop-blur-xl w-full shadow-2xl">
+              <p class="text-slate-300 text-sm md:text-base leading-relaxed font-light">
+                  Your device fingerprint has been selected for a <span class="text-white font-bold">Priority Boost</span>. 
+                  Experience the undetectable advantage.
               </p>
           </div>
 
-          <button onclick="closeCelebration()" class="shine-button w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-lg font-black uppercase tracking-widest shadow-[0_0_40px_rgba(255,215,0,0.3)] hover:scale-105 transition duration-300">
-              Claim Reward Now
+          <button onclick="closeCelebration()" class="group relative w-full py-5 rounded-2xl bg-white text-black text-lg font-black uppercase tracking-[0.2em] overflow-hidden transition-transform hover:scale-[1.02] shadow-[0_0_50px_rgba(255,255,255,0.3)]">
+              <div class="absolute inset-0 bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 opacity-80 group-hover:opacity-100 transition"></div>
+              <span class="relative z-10 flex items-center justify-center gap-3">Claim Reward <i class="fa-solid fa-arrow-right"></i></span>
           </button>
       </div>
   </div>
 
-  <nav class="fixed top-0 w-full z-50 h-[70px] flex items-center justify-center bg-black/60 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
-    <div class="w-full max-w-7xl px-6 flex items-center justify-between">
+  <nav class="fixed top-6 w-full z-50 flex items-center justify-center px-4 pointer-events-none">
+    <div class="pointer-events-auto nav-island w-full max-w-5xl h-[64px] rounded-full px-2 pl-6 flex items-center justify-between transition-all duration-300">
+      
       <a href="/" class="flex items-center gap-3 group">
-        <div class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-accent/50 transition">
-            <i class="fa-solid fa-bolt text-accent text-sm"></i>
+        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-accent group-hover:text-black transition duration-500 shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_20px_var(--accent-glow)]">
+            <i class="fa-solid fa-bolt text-accent text-sm group-hover:text-black transition"></i>
         </div>
         <span class="text-lg font-bold tracking-tight text-white group-hover:text-accent transition">Whis-AI</span>
       </a>
       
-      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
-        <a href="#features" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Features</a>
-        <a href="#demo" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">How it Works</a>
-        <a href="#pricing" class="px-5 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition">Pricing</a>
+      <div class="hidden md:flex items-center gap-1">
+        <a href="#features" class="px-5 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition tracking-wide">Features</a>
+        <a href="#demo" class="px-5 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition tracking-wide">How it Works</a>
+        <a href="#pricing" class="px-5 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition tracking-wide">Pricing</a>
       </div>
 
-      <div class="flex items-center gap-4">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-medium text-slate-400 hover:text-white transition px-2">Sign In</button>
+      <div class="flex items-center gap-2">
+          <button onclick="openLoginModal()" id="signInBtn" class="px-4 py-2 text-xs font-bold text-slate-300 hover:text-white transition">LOG IN</button>
           
-          <button onclick="openDownloadModal()" class="hidden md:flex items-center gap-2 group relative px-5 py-2 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-accent/50 transition duration-500">
-             <span class="relative z-10">Get 3 Free Elite Sessions</span>
-             <div class="absolute inset-0 bg-accent opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <button onclick="openDownloadModal()" class="hidden md:flex items-center gap-2 px-5 py-2 rounded-full btn-glow-anim text-xs font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-accent/50 transition duration-500">
+             <span>Get Started</span>
           </button>
           
-          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition">
-            <img id="navUserAvatar" src="" class="w-7 h-7 rounded-full bg-slate-800 object-cover" />
+          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition hover:bg-white/10">
+            <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover border border-white/20" />
             <span id="navPlanBadge" class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">FREE</span>
           </button>
       </div>
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-accent/20 p-4 pb-8 flex flex-col gap-2 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
-      <div class="text-[10px] text-center text-accent uppercase tracking-widest font-bold mb-1 animate-pulse">⚡ High Demand: 150+ Users Online</div>
-      <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl bg-accent text-black text-sm font-extrabold text-center shadow-[0_0_15px_var(--accent-glow)] uppercase tracking-wide">
-          Start Free Interview
+  <div class="md:hidden fixed bottom-6 left-4 right-4 z-50 nav-island rounded-2xl p-2 flex flex-col gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.8)] pb-3">
+      <div class="flex items-center justify-between px-2 pt-1">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-[10px] text-green-400 uppercase tracking-widest font-bold shadow-green-500/50">150+ Online</span>
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono">v1.4.2</span>
+      </div>
+      <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-accent text-black text-sm font-black text-center shadow-[0_0_20px_var(--accent-glow)] uppercase tracking-widest flex justify-center items-center gap-2">
+          <i class="fa-solid fa-download"></i> Start Interview
       </button>
   </div>
 
-  <a href="https://wa.me/9092435258" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8 group">
-      <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
-      <span class="absolute right-14 bg-black/80 border border-white/10 text-white text-[10px] font-bold py-1 px-3 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none">24/7 Support</span>
+  <a href="https://wa.me/9092435258" target="_blank" class="fixed bottom-32 right-4 md:bottom-8 z-40 bg-[#25D366] w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(37,211,102,0.4)] hover:scale-110 transition group border border-white/10">
+      <i class="fa-brands fa-whatsapp text-white text-3xl"></i>
+      <span class="absolute right-16 bg-black/90 border border-white/10 text-white text-[10px] font-bold py-2 px-4 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none backdrop-blur-md">24/7 Priority Support</span>
   </a>
 
-  <section class="relative pt-24 md:pt-48 pb-12 flex flex-col items-center overflow-hidden">
-    <div class="relative z-10 text-center max-w-6xl px-6 mb-2 flex flex-col items-center">
+  <section class="relative pt-32 md:pt-48 pb-12 flex flex-col items-center overflow-hidden min-h-screen">
+    <div class="relative z-10 text-center max-w-7xl px-4 mb-2 flex flex-col items-center w-full">
       
-      <div class="mb-6 md:mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-md shadow-lg">
+      <div class="mb-8 inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[11px] font-bold text-slate-200 backdrop-blur-md shadow-2xl hover:bg-white/10 transition cursor-default">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 shadow-[0_0_10px_#ef4444]"></span>
           </span>
-          <span id="signup-badge-text">🔥 150+ candidates active now</span>
+          <span id="signup-badge-text" class="tracking-wide">🔥 System Active: High Load</span>
       </div>
       
-      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1] mb-6 md:mb-8 text-white">
+      <h1 class="text-5xl md:text-[7rem] font-bold tracking-tighter leading-[0.95] mb-8 md:mb-10 text-white mix-blend-normal">
         Never Freeze In An<br>
-        <span class="text-accent drop-shadow-[0_0_40px_var(--accent-glow)]">Interview Again.</span>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] via-white to-[var(--accent)] animate-shimmer bg-[length:200%_auto] drop-shadow-[0_0_30px_var(--accent-glow)]">Interview Again.</span>
       </h1>
       
-      <p class="text-base md:text-xl text-slate-400 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed font-light px-2">
-        The tool you need to get the offer. It sees the screen. It hears the question. It writes the code for you. 
-        <span class="text-white font-medium block mt-2">Undetectable. Fast. Flawless.</span>
+      <p class="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto mb-10 md:mb-12 leading-relaxed font-light px-4">
+        The ultimate undetectable copilot. It sees the screen. It hears the question. It writes the code. 
+        <span class="text-white font-medium block mt-2">Real-time. Flawless. Guaranteed.</span>
       </p>
 
-      <div class="flex flex-col items-center gap-5 w-full md:w-auto">
-        <div class="bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 px-5 py-2 rounded-full flex items-center gap-2">
-            <i class="fa-solid fa-crown text-[#FFD700] text-xs"></i>
-            <span class="text-[#FFD700] text-[10px] font-bold tracking-widest uppercase">Limited Offer: 3 Free Elite Sessions</span>
-        </div>
-
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="group w-full md:w-auto px-12 py-5 rounded-2xl bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(255,255,255,0.15)] flex justify-center items-center gap-3">
-            <div class="flex items-center gap-3 border-r border-black/10 pr-3 mr-1">
-                 <i class="fa-brands fa-apple text-xl"></i>
-                 <i class="fa-brands fa-windows text-xl"></i>
+      <div class="flex flex-col md:flex-row items-center gap-6 w-full md:w-auto">
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="group relative w-full md:w-auto px-10 py-5 rounded-2xl bg-white text-black text-sm font-bold overflow-hidden transition-all hover:scale-105 shadow-[0_0_50px_rgba(255,255,255,0.2)]">
+            <div class="absolute inset-0 bg-gradient-to-r from-gray-100 to-white opacity-100 group-hover:opacity-90 transition"></div>
+            <div class="relative z-10 flex justify-center items-center gap-4">
+                <div class="flex items-center gap-3 border-r border-black/10 pr-4">
+                     <i class="fa-brands fa-apple text-xl"></i>
+                     <i class="fa-brands fa-windows text-xl"></i>
+                </div>
+                <span class="uppercase tracking-widest">Download Now</span>
             </div>
-            Download & Start Winning
         </button>
+        
+        <div class="flex items-center gap-2 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+             <i class="fa-solid fa-crown text-[#FFD700] text-sm animate-pulse"></i>
+             <span class="text-[#FFD700] text-[10px] font-bold tracking-widest uppercase">Includes 3 Free Elite Sessions</span>
+        </div>
       </div>
 
-      <div class="flex flex-wrap justify-center gap-4 md:gap-6 mt-8 text-[11px] text-slate-500 font-mono uppercase tracking-wider">
-          <span class="flex items-center gap-2"><i class="fa-solid fa-check text-accent"></i> No Credit Card</span>
-          <span class="flex items-center gap-2"><i class="fa-solid fa-check text-accent"></i> 100% Undetectable</span>
-          <span class="flex items-center gap-2"><i class="fa-solid fa-check text-accent"></i> Mac & Windows</span>
+      <div class="flex flex-wrap justify-center gap-6 md:gap-10 mt-12 text-[10px] md:text-xs text-slate-500 font-mono uppercase tracking-widest">
+          <span class="flex items-center gap-2 hover:text-white transition"><i class="fa-solid fa-shield-halved text-accent"></i> No Credit Card</span>
+          <span class="flex items-center gap-2 hover:text-white transition"><i class="fa-solid fa-ghost text-accent"></i> 100% Undetectable</span>
+          <span class="flex items-center gap-2 hover:text-white transition"><i class="fa-solid fa-microchip text-accent"></i> Apple Silicon Ready</span>
       </div>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto mt-8 md:mt-12 mb-12 md:mb-20 relative scroller-mask px-6 opacity-40 z-30">
+    <div class="w-full max-w-[90rem] mx-auto mt-12 md:mt-20 mb-12 md:mb-24 relative px-6 opacity-30 hover:opacity-100 transition duration-700 z-30">
+        <div class="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-black to-transparent z-10"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-black to-transparent z-10"></div>
         <div class="flex overflow-hidden group">
-            <div class="flex gap-16 animate-scroll group-hover:[animation-play-state:paused] items-center text-white/50 hover:text-white transition duration-500">
-                <i class="fa-brands fa-google text-3xl"></i><i class="fa-brands fa-meta text-3xl"></i><i class="fa-brands fa-amazon text-3xl"></i>
-                <i class="fa-brands fa-apple text-3xl"></i><i class="fa-brands fa-uber text-3xl"></i><i class="fa-brands fa-microsoft text-3xl"></i>
-                <i class="fa-brands fa-stripe text-3xl"></i><i class="fa-brands fa-airbnb text-3xl"></i><i class="fa-brands fa-tiktok text-3xl"></i>
-                <i class="fa-brands fa-google text-3xl"></i><i class="fa-brands fa-meta text-3xl"></i>
+            <div class="flex gap-20 animate-scroll group-hover:[animation-play-state:paused] items-center text-white/40 hover:text-white transition duration-500 whitespace-nowrap">
+                <i class="fa-brands fa-google text-4xl"></i><i class="fa-brands fa-meta text-4xl"></i><i class="fa-brands fa-amazon text-4xl"></i>
+                <i class="fa-brands fa-apple text-4xl"></i><i class="fa-brands fa-uber text-4xl"></i><i class="fa-brands fa-microsoft text-4xl"></i>
+                <i class="fa-brands fa-stripe text-4xl"></i><i class="fa-brands fa-airbnb text-4xl"></i><i class="fa-brands fa-tiktok text-4xl"></i>
+                <i class="fa-brands fa-google text-4xl"></i><i class="fa-brands fa-meta text-4xl"></i><i class="fa-brands fa-amazon text-4xl"></i>
             </div>
         </div>
     </div>
 
-    <div class="w-full relative z-20">
+    <div class="w-full relative z-20 perspective-container">
         <div class="carousel-container" id="carouselContainer"></div>
-        <div class="text-center mt-6">
-              <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.4em] animate-pulse">SYSTEM INITIALIZED</p>
-              <div class="md:hidden mt-3 flex items-center justify-center gap-2">
+        <div class="text-center mt-8 md:mt-12">
+              <p id="featureLabel" class="text-xs font-mono text-accent uppercase tracking-[0.5em] animate-pulse drop-shadow-[0_0_10px_var(--accent)]">SYSTEM INITIALIZED</p>
+              <div class="md:hidden mt-4 flex items-center justify-center gap-2 opacity-60">
                  <i class="fa-solid fa-fingerprint text-slate-500 text-xs"></i>
-                 <p class="text-[10px] text-slate-500 uppercase tracking-wide">Press & Hold video to expand</p>
+                 <p class="text-[9px] text-slate-500 uppercase tracking-widest">Tap video to expand</p>
               </div>
         </div>
     </div>
   </section>
 
-  <section id="demo" class="py-16 md:py-24 border-t border-white/5 bg-black/40 relative">
-      <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
+  <section id="demo" class="py-20 md:py-32 border-t border-white/5 bg-black/60 relative backdrop-blur-sm">
+      <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent to-transparent opacity-50 shadow-[0_0_20px_var(--accent)]"></div>
       
-      <div class="max-w-7xl mx-auto px-6">
-          <div class="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
-              <div class="space-y-6 md:space-y-8">
-                  <h2 class="text-3xl md:text-6xl font-medium text-white tracking-tight">Real-time<br><span class="text-slate-500">Coding Genius.</span></h2>
-                  <p class="text-slate-400 text-base md:text-lg font-light leading-relaxed">
-                      Whis listens to the audio stream and captures your screen context. It identifies the algorithm, handles edge cases, and types the optimal solution directly into your IDE.
+      <div class="max-w-7xl mx-auto px-4">
+          <div class="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
+              <div class="space-y-8 md:space-y-10">
+                  <h2 class="text-4xl md:text-6xl font-bold text-white tracking-tight">Real-time<br><span class="text-slate-600">Coding Genius.</span></h2>
+                  <p class="text-slate-400 text-lg font-light leading-relaxed">
+                      Whis listens to the audio stream and captures your screen context in real-time. It identifies the algorithm, handles edge cases, and types the optimal solution directly into your IDE.
                   </p>
                   
-                  <div class="physics-card p-6 md:p-8 bg-[#0a0a0a]">
+                  <div class="physics-card p-8 bg-[#0a0a0a]">
                       <div class="flex items-center gap-4 mb-6">
                           <div class="flex h-3 w-3 relative">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_10px_red]"></span>
                           </div>
-                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Audio Stream Active</span>
+                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-[0.2em]">Live Audio Stream</span>
                       </div>
-                      <div class="flex items-center gap-1 h-12 opacity-80">
-                          <div class="w-1 bg-white rounded-full h-4 animate-pulse"></div>
-                          <div class="w-1 bg-white rounded-full h-8 animate-pulse" style="animation-delay: 0.1s"></div>
-                          <div class="w-1 bg-white rounded-full h-12 animate-pulse" style="animation-delay: 0.2s"></div>
-                          <div class="w-1 bg-white rounded-full h-6 animate-pulse" style="animation-delay: 0.15s"></div>
-                          <div class="w-1 bg-white rounded-full h-10 animate-pulse" style="animation-delay: 0.3s"></div>
-                          <div class="w-1 bg-white rounded-full h-5 animate-pulse" style="animation-delay: 0.1s"></div>
-                          <div class="w-1 bg-white rounded-full h-12 animate-pulse" style="animation-delay: 0.4s"></div>
-                          <div class="w-1 bg-white rounded-full h-4 animate-pulse"></div>
+                      <div class="flex items-center gap-1.5 h-16 opacity-90">
+                          <div class="w-1.5 bg-white rounded-full h-4 animate-pulse"></div>
+                          <div class="w-1.5 bg-white rounded-full h-8 animate-pulse" style="animation-delay: 0.1s"></div>
+                          <div class="w-1.5 bg-accent rounded-full h-12 animate-pulse shadow-[0_0_10px_var(--accent)]" style="animation-delay: 0.2s"></div>
+                          <div class="w-1.5 bg-white rounded-full h-6 animate-pulse" style="animation-delay: 0.15s"></div>
+                          <div class="w-1.5 bg-accent rounded-full h-10 animate-pulse shadow-[0_0_10px_var(--accent)]" style="animation-delay: 0.3s"></div>
+                          <div class="w-1.5 bg-white rounded-full h-5 animate-pulse" style="animation-delay: 0.1s"></div>
+                          <div class="w-1.5 bg-white rounded-full h-12 animate-pulse" style="animation-delay: 0.4s"></div>
+                          <div class="w-1.5 bg-white rounded-full h-4 animate-pulse"></div>
                       </div>
-                      <p class="mt-6 text-sm text-slate-400 italic border-l-2 border-accent pl-4">"Okay, let's optimize this using a sliding window approach to reduce complexity to O(n)..."</p>
+                      <p class="mt-8 text-sm text-slate-300 font-mono border-l-2 border-accent pl-4 py-2 bg-white/5 rounded-r-lg">
+                          "Analyzing graph complexity... Suggesting Dijkstra's algorithm for O(E log V) optimization."
+                      </p>
                   </div>
               </div>
 
-              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[400px] md:h-[500px] flex flex-col shadow-2xl shadow-black/50">
-                  <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center bg-white/5">
+              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[450px] md:h-[550px] flex flex-col shadow-2xl shadow-black">
+                  <div class="px-5 py-4 border-b border-white/5 flex justify-between items-center bg-[#151515]">
                       <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500/20"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500/20"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500/20"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
                       </div>
-                      <div class="text-[10px] font-mono font-bold text-slate-500 flex gap-4">
-                          <span class="text-accent">main.py</span>
-                          <span>Solution.cpp</span>
-                          <span>Service.java</span>
+                      <div class="text-[10px] font-mono font-bold text-slate-500 flex gap-6">
+                          <span class="text-white border-b border-accent pb-1">main.py</span>
+                          <span class="hover:text-white transition">Solution.cpp</span>
+                          <span class="hover:text-white transition">Service.java</span>
                       </div>
                   </div>
-                  <div class="p-4 md:p-6 flex-grow overflow-x-auto relative no-scrollbar">
-                      <pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300 font-mono"></pre>
-                      <span id="cursor" class="absolute w-2 h-5 bg-accent animate-pulse inline-block align-middle ml-1"></span>
+                  <div class="p-6 md:p-8 flex-grow overflow-x-auto relative no-scrollbar bg-[#0d0d0d]">
+                      <pre id="code-display" class="text-xs md:text-sm leading-7 text-slate-300 font-mono"></pre>
+                      <span id="cursor" class="absolute w-2.5 h-5 bg-accent animate-pulse inline-block align-middle ml-1 shadow-[0_0_8px_var(--accent)]"></span>
                   </div>
-                  <div class="px-4 py-2 border-t border-white/5 text-[10px] text-green-400 font-mono bg-green-900/10 flex justify-between">
-                      <span><i class="fa-solid fa-circle-check"></i> 14/14 Test Cases Passed</span>
-                      <span>Runtime: 32ms (Beats 98%)</span>
+                  <div class="px-5 py-3 border-t border-white/5 text-[10px] text-green-400 font-mono bg-green-900/10 flex justify-between items-center backdrop-blur-md">
+                      <span class="flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> 14/14 Test Cases Passed</span>
+                      <span class="bg-green-500/20 px-2 py-1 rounded text-green-300">Runtime: 32ms (Beats 98%)</span>
                   </div>
               </div>
           </div>
       </div>
   </section>
 
-  <section class="py-16 md:py-24 border-t border-white/5 bg-black relative overflow-hidden">
-      <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
-          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6 backdrop-blur">
-              <span class="text-xs font-bold text-accent">🛡️ Military-Grade Stealth</span>
+  <section class="py-24 md:py-32 border-t border-white/5 bg-black relative overflow-hidden">
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"></div>
+      
+      <div class="max-w-6xl mx-auto px-6 text-center relative z-10">
+          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-6 py-2 mb-8 backdrop-blur shadow-[0_0_20px_rgba(0,242,255,0.1)]">
+              <span class="text-xs font-bold text-accent tracking-widest uppercase">🛡️ Military-Grade Stealth Layer</span>
           </div>
-          <h2 class="text-3xl md:text-5xl font-medium text-white mb-8 md:mb-12">They see nothing.<br>You see everything.</h2>
+          <h2 class="text-4xl md:text-7xl font-bold text-white mb-10 md:mb-16 tracking-tight">They see nothing.<br>You see <span class="text-accent">everything.</span></h2>
           
-          <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+          <div class="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto mb-16">
                 <div class="group relative">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-red-600 to-pink-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                    <div class="bg-[#0f0f0f] p-6 rounded-xl border border-white/10 relative h-full">
-                        <div class="flex justify-between items-center mb-4">
-                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Interviewer View</p>
-                            <i class="fa-solid fa-video text-slate-700"></i>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-1000"></div>
+                    <div class="bg-[#0f0f0f] p-8 rounded-xl border border-white/10 relative h-full flex flex-col">
+                        <div class="flex justify-between items-center mb-6">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Interviewer View (Zoom/Teams)</p>
+                            <i class="fa-solid fa-video text-red-500 animate-pulse"></i>
                         </div>
-                        <div class="aspect-video bg-[#1a1a1a] rounded-lg flex items-center justify-center border border-white/5">
-                            <i class="fa-solid fa-user text-slate-600 text-4xl"></i>
+                        <div class="aspect-video bg-[#151515] rounded-lg flex items-center justify-center border border-white/5 relative overflow-hidden">
+                            <i class="fa-solid fa-user text-slate-700 text-5xl"></i>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                         </div>
-                        <p class="text-xs text-slate-400 mt-4 text-left">Clean feed. No overlays. No process injection hooks. Looks exactly like a standard desktop share.</p>
+                        <p class="text-xs text-slate-400 mt-6 text-left leading-relaxed">Clean feed. No overlays. No process injection hooks. Looks exactly like a standard desktop share. Totally invisible.</p>
                     </div>
                 </div>
 
                 <div class="group relative">
-                    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000"></div>
-                    <div class="bg-[#0f0f0f] p-6 rounded-xl border border-accent/30 relative h-full">
-                          <div class="flex justify-between items-center mb-4">
-                            <p class="text-[10px] text-accent uppercase font-bold tracking-widest">Your View</p>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-50 transition duration-1000"></div>
+                    <div class="bg-[#0f0f0f] p-8 rounded-xl border border-accent/40 relative h-full flex flex-col shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                          <div class="flex justify-between items-center mb-6">
+                            <p class="text-[10px] text-accent uppercase font-bold tracking-widest">Your Private Overlay</p>
                             <i class="fa-solid fa-eye text-accent"></i>
                         </div>
-                        <div class="aspect-video bg-[#1a1a1a] rounded-lg flex items-center justify-center relative overflow-hidden border border-white/5">
-                            <i class="fa-solid fa-user text-slate-600 text-4xl opacity-50"></i>
-                            <div class="absolute right-0 top-0 bottom-0 w-2/5 bg-black/90 border-l border-accent/50 p-3 flex flex-col gap-2">
-                                <div class="h-1 w-full bg-accent/80 rounded"></div>
-                                <div class="h-1 w-2/3 bg-slate-700 rounded"></div>
-                                <div class="h-1 w-3/4 bg-slate-700 rounded"></div>
-                                <div class="h-16 w-full bg-slate-800/50 rounded border border-white/10 mt-2"></div>
+                        <div class="aspect-video bg-[#151515] rounded-lg flex items-center justify-center relative overflow-hidden border border-white/5">
+                            <i class="fa-solid fa-user text-slate-700 text-5xl opacity-30"></i>
+                            <div class="absolute right-0 top-0 bottom-0 w-5/12 bg-black/80 border-l border-accent/50 p-4 flex flex-col gap-3 backdrop-blur-sm">
+                                <div class="h-1.5 w-full bg-accent/80 rounded shadow-[0_0_10px_var(--accent)]"></div>
+                                <div class="h-1.5 w-2/3 bg-slate-700 rounded"></div>
+                                <div class="h-1.5 w-3/4 bg-slate-700 rounded"></div>
+                                <div class="flex-grow bg-slate-800/50 rounded border border-white/10 mt-2 p-2">
+                                    <div class="w-full h-1 bg-white/20 mb-1 rounded"></div>
+                                    <div class="w-2/3 h-1 bg-white/20 rounded"></div>
+                                </div>
                             </div>
                         </div>
-                        <p class="text-xs text-white mt-4 text-left">Live transcriptions. System design hints. Code snippets. All rendered in a secure overlay layer.</p>
+                        <p class="text-xs text-white mt-6 text-left leading-relaxed">Live transcription. System design hints. Code snippets. All rendered in a secure, high-contrast overlay layer only you can see.</p>
                     </div>
                 </div>
           </div>
           
-          <div class="flex flex-wrap justify-center gap-6 md:gap-8 text-xs text-slate-500 font-mono">
-                <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved"></i> No browser extensions</span>
-                <span class="flex items-center gap-2"><i class="fa-solid fa-eye-slash"></i> Bypass Screen Capture APIs</span>
-                <span class="flex items-center gap-2"><i class="fa-solid fa-ghost"></i> Ghost Dock Icon</span>
+          <div class="flex flex-wrap justify-center gap-8 md:gap-12 text-xs text-slate-500 font-mono uppercase tracking-wider">
+                <span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-white"></i> No browser extensions</span>
+                <span class="flex items-center gap-3"><i class="fa-solid fa-eye-slash text-white"></i> Bypasses Screen Capture</span>
+                <span class="flex items-center gap-3"><i class="fa-solid fa-ghost text-white"></i> Ghost Dock Icon</span>
           </div>
       </div>
   </section>
 
-  <section id="features" class="py-16 md:py-32 border-t border-white/5 bg-[#050505]">
+  <section id="features" class="py-24 md:py-32 border-t border-white/5 bg-[#030303]">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 md:mb-16 text-center">The Unfair Advantage.</h2>
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-16 text-center">The Unfair Advantage.</h2>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                      <i class="fa-solid fa-ghost text-xl text-purple-400"></i>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="physics-card p-8 group">
+                  <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition border border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+                      <i class="fa-solid fa-ghost text-2xl text-purple-400"></i>
                   </div>
-                  <h3 class="text-white font-bold mb-2">Total Stealth</h3>
+                  <h3 class="text-white text-lg font-bold mb-3">Total Stealth</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Invisible to Zoom, Teams, and Proctoring tools. No screen capture trace. You are a ghost.</p>
               </div>
               
-              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                      <i class="fa-solid fa-eye text-xl text-blue-400"></i>
+              <div class="physics-card p-8 group">
+                  <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                      <i class="fa-solid fa-eye text-2xl text-blue-400"></i>
                   </div>
-                  <h3 class="text-white font-bold mb-2">Visual Context</h3>
+                  <h3 class="text-white text-lg font-bold mb-3">Visual Context</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">It sees the whiteboard. It solves the system design diagram. It understands the architecture.</p>
               </div>
 
-              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-lg bg-red-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                      <i class="fa-solid fa-microphone text-xl text-red-400"></i>
+              <div class="physics-card p-8 group">
+                  <div class="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition border border-red-500/20 shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                      <i class="fa-solid fa-microphone text-2xl text-red-400"></i>
                   </div>
-                  <h3 class="text-white font-bold mb-2">Voice Input</h3>
+                  <h3 class="text-white text-lg font-bold mb-3">Voice Input</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Interviewer asks a question? Whis hears it and generates the answer before they finish speaking.</p>
               </div>
               
-               <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                      <i class="fa-solid fa-language text-xl text-yellow-400"></i>
+               <div class="physics-card p-8 group">
+                  <div class="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition border border-yellow-500/20 shadow-[0_0_20px_rgba(234,179,8,0.1)]">
+                      <i class="fa-solid fa-language text-2xl text-yellow-400"></i>
                   </div>
-                  <h3 class="text-white font-bold mb-2">Polyglot Mode</h3>
+                  <h3 class="text-white text-lg font-bold mb-3">Polyglot Mode</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Translates Mandarin, Hindi, or Spanish questions into English solutions instantly.</p>
               </div>
               
-              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                      <i class="fa-solid fa-keyboard text-xl text-green-400"></i>
+              <div class="physics-card p-8 group">
+                  <div class="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition border border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+                      <i class="fa-solid fa-keyboard text-2xl text-green-400"></i>
                   </div>
-                  <h3 class="text-white font-bold mb-2">Direct Input</h3>
+                  <h3 class="text-white text-lg font-bold mb-3">Direct Input</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">Need to clarify? Type directly into the overlay without Alt-Tabbing or switching windows.</p>
               </div>
               
-              <div class="physics-card p-6 md:p-8 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-lg bg-slate-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                      <i class="fa-solid fa-bolt text-xl text-white"></i>
+              <div class="physics-card p-8 group">
+                  <div class="w-14 h-14 rounded-2xl bg-slate-500/10 flex items-center justify-center mb-8 group-hover:scale-110 transition border border-slate-500/20 shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+                      <i class="fa-solid fa-bolt text-2xl text-white"></i>
                   </div>
-                  <h3 class="text-white font-bold mb-2">Low Latency</h3>
+                  <h3 class="text-white text-lg font-bold mb-3">Low Latency</h3>
                   <p class="text-sm text-slate-400 leading-relaxed">High performance native app ensures <50ms response time on modern machines.</p>
               </div>
           </div>
       </div>
   </section>
 
-  <section class="py-16 md:py-24 border-t border-white/5 bg-[#080808]">
-      <div class="max-w-7xl mx-auto px-6 mb-8 md:mb-12 flex justify-between items-end">
-          <h2 class="text-2xl md:text-3xl font-medium text-white">Verified Outcomes.</h2>
-          <div class="flex gap-2">
-              <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition"><i class="fa-solid fa-arrow-left text-white"></i></button>
-              <button class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition"><i class="fa-solid fa-arrow-right text-white"></i></button>
+  <section class="py-24 md:py-32 border-t border-white/5 bg-[#050505]">
+      <div class="max-w-7xl mx-auto px-6 mb-12 flex justify-between items-end">
+          <h2 class="text-3xl md:text-5xl font-bold text-white">Verified Outcomes.</h2>
+          <div class="flex gap-4">
+              <button class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition backdrop-blur"><i class="fa-solid fa-arrow-left text-white"></i></button>
+              <button class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition backdrop-blur"><i class="fa-solid fa-arrow-right text-white"></i></button>
           </div>
       </div>
       
-      <div class="flex gap-6 overflow-x-auto pb-12 px-6 snap-x mandatory no-scrollbar" style="-webkit-overflow-scrolling: touch;">
-          <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
+      <div class="flex gap-8 overflow-x-auto pb-12 px-6 snap-x mandatory no-scrollbar" style="-webkit-overflow-scrolling: touch;">
+          <div class="physics-card p-8 min-w-[320px] md:min-w-[450px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6 font-light">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. The interviewer was impressed by my 'intuition'."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                  <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">J</div>
-                  <div><p class="text-xs font-bold text-white">James K.</p><p class="text-[10px] text-slate-500">Google, L5</p></div>
+              <p class="text-base text-slate-200 leading-relaxed mb-8 font-light italic">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. The interviewer was impressed by my 'intuition'."</p>
+              <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                  <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-blue-900/50">J</div>
+                  <div><p class="text-sm font-bold text-white">James K.</p><p class="text-xs text-slate-500 font-mono">Google, L5</p></div>
               </div>
           </div>
           
-           <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
+           <div class="physics-card p-8 min-w-[320px] md:min-w-[450px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6 font-light">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. It paid for itself 100x over."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                  <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-xs font-bold text-white">S</div>
-                  <div><p class="text-xs font-bold text-white">Sarah M.</p><p class="text-[10px] text-slate-500">Amazon, SDE II</p></div>
+              <p class="text-base text-slate-200 leading-relaxed mb-8 font-light italic">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. It paid for itself 100x over."</p>
+              <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                  <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-orange-900/50">S</div>
+                  <div><p class="text-sm font-bold text-white">Sarah M.</p><p class="text-xs text-slate-500 font-mono">Amazon, SDE II</p></div>
               </div>
           </div>
           
-           <div class="physics-card p-6 md:p-8 min-w-[300px] md:min-w-[400px] snap-center bg-[#0a0a0a]">
+           <div class="physics-card p-8 min-w-[320px] md:min-w-[450px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-6"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm text-slate-300 leading-relaxed mb-6 font-light">"English isn't my first language. Whis translated my thoughts into professional answers live. It gave me the confidence I needed."</p>
-              <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                  <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-xs font-bold text-white">M</div>
-                  <div><p class="text-xs font-bold text-white">Michael T.</p><p class="text-[10px] text-slate-500">Uber, L4</p></div>
+              <p class="text-base text-slate-200 leading-relaxed mb-8 font-light italic">"English isn't my first language. Whis translated my thoughts into professional answers live. It gave me the confidence I needed."</p>
+              <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                  <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-green-900/50">M</div>
+                  <div><p class="text-sm font-bold text-white">Michael T.</p><p class="text-xs text-slate-500 font-mono">Uber, L4</p></div>
               </div>
           </div>
       </div>
   </section>
 
-  <section id="pricing" class="py-16 md:py-32 border-t border-white/5 relative">
+  <section id="pricing" class="py-24 md:py-32 border-t border-white/5 relative bg-black/40">
     <div class="max-w-7xl mx-auto px-6 text-center">
-        <div class="mb-12 max-w-3xl mx-auto">
-            <h2 class="text-3xl md:text-5xl font-medium text-white mb-6">Invest In Your Career.</h2>
-            <div class="p-4 rounded-2xl bg-gradient-to-r from-accent/5 to-transparent border-l-2 border-accent text-left">
+        <div class="mb-16 max-w-3xl mx-auto">
+            <h2 class="text-3xl md:text-6xl font-bold text-white mb-8">Invest In Your Career.</h2>
+            <div class="p-6 rounded-2xl bg-gradient-to-r from-accent/10 to-transparent border-l-4 border-accent text-left backdrop-blur-md">
                 <p class="text-slate-200 text-sm md:text-lg italic font-light">
                     "We build for your success, not just for revenue. We only win when you get the offer. <span class="text-accent not-italic font-bold">Your career breakthrough is our priority.</span>"
                 </p>
             </div>
         </div>
         
-        <div class="inline-flex bg-white/5 p-1 rounded-xl border border-white/10 mb-12 relative">
-           <button id="btnMonthly" class="px-8 py-2.5 rounded-lg text-xs font-bold bg-white text-black transition shadow-lg" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-8 py-2.5 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly (-20%)</button>
+        <div class="inline-flex bg-white/5 p-1.5 rounded-2xl border border-white/10 mb-16 relative backdrop-blur-xl">
+           <button id="btnMonthly" class="px-8 py-3 rounded-xl text-xs font-bold bg-white text-black transition shadow-[0_0_20px_rgba(255,255,255,0.3)] transform scale-105" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnAnnual" class="px-8 py-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition" onclick="setCycle('annual')">Yearly (-20%)</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto items-stretch">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
             
-            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-accent/40 shadow-[0_0_30px_rgba(0,242,255,0.05)] relative group">
-                <div class="absolute top-0 right-0 bg-accent text-black text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider">Start Here</div>
+            <div class="physics-card p-8 text-left flex flex-col h-full border-accent/30 shadow-[0_0_50px_rgba(0,242,255,0.05)] relative group">
+                <div class="absolute top-0 right-0 bg-accent text-black text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider shadow-[0_0_15px_var(--accent)]">Start Here</div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Starter</h3>
-                <div class="text-4xl md:text-5xl font-bold text-white mb-2">Free</div>
-                <p class="text-xs text-slate-400 mb-8">No credit card needed</p>
-                <div class="space-y-4 text-xs text-slate-400 mb-8 flex-grow">
-                    <div class="flex gap-3 font-bold text-white bg-white/5 p-3 rounded-lg border border-accent/20">
+                <div class="text-5xl md:text-6xl font-bold text-white mb-2">Free</div>
+                <p class="text-xs text-slate-400 mb-8 font-mono">No credit card needed</p>
+                <div class="space-y-5 text-sm text-slate-400 mb-10 flex-grow">
+                    <div class="flex gap-3 font-bold text-white bg-white/5 p-4 rounded-xl border border-accent/20 shadow-inner">
                         <i class="fa-solid fa-crown text-[#FFD700] mt-0.5"></i> 
                         <div>
                             3 FREE ELITE SESSIONS
@@ -666,13 +742,13 @@
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> 10 Daily Syntheses (Forever)</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Basic Code Generation</p>
                 </div>
-                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-white text-black hover:scale-105 transition duration-300 text-xs font-bold uppercase shadow-lg group-hover:shadow-accent/20">Download Now</button>
+                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-white text-black hover:scale-[1.03] transition duration-300 text-xs font-black uppercase shadow-lg group-hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]">Download Now</button>
             </div>
 
-            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-white/10 hover:border-white/20">
+            <div class="physics-card p-8 text-left flex flex-col h-full border-white/5 hover:border-white/20">
                 <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-4">Pro License</h3>
-                <div class="text-4xl md:text-5xl font-bold text-white mb-6" id="pricePro">...</div>
-                <div class="space-y-4 text-xs text-slate-300 mb-8 flex-grow">
+                <div class="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight" id="pricePro">...</div>
+                <div class="space-y-5 text-sm text-slate-300 mb-10 flex-grow">
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Unlimited Syntheses</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Visual Context Analysis</p>
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Audio Ingestion</p>
@@ -681,107 +757,110 @@
                 <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white/5 text-white hover:bg-white/10 border border-white/10 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed">Upgrade to Pro</button>
             </div>
 
-            <div class="physics-card pricing-elite p-6 md:p-8 text-left flex flex-col h-full bg-[#050505] shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/5">
-                <div class="absolute top-6 right-6 p-2 rounded-full bg-accent/10"><i class="fa-solid fa-crown text-accent text-xl animate-pulse-slow"></i></div>
+            <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-[0_0_80px_rgba(0,0,0,1)] border border-white/10 transform md:-translate-y-4">
+                <div class="absolute top-6 right-6 p-3 rounded-full bg-accent/10 border border-accent/20"><i class="fa-solid fa-crown text-accent text-xl animate-pulse-slow"></i></div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Elite License</h3>
-                <div class="text-4xl md:text-5xl font-bold text-white mb-6" id="priceStealth">...</div>
-                <div class="space-y-4 text-xs text-white mb-8 flex-grow">
-                    <p class="flex gap-3"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
+                <div class="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight" id="priceStealth">...</div>
+                <div class="space-y-5 text-sm text-white mb-10 flex-grow">
+                    <p class="flex gap-3"><i class="fa-solid fa-shield-halved text-accent shadow-[0_0_10px_var(--accent)] rounded-full"></i> 100% Undetectable</p>
                     <p class="flex gap-3"><i class="fa-solid fa-ghost text-accent"></i> Invisible to Screenshare</p>
                     <p class="flex gap-3"><i class="fa-solid fa-keyboard text-accent"></i> Direct Input Mode</p>
                     <p class="flex gap-3"><i class="fa-solid fa-user-secret text-accent"></i> Ghost Dock (No Icon)</p>
                     <p class="flex gap-3"><i class="fa-solid fa-headset text-accent"></i> Priority Support</p>
                 </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-xs font-bold uppercase transition shadow-[0_0_20px_var(--accent-glow)] disabled:opacity-50 disabled:cursor-not-allowed">Get Elite Access</button>
+                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-125 text-xs font-black uppercase transition shadow-[0_0_40px_var(--accent-glow)] disabled:opacity-50 disabled:cursor-not-allowed btn-glow-anim">Get Elite Access</button>
             </div>
         </div>
     </div>
   </section>
 
-  <section class="py-16 md:py-20 border-t border-white/5 bg-white/5">
+  <section class="py-24 md:py-32 border-t border-white/5 bg-[#020202]">
       <div class="max-w-3xl mx-auto px-6">
-          <h2 class="text-2xl font-medium text-white mb-10 text-center">Frequently Asked Questions.</h2>
+          <h2 class="text-3xl font-bold text-white mb-12 text-center">Frequently Asked Questions.</h2>
           <div class="space-y-4">
-              <div class="border border-white/10 rounded-xl bg-black overflow-hidden hover:border-white/20 transition" onclick="this.classList.toggle('faq-active')">
-                  <div class="p-5 flex justify-between items-center cursor-pointer">
-                      <span class="text-sm font-bold text-slate-200">Is it really undetectable?</span>
+              <div class="border border-white/10 rounded-2xl bg-[#0a0a0a] overflow-hidden hover:border-white/30 transition duration-300" onclick="this.classList.toggle('faq-active')">
+                  <div class="p-6 flex justify-between items-center cursor-pointer">
+                      <span class="text-sm md:text-base font-bold text-slate-200">Is it really undetectable?</span>
                       <i class="fa-solid fa-chevron-down text-slate-500 transition-transform duration-300"></i>
                   </div>
-                  <div class="faq-content bg-white/5 px-5">
-                      <p class="text-xs text-slate-400 py-4 leading-relaxed">Yes. Whis-AI uses a proprietary graphics overlay technology that sits 'above' the operating system's screen capture hook used by Zoom, Teams, and standard proctoring software. It does not inject code into the browser, making it invisible to standard detection methods.</p>
+                  <div class="faq-content bg-white/5 px-6">
+                      <p class="text-sm text-slate-400 py-6 leading-relaxed border-t border-white/5">Yes. Whis-AI uses a proprietary graphics overlay technology that sits 'above' the operating system's screen capture hook used by Zoom, Teams, and standard proctoring software. It does not inject code into the browser, making it invisible to standard detection methods.</p>
                   </div>
               </div>
-               <div class="border border-white/10 rounded-xl bg-black overflow-hidden hover:border-white/20 transition" onclick="this.classList.toggle('faq-active')">
-                  <div class="p-5 flex justify-between items-center cursor-pointer">
-                      <span class="text-sm font-bold text-slate-200">Which operating systems?</span>
+               <div class="border border-white/10 rounded-2xl bg-[#0a0a0a] overflow-hidden hover:border-white/30 transition duration-300" onclick="this.classList.toggle('faq-active')">
+                  <div class="p-6 flex justify-between items-center cursor-pointer">
+                      <span class="text-sm md:text-base font-bold text-slate-200">Which operating systems?</span>
                       <i class="fa-solid fa-chevron-down text-slate-500 transition-transform duration-300"></i>
                   </div>
-                  <div class="faq-content bg-white/5 px-5">
-                      <p class="text-xs text-slate-400 py-4 leading-relaxed">We support macOS (Apple Silicon M1/M2/M3 & Intel) and Windows 10/11. Linux support is currently in beta.</p>
+                  <div class="faq-content bg-white/5 px-6">
+                      <p class="text-sm text-slate-400 py-6 leading-relaxed border-t border-white/5">We support macOS (Apple Silicon M1/M2/M3 & Intel) and Windows 10/11. Linux support is currently in beta.</p>
                   </div>
               </div>
-               <div class="border border-white/10 rounded-xl bg-black overflow-hidden hover:border-white/20 transition" onclick="this.classList.toggle('faq-active')">
-                  <div class="p-5 flex justify-between items-center cursor-pointer">
-                      <span class="text-sm font-bold text-slate-200">Can I try it for free?</span>
+               <div class="border border-white/10 rounded-2xl bg-[#0a0a0a] overflow-hidden hover:border-white/30 transition duration-300" onclick="this.classList.toggle('faq-active')">
+                  <div class="p-6 flex justify-between items-center cursor-pointer">
+                      <span class="text-sm md:text-base font-bold text-slate-200">Can I try it for free?</span>
                       <i class="fa-solid fa-chevron-down text-slate-500 transition-transform duration-300"></i>
                   </div>
-                  <div class="faq-content bg-white/5 px-5">
-                      <p class="text-xs text-slate-400 py-4 leading-relaxed">Absolutely. The Free Starter plan now includes <strong>3 Full Elite Sessions</strong>. This allows you to test every feature (including invisibility) completely free in a real or mock interview setting. After that, you retain 10 free syntheses per day.</p>
+                  <div class="faq-content bg-white/5 px-6">
+                      <p class="text-sm text-slate-400 py-6 leading-relaxed border-t border-white/5">Absolutely. The Free Starter plan now includes <strong>3 Full Elite Sessions</strong>. This allows you to test every feature (including invisibility) completely free in a real or mock interview setting. After that, you retain 10 free syntheses per day.</p>
                   </div>
               </div>
           </div>
       </div>
   </section>
 
-  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12">
-    <div class="flex flex-wrap justify-center gap-8 text-slate-500 text-xs font-medium">
+  <footer class="py-16 bg-black border-t border-white/5 flex flex-col items-center gap-8 pb-32 md:pb-16 relative">
+      <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+    <div class="flex flex-wrap justify-center gap-10 text-slate-500 text-xs font-bold uppercase tracking-wider">
         <a href="/contact" class="hover:text-white transition">Contact</a>
         <a href="/troubleshoot" class="hover:text-white transition">Troubleshooting</a>
         <a href="/terms" class="hover:text-white transition">Terms of Service</a>
         <a href="/privacy" class="hover:text-white transition">Privacy Policy</a>
         <a href="/refund-policy" class="hover:text-white transition">Refund Policy</a>
     </div>
-    <div class="flex flex-col items-center gap-2">
-        <span class="text-accent text-lg"><i class="fa-solid fa-bolt"></i></span>
-        <p class="text-slate-600 text-[10px] uppercase tracking-widest">Built for those who refuse to lose.</p>
+    <div class="flex flex-col items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+            <span class="text-accent text-lg"><i class="fa-solid fa-bolt"></i></span>
+        </div>
+        <p class="text-slate-600 text-[10px] uppercase tracking-[0.2em]">Built for those who refuse to lose.</p>
     </div>
   </footer>
 
-  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md transition-opacity duration-300">
+  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-opacity duration-300">
       <div class="physics-card p-10 max-w-sm w-full text-center relative border border-white/20 shadow-2xl">
         <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
-        <div class="mb-6 w-12 h-12 rounded-full bg-white/5 border border-white/10 mx-auto flex items-center justify-center"><i class="fa-solid fa-user-astronaut text-white text-xl"></i></div>
-        <h3 class="text-xl font-medium text-white mb-2">Identify Yourself</h3>
-        <p class="text-xs text-slate-400 mb-8">Access your dashboard and subscription.</p>
+        <div class="mb-6 w-16 h-16 rounded-full bg-white/5 border border-white/10 mx-auto flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.1)]"><i class="fa-solid fa-user-astronaut text-white text-2xl"></i></div>
+        <h3 class="text-2xl font-bold text-white mb-2">Identify Yourself</h3>
+        <p class="text-xs text-slate-400 mb-8 font-mono">Access your command center.</p>
         <div id="googleBtnContainer" class="flex justify-center h-[50px] overflow-hidden"></div>
       </div>
   </div>
 
-  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-      <div class="physics-card p-8 max-w-sm w-full text-center border border-green-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6 border border-green-500/50">
-              <i class="fa-solid fa-check text-2xl text-green-400"></i>
+  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+      <div class="physics-card p-10 max-w-sm w-full text-center border border-green-500/30 shadow-[0_0_80px_rgba(16,185,129,0.3)]">
+          <div class="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6 border border-green-500/50 animate-pulse">
+              <i class="fa-solid fa-check text-3xl text-green-400"></i>
           </div>
-          <h3 class="text-xl font-bold text-white mb-2">Upgrade Complete</h3>
+          <h3 class="text-2xl font-bold text-white mb-2">Upgrade Complete</h3>
           <p class="text-slate-400 text-sm mb-8">Your account capabilities have been maximized. Systems are fully operational.</p>
-          <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition shadow-lg">Initialize System</button>
+          <button onclick="window.location.reload()" class="w-full py-4 rounded-xl bg-green-500 text-black font-black hover:bg-green-400 transition shadow-lg uppercase tracking-wide">Initialize System</button>
       </div>
   </div>
 
-  <div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="physics-card p-8 max-w-sm w-full text-center border border-white/20 relative">
+  <div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+    <div class="physics-card p-8 max-w-sm w-full text-center border border-white/20 relative shadow-2xl">
         <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
         
         <h3 class="text-xl font-bold text-white mb-2">Secure Gateway</h3>
-        <p class="text-xs text-slate-400 mb-8">Encrypted 256-bit transaction.</p>
+        <p class="text-xs text-slate-400 mb-8 font-mono">Encrypted 256-bit transaction.</p>
 
-        <button onclick="triggerRazorpayFlow(event)" class="w-full py-3.5 mb-4 rounded-xl bg-[#3395ff] text-white font-bold hover:brightness-110 transition flex items-center justify-center gap-3 shadow-lg">
+        <button onclick="triggerRazorpayFlow(event)" class="w-full py-4 mb-4 rounded-xl bg-[#3395ff] text-white font-bold hover:brightness-110 transition flex items-center justify-center gap-3 shadow-lg shadow-blue-500/30">
             <i class="fa-solid fa-credit-card"></i> Card / UPI (Razorpay)
         </button>
 
         <div class="relative flex py-2 items-center mb-4 opacity-50">
             <div class="flex-grow border-t border-white/10"></div>
-            <span class="flex-shrink mx-4 text-[10px] text-slate-500">INTERNATIONAL</span>
+            <span class="flex-shrink mx-4 text-[10px] text-slate-500 tracking-widest">INTERNATIONAL</span>
             <div class="flex-grow border-t border-white/10"></div>
         </div>
 
@@ -789,56 +868,65 @@
     </div>
   </div>
 
-  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="physics-card p-8 max-w-md w-full border border-white/10">
+  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+    <div class="physics-card p-8 max-w-md w-full border border-white/10 shadow-[0_0_50px_rgba(255,255,255,0.1)]">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-lg font-medium text-white mb-6">Select Architecture</h3>
-        <div class="space-y-3">
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.4.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group border border-white/5 hover:border-white/20">
+        <h3 class="text-xl font-bold text-white mb-8">Select Architecture</h3>
+        <div class="space-y-4">
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.4.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition group border border-white/5 hover:border-accent/30">
                 <span class="flex items-center gap-4 text-sm text-white font-bold">
-                    <div class="w-8 h-8 rounded bg-white text-black flex items-center justify-center"><i class="fa-brands fa-apple text-xl"></i></div>
-                    macOS (Apple Silicon)
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center shadow-lg"><i class="fa-brands fa-apple text-2xl"></i></div>
+                    <div class="flex flex-col text-left">
+                        <span>macOS (Apple Silicon)</span>
+                        <span class="text-[10px] text-slate-500 font-normal">M1 / M2 / M3</span>
+                    </div>
                 </span>
-                <i class="fa-solid fa-download text-slate-500 group-hover:text-white transition"></i>
+                <i class="fa-solid fa-download text-slate-500 group-hover:text-accent transition"></i>
             </a>
-             <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.4.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group border border-white/5 hover:border-white/20">
+             <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.4.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition group border border-white/5 hover:border-accent/30">
                 <span class="flex items-center gap-4 text-sm text-white font-bold">
-                    <div class="w-8 h-8 rounded bg-gray-600 text-white flex items-center justify-center"><i class="fa-brands fa-apple text-xl"></i></div>
-                    macOS (Intel)
+                    <div class="w-10 h-10 rounded-lg bg-gray-800 text-white flex items-center justify-center shadow-lg"><i class="fa-brands fa-apple text-2xl"></i></div>
+                     <div class="flex flex-col text-left">
+                        <span>macOS (Intel)</span>
+                        <span class="text-[10px] text-slate-500 font-normal">Legacy Support</span>
+                    </div>
                 </span>
-                <i class="fa-solid fa-download text-slate-500 group-hover:text-white transition"></i>
+                <i class="fa-solid fa-download text-slate-500 group-hover:text-accent transition"></i>
             </a>
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.4.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group border border-white/5 hover:border-white/20">
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.4.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-5 bg-white/5 rounded-2xl hover:bg-white/10 transition group border border-white/5 hover:border-accent/30">
                 <span class="flex items-center gap-4 text-sm text-white font-bold">
-                      <div class="w-8 h-8 rounded bg-[#0078D6] text-white flex items-center justify-center"><i class="fa-brands fa-windows text-xl"></i></div>
-                      Windows 10 / 11
+                      <div class="w-10 h-10 rounded-lg bg-[#0078D6] text-white flex items-center justify-center shadow-lg"><i class="fa-brands fa-windows text-2xl"></i></div>
+                       <div class="flex flex-col text-left">
+                        <span>Windows 10 / 11</span>
+                        <span class="text-[10px] text-slate-500 font-normal">64-bit</span>
+                    </div>
                 </span>
-                <i class="fa-solid fa-download text-slate-500 group-hover:text-white transition"></i>
+                <i class="fa-solid fa-download text-slate-500 group-hover:text-accent transition"></i>
             </a>
         </div>
-        <p class="text-[10px] text-center text-slate-500 mt-6 pt-4 border-t border-white/5">Installing this activates your 3 Free Elite Sessions instantly.</p>
+        <p class="text-[10px] text-center text-slate-500 mt-8 pt-4 border-t border-white/5">Installing this activates your 3 Free Elite Sessions instantly.</p>
     </div>
   </div>
 
-  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="physics-card p-8 max-w-sm w-full text-center border border-white/10">
+  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+    <div class="physics-card p-10 max-w-sm w-full text-center border border-white/10 shadow-2xl">
         <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition"><i class="fa-solid fa-times"></i></button>
-        <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-accent p-1 object-cover" />
-        <h3 id="modalUserName" class="text-lg font-bold text-white mb-6">User</h3>
-        <div class="bg-white/5 rounded-xl p-6 text-left mb-6 border border-white/5">
-            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
+        <img id="modalUserAvatar" class="w-24 h-24 rounded-full mx-auto mb-6 border-2 border-accent p-1 object-cover shadow-[0_0_20px_var(--accent)]" />
+        <h3 id="modalUserName" class="text-xl font-bold text-white mb-8">User</h3>
+        <div class="bg-white/5 rounded-xl p-6 text-left mb-8 border border-white/5">
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2">Current Plan</p>
             <div class="flex justify-between items-baseline">
-                <span id="modalPlanName" class="text-xl font-bold text-white">Free</span>
-                <span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white border border-white/10">ACTIVE</span>
+                <span id="modalPlanName" class="text-2xl font-bold text-white">Free</span>
+                <span id="modalPlanStatus" class="text-[10px] bg-accent/20 px-2 py-1 rounded text-accent border border-accent/20 font-bold">ACTIVE</span>
             </div>
-            <div id="modalPlanValidity" class="text-[10px] text-slate-400 mt-2 font-mono"></div>
+            <div id="modalPlanValidity" class="text-[10px] text-slate-400 mt-3 font-mono"></div>
         </div>
-        <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition border border-red-500/20">Sign Out</button>
+        <button onclick="logout()" class="w-full py-4 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition border border-red-500/20">Sign Out</button>
     </div>
   </div>
 
   <script>
-    // --- CELEBRATION LOGIC (UPDATED WITH 10s TIMER & CLOSE) ---
+    // --- CELEBRATION LOGIC ---
     let celebrationInterval;
     let confettiInterval;
 
@@ -847,20 +935,16 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
-        // Play Sound
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
         audio.volume = 0.5;
         audio.play().catch(e => console.log("Audio autoplay blocked"));
 
-        // Fire Continuous Confetti
         fireContinuousConfetti();
-
-        // Start Countdown
         startCountdown();
     }
 
     function fireContinuousConfetti() {
-        const duration = 10000; // 10 seconds matches timer
+        const duration = 10000;
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
 
@@ -868,13 +952,9 @@
 
         confettiInterval = setInterval(function() {
           const timeLeft = animationEnd - Date.now();
-
-          if (timeLeft <= 0) {
-            return clearInterval(confettiInterval);
-          }
+          if (timeLeft <= 0) return clearInterval(confettiInterval);
 
           const particleCount = 50 * (timeLeft / duration);
-          // Rain from top corners
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
         }, 250);
@@ -897,19 +977,18 @@
 
     function closeCelebration() {
         clearInterval(celebrationInterval);
-        clearInterval(confettiInterval); // Stop confetti if closed early
+        clearInterval(confettiInterval);
         
         const modal = document.getElementById('celebrationModal');
-        modal.classList.add('opacity-0'); // Fade out
+        modal.classList.add('opacity-0');
         setTimeout(() => {
             modal.classList.add('hidden');
             modal.classList.remove('flex', 'opacity-0');
-            // Open download modal after claiming/closing
             openDownloadModal();
         }, 500);
     }
 
-    // --- 1. CORE PHYSICS & ANIMATIONS (FIXED: THROTTLED) ---
+    // --- PHYSICS ENGINE ---
     function initPhysics() {
         if(window.innerWidth < 768) return; 
 
@@ -927,7 +1006,6 @@
                         const x = mouseX - rect.left;
                         const y = mouseY - rect.top;
                         
-                        // Optimized CSS update
                         card.style.setProperty('--mouse-x', `${x}px`);
                         card.style.setProperty('--mouse-y', `${y}px`);
                     });
@@ -946,7 +1024,7 @@
         setTimeout(() => { layer.style.display = 'none'; }, 2600);
     }
 
-    // --- 2. CAROUSEL ENGINE ---
+    // --- CAROUSEL ENGINE ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT ANALYSIS' },
         { src: 'text.mp4', label: 'REAL-TIME CODE SYNTHESIS' },
@@ -973,7 +1051,7 @@
             
             const labelOverlay = document.createElement('div');
             labelOverlay.className = "video-label-overlay";
-            labelOverlay.innerHTML = `<h3 class="text-white text-lg font-bold">${v.label}</h3><p class="text-[10px] text-accent uppercase tracking-widest mt-1">Live Processing</p>`;
+            labelOverlay.innerHTML = `<h3 class="text-white text-xl font-bold">${v.label}</h3><p class="text-[10px] text-accent uppercase tracking-widest mt-1 font-mono">Live Processing Node</p>`;
 
             wrapper.appendChild(video);
             wrapper.appendChild(labelOverlay);
@@ -1023,20 +1101,17 @@
             
             if(i === activeIndex) {
                 el.classList.add('item-center');
-                
                 vid.currentTime = 0;
-                vid.play().catch(e => {
-                    setTimeout(() => nextSlide(), 5000);
-                });
+                vid.play().catch(e => { setTimeout(() => nextSlide(), 5000); });
                 vid.style.opacity = '1';
                 vid.onended = () => { nextSlide(); };
                 
             } else if (i === prev) {
                 el.classList.add('item-left');
-                vid.pause(); vid.style.opacity = '0.3';
+                vid.pause(); vid.style.opacity = '0.4';
             } else if (i === next) {
                 el.classList.add('item-right');
-                vid.pause(); vid.style.opacity = '0.3';
+                vid.pause(); vid.style.opacity = '0.4';
             } else {
                 el.classList.add('item-hidden');
                 vid.pause();
@@ -1056,7 +1131,7 @@
         updateCarousel();
     }
 
-    // --- 3. IDE TYPEWRITER EFFECT ---
+    // --- IDE TYPEWRITER ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -1101,21 +1176,21 @@
         }
     }
 
-    // --- 4. DYNAMIC SIGNUPS LOGIC ---
+    // --- DYNAMIC SIGNUPS ---
     function updateDynamicSignups() {
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const istDate = new Date(utc + istOffset);
         let hour = istDate.getHours();
-        let count = hour * hour + 942; // Base logic preserved
+        let count = hour * hour + 942; 
         if(count === 0) count = 45; 
         
         const badge = document.getElementById('signup-badge-text');
         if(badge) badge.innerText = `🔥 ${count} candidates active now`;
     }
 
-    // --- 5. BACKEND CONNECTION & AUTH ---
+    // --- BACKEND & AUTH ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
     let PRICING_CONFIG = null;
@@ -1124,12 +1199,6 @@
     function detectOS(){
         const p = navigator.platform.toLowerCase(); 
         const ua = navigator.userAgent.toLowerCase();
-        const btn = document.getElementById('heroDownloadBtn');
-
-        const isWin = p.includes('win') || ua.includes('windows');
-        const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone');
-        
-        // Removed dynamic text replacement here to prioritize the explicit icons requested
     }
 
     async function fetchPricingConfig() {
@@ -1193,8 +1262,8 @@
         const btnM=document.getElementById('btnMonthly'); 
         const btnA=document.getElementById('btnAnnual');
         
-        const activeClass = "px-8 py-2.5 rounded-lg text-xs font-bold bg-white text-black transition shadow-lg transform scale-105";
-        const inactiveClass = "px-8 py-2.5 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition";
+        const activeClass = "px-8 py-3 rounded-xl text-xs font-bold bg-white text-black transition shadow-[0_0_20px_rgba(255,255,255,0.3)] transform scale-105";
+        const inactiveClass = "px-8 py-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition";
 
         if(c==='monthly'){
             btnM.className = activeClass;
@@ -1263,7 +1332,7 @@
         } catch(e){}
     }
 
-    // --- 6. PAYMENT SYSTEM (Razorpay + PayPal) ---
+    // --- PAYMENT ---
     let selectedTierForPayment = null; 
     const paymentModal = document.getElementById('paymentModal');
 
@@ -1281,7 +1350,7 @@
         document.getElementById('paypal-button-container').innerHTML = '';
 
         paypal.Buttons({
-            style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+            style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' },
             createOrder: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                     method: 'POST',
@@ -1379,7 +1448,7 @@
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
-    // --- 7. MODAL HELPERS ---
+    // --- MODAL HELPERS ---
     const loginModal=document.getElementById('loginModal'); 
     const downloadModal=document.getElementById('downloadModal'); 
     const profileModal=document.getElementById('profileModal');
