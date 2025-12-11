@@ -13,8 +13,10 @@
   <title>Whis-AI – The Ultimate Interview Cheat Code</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <meta name="description" content="The undetectable AI copilot that solves interview problems in real-time. Get the job, guaranteed.">
-   
+    
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -33,6 +35,7 @@
             'float': 'float 8s ease-in-out infinite',
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             'blob': 'blob 10s infinite',
+            'pop-in': 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
           },
           keyframes: {
             scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
@@ -42,16 +45,20 @@
               '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
               '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
               '100%': { transform: 'translate(0px, 0px) scale(1)' },
+            },
+            popIn: {
+                '0%': { opacity: '0', transform: 'scale(0.5)' },
+                '100%': { opacity: '1', transform: 'scale(1)' }
             }
           }
         }
       }
     }
   </script>
-   
+    
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-   
+    
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
@@ -230,6 +237,26 @@
     .faq-active i { transform: rotate(180deg); }
 
     .snap-center { scroll-snap-align: center; }
+
+    /* CELEBRATION MODAL */
+    .celebration-glow {
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6);
+    }
+    .shine-button {
+        position: relative;
+        overflow: hidden;
+    }
+    .shine-button::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shine 2s infinite;
+    }
+    @keyframes shine {
+        100% { left: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -242,6 +269,33 @@
       <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vh] bg-[var(--accent)] rounded-full blur-[120px] opacity-[0.08] animate-blob"></div>
       <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900 rounded-full blur-[120px] opacity-[0.1] animate-blob" style="animation-delay: 2s"></div>
       <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
+  </div>
+
+  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/90 backdrop-blur-xl">
+      <div class="absolute inset-0 overflow-hidden pointer-events-none">
+          <div class="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/20 rounded-full blur-[100px] animate-pulse"></div>
+          <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s"></div>
+      </div>
+      
+      <div class="relative z-10 text-center p-6 max-w-lg w-full transform scale-0 animate-pop-in">
+          <div class="w-24 h-24 mx-auto mb-6 bg-yellow-500/20 rounded-full flex items-center justify-center border border-yellow-500/50 shadow-[0_0_50px_rgba(255,215,0,0.3)]">
+              <i class="fa-solid fa-gift text-5xl text-yellow-400 animate-bounce"></i>
+          </div>
+          
+          <h2 class="text-4xl md:text-6xl font-black text-white mb-2 celebration-glow uppercase italic tracking-tighter">Congratuations!</h2>
+          <p class="text-xl md:text-2xl text-yellow-300 font-bold mb-6 tracking-wide">You Unlocked 3 Free Sessions</p>
+          
+          <div class="bg-white/10 border border-white/20 rounded-xl p-4 mb-8 backdrop-blur-md">
+              <p class="text-slate-300 text-sm leading-relaxed">
+                  Your account has been flagged for a <span class="text-white font-bold">Special Starter Boost</span>. 
+                  Experience the full power of Whis-AI elite mode completely free.
+              </p>
+          </div>
+
+          <button onclick="closeCelebration()" class="shine-button w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-lg font-black uppercase tracking-widest shadow-[0_0_40px_rgba(255,215,0,0.4)] hover:scale-105 transition duration-300">
+              Claim Reward Now
+          </button>
+      </div>
   </div>
 
   <nav class="fixed top-0 w-full z-50 h-[70px] flex items-center justify-center bg-black/60 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
@@ -762,6 +816,56 @@
   </div>
 
   <script>
+    // --- CELEBRATION LOGIC (ADDED) ---
+    function triggerCelebration() {
+        // 1. Show the modal
+        const modal = document.getElementById('celebrationModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        // 2. Play Sound (Success Sound)
+        // Using a reliable generic success sound
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+        audio.volume = 0.5;
+        // Attempt autoplay - browsers might block this if user hasn't interacted, 
+        // but we try anyway per requirements.
+        audio.play().catch(e => console.log("Audio autoplay blocked by browser policy"));
+
+        // 3. Fire Confetti Blast
+        fireConfetti();
+    }
+
+    function fireConfetti() {
+        const duration = 3000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
+
+        function random(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+          const timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          const particleCount = 50 * (timeLeft / duration);
+          // since particles fall down, start a bit higher than random
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+          confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    }
+
+    function closeCelebration() {
+        const modal = document.getElementById('celebrationModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        // Open download modal after claiming
+        setTimeout(openDownloadModal, 500);
+    }
+
     // --- 1. CORE PHYSICS & ANIMATIONS (FIXED: THROTTLED) ---
     function initPhysics() {
         if(window.innerWidth < 768) return; // Save mobile battery
@@ -1281,6 +1385,9 @@
         fetchPricingConfig();
         updateDynamicSignups();
         setTimeout(initPhysics, 500);
+
+        // TRIGGER CELEBRATION EXACTLY 3 SECONDS AFTER LOAD
+        setTimeout(triggerCelebration, 3000);
     });
   </script>
 </body>
