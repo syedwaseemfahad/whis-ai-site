@@ -35,7 +35,8 @@
             'float': 'float 8s ease-in-out infinite',
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             'blob': 'blob 10s infinite',
-            'pop-in': 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+            'pop-in': 'popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'timer': 'timerPulse 1s linear infinite',
           },
           keyframes: {
             scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
@@ -47,8 +48,12 @@
               '100%': { transform: 'translate(0px, 0px) scale(1)' },
             },
             popIn: {
-                '0%': { opacity: '0', transform: 'scale(0.5)' },
-                '100%': { opacity: '1', transform: 'scale(1)' }
+                '0%': { opacity: '0', transform: 'scale(0.8) translateY(20px)' },
+                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+            },
+            timerPulse: {
+                '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                '50%': { opacity: '0.8', transform: 'scale(0.95)' }
             }
           }
         }
@@ -96,7 +101,7 @@
     p { font-size: 16px; line-height: 1.6; }
     @media (min-width: 768px) { p { font-size: 18px; } }
 
-    /* GPU Acceleration for smooth scrolling on low-end devices */
+    /* GPU Acceleration */
     * {
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
@@ -122,7 +127,7 @@
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* --- PHYSICS CARD (Hover Effect) --- */
+    /* --- PHYSICS CARD --- */
     .physics-card {
         background: linear-gradient(180deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);
         backdrop-filter: blur(20px);
@@ -239,6 +244,9 @@
     .snap-center { scroll-snap-align: center; }
 
     /* CELEBRATION MODAL */
+    .celebration-bg {
+        background: radial-gradient(circle at center, #1a1600 0%, #000000 70%);
+    }
     .celebration-glow {
         text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.6);
     }
@@ -271,28 +279,40 @@
       <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
   </div>
 
-  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black/90 backdrop-blur-xl">
+  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center celebration-bg backdrop-blur-xl transition-opacity duration-500">
+      <button onclick="closeCelebration()" class="absolute top-6 right-6 text-white/50 hover:text-white transition transform hover:scale-110 z-50">
+          <i class="fa-solid fa-xmark text-3xl"></i>
+      </button>
+
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
-          <div class="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/20 rounded-full blur-[100px] animate-pulse"></div>
-          <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s"></div>
+          <div class="absolute top-0 left-1/4 w-96 h-96 bg-yellow-500/10 rounded-full blur-[100px] animate-pulse"></div>
+          <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s"></div>
       </div>
       
-      <div class="relative z-10 text-center p-6 max-w-lg w-full transform scale-0 animate-pop-in">
-          <div class="w-24 h-24 mx-auto mb-6 bg-yellow-500/20 rounded-full flex items-center justify-center border border-yellow-500/50 shadow-[0_0_50px_rgba(255,215,0,0.3)]">
+      <div class="relative z-10 text-center p-6 max-w-xl w-full transform scale-0 animate-pop-in flex flex-col items-center">
+          
+          <div class="w-20 h-20 mb-8 rounded-full border-2 border-yellow-500/30 flex items-center justify-center relative bg-black/40 backdrop-blur-md animate-timer">
+              <span id="countdownTimer" class="text-3xl font-mono font-bold text-yellow-400">10</span>
+              <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 36 36">
+                  <path class="text-yellow-500/20" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+          </div>
+
+          <div class="w-24 h-24 mx-auto mb-6 bg-yellow-500/10 rounded-full flex items-center justify-center border border-yellow-500/50 shadow-[0_0_60px_rgba(255,215,0,0.2)]">
               <i class="fa-solid fa-gift text-5xl text-yellow-400 animate-bounce"></i>
           </div>
           
-          <h2 class="text-4xl md:text-6xl font-black text-white mb-2 celebration-glow uppercase italic tracking-tighter">Congratuations!</h2>
-          <p class="text-xl md:text-2xl text-yellow-300 font-bold mb-6 tracking-wide">You Unlocked 3 Free Sessions</p>
+          <h2 class="text-4xl md:text-6xl font-black text-white mb-2 celebration-glow uppercase italic tracking-tighter">Congratulations!</h2>
+          <p class="text-lg md:text-2xl text-yellow-200 font-bold mb-6 tracking-wide">You Unlocked 3 Free Sessions</p>
           
-          <div class="bg-white/10 border border-white/20 rounded-xl p-4 mb-8 backdrop-blur-md">
+          <div class="bg-white/5 border border-white/10 rounded-xl p-5 mb-8 backdrop-blur-md w-full">
               <p class="text-slate-300 text-sm leading-relaxed">
-                  Your account has been flagged for a <span class="text-white font-bold">Special Starter Boost</span>. 
+                  Your account has been flagged for a <span class="text-yellow-400 font-bold">Special Starter Boost</span>. 
                   Experience the full power of Whis-AI elite mode completely free.
               </p>
           </div>
 
-          <button onclick="closeCelebration()" class="shine-button w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-lg font-black uppercase tracking-widest shadow-[0_0_40px_rgba(255,215,0,0.4)] hover:scale-105 transition duration-300">
+          <button onclick="closeCelebration()" class="shine-button w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-lg font-black uppercase tracking-widest shadow-[0_0_40px_rgba(255,215,0,0.3)] hover:scale-105 transition duration-300">
               Claim Reward Now
           </button>
       </div>
@@ -369,7 +389,11 @@
         </div>
 
         <button id="heroDownloadBtn" onclick="openDownloadModal()" class="group w-full md:w-auto px-12 py-5 rounded-2xl bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_40px_rgba(255,255,255,0.15)] flex justify-center items-center gap-3">
-            <i class="fa-brands fa-apple text-xl"></i> Download & Start Winning
+            <div class="flex items-center gap-3 border-r border-black/10 pr-3 mr-1">
+                 <i class="fa-brands fa-apple text-xl"></i>
+                 <i class="fa-brands fa-windows text-xl"></i>
+            </div>
+            Download & Start Winning
         </button>
       </div>
 
@@ -402,8 +426,6 @@
         </div>
     </div>
   </section>
-
-  
 
   <section id="demo" class="py-16 md:py-24 border-t border-white/5 bg-black/40 relative">
       <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent"></div>
@@ -816,62 +838,83 @@
   </div>
 
   <script>
-    // --- CELEBRATION LOGIC (ADDED) ---
+    // --- CELEBRATION LOGIC (UPDATED WITH 10s TIMER & CLOSE) ---
+    let celebrationInterval;
+    let confettiInterval;
+
     function triggerCelebration() {
-        // 1. Show the modal
         const modal = document.getElementById('celebrationModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
-        // 2. Play Sound (Success Sound)
-        // Using a reliable generic success sound
+        // Play Sound
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
         audio.volume = 0.5;
-        // Attempt autoplay - browsers might block this if user hasn't interacted, 
-        // but we try anyway per requirements.
-        audio.play().catch(e => console.log("Audio autoplay blocked by browser policy"));
+        audio.play().catch(e => console.log("Audio autoplay blocked"));
 
-        // 3. Fire Confetti Blast
-        fireConfetti();
+        // Fire Continuous Confetti
+        fireContinuousConfetti();
+
+        // Start Countdown
+        startCountdown();
     }
 
-    function fireConfetti() {
-        const duration = 3000;
+    function fireContinuousConfetti() {
+        const duration = 10000; // 10 seconds matches timer
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
 
-        function random(min, max) {
-          return Math.random() * (max - min) + min;
-        }
+        function random(min, max) { return Math.random() * (max - min) + min; }
 
-        const interval = setInterval(function() {
+        confettiInterval = setInterval(function() {
           const timeLeft = animationEnd - Date.now();
 
           if (timeLeft <= 0) {
-            return clearInterval(interval);
+            return clearInterval(confettiInterval);
           }
 
           const particleCount = 50 * (timeLeft / duration);
-          // since particles fall down, start a bit higher than random
+          // Rain from top corners
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
         }, 250);
     }
 
+    function startCountdown() {
+        let timeLeft = 10;
+        const timerEl = document.getElementById('countdownTimer');
+        
+        celebrationInterval = setInterval(() => {
+            timeLeft--;
+            if(timeLeft >= 0) {
+                timerEl.innerText = timeLeft;
+            }
+            if(timeLeft <= 0) {
+                closeCelebration();
+            }
+        }, 1000);
+    }
+
     function closeCelebration() {
+        clearInterval(celebrationInterval);
+        clearInterval(confettiInterval); // Stop confetti if closed early
+        
         const modal = document.getElementById('celebrationModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        // Open download modal after claiming
-        setTimeout(openDownloadModal, 500);
+        modal.classList.add('opacity-0'); // Fade out
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'opacity-0');
+            // Open download modal after claiming/closing
+            openDownloadModal();
+        }, 500);
     }
 
     // --- 1. CORE PHYSICS & ANIMATIONS (FIXED: THROTTLED) ---
     function initPhysics() {
-        if(window.innerWidth < 768) return; // Save mobile battery
+        if(window.innerWidth < 768) return; 
 
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
-        let ticking = false; // Flag to prevent multiple firing
+        let ticking = false; 
 
         document.addEventListener('mousemove', (e) => {
             if (!ticking) {
@@ -892,7 +935,7 @@
                 });
                 ticking = true;
             }
-        }, { passive: true }); // Passive listener for better scrolling perf
+        }, { passive: true }); 
     }
 
     function playIntro() {
@@ -904,7 +947,6 @@
     }
 
     // --- 2. CAROUSEL ENGINE ---
-    // Using simple placeholders as requested. Logic supports full playback.
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT ANALYSIS' },
         { src: 'text.mp4', label: 'REAL-TIME CODE SYNTHESIS' },
@@ -920,18 +962,15 @@
             div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
             
-            // Container for Video and Overlay
             const wrapper = document.createElement('div');
             wrapper.className = "relative w-full h-full";
 
-            // Create video
             const video = document.createElement('video');
             video.src = v.src; 
             video.muted = true; 
             video.playsInline = true;
             video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
             
-            // Create Label Overlay (New Requirement)
             const labelOverlay = document.createElement('div');
             labelOverlay.className = "video-label-overlay";
             labelOverlay.innerHTML = `<h3 class="text-white text-lg font-bold">${v.label}</h3><p class="text-[10px] text-accent uppercase tracking-widest mt-1">Live Processing</p>`;
@@ -940,17 +979,15 @@
             wrapper.appendChild(labelOverlay);
             div.appendChild(wrapper);
             
-            // Mobile Expansion Logic
             let touchTimer;
             
             const startTouch = () => {
                 if(window.innerWidth > 768) return;
-                // If this is the active slide
                 if(div.classList.contains('item-center')){
                     touchTimer = setTimeout(() => {
                         video.classList.add('cinematic-fullscreen');
-                        video.muted = false; // Optional: unmute on expand
-                    }, 800); // Slightly faster
+                        video.muted = false; 
+                    }, 800); 
                 }
             };
             
@@ -980,26 +1017,19 @@
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
             
-            // Reset state
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
             vid.classList.remove('cinematic-fullscreen');
-            vid.onended = null; // Clear old listeners
+            vid.onended = null; 
             
             if(i === activeIndex) {
                 el.classList.add('item-center');
                 
-                // Logic: Play video fully, then go to next slide
                 vid.currentTime = 0;
                 vid.play().catch(e => {
-                    // If autoplay blocked or error, fallback to timer
                     setTimeout(() => nextSlide(), 5000);
                 });
                 vid.style.opacity = '1';
-                
-                // When video ends, go to next slide
-                vid.onended = () => {
-                      nextSlide();
-                };
+                vid.onended = () => { nextSlide(); };
                 
             } else if (i === prev) {
                 el.classList.add('item-left');
@@ -1049,7 +1079,7 @@
     
     function typeCode() {
         const el = document.getElementById('code-display');
-        if(!el) return; // Safety check
+        if(!el) return; 
 
         if (currentPart < codeLines.length) {
             const part = codeLines[currentPart];
@@ -1098,14 +1128,8 @@
 
         const isWin = p.includes('win') || ua.includes('windows');
         const isMac = (p.includes('mac') || ua.includes('macintosh')) && !ua.includes('iphone');
-
-        if (!isWin && !isMac) {
-               // Default generic
-        } else if (isWin) {
-               btn.innerHTML = '<i class="fa-brands fa-windows text-xl"></i> Download for Windows';
-        } else if (isMac) {
-               btn.innerHTML = '<i class="fa-brands fa-apple text-xl"></i> Download for macOS';
-        }
+        
+        // Removed dynamic text replacement here to prioritize the explicit icons requested
     }
 
     async function fetchPricingConfig() {
@@ -1169,7 +1193,6 @@
         const btnM=document.getElementById('btnMonthly'); 
         const btnA=document.getElementById('btnAnnual');
         
-        // Reset classes
         const activeClass = "px-8 py-2.5 rounded-lg text-xs font-bold bg-white text-black transition shadow-lg transform scale-105";
         const inactiveClass = "px-8 py-2.5 rounded-lg text-xs font-bold text-slate-500 hover:text-white transition";
 
@@ -1386,8 +1409,8 @@
         updateDynamicSignups();
         setTimeout(initPhysics, 500);
 
-        // TRIGGER CELEBRATION EXACTLY 3 SECONDS AFTER LOAD
-        setTimeout(triggerCelebration, 3000);
+        // TRIGGER CELEBRATION EXACTLY 6 SECONDS AFTER LOAD
+        setTimeout(triggerCelebration, 6000);
     });
   </script>
 </body>
