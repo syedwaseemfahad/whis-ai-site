@@ -37,6 +37,8 @@
             'blob': 'blob 10s infinite',
             'pop-in': 'popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
             'timer': 'timerPulse 1s linear infinite',
+            'aurora': 'aurora 10s infinite linear',
+            'shimmer': 'shimmer 2s infinite linear',
           },
           keyframes: {
             scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
@@ -54,6 +56,15 @@
             timerPulse: {
                 '0%, 100%': { opacity: '1', transform: 'scale(1)' },
                 '50%': { opacity: '0.8', transform: 'scale(0.95)' }
+            },
+            aurora: {
+                '0%': { backgroundPosition: '0% 50%' },
+                '50%': { backgroundPosition: '100% 50%' },
+                '100%': { backgroundPosition: '0% 50%' },
+            },
+            shimmer: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' }
             }
           }
         }
@@ -228,13 +239,35 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+    /* ULTRA PREMIUM PRICING CARD STYLES */
     .pricing-elite { position: relative; overflow: hidden; }
+    
+    /* Animated Gradient Border for Elite Card */
+    .pricing-elite::before {
+        content: ''; position: absolute; inset: -2px; border-radius: 26px; 
+        background: linear-gradient(45deg, #00f2ff, #000000, #FFD700, #000000, #00f2ff);
+        background-size: 400% 400%;
+        animation: aurora 10s linear infinite;
+        z-index: -1;
+    }
+    
+    /* Inner dark background to cover the center of the gradient border */
     .pricing-elite::after {
-        content: ''; position: absolute; inset: 0; border-radius: 24px; padding: 2px;
-        background: linear-gradient(135deg, var(--accent), transparent 40%, transparent 60%, var(--accent));
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events: none;
+        content: ''; position: absolute; inset: 1px; border-radius: 24px;
+        background: #050505; /* Match page bg */
+        z-index: -1;
+    }
+
+    /* Text Gradient Utilities */
+    .text-gradient-gold {
+        background: linear-gradient(to right, #FFD700, #FDB931);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .text-gradient-silver {
+        background: linear-gradient(to bottom, #ffffff, #a0a0a0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
@@ -603,71 +636,74 @@
   </section>
 
   <section id="pricing" class="py-16 md:py-32 border-t border-white/5 relative bg-[#050505]">
-    <div class="absolute inset-0 z-0 opacity-30 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, #00f2ff10, transparent 60%);"></div>
+    <div class="absolute inset-0 z-0 opacity-40 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, #00f2ff08, transparent 70%);"></div>
     
     <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
         <div class="mb-12 max-w-3xl mx-auto">
-            <h2 class="text-3xl md:text-5xl font-medium text-white mb-6 tracking-tight">Invest In Your Career.</h2>
-            <div class="p-4 rounded-2xl bg-white/5 backdrop-blur border border-white/10 text-left relative overflow-hidden">
-                <div class="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
+            <h2 class="text-3xl md:text-5xl font-medium text-white mb-6 tracking-tight text-gradient-silver">Invest In Your Career.</h2>
+            <div class="p-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-left relative overflow-hidden shadow-2xl">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-accent to-purple-500"></div>
                 <p class="text-slate-300 text-sm md:text-lg italic font-light relative z-10 pl-2">
                     "We build for your success, not just for revenue. We only win when you get the offer. <span class="text-accent not-italic font-bold">Your career breakthrough is our priority.</span>"
                 </p>
             </div>
         </div>
         
-        <div class="inline-flex bg-black/50 backdrop-blur-xl p-1.5 rounded-2xl border border-white/10 mb-12 relative shadow-lg">
-           <button id="btnMonthly" class="px-8 py-2.5 rounded-xl text-xs font-bold bg-white text-black transition shadow-[0_0_20px_rgba(255,255,255,0.2)] transform hover:scale-105" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-8 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition" onclick="setCycle('annual')">Yearly (-20%)</button>
+        <div class="inline-flex bg-gradient-to-b from-gray-800 to-black p-1.5 rounded-2xl border border-white/10 mb-12 relative shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] ring-1 ring-white/5">
+           <button id="btnMonthly" class="px-8 py-3 rounded-xl text-xs font-bold bg-gradient-to-t from-gray-200 to-white text-black shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition transform hover:scale-[1.02]" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnAnnual" class="px-8 py-3 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly (-20%)</button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto items-stretch">
             
-            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-white/5 hover:border-white/20 relative group backdrop-blur-2xl bg-gradient-to-b from-white/5 to-transparent transition-all duration-300">
-                <div class="absolute top-0 right-0 bg-white/10 text-white border-l border-b border-white/10 text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Entry Level</div>
-                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-[0.2em] mb-4">Starter</h3>
-                <div class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter">Free</div>
+            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-white/5 hover:border-white/20 relative group backdrop-blur-md bg-white/5 transition-all duration-300 shadow-xl">
+                <div class="absolute top-0 right-0 bg-white/10 text-white border-l border-b border-white/10 text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider backdrop-blur-md">Entry Level</div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Starter</h3>
+                <div class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter drop-shadow-lg">Free</div>
                 <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-8 font-medium">No credit card needed</p>
                 <div class="space-y-4 text-xs text-slate-400 mb-8 flex-grow font-medium">
-                    <div class="flex gap-3 text-slate-200 bg-white/5 p-3 rounded-lg border border-white/10 shadow-inner">
-                        <i class="fa-solid fa-crown text-[#FFD700] mt-0.5"></i> 
+                    <div class="flex gap-3 text-slate-200 bg-gradient-to-br from-white/10 to-transparent p-4 rounded-xl border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+                        <i class="fa-solid fa-crown text-[#FFD700] mt-0.5 drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]"></i> 
                         <div>
-                            <span class="font-bold text-white">3 FREE ELITE SESSIONS</span>
+                            <span class="font-bold text-white tracking-wide">3 FREE ELITE SESSIONS</span>
                             <p class="font-normal text-[10px] text-slate-400 mt-1 opacity-80 leading-relaxed">Full undetectable access to ace your first interview.</p>
                         </div>
                     </div>
                     <p class="flex gap-3 items-center group-hover:text-slate-300 transition"><i class="fa-solid fa-check text-slate-500"></i> 10 Daily Syntheses (Forever)</p>
                     <p class="flex gap-3 items-center group-hover:text-slate-300 transition"><i class="fa-solid fa-check text-slate-500"></i> Basic Code Generation</p>
                 </div>
-                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-white/10 text-white hover:bg-white hover:text-black hover:scale-105 transition duration-300 text-xs font-bold uppercase border border-white/10 tracking-widest">Download Now</button>
+                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-white/10 text-white hover:bg-white hover:text-black hover:scale-[1.02] transition duration-300 text-xs font-bold uppercase border border-white/10 tracking-widest shadow-lg">Download Now</button>
             </div>
 
-            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-white/10 hover:border-white/30 backdrop-blur-3xl bg-black/40 group relative transition-all duration-300">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                <h3 class="text-xs font-bold text-white uppercase tracking-[0.2em] mb-4">Pro License</h3>
-                <div class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tighter" id="pricePro">...</div>
+            <div class="physics-card p-6 md:p-8 text-left flex flex-col h-full border-white/10 hover:border-white/30 backdrop-blur-3xl bg-black/60 group relative transition-all duration-300 shadow-2xl">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <h3 class="text-xs font-bold text-slate-200 uppercase tracking-[0.2em] mb-4">Pro License</h3>
+                <div class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-6 tracking-tighter" id="pricePro">...</div>
                 <div class="space-y-4 text-xs text-slate-400 mb-8 flex-grow font-medium">
-                    <p class="flex gap-3 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white"></i> Unlimited Syntheses</p>
-                    <p class="flex gap-3 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white"></i> Visual Context Analysis</p>
-                    <p class="flex gap-3 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white"></i> Audio Ingestion</p>
+                    <p class="flex gap-3 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]"></i> Unlimited Syntheses</p>
+                    <p class="flex gap-3 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]"></i> Visual Context Analysis</p>
+                    <p class="flex gap-3 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]"></i> Audio Ingestion</p>
                     <p class="flex gap-3 text-red-400 opacity-80 items-center"><i class="fa-solid fa-video"></i> Visible on Screenshare</p>
                 </div>
-                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white/5 text-white hover:bg-white/20 border border-white/10 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed tracking-widest backdrop-blur-sm">Upgrade to Pro</button>
+                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white/5 text-white hover:bg-white/10 border border-white/10 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed tracking-widest backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">Upgrade to Pro</button>
             </div>
 
-            <div class="physics-card pricing-elite p-6 md:p-8 text-left flex flex-col h-full bg-gradient-to-b from-[#0a0a0a] to-black shadow-[0_0_50px_var(--accent-glow)] border border-accent/50 relative z-10 transform md:-translate-y-4">
-                <div class="absolute top-0 inset-x-0 h-32 bg-accent/5 blur-3xl rounded-full pointer-events-none"></div>
-                <div class="absolute top-6 right-6 p-2 rounded-full bg-accent/10 border border-accent/20"><i class="fa-solid fa-crown text-accent text-xl animate-pulse-slow"></i></div>
-                <h3 class="text-xs font-bold text-accent uppercase tracking-[0.2em] mb-4 drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]">Elite License</h3>
-                <div class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tighter drop-shadow-md" id="priceStealth">...</div>
+            <div class="physics-card pricing-elite p-6 md:p-8 text-left flex flex-col h-full relative z-10 transform md:-translate-y-4 shadow-[0_0_80px_rgba(0,242,255,0.15)]">
+                <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+                
+                <div class="absolute top-6 right-6 p-2 rounded-full bg-accent/10 border border-accent/30 shadow-[0_0_15px_var(--accent-glow)]"><i class="fa-solid fa-crown text-accent text-xl animate-pulse-slow"></i></div>
+                <h3 class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-cyan-300 uppercase tracking-[0.2em] mb-4 drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]">Elite License</h3>
+                <div class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tighter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" id="priceStealth">...</div>
+                
                 <div class="space-y-4 text-xs text-slate-200 mb-8 flex-grow font-medium relative z-10">
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-shield-halved text-accent drop-shadow-[0_0_5px_var(--accent)]"></i> 100% Undetectable</p>
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-ghost text-accent drop-shadow-[0_0_5px_var(--accent)]"></i> Invisible to Screenshare</p>
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-keyboard text-accent drop-shadow-[0_0_5px_var(--accent)]"></i> Direct Input Mode</p>
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-user-secret text-accent drop-shadow-[0_0_5px_var(--accent)]"></i> Ghost Dock (No Icon)</p>
-                    <p class="flex gap-3 items-center"><i class="fa-solid fa-headset text-accent drop-shadow-[0_0_5px_var(--accent)]"></i> Priority Support</p>
+                    <p class="flex gap-3 items-center"><i class="fa-solid fa-shield-halved text-accent drop-shadow-[0_0_8px_var(--accent)]"></i> 100% Undetectable</p>
+                    <p class="flex gap-3 items-center"><i class="fa-solid fa-ghost text-accent drop-shadow-[0_0_8px_var(--accent)]"></i> Invisible to Screenshare</p>
+                    <p class="flex gap-3 items-center"><i class="fa-solid fa-keyboard text-accent drop-shadow-[0_0_8px_var(--accent)]"></i> Direct Input Mode</p>
+                    <p class="flex gap-3 items-center"><i class="fa-solid fa-user-secret text-accent drop-shadow-[0_0_8px_var(--accent)]"></i> Ghost Dock (No Icon)</p>
+                    <p class="flex gap-3 items-center"><i class="fa-solid fa-headset text-accent drop-shadow-[0_0_8px_var(--accent)]"></i> Priority Support</p>
                 </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-gradient-to-r from-accent to-cyan-400 text-black hover:brightness-110 text-xs font-black uppercase transition shadow-[0_0_30px_var(--accent-glow)] hover:shadow-[0_0_50px_var(--accent-glow)] disabled:opacity-50 disabled:cursor-not-allowed tracking-widest relative z-10 hover:scale-[1.02] duration-300">Get Elite Access</button>
+                
+                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-gradient-to-r from-accent via-cyan-400 to-accent bg-[length:200%_auto] animate-shimmer text-black hover:brightness-110 text-xs font-black uppercase transition shadow-[0_0_40px_rgba(0,242,255,0.4)] hover:shadow-[0_0_60px_rgba(0,242,255,0.6)] disabled:opacity-50 disabled:cursor-not-allowed tracking-widest relative z-10 hover:scale-[1.03] duration-300 border-none">Get Elite Access</button>
             </div>
         </div>
     </div>
@@ -1158,7 +1194,7 @@
         if (!amount) return "...";
         if(discount > 0) {
             const discounted = Math.floor(amount * (1 - discount/100)); 
-            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${Math.floor(amount)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">-${discount}%</span>`;
+            return `<span class="text-gradient-gold">₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${Math.floor(amount)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle shadow-[0_0_10px_var(--accent)]">-${discount}%</span>`;
         }
         return `₹${Math.floor(amount)}`;
     }
@@ -1168,9 +1204,9 @@
         const btnM=document.getElementById('btnMonthly'); 
         const btnA=document.getElementById('btnAnnual');
         
-        // UPDATED: More premium active state
-        const activeClass = "px-8 py-2.5 rounded-xl text-xs font-bold bg-white text-black transition shadow-[0_0_20px_rgba(255,255,255,0.2)] transform scale-105";
-        const inactiveClass = "px-8 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition";
+        // UPDATED: Metal/Glass toggle styles
+        const activeClass = "px-8 py-3 rounded-xl text-xs font-bold bg-gradient-to-t from-gray-200 to-white text-black shadow-[0_4px_10px_rgba(0,0,0,0.3)] transition transform scale-[1.02]";
+        const inactiveClass = "px-8 py-3 rounded-xl text-xs font-bold text-slate-500 hover:text-white transition";
 
         if(c==='monthly'){
             btnM.className = activeClass;
