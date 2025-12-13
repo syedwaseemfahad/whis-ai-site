@@ -865,11 +865,12 @@
     
     function formatPrice(amount, discount) {
         if (!amount) return "...";
+        // MODIFIED: Use $ and toFixed(2) for USD display
         if(discount > 0) {
-            const discounted = Math.floor(amount * (1 - discount/100)); 
-            return `<span>₹${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">₹${Math.floor(amount)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            const discounted = (amount * (1 - discount/100)).toFixed(2); 
+            return `<span>$${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">$${amount.toFixed(2)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
-        return `₹${Math.floor(amount)}`;
+        return `$${amount.toFixed(2)}`;
     }
 
     function setCycle(c){
