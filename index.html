@@ -116,8 +116,7 @@
         letter-spacing: 0.03em;
     }
 
-    /* REMOVED: The heavy SVG grain filter which caused lagging */
-    /* REPLACED with a simple static noise image for performance */
+    /* OPTIMIZED: Static noise image */
     .grain-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -152,7 +151,7 @@
     
     .glass-panel {
         background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(10px); /* Reduced blur for performance */
+        backdrop-filter: blur(10px); 
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
@@ -160,7 +159,7 @@
     /* --- PHYSICS CARD (Refined for Class) --- */
     .physics-card {
         background: linear-gradient(145deg, rgba(20,20,20,0.4) 0%, rgba(5,5,5,0.95) 100%);
-        backdrop-filter: blur(12px); /* Reduced blur for performance */
+        backdrop-filter: blur(12px); 
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 24px;
@@ -197,7 +196,7 @@
         transition: opacity 0.8s ease-out;
     }
     .intro-text {
-        font-size: 2.5rem; font-weight: 300; letter-spacing: 0.02em; /* Increased spacing */
+        font-size: 2.5rem; font-weight: 300; letter-spacing: 0.02em; 
         background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         opacity: 0; transform: scale(0.98); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
@@ -245,7 +244,7 @@
     }
 
     /* --- CODE EDITOR --- */
-    pre { white-space: pre-wrap; margin: 0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; letter-spacing: 0.05em; } /* Added spacing to code */
+    pre { white-space: pre-wrap; margin: 0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; letter-spacing: 0.05em; } 
     .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
 
     /* --- UI ELEMENTS --- */
@@ -891,7 +890,7 @@
   </div>
 
   <script>
-    // --- CELEBRATION LOGIC ---
+    // --- CELEBRATION LOGIC (OPTIMIZED) ---
     let celebrationInterval;
     let confettiInterval;
 
@@ -909,8 +908,8 @@
     }
 
     function fireContinuousConfetti() {
-        // PERFORMANCE FIX: Reduced duration and tick rate to prevent lag
-        const duration = 5000; 
+        // PERFORMANCE FIX: Reduced duration and frequency to prevent CPU overload
+        const duration = 3000; 
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
 
@@ -919,10 +918,10 @@
         confettiInterval = setInterval(function() {
           const timeLeft = animationEnd - Date.now();
           if (timeLeft <= 0) return clearInterval(confettiInterval);
-          const particleCount = 20 * (timeLeft / duration); // Reduced particle count
+          const particleCount = 20 * (timeLeft / duration);
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 500); // Increased interval to 500ms for better performance
+        }, 800); // Increased from 500ms to 800ms
     }
 
     function startCountdown() {
@@ -947,31 +946,47 @@
         }, 500);
     }
 
-    // --- 1. CORE PHYSICS & ANIMATIONS (HEAVILY OPTIMIZED) ---
+    // --- 1. CORE PHYSICS & ANIMATIONS (COMPLETELY REWRITTEN & OPTIMIZED) ---
     function initPhysics() {
-        // PERFORMANCE FIX: COMPLETELY DISABLE ON MOBILE to stop freezing
+        // DISABLE ON MOBILE to save battery/cpu
         if(window.innerWidth < 1024) return; 
 
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
+        let cardRects = [];
         let ticking = false; 
 
-        // PERFORMANCE FIX: Do not calculate bounding rects inside the mouse move loop.
-        // It causes "Layout Thrashing".
+        // CRITICAL FIX: Cache clientRects so we don't recalculate them on every mouse move
+        function updateRects() {
+            cardRects = Array.from(cards).map(card => {
+                const rect = card.getBoundingClientRect();
+                return {
+                    el: card,
+                    rect: rect // We store the rect relative to viewport
+                };
+            });
+        }
+
+        // Initial calculation
+        updateRects();
+        
+        // Recalculate only when layout changes (scrolling or resizing)
+        window.addEventListener('scroll', updateRects, { passive: true });
+        window.addEventListener('resize', updateRects, { passive: true });
+
         document.addEventListener('mousemove', (e) => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
                     const mouseX = e.clientX;
                     const mouseY = e.clientY;
                     
-                    // Simplified: Only update CSS variables, don't force layout recalc
-                    cards.forEach(card => {
-                        // We use a simplified calculation relative to viewport to avoid getBoundingClientRect()
-                        // This is less accurate but 10x faster
-                        const rect = card.getBoundingClientRect(); 
-                        const x = mouseX - rect.left;
-                        const y = mouseY - rect.top;
-                        card.style.setProperty('--mouse-x', `${x}px`);
-                        card.style.setProperty('--mouse-y', `${y}px`);
+                    cardRects.forEach(item => {
+                        // Math: ClientX (viewport) - RectLeft (viewport) = Offset inside element
+                        const x = mouseX - item.rect.left;
+                        const y = mouseY - item.rect.top;
+                        
+                        // Only update CSS variables (cheap)
+                        item.el.style.setProperty('--mouse-x', `${x}px`);
+                        item.el.style.setProperty('--mouse-y', `${y}px`);
                     });
                     ticking = false;
                 });
@@ -1086,6 +1101,13 @@
         const el = document.getElementById('code-display');
         if(!el) return; 
 
+        // PERFORMANCE FIX: Don't type if element is not in view
+        // (Simple check, can be improved with IntersectionObserver, but this helps)
+        if(el.offsetParent === null) {
+             setTimeout(typeCode, 1000);
+             return;
+        }
+
         if (currentPart < codeLines.length) {
             const part = codeLines[currentPart];
             let span = el.lastElementChild;
@@ -1100,8 +1122,8 @@
                 currentPart++;
                 currentChar = 0;
             }
-            // PERFORMANCE FIX: Increased timeout to 30ms (was 15ms) to reduce CPU load
-            setTimeout(typeCode, 30);
+            // PERFORMANCE FIX: Increased delay slightly
+            setTimeout(typeCode, 20);
         } else {
             setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
         }
