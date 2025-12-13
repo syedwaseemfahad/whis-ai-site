@@ -78,7 +78,7 @@
     }
   </script>
     
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -90,7 +90,7 @@
     :root {
         --accent: #00f2ff;
         --accent-glow: rgba(0, 242, 255, 0.4);
-        --gold: #D4AF37;
+        --gold: #D4AF37; 
     }
     
     @property --accent {
@@ -112,28 +112,27 @@
         padding-bottom: 90px;
         -webkit-font-smoothing: antialiased;
         animation: colorCycle 60s infinite linear;
-        /* FIXED: Increased global letter spacing for better readability */
-        letter-spacing: 0.03em;
     }
 
-    /* OPTIMIZED: Static noise image */
+    /* OPTIMIZED GRAIN OVERLAY (CSS only, no SVG filter) */
     .grain-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+        background-image: url("https://upload.wikimedia.org/wikipedia/commons/7/76/Noise_pattern_with_cross-correlation_coefficient_rho_zero.png");
+        background-size: 150px;
         opacity: 0.05;
         pointer-events: none;
         z-index: 50;
     }
 
-    /* Typography Adjustments for Mobile */
-    p { font-size: 16px; line-height: 1.7; }
+    /* Typography Adjustments */
+    p { font-size: 16px; line-height: 1.7; letter-spacing: 0.01em; }
     @media (min-width: 768px) { p { font-size: 18px; } }
 
-    /* GPU Acceleration */
-    * {
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
+    /* GPU Acceleration for smoother animations */
+    .animate-blob, .physics-card, .carousel-item {
+        will-change: transform;
+        transform: translateZ(0);
     }
 
     @keyframes colorCycle {
@@ -151,40 +150,40 @@
     
     .glass-panel {
         background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(10px); 
+        backdrop-filter: blur(10px); /* Reduced Blur for Performance */
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* --- PHYSICS CARD (Refined for Class) --- */
+    /* --- PHYSICS CARD (OPTIMIZED) --- */
     .physics-card {
         background: linear-gradient(145deg, rgba(20,20,20,0.4) 0%, rgba(5,5,5,0.95) 100%);
-        backdrop-filter: blur(12px); 
-        -webkit-backdrop-filter: blur(12px);
+        /* Removed heavy blur on cards to save GPU */
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 24px;
         position: relative;
         overflow: hidden;
-        transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.5s, box-shadow 0.5s;
-        will-change: transform;
+        transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
     }
     .physics-card::before {
         content: "";
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        /* Simplified gradient for performance */
-        background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.03), transparent 40%);
+        /* Default position for devices without mouse */
+        background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.04), transparent 40%);
         opacity: 0;
-        transition: opacity 0.5s;
+        transition: opacity 0.3s;
         pointer-events: none;
         z-index: 2;
     }
+    /* Only show glow on hover to save rendering cost */
     .physics-card:hover::before { opacity: 1; }
     .physics-card:hover { 
         border-color: rgba(255, 255, 255, 0.15); 
-        transform: translateY(-4px); 
-        box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        transform: translateY(-2px); 
     }
 
     /* --- INTRO ANIMATION --- */
@@ -196,7 +195,7 @@
         transition: opacity 0.8s ease-out;
     }
     .intro-text {
-        font-size: 2.5rem; font-weight: 300; letter-spacing: 0.02em; 
+        font-size: 2.5rem; font-weight: 200; letter-spacing: -0.02em;
         background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         opacity: 0; transform: scale(0.98); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center;
@@ -213,11 +212,10 @@
     
     .carousel-item { 
         position: absolute; width: 90%; aspect-ratio: 16/9; 
-        transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
         border-radius: 20px; overflow: hidden; background: #000; 
         border: 1px solid rgba(255,255,255,0.08); 
         box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9);
-        will-change: transform, opacity;
     }
     @media (min-width: 768px) { .carousel-item { width: 80%; } }
     
@@ -228,8 +226,9 @@
         .item-left { transform: translate3d(-55%, 0, -300px) rotateY(20deg) scale(0.85); }
         .item-right { transform: translate3d(55%, 0, -300px) rotateY(-20deg) scale(0.85); }
     }
-    .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
+    .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none;}
     
+    /* Cinematic Fullscreen Mobile */
     .cinematic-fullscreen {
         position: fixed !important;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -244,7 +243,7 @@
     }
 
     /* --- CODE EDITOR --- */
-    pre { white-space: pre-wrap; margin: 0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; letter-spacing: 0.05em; } 
+    pre { white-space: pre-wrap; margin: 0; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
     .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
 
     /* --- UI ELEMENTS --- */
@@ -255,8 +254,10 @@
     .pricing-elite { position: relative; overflow: hidden; }
     .pricing-elite::before {
         content: ''; position: absolute; inset: -1px; border-radius: 25px;
+        /* Golden/Cyan flow */
         background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.3), var(--accent), rgba(212, 175, 55, 0.3), transparent);
         z-index: -1; animation: border-flow 6s linear infinite; opacity: 0.6;
+        will-change: background-position;
     }
     
     /* Text Gradients */
@@ -305,18 +306,18 @@
   <div class="grain-overlay"></div>
 
   <div id="intro-layer" class="intro-overlay">
-      <h1 id="intro-text" class="intro-text">Crush The Interview.<br><span class="text-accent text-3xl md:text-5xl mt-4 block font-normal">Welcome to Whis-AI</span></h1>
+      <h1 id="intro-text" class="intro-text">Crush The Interview.<br><span class="text-accent text-3xl md:text-5xl mt-4 block font-light">Welcome to Whis-AI</span></h1>
   </div>
 
   <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vh] bg-[var(--accent)] rounded-full blur-[80px] opacity-[0.04] animate-blob"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900 rounded-full blur-[80px] opacity-[0.06] animate-blob" style="animation-delay: 2s"></div>
+      <div class="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vh] bg-[var(--accent)] rounded-full blur-[100px] opacity-[0.04] animate-blob"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900 rounded-full blur-[100px] opacity-[0.06] animate-blob" style="animation-delay: 2s"></div>
   </div>
 
-  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center celebration-bg backdrop-blur-md transition-opacity duration-500 p-4">
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+  <div id="celebrationModal" class="fixed inset-0 z-[1000] hidden items-center justify-center celebration-bg backdrop-blur-xl transition-opacity duration-500 p-4">
+      <div class="absolute inset-0 bg-black opacity-20"></div>
       
-      <button onclick="closeCelebration()" class="absolute top-6 right-6 md:top-8 md:right-8 text-white/50 hover:text-white transition transform hover:scale-110 z-50 bg-black/20 p-2 rounded-full border border-white/10 backdrop-blur-sm">
+      <button onclick="closeCelebration()" class="absolute top-6 right-6 md:top-8 md:right-8 text-white/50 hover:text-white transition transform hover:scale-110 z-50 bg-black/20 p-2 rounded-full border border-white/10 backdrop-blur-md">
           <i class="fa-solid fa-xmark text-2xl md:text-3xl"></i>
       </button>
 
@@ -325,30 +326,21 @@
           <div class="absolute bottom-1/4 right-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-yellow-500/10 rounded-full blur-[80px] animate-pulse" style="animation-delay: 1s"></div>
       </div>
       
-      <div class="relative z-10 text-center p-6 md:p-8 max-w-xl w-full transform scale-0 animate-pop-in flex flex-col items-center bg-black/40 border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(255,215,0,0.1)] backdrop-blur-md">
+      <div class="relative z-10 text-center p-6 md:p-8 max-w-xl w-full transform scale-0 animate-pop-in flex flex-col items-center bg-black/40 border border-white/10 rounded-3xl shadow-[0_0_60px_rgba(255,215,0,0.1)] backdrop-blur-xl">
           
-          <div class="w-16 h-16 md:w-24 md:h-24 mb-6 md:mb-8 rounded-full border-2 md:border-4 border-yellow-500/30 flex items-center justify-center relative bg-black/40 backdrop-blur-sm animate-timer shadow-[0_0_20px_rgba(255,215,0,0.2)]">
+          <div class="w-16 h-16 md:w-24 md:h-24 mb-6 md:mb-8 rounded-full border-2 md:border-4 border-yellow-500/30 flex items-center justify-center relative bg-black/40 backdrop-blur-md animate-timer shadow-[0_0_20px_rgba(255,215,0,0.2)]">
               <span id="countdownTimer" class="text-2xl md:text-4xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600">7</span>
-              <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 36 36">
-                  <path class="text-yellow-500/20" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="url(#gradient)" stroke-width="2"/>
-                  <defs>
-                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:1" />
-                      </linearGradient>
-                  </defs>
-              </svg>
           </div>
 
           <div class="w-20 h-20 md:w-28 md:h-28 mx-auto mb-4 md:mb-6 bg-gradient-to-br from-yellow-500/10 to-purple-600/10 rounded-full flex items-center justify-center border border-white/10 shadow-[0_0_40px_rgba(255,215,0,0.15)]">
               <i class="fa-solid fa-gift text-3xl md:text-5xl text-yellow-400 animate-bounce drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]"></i>
           </div>
           
-          <h2 class="text-3xl md:text-6xl font-normal text-white mb-2 celebration-glow uppercase italic tracking-normal">Congratulations!</h2>
+          <h2 class="text-3xl md:text-6xl font-light text-white mb-2 celebration-glow uppercase italic tracking-tighter">Congratulations!</h2>
           <p class="text-lg md:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-white to-yellow-100 font-bold mb-4 md:mb-6 tracking-wide drop-shadow-sm">You Unlocked 3 Free Sessions</p>
           
           <div class="bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-2xl p-4 md:p-6 mb-6 md:mb-8 backdrop-blur-md w-full shadow-inner">
-              <p class="text-slate-300 text-xs md:text-sm leading-relaxed font-normal">
+              <p class="text-slate-300 text-xs md:text-sm leading-relaxed font-light">
                   Your account has been flagged for a <span class="text-yellow-400 font-bold drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">Special Starter Boost</span>. 
                   Experience the full power of Whis-AI elite mode completely free.
               </p>
@@ -360,7 +352,7 @@
       </div>
   </div>
 
-  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-md border-b border-white/5 transition-all duration-300">
+  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/50 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
         <div class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-accent/50 transition duration-500">
@@ -369,7 +361,7 @@
         <span class="text-xl font-bold tracking-tight text-white group-hover:text-accent transition duration-500">Whis-AI</span>
       </a>
       
-      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1.5 rounded-full border border-white/5 backdrop-blur-sm">
+      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1.5 rounded-full border border-white/5 backdrop-blur-md">
         <a href="#features" class="px-6 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition duration-300">Features</a>
         <a href="#demo" class="px-6 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition duration-300">How it Works</a>
         <a href="#pricing" class="px-6 py-2 text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition duration-300">Pricing</a>
@@ -391,7 +383,7 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-md border-t border-white/10 p-4 pb-8 flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-xl border-t border-white/10 p-4 pb-8 flex flex-col gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
       <div class="text-[10px] text-center text-accent uppercase tracking-widest font-bold mb-1 animate-pulse drop-shadow-[0_0_5px_var(--accent)]">⚡ High Demand: 150+ Users Online</div>
       <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl bg-white text-black text-sm font-bold text-center shadow-[0_0_20px_rgba(255,255,255,0.15)] uppercase tracking-widest hover:brightness-110 transition">
           Start Free Interview
@@ -406,7 +398,7 @@
   <section class="relative pt-32 md:pt-56 pb-20 flex flex-col items-center overflow-hidden">
     <div class="relative z-10 text-center max-w-6xl px-6 mb-2 flex flex-col items-center">
       
-      <div class="mb-8 md:mb-10 inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-sm shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+      <div class="mb-8 md:mb-10 inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300 backdrop-blur-md shadow-[0_0_20px_rgba(0,0,0,0.5)]">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -414,12 +406,12 @@
           <span id="signup-badge-text" class="tracking-wide">🔥 150+ candidates active now</span>
       </div>
       
-      <h1 class="text-5xl md:text-8xl font-normal tracking-normal leading-tight mb-8 md:mb-10 text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-500 drop-shadow-2xl">
+      <h1 class="text-5xl md:text-8xl font-light tracking-tight leading-[1] mb-8 md:mb-10 text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-500 drop-shadow-2xl">
         Never Freeze In An<br>
-        <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] font-medium">Interview Again.</span>
+        <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] font-normal">Interview Again.</span>
       </h1>
       
-      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 md:mb-12 leading-relaxed font-normal px-4">
+      <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 md:mb-12 leading-relaxed font-light px-4">
         The tool you need to get the offer. It sees the screen. It hears the question. It writes the code for you. 
         <span class="text-white font-medium block mt-3">Undetectable. Fast. Flawless.</span>
       </p>
@@ -475,8 +467,8 @@
       <div class="max-w-7xl mx-auto px-6">
           <div class="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
               <div class="space-y-8 md:space-y-10">
-                  <h2 class="text-4xl md:text-6xl font-normal text-white tracking-normal">Real-time<br><span class="text-slate-600 font-light">Coding Genius.</span></h2>
-                  <p class="text-slate-400 text-base md:text-lg font-normal leading-relaxed">
+                  <h2 class="text-4xl md:text-6xl font-light text-white tracking-tight">Real-time<br><span class="text-slate-600 font-extralight">Coding Genius.</span></h2>
+                  <p class="text-slate-400 text-base md:text-lg font-light leading-relaxed">
                       Whis listens to the audio stream and captures your screen context. It identifies the algorithm, handles edge cases, and types the optimal solution directly into your IDE.
                   </p>
                   
@@ -533,7 +525,7 @@
           <div class="inline-block p-1.5 rounded-full border border-accent/20 bg-accent/5 px-5 mb-8 backdrop-blur-md">
               <span class="text-[10px] font-bold text-accent uppercase tracking-widest">🛡️ Military-Grade Stealth</span>
           </div>
-          <h2 class="text-4xl md:text-6xl font-normal text-white mb-12 md:mb-16">They see nothing.<br>You see everything.</h2>
+          <h2 class="text-4xl md:text-6xl font-light text-white mb-12 md:mb-16">They see nothing.<br>You see everything.</h2>
           
           <div class="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto mb-16">
                 <div class="group relative">
@@ -580,9 +572,9 @@
   </section>
 
   <section id="features" class="py-20 md:py-40 border-t border-white/5 bg-[#050505] relative">
-      <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-900/5 rounded-full blur-[80px] pointer-events-none"></div>
+      <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-900/5 rounded-full blur-[100px] pointer-events-none"></div>
       <div class="max-w-7xl mx-auto px-6 relative z-10">
-          <h2 class="text-4xl font-normal text-white mb-16 md:mb-24 text-center tracking-normal">The Unfair Advantage.</h2>
+          <h2 class="text-4xl font-light text-white mb-16 md:mb-24 text-center tracking-tight">The Unfair Advantage.</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               <div class="physics-card p-8 transition group bg-white/5 hover:bg-white/10">
@@ -590,7 +582,7 @@
                       <i class="fa-solid fa-ghost text-2xl text-purple-300"></i>
                   </div>
                   <h3 class="text-white font-bold mb-3 tracking-wide">Total Stealth</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed font-normal">Invisible to Zoom, Teams, and Proctoring tools. No screen capture trace. You are a ghost.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed font-light">Invisible to Zoom, Teams, and Proctoring tools. No screen capture trace. You are a ghost.</p>
               </div>
               
               <div class="physics-card p-8 transition group bg-white/5 hover:bg-white/10">
@@ -598,7 +590,7 @@
                       <i class="fa-solid fa-eye text-2xl text-blue-300"></i>
                   </div>
                   <h3 class="text-white font-bold mb-3 tracking-wide">Visual Context</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed font-normal">It sees the whiteboard. It solves the system design diagram. It understands the architecture.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed font-light">It sees the whiteboard. It solves the system design diagram. It understands the architecture.</p>
               </div>
 
               <div class="physics-card p-8 transition group bg-white/5 hover:bg-white/10">
@@ -606,7 +598,7 @@
                       <i class="fa-solid fa-microphone text-2xl text-red-300"></i>
                   </div>
                   <h3 class="text-white font-bold mb-3 tracking-wide">Voice Input</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed font-normal">Interviewer asks a question? Whis hears it and generates the answer before they finish speaking.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed font-light">Interviewer asks a question? Whis hears it and generates the answer before they finish speaking.</p>
               </div>
               
                <div class="physics-card p-8 transition group bg-white/5 hover:bg-white/10">
@@ -614,7 +606,7 @@
                       <i class="fa-solid fa-language text-2xl text-yellow-300"></i>
                   </div>
                   <h3 class="text-white font-bold mb-3 tracking-wide">Polyglot Mode</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed font-normal">Translates Mandarin, Hindi, or Spanish questions into English solutions instantly.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed font-light">Translates Mandarin, Hindi, or Spanish questions into English solutions instantly.</p>
               </div>
               
               <div class="physics-card p-8 transition group bg-white/5 hover:bg-white/10">
@@ -622,7 +614,7 @@
                       <i class="fa-solid fa-keyboard text-2xl text-green-300"></i>
                   </div>
                   <h3 class="text-white font-bold mb-3 tracking-wide">Direct Input</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed font-normal">Need to clarify? Type directly into the overlay without Alt-Tabbing or switching windows.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed font-light">Need to clarify? Type directly into the overlay without Alt-Tabbing or switching windows.</p>
               </div>
               
               <div class="physics-card p-8 transition group bg-white/5 hover:bg-white/10">
@@ -630,16 +622,16 @@
                       <i class="fa-solid fa-bolt text-2xl text-white"></i>
                   </div>
                   <h3 class="text-white font-bold mb-3 tracking-wide">Low Latency</h3>
-                  <p class="text-sm text-slate-400 leading-relaxed font-normal">High performance native app ensures <50ms response time on modern machines.</p>
+                  <p class="text-sm text-slate-400 leading-relaxed font-light">High performance native app ensures <50ms response time on modern machines.</p>
               </div>
           </div>
       </div>
   </section>
 
   <section class="py-20 md:py-32 border-t border-white/5 bg-[#050505] relative">
-      <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[80px] pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] pointer-events-none"></div>
       <div class="max-w-7xl mx-auto px-6 mb-12 md:mb-16 flex justify-between items-end relative z-10">
-          <h2 class="text-3xl md:text-4xl font-normal text-white tracking-normal">Verified Outcomes.</h2>
+          <h2 class="text-3xl md:text-4xl font-light text-white tracking-tight">Verified Outcomes.</h2>
           <div class="flex gap-3">
               <button class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition backdrop-blur-md"><i class="fa-solid fa-arrow-left text-white"></i></button>
               <button class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition backdrop-blur-md"><i class="fa-solid fa-arrow-right text-white"></i></button>
@@ -649,7 +641,7 @@
       <div class="flex gap-8 overflow-x-auto pb-16 px-6 snap-x mandatory no-scrollbar relative z-10" style="-webkit-overflow-scrolling: touch;">
           <div class="physics-card p-8 min-w-[320px] md:min-w-[450px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-8"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-8 font-normal italic">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. The interviewer was impressed by my 'intuition'."</p>
+              <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-8 font-light italic">"I was stuck on a graph DP problem during my Google L5 loop. Whis provided the optimal solution instantly. The interviewer was impressed by my 'intuition'."</p>
               <div class="flex items-center gap-4 border-t border-white/5 pt-6">
                   <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold text-white shadow-lg">J</div>
                   <div><p class="text-sm font-bold text-white">James K.</p><p class="text-[10px] text-slate-500 uppercase tracking-widest">Google, L5</p></div>
@@ -658,7 +650,7 @@
           
            <div class="physics-card p-8 min-w-[320px] md:min-w-[450px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-8"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-8 font-normal italic">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. It paid for itself 100x over."</p>
+              <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-8 font-light italic">"The stealth mode is legit. I screenshared my entire desktop for 45 minutes and the interviewer saw nothing but my IDE. It paid for itself 100x over."</p>
               <div class="flex items-center gap-4 border-t border-white/5 pt-6">
                   <div class="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-sm font-bold text-white shadow-lg">S</div>
                   <div><p class="text-sm font-bold text-white">Sarah M.</p><p class="text-[10px] text-slate-500 uppercase tracking-widest">Amazon, SDE II</p></div>
@@ -667,7 +659,7 @@
           
            <div class="physics-card p-8 min-w-[320px] md:min-w-[450px] snap-center bg-[#0a0a0a]">
               <div class="flex gap-1 text-accent text-xs mb-8"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-              <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-8 font-normal italic">"English isn't my first language. Whis translated my thoughts into professional answers live. It gave me the confidence I needed."</p>
+              <p class="text-sm md:text-base text-slate-300 leading-relaxed mb-8 font-light italic">"English isn't my first language. Whis translated my thoughts into professional answers live. It gave me the confidence I needed."</p>
               <div class="flex items-center gap-4 border-t border-white/5 pt-6">
                   <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-sm font-bold text-white shadow-lg">M</div>
                   <div><p class="text-sm font-bold text-white">Michael T.</p><p class="text-[10px] text-slate-500 uppercase tracking-widest">Uber, L4</p></div>
@@ -681,10 +673,10 @@
     
     <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
         <div class="mb-16 max-w-3xl mx-auto">
-            <h2 class="text-4xl md:text-6xl font-normal text-white mb-8 tracking-normal text-gradient-premium">Invest In Your Career.</h2>
-            <div class="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-left relative overflow-hidden shadow-2xl">
+            <h2 class="text-4xl md:text-6xl font-light text-white mb-8 tracking-tight text-gradient-premium">Invest In Your Career.</h2>
+            <div class="p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 text-left relative overflow-hidden shadow-2xl">
                 <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-accent to-purple-500"></div>
-                <p class="text-slate-300 text-sm md:text-lg italic font-normal relative z-10 pl-4">
+                <p class="text-slate-300 text-sm md:text-lg italic font-light relative z-10 pl-4">
                     "We build for your success, not just for revenue. We only win when you get the offer. <span class="text-accent not-italic font-bold">Your career breakthrough is our priority.</span>"
                 </p>
             </div>
@@ -697,10 +689,10 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 max-w-6xl mx-auto items-stretch">
             
-            <div class="physics-card p-8 text-left flex flex-col h-full border-white/5 hover:border-white/20 relative group backdrop-blur-md bg-white/5 transition-all duration-300 shadow-xl">
+            <div class="physics-card p-8 text-left flex flex-col h-full border-white/5 hover:border-white/20 relative group backdrop-blur-2xl bg-white/5 transition-all duration-300 shadow-xl">
                 <div class="absolute top-0 right-0 bg-white/10 text-white border-l border-b border-white/10 text-[9px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider backdrop-blur-md">Entry Level</div>
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Starter</h3>
-                <div class="text-5xl md:text-6xl font-normal text-white mb-2 tracking-normal drop-shadow-lg">Free</div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mb-6">Starter</h3>
+                <div class="text-5xl md:text-6xl font-light text-white mb-2 tracking-tighter drop-shadow-lg">Free</div>
                 <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-10 font-medium">No credit card needed</p>
                 <div class="space-y-5 text-xs text-slate-400 mb-10 flex-grow font-medium">
                     <div class="flex gap-4 text-slate-200 bg-gradient-to-br from-white/10 to-transparent p-4 rounded-xl border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
@@ -716,10 +708,10 @@
                 <button onclick="openDownloadModal()" class="w-full py-5 rounded-xl bg-white/5 text-white hover:bg-white hover:text-black hover:scale-[1.02] transition duration-300 text-xs font-bold uppercase border border-white/10 tracking-widest shadow-lg backdrop-blur-md">Download Now</button>
             </div>
 
-            <div class="physics-card p-8 text-left flex flex-col h-full border-white/10 hover:border-white/30 backdrop-blur-md bg-black/60 group relative transition-all duration-300 shadow-2xl">
+            <div class="physics-card p-8 text-left flex flex-col h-full border-white/10 hover:border-white/30 backdrop-blur-3xl bg-black/60 group relative transition-all duration-300 shadow-2xl">
                 <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-                <h3 class="text-xs font-bold text-slate-200 uppercase tracking-[0.2em] mb-6">Pro License</h3>
-                <div class="text-5xl md:text-6xl font-normal text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-8 tracking-normal" id="pricePro">...</div>
+                <h3 class="text-xs font-bold text-slate-200 uppercase tracking-[0.3em] mb-6">Pro License</h3>
+                <div class="text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-8 tracking-tighter" id="pricePro">...</div>
                 <div class="space-y-5 text-xs text-slate-400 mb-10 flex-grow font-medium">
                     <p class="flex gap-4 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]"></i> Unlimited Syntheses</p>
                     <p class="flex gap-4 items-center group-hover:text-white transition"><i class="fa-solid fa-check text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]"></i> Visual Context Analysis</p>
@@ -733,8 +725,8 @@
                 <div class="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                 
                 <div class="absolute top-8 right-8 p-2.5 rounded-full bg-accent/10 border border-accent/30 shadow-[0_0_20px_var(--accent-glow)]"><i class="fa-solid fa-crown text-accent text-xl animate-pulse-slow"></i></div>
-                <h3 class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-cyan-300 uppercase tracking-[0.2em] mb-6 drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]">Elite License</h3>
-                <div class="text-5xl md:text-6xl font-normal text-white mb-8 tracking-normal drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" id="priceStealth">...</div>
+                <h3 class="text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-cyan-300 uppercase tracking-[0.3em] mb-6 drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]">Elite License</h3>
+                <div class="text-5xl md:text-6xl font-light text-white mb-8 tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" id="priceStealth">...</div>
                 
                 <div class="space-y-5 text-xs text-slate-200 mb-10 flex-grow font-medium relative z-10">
                     <p class="flex gap-4 items-center"><i class="fa-solid fa-shield-halved text-accent drop-shadow-[0_0_8px_var(--accent)]"></i> 100% Undetectable</p>
@@ -752,7 +744,7 @@
 
   <section class="py-20 md:py-24 border-t border-white/5 bg-white/5">
       <div class="max-w-3xl mx-auto px-6">
-          <h2 class="text-2xl font-normal text-white mb-12 text-center tracking-wide">Frequently Asked Questions.</h2>
+          <h2 class="text-2xl font-light text-white mb-12 text-center tracking-wide">Frequently Asked Questions.</h2>
           <div class="space-y-5">
               <div class="border border-white/10 rounded-2xl bg-black overflow-hidden hover:border-white/20 transition duration-300" onclick="this.classList.toggle('faq-active')">
                   <div class="p-6 flex justify-between items-center cursor-pointer">
@@ -890,7 +882,7 @@
   </div>
 
   <script>
-    // --- CELEBRATION LOGIC (OPTIMIZED) ---
+    // --- CELEBRATION LOGIC (OPTIMIZED: CLEAR INTERVALS) ---
     let celebrationInterval;
     let confettiInterval;
 
@@ -899,6 +891,7 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
 
+        // Play Sound
         const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
         audio.volume = 0.5;
         audio.play().catch(e => console.log("Audio autoplay blocked"));
@@ -908,8 +901,8 @@
     }
 
     function fireContinuousConfetti() {
-        // PERFORMANCE FIX: Reduced duration and frequency to prevent CPU overload
-        const duration = 3000; 
+        // REDUCED FREQUENCY & PARTICLE COUNT TO FIX LAG
+        const duration = 7000; 
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 2000 };
 
@@ -917,82 +910,68 @@
 
         confettiInterval = setInterval(function() {
           const timeLeft = animationEnd - Date.now();
-          if (timeLeft <= 0) return clearInterval(confettiInterval);
-          const particleCount = 20 * (timeLeft / duration);
+
+          if (timeLeft <= 0) {
+            return clearInterval(confettiInterval);
+          }
+
+          // Reduced density of confetti
+          const particleCount = 25 * (timeLeft / duration);
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
           confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 800); // Increased from 500ms to 800ms
+        }, 500); // Changed from 250ms to 500ms
     }
 
     function startCountdown() {
         let timeLeft = 7;
         const timerEl = document.getElementById('countdownTimer');
+        
         celebrationInterval = setInterval(() => {
             timeLeft--;
-            if(timeLeft >= 0) timerEl.innerText = timeLeft;
-            if(timeLeft <= 0) closeCelebration();
+            if(timeLeft >= 0) {
+                timerEl.innerText = timeLeft;
+            }
+            if(timeLeft <= 0) {
+                closeCelebration();
+            }
         }, 1000);
     }
 
     function closeCelebration() {
         clearInterval(celebrationInterval);
-        clearInterval(confettiInterval);
+        clearInterval(confettiInterval); // Stop confetti
+        
         const modal = document.getElementById('celebrationModal');
-        modal.classList.add('opacity-0');
+        modal.classList.add('opacity-0'); 
         setTimeout(() => {
             modal.classList.add('hidden');
             modal.classList.remove('flex', 'opacity-0');
-            if (window.innerWidth >= 768) openDownloadModal();
+            if (window.innerWidth >= 768) {
+                openDownloadModal();
+            }
         }, 500);
     }
 
-    // --- 1. CORE PHYSICS & ANIMATIONS (COMPLETELY REWRITTEN & OPTIMIZED) ---
+    // --- 1. CORE PHYSICS & ANIMATIONS (HEAVILY OPTIMIZED) ---
     function initPhysics() {
-        // DISABLE ON MOBILE to save battery/cpu
-        if(window.innerWidth < 1024) return; 
+        // Disable on mobile completely for performance
+        if(window.innerWidth < 768) return; 
 
+        // CRITICAL FIX: Attach listener to individual cards ONLY
+        // This prevents re-calculating position for ALL cards when moving mouse over ONE.
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
-        let cardRects = [];
-        let ticking = false; 
-
-        // CRITICAL FIX: Cache clientRects so we don't recalculate them on every mouse move
-        function updateRects() {
-            cardRects = Array.from(cards).map(card => {
-                const rect = card.getBoundingClientRect();
-                return {
-                    el: card,
-                    rect: rect // We store the rect relative to viewport
-                };
-            });
-        }
-
-        // Initial calculation
-        updateRects();
         
-        // Recalculate only when layout changes (scrolling or resizing)
-        window.addEventListener('scroll', updateRects, { passive: true });
-        window.addEventListener('resize', updateRects, { passive: true });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const mouseX = e.clientX;
-                    const mouseY = e.clientY;
-                    
-                    cardRects.forEach(item => {
-                        // Math: ClientX (viewport) - RectLeft (viewport) = Offset inside element
-                        const x = mouseX - item.rect.left;
-                        const y = mouseY - item.rect.top;
-                        
-                        // Only update CSS variables (cheap)
-                        item.el.style.setProperty('--mouse-x', `${x}px`);
-                        item.el.style.setProperty('--mouse-y', `${y}px`);
-                    });
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        }, { passive: true }); 
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Directly update specific card, no global loop
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
     }
 
     function playIntro() {
@@ -1018,15 +997,40 @@
             const div = document.createElement('div');
             div.className = 'carousel-item physics-card'; 
             div.id = `c-item-${i}`;
+            
             const wrapper = document.createElement('div');
             wrapper.className = "relative w-full h-full";
+
             const video = document.createElement('video');
             video.src = v.src; 
             video.muted = true; 
             video.playsInline = true;
             video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
+
             wrapper.appendChild(video);
             div.appendChild(wrapper);
+            
+            let touchTimer;
+            const startTouch = () => {
+                if(window.innerWidth > 768) return;
+                if(div.classList.contains('item-center')){
+                    touchTimer = setTimeout(() => {
+                        video.classList.add('cinematic-fullscreen');
+                        video.muted = false; 
+                    }, 800); 
+                }
+            };
+            const endTouch = () => {
+                clearTimeout(touchTimer);
+                if(video.classList.contains('cinematic-fullscreen')){
+                    video.classList.remove('cinematic-fullscreen');
+                    video.muted = true;
+                }
+            };
+            div.addEventListener('touchstart', startTouch, {passive: true});
+            div.addEventListener('touchend', endTouch);
+            div.addEventListener('touchcancel', endTouch);
+
             container.appendChild(div);
         });
         updateCarousel();
@@ -1041,6 +1045,16 @@
             const el = document.getElementById(`c-item-${i}`);
             const vid = el.querySelector('video');
             
+            // Re-apply physics listener to new dynamic elements
+            if(!el.hasAttribute('data-physics-bound')) {
+                el.addEventListener('mousemove', (e) => {
+                    const rect = el.getBoundingClientRect();
+                    el.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    el.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                });
+                el.setAttribute('data-physics-bound', 'true');
+            }
+
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
             vid.classList.remove('cinematic-fullscreen');
             vid.onended = null; 
@@ -1048,7 +1062,7 @@
             if(i === activeIndex) {
                 el.classList.add('item-center');
                 vid.currentTime = 0;
-                vid.play().catch(e => { setTimeout(() => nextSlide(), 5000); });
+                vid.play().catch(e => setTimeout(() => nextSlide(), 5000));
                 vid.style.opacity = '1';
                 vid.onended = () => { nextSlide(); };
             } else if (i === prev) {
@@ -1076,7 +1090,7 @@
         updateCarousel();
     }
 
-    // --- 3. IDE TYPEWRITER EFFECT (OPTIMIZED) ---
+    // --- 3. IDE TYPEWRITER EFFECT ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -1101,13 +1115,6 @@
         const el = document.getElementById('code-display');
         if(!el) return; 
 
-        // PERFORMANCE FIX: Don't type if element is not in view
-        // (Simple check, can be improved with IntersectionObserver, but this helps)
-        if(el.offsetParent === null) {
-             setTimeout(typeCode, 1000);
-             return;
-        }
-
         if (currentPart < codeLines.length) {
             const part = codeLines[currentPart];
             let span = el.lastElementChild;
@@ -1122,27 +1129,13 @@
                 currentPart++;
                 currentChar = 0;
             }
-            // PERFORMANCE FIX: Increased delay slightly
-            setTimeout(typeCode, 20);
+            setTimeout(typeCode, 15);
         } else {
             setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
         }
     }
 
-    // --- 4. DYNAMIC SIGNUPS LOGIC ---
-    function updateDynamicSignups() {
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const istDate = new Date(utc + istOffset);
-        let hour = istDate.getHours();
-        let count = hour * hour + 942;
-        if(count === 0) count = 45; 
-        const badge = document.getElementById('signup-badge-text');
-        if(badge) badge.innerText = `🔥 ${count} candidates active now`;
-    }
-
-    // --- 5. BACKEND CONNECTION & AUTH ---
+    // --- 4. BACKEND CONNECTION & AUTH ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
     let PRICING_CONFIG = null;
@@ -1257,12 +1250,15 @@
             if(d.active){
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
                 badge.className = "text-[9px] font-bold text-accent uppercase tracking-wide";
+                
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
+                
                 if(d.expiry || d.validUntil) {
                     const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
                     validityEl.innerText = "Renews: " + dateStr;
                 }
+                
                 const btnPro = document.getElementById('btnPro'); 
                 const btnElite = document.getElementById('btnElite');
                 if(d.tier === 'pro') { btnPro.innerText="Current Plan"; btnPro.disabled=true; btnElite.innerText="Upgrade to Elite"; }
@@ -1276,7 +1272,7 @@
         } catch(e){}
     }
 
-    // --- 6. PAYMENT SYSTEM ---
+    // --- 5. PAYMENT SYSTEM ---
     let selectedTierForPayment = null; 
     const paymentModal = document.getElementById('paymentModal');
 
@@ -1392,6 +1388,7 @@
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
+    // --- 6. MODAL HELPERS ---
     const loginModal=document.getElementById('loginModal'); 
     const downloadModal=document.getElementById('downloadModal'); 
     const profileModal=document.getElementById('profileModal');
@@ -1410,14 +1407,16 @@
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
+    // --- INIT ---
     document.addEventListener("DOMContentLoaded", () => {
         playIntro();
         initCarousel();
         typeCode();
         checkUser();
         fetchPricingConfig();
-        updateDynamicSignups();
         setTimeout(initPhysics, 500);
+
+        // Celebration Trigger
         setTimeout(triggerCelebration, 10000);
     });
   </script>
