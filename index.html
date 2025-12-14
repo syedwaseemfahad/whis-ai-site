@@ -201,50 +201,70 @@
     .snap-mandatory-x { scroll-snap-type: x mandatory; }
     .snap-center { scroll-snap-align: center; }
 
-    /* --- NEW PREMIUM SLIDER STYLES --- */
+    /* --- NEW PREMIUM SLIDER STYLES (MAC + VIDEO) --- */
     .comp-container {
         position: relative;
         width: 100%;
         max-width: 800px;
         margin: 0 auto;
-        border-radius: 24px;
+        border-radius: 12px;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.15);
         aspect-ratio: 16/9;
         background: #000;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
         --position: 50%;
     }
     
+    /* Mac Window Header */
+    .mac-header {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 32px;
+        background: rgba(30, 30, 30, 0.95);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        padding-left: 12px;
+        gap: 8px;
+    }
+    .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mac-red { background: #ff5f57; }
+    .mac-yellow { background: #febc2e; }
+    .mac-green { background: #28c840; }
+
     .comp-image {
         position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
+        top: 32px; /* Below header */
+        left: 0; width: 100%; bottom: 0;
         pointer-events: none;
         user-select: none;
     }
 
     .comp-overlay {
         position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
+        top: 32px; /* Below header */
+        left: 0; width: 100%; bottom: 0;
         /* The clip logic: shows only the left part */
         clip-path: inset(0 calc(100% - var(--position)) 0 0);
         z-index: 10;
-        background: #111; /* Fallback */
+        background: #000; 
     }
 
     /* The glowing separator line */
     .comp-divider {
         position: absolute;
-        top: 0; bottom: 0; left: var(--position);
-        width: 2px;
-        background: var(--accent);
+        top: 32px; bottom: 0; left: var(--position);
+        width: 1px;
+        background: rgba(255,255,255,0.5);
         z-index: 20;
         transform: translateX(-50%);
-        box-shadow: 0 0 15px var(--accent-glow);
+        box-shadow: 0 0 20px var(--accent);
         pointer-events: none;
     }
 
-    /* The Draggable Range Input (Invisible but functional) */
+    /* The Draggable Range Input */
     .comp-slider {
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -256,65 +276,56 @@
     }
     .comp-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
-        width: 40px; height: 100vh; /* Large thumb for better touch area */
+        width: 40px; height: 100vh;
         background: transparent;
         cursor: ew-resize;
     }
 
-    /* The Premium Handle Button */
+    /* The Premium Handle (No Arrows) */
     .comp-handle-btn {
         position: absolute;
         top: 50%; left: var(--position);
-        width: 48px; height: 48px;
-        background: rgba(0,0,0,0.5);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 2px solid white;
-        border-radius: 50%;
+        width: 6px; height: 48px;
+        background: white;
+        border-radius: 4px;
         transform: translate(-50%, -50%);
         z-index: 21;
         pointer-events: none;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 10px var(--accent-glow);
-        transition: transform 0.1s ease;
+        box-shadow: 0 0 20px var(--accent), 0 0 10px white;
+        transition: height 0.2s ease;
     }
-    
-    /* Interactive Pop Effect */
-    .comp-container:active .comp-handle-btn {
-        transform: translate(-50%, -50%) scale(0.9);
-        border-color: var(--accent);
+    .comp-container:hover .comp-handle-btn {
+        height: 64px;
     }
 
     .comp-label {
         position: absolute;
-        top: 24px;
-        padding: 6px 16px;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(8px);
+        top: 48px;
+        padding: 4px 12px;
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(4px);
         color: white;
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 10px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.15em;
-        border-radius: 30px;
+        letter-spacing: 0.1em;
+        border-radius: 6px;
         pointer-events: none;
         z-index: 15;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        transition: opacity 0.3s;
     }
-    .label-left { left: 24px; border: 1px solid rgba(255,255,255,0.15); }
-    .label-right { right: 24px; border: 1px solid var(--accent); color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+    .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); }
+    .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
 
-    /* Typing Cursor for Slider */
-    .slider-cursor {
+    /* Typing Cursor */
+    .typing-cursor {
         display: inline-block;
-        width: 6px;
-        height: 12px;
+        width: 2px;
+        height: 1em;
         background-color: var(--accent);
-        animation: pulse 1s infinite;
-        vertical-align: middle;
-        margin-left: 2px;
+        animation: blink 1s step-end infinite;
+        vertical-align: text-bottom;
     }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
 <body>
@@ -432,20 +443,19 @@
                  <span class="text-[10px] text-slate-500 font-mono tracking-widest uppercase"><i class="fa-solid fa-ghost mr-2"></i>Ghost Mode: Active</span>
              </div>
              <div class="p-6 font-mono text-sm min-h-[250px] relative">
-                 <div class="text-slate-500 mb-3 text-xs flex items-center gap-2">
+                 <div id="hero-status" class="text-slate-500 mb-3 text-xs flex items-center gap-2 hidden">
                     <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> 
                     Listening to audio...
                  </div>
                  
-                 <div class="mb-6">
-                    <span class="text-accent text-xs uppercase tracking-wider block mb-1">Interviewer Question Detected:</span>
-                    <p class="text-white text-lg">"Can you explain the difference between a Process and a Thread?"</p>
+                 <div id="hero-question-container" class="mb-6 hidden">
+                    <span class="text-accent text-xs uppercase tracking-wider block mb-1">INTERVIEWER QUESTION DETECTED:</span>
+                    <p id="hero-question-text" class="text-white text-lg"></p>
                  </div>
 
-                 <div class="p-4 bg-white/5 rounded-lg border-l-2 border-accent text-slate-300 leading-relaxed shadow-lg">
+                 <div id="hero-answer-container" class="p-4 bg-white/5 rounded-lg border-l-2 border-accent text-slate-300 leading-relaxed shadow-lg hidden">
                      <span class="text-accent text-xs font-bold block mb-1">Suggested Answer:</span>
-                     A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.
-                     <span class="animate-pulse w-2 h-4 inline-block bg-accent align-middle ml-1"></span>
+                     <span id="hero-answer-text"></span><span class="typing-cursor"></span>
                  </div>
              </div>
         </div>
@@ -705,48 +715,48 @@
           <h2 class="text-3xl font-medium text-white mb-8">Invisible to Zoom, Teams & Meets.</h2>
            
           <div class="comp-container" id="comparisonSlider">
-              <div class="comp-label label-left">Interviewer View</div>
-              <div class="comp-label label-right">Your View</div>
-
-              <div class="comp-image flex items-center justify-center bg-[#1a1a1a]">
-                   <div class="relative w-full h-full flex items-center justify-center">
-                        <i class="fa-solid fa-user text-slate-700 text-6xl"></i>
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] max-w-[400px] bg-black/90 border border-white/10 rounded-xl flex flex-col shadow-2xl backdrop-blur-md overflow-hidden z-20">
-                            <div class="bg-white/5 px-4 py-2 flex items-center justify-between border-b border-white/5">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                                    <span class="text-[10px] text-slate-400 font-mono">LIVE AUDIO</span>
-                                </div>
-                                <span class="text-[10px] text-accent font-bold">WHIS-AI</span>
-                            </div>
-                            
-                            <div class="p-4 space-y-4">
-                                <div>
-                                    <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Detected Question</p>
-                                    <p class="text-sm font-medium text-white leading-tight">"How do you handle hot partitions in a Kafka topic?"</p>
-                                </div>
-                                
-                                <div class="bg-accent/5 border-l-2 border-accent pl-3 py-1">
-                                    <p class="text-[10px] text-accent font-bold mb-1">Suggested Answer</p>
-                                    <p class="text-xs text-slate-300 leading-relaxed">
-                                        <span id="slider-answer-text"></span><span class="slider-cursor"></span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                   </div>
+              <div class="mac-header">
+                  <div class="mac-dot mac-red"></div>
+                  <div class="mac-dot mac-yellow"></div>
+                  <div class="mac-dot mac-green"></div>
               </div>
 
-              <div class="comp-overlay flex items-center justify-center bg-[#1a1a1a]">
-                  <i class="fa-solid fa-user text-slate-700 text-6xl"></i>
+              <div class="comp-image flex items-center justify-center">
+                  <video src="visual.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-60"></video>
+                  
+                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[350px] bg-black/80 border border-white/10 rounded-xl backdrop-blur-md shadow-2xl flex flex-col overflow-hidden z-20">
+                      <div class="bg-white/5 px-3 py-2 border-b border-white/5 flex justify-between items-center">
+                          <div class="flex gap-2 items-center">
+                              <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                              <span class="text-[9px] text-slate-400 font-mono tracking-widest">LIVE AUDIO</span>
+                          </div>
+                          <span class="text-[9px] text-accent font-bold">WHIS-AI</span>
+                      </div>
+                      <div class="p-4">
+                          <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Question Detected</p>
+                          <p class="text-xs text-white font-medium leading-relaxed mb-3">"How do you handle hot partitions in a Kafka topic?"</p>
+                          
+                          <div class="bg-accent/10 border-l-2 border-accent pl-3 py-2 rounded-r">
+                               <p class="text-[9px] text-accent font-bold mb-1">Suggested Answer</p>
+                               <p class="text-[10px] text-slate-200 leading-relaxed">
+                                   <span id="slider-answer-text"></span><span class="typing-cursor"></span>
+                               </p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="comp-overlay flex items-center justify-center">
+                   <video src="visual.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-80"></video>
               </div>
 
               <div class="comp-divider"></div>
               <input type="range" min="0" max="100" value="50" class="comp-slider" oninput="updateSlider(this.value)">
               
-              <div class="comp-handle-btn">
-                <i class="fa-solid fa-arrows-left-right text-white text-sm"></i>
-              </div>
+              <div class="comp-handle-btn"></div>
+              
+              <div class="comp-label label-left">Interviewer View</div>
+              <div class="comp-label label-right">Your View</div>
           </div>
           
           <p class="text-xs text-slate-500 mt-6 tracking-wide uppercase">Drag slider to reveal undetectable mode</p>
@@ -783,189 +793,6 @@
                  <span class="text-sm font-bold text-slate-300 group-hover:text-white">Skype</span>
              </div>
 
-          </div>
-      </div>
-  </section>
-
-  <section id="features" class="py-24 bg-black/60 backdrop-blur-sm">
-      <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl md:text-5xl font-medium text-white mb-16 text-center">The Core Stack.</h2>
-           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Voice Capture</h3>
-                  <p class="text-sm text-slate-400">Real-time audio answers.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition"><i class="fa-solid fa-desktop text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Screen Vision</h3>
-                  <p class="text-sm text-slate-400">Visuals & Diagrams analysis.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-400 group-hover:scale-110 transition"><i class="fa-solid fa-keyboard text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Direct Input</h3>
-                  <p class="text-sm text-slate-400">Type queries for precision.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition"><i class="fa-solid fa-eye-slash text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">100% Invisible</h3>
-                  <p class="text-sm text-slate-400">Hidden from screenshare.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Ghost Mode</h3>
-                  <p class="text-sm text-slate-400">No dock icon, background run.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 text-yellow-400 group-hover:scale-110 transition"><i class="fa-solid fa-language text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Universal Translator</h3>
-                  <p class="text-sm text-slate-400">Any language to English code.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4 text-pink-400 group-hover:scale-110 transition"><i class="fa-solid fa-brain text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Smart Context</h3>
-                  <p class="text-sm text-slate-400">Resume & JD aware answers.</p>
-              </div>
-
-              <div class="physics-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5">
-                  <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition"><i class="fa-solid fa-gift text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Free Trial</h3>
-                  <p class="text-sm text-slate-300">3 free sessions daily.</p>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <section class="py-24 border-t border-white/5 bg-[#050505]">
-      <div class="max-w-7xl mx-auto px-6">
-          <div class="flex justify-between items-end mb-12">
-              <h2 class="text-3xl font-medium text-white">Engineers love Whis.</h2>
-              <div class="text-right">
-                  <div class="flex gap-1 text-accent text-sm mb-1">
-                      <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                  </div>
-                  <p class="text-[10px] text-slate-500">Rated 4.9/5 by 2,000+ users</p>
-              </div>
-          </div>
-           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div class="physics-card p-8 flex flex-col justify-between">
-                  <div>
-                      <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">JK</div>
-                      <div>
-                          <p class="text-xs font-bold text-white">James K.</p>
-                          <p class="text-[10px] text-slate-500">Google, Senior SDE</p>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="physics-card p-8 flex flex-col justify-between border-accent/20">
-                  <div>
-                      <i class="fa-solid fa-quote-left text-accent/20 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"The HLD visual analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-xs font-bold">SM</div>
-                      <div>
-                          <p class="text-xs font-bold text-white">Sarah M.</p>
-                          <p class="text-[10px] text-slate-500">Amazon, SDE II</p>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="physics-card p-8 flex flex-col justify-between">
-                  <div>
-                      <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold">AL</div>
-                      <div>
-                          <p class="text-xs font-bold text-white">Arjun L.</p>
-                          <p class="text-[10px] text-slate-500">Microsoft, L61</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <section class="py-24 border-t border-white/5 bg-[#050505]">
-      <div class="max-w-4xl mx-auto px-6 text-center">
-          <h2 class="text-4xl font-medium text-white mb-6">Is Whis-AI Free?</h2>
-          <div class="text-5xl font-bold text-accent mb-6">Yes.</div>
-          <p class="text-slate-300 text-lg leading-relaxed mb-8">
-              We believe in democratizing interview preparation. That's why we offer <strong class="text-white">3 Claim Sessions (Trial)</strong> and <strong class="text-white">10 Free Syntheses Daily</strong> to every user, forever.
-          </p>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-3xl mx-auto">
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Cost Centric</h3>
-                  <p class="text-xs text-slate-400">The most affordable premium option in the market. Why pay $50+ elsewhere?</p>
-              </div>
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Daily Free Usage</h3>
-                  <p class="text-xs text-slate-400">10 free requests every 24 hours. Perfect for light practice or short rounds.</p>
-              </div>
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Full Features</h3>
-                  <p class="text-xs text-slate-400">Trial sessions include Audio, Visual, and Context features unlocked.</p>
-              </div>
-          </div>
-          <button onclick="openDownloadModal()" class="mt-12 px-8 py-3 rounded-full bg-white text-black font-bold hover:bg-slate-200 transition">Start For Free</button>
-      </div>
-  </section>
-
-  <section class="py-24 border-t border-white/5 bg-black">
-      <div class="max-w-3xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 text-center">Common Questions.</h2>
-          <div class="space-y-4">
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Is Whis really undetectable?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis uses system-level audio capture and screen OCR that runs entirely outside of the browser. Screenshare tools like Zoom or Teams only capture specific windows or the browser viewport; they cannot detect Whis running in the background as a separate native process.</p>
-                  </div>
-              </div>
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Can I get a refund if it doesn't work?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the application doesn't work on your machine or you face technical issues we can't resolve, simply email support for a full refund. No questions asked.</p>
-                  </div>
-              </div>
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Does it work for Python, Java and C++?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can toggle your preferred output language in the settings, and the AI will generate code specifically in that syntax.</p>
-                  </div>
-              </div>
-               <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Does it work on Mac and Windows?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes, we have native applications for both Windows (10/11) and macOS (Intel & M1/M2/M3 Silicon). Linux support is coming soon.</p>
-                  </div>
-              </div>
           </div>
       </div>
   </section>
@@ -1026,6 +853,50 @@
             </div>
         </div>
     </div>
+  </section>
+
+  <section class="py-24 border-t border-white/5 bg-black">
+      <div class="max-w-3xl mx-auto px-6">
+          <h2 class="text-3xl font-medium text-white mb-12 text-center">Common Questions.</h2>
+          <div class="space-y-4">
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="p-4 md:p-6 flex justify-between items-center">
+                      <h3 class="text-sm font-bold text-white">Is Whis really undetectable?</h3>
+                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
+                  </div>
+                  <div class="faq-answer px-6">
+                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis uses system-level audio capture and screen OCR that runs entirely outside of the browser. Screenshare tools like Zoom or Teams only capture specific windows or the browser viewport; they cannot detect Whis running in the background as a separate native process.</p>
+                  </div>
+              </div>
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="p-4 md:p-6 flex justify-between items-center">
+                      <h3 class="text-sm font-bold text-white">Can I get a refund if it doesn't work?</h3>
+                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
+                  </div>
+                  <div class="faq-answer px-6">
+                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the application doesn't work on your machine or you face technical issues we can't resolve, simply email support for a full refund. No questions asked.</p>
+                  </div>
+              </div>
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="p-4 md:p-6 flex justify-between items-center">
+                      <h3 class="text-sm font-bold text-white">Does it work for Python, Java and C++?</h3>
+                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
+                  </div>
+                  <div class="faq-answer px-6">
+                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can toggle your preferred output language in the settings, and the AI will generate code specifically in that syntax.</p>
+                  </div>
+              </div>
+               <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="p-4 md:p-6 flex justify-between items-center">
+                      <h3 class="text-sm font-bold text-white">Does it work on Mac and Windows?</h3>
+                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
+                  </div>
+                  <div class="faq-answer px-6">
+                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes, we have native applications for both Windows (10/11) and macOS (Intel & M1/M2/M3 Silicon). Linux support is coming soon.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
   </section>
 
   <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12">
@@ -1683,6 +1554,67 @@
         }
     }
 
+    // --- HERO CARD REAL-TIME ANIMATION SEQUENCE ---
+    const heroQ = '"Can you explain the difference between a Process and a Thread?"';
+    const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
+    let heroQIdx = 0;
+    let heroAIdx = 0;
+
+    function typeHeroSequence() {
+        const statusEl = document.getElementById('hero-status');
+        const qContainer = document.getElementById('hero-question-container');
+        const qTextEl = document.getElementById('hero-question-text');
+        const aContainer = document.getElementById('hero-answer-container');
+        const aTextEl = document.getElementById('hero-answer-text');
+
+        if(!statusEl) return;
+
+        // Reset
+        statusEl.classList.remove('hidden');
+        qContainer.classList.add('hidden');
+        aContainer.classList.add('hidden');
+        qTextEl.textContent = '';
+        aTextEl.textContent = '';
+        heroQIdx = 0;
+        heroAIdx = 0;
+
+        // Sequence Start: 1. Status visible for 1.5s
+        setTimeout(() => {
+             // 2. Show Question Container & Type Question
+             qContainer.classList.remove('hidden');
+             typeHeroQuestion(qTextEl, () => {
+                 // 3. Pause briefly then Show Answer Container
+                 setTimeout(() => {
+                     aContainer.classList.remove('hidden');
+                     typeHeroAnswer(aTextEl, () => {
+                         // 4. Finished. Wait 6 seconds and restart
+                         setTimeout(typeHeroSequence, 6000);
+                     });
+                 }, 800);
+             });
+        }, 1500);
+    }
+
+    function typeHeroQuestion(el, callback) {
+        if(heroQIdx < heroQ.length) {
+            el.textContent += heroQ.charAt(heroQIdx);
+            heroQIdx++;
+            setTimeout(() => typeHeroQuestion(el, callback), 30);
+        } else {
+            callback();
+        }
+    }
+
+    function typeHeroAnswer(el, callback) {
+        if(heroAIdx < heroA.length) {
+            el.textContent += heroA.charAt(heroAIdx);
+            heroAIdx++;
+            setTimeout(() => typeHeroAnswer(el, callback), 20); // Faster typing for answer
+        } else {
+            callback();
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         playIntro();
         initCarousel(); // RESTORED
@@ -1690,6 +1622,7 @@
         typeCode();
         typeEffect(); // Init the new company typewriter
         typeSliderAnswer(); // Init the Slider Answer Typewriter
+        typeHeroSequence(); // Init Hero Sequence
         checkUser();
         detectOS();
         fetchPricingConfig();
