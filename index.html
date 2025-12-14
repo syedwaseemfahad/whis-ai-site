@@ -721,33 +721,12 @@
                   <div class="mac-dot mac-green"></div>
               </div>
 
-              <div class="comp-image flex items-center justify-center">
-                  <video src="visual.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-60"></video>
-                  
-                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[350px] bg-black/80 border border-white/10 rounded-xl backdrop-blur-md shadow-2xl flex flex-col overflow-hidden z-20">
-                      <div class="bg-white/5 px-3 py-2 border-b border-white/5 flex justify-between items-center">
-                          <div class="flex gap-2 items-center">
-                              <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                              <span class="text-[9px] text-slate-400 font-mono tracking-widest">LIVE AUDIO</span>
-                          </div>
-                          <span class="text-[9px] text-accent font-bold">WHIS-AI</span>
-                      </div>
-                      <div class="p-4">
-                          <p class="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Question Detected</p>
-                          <p class="text-xs text-white font-medium leading-relaxed mb-3">"How do you handle hot partitions in a Kafka topic?"</p>
-                          
-                          <div class="bg-accent/10 border-l-2 border-accent pl-3 py-2 rounded-r">
-                               <p class="text-[9px] text-accent font-bold mb-1">Suggested Answer</p>
-                               <p class="text-[10px] text-slate-200 leading-relaxed">
-                                   <span id="slider-answer-text"></span><span class="typing-cursor"></span>
-                               </p>
-                          </div>
-                      </div>
-                  </div>
+              <div class="comp-image">
+                  <video src="interviewee.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
               </div>
 
-              <div class="comp-overlay flex items-center justify-center">
-                   <video src="visual.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-80"></video>
+              <div class="comp-overlay">
+                   <video src="interviewer.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
               </div>
 
               <div class="comp-divider"></div>
@@ -1615,14 +1594,40 @@
         }
     }
 
+    // --- SLIDER AUTO-ANIMATION ---
+    let sliderAutoPlay = true;
+    let sliderTime = 0;
+
+    function initSliderAutoPlay() {
+        const sliderContainer = document.getElementById('comparisonSlider');
+        const sliderInput = sliderContainer.querySelector('.comp-slider');
+        
+        // Stop on interaction
+        sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; });
+        sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; });
+
+        function animate() {
+            if (sliderAutoPlay) {
+                // Elegant sine wave motion: Center(50) + Amplitude(35) * sin(speed * time)
+                sliderTime += 0.02;
+                const pos = 50 + (35 * Math.sin(sliderTime)); 
+                updateSlider(pos);
+                if(sliderInput) sliderInput.value = pos; 
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         playIntro();
         initCarousel(); // RESTORED
         initUptimeCounter(); // Init the new counter
         typeCode();
         typeEffect(); // Init the new company typewriter
-        typeSliderAnswer(); // Init the Slider Answer Typewriter
+        // typeSliderAnswer(); // Removed simulated typing inside slider since we are using video now
         typeHeroSequence(); // Init Hero Sequence
+        initSliderAutoPlay(); // Init Auto Slider
         checkUser();
         detectOS();
         fetchPricingConfig();
