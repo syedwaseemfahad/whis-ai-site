@@ -304,6 +304,17 @@
     }
     .label-left { left: 24px; border: 1px solid rgba(255,255,255,0.15); }
     .label-right { right: 24px; border: 1px solid var(--accent); color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+    /* Typing Cursor for Slider */
+    .slider-cursor {
+        display: inline-block;
+        width: 6px;
+        height: 12px;
+        background-color: var(--accent);
+        animation: pulse 1s infinite;
+        vertical-align: middle;
+        margin-left: 2px;
+    }
   </style>
 </head>
 <body>
@@ -700,14 +711,27 @@
               <div class="comp-image flex items-center justify-center bg-[#1a1a1a]">
                    <div class="relative w-full h-full flex items-center justify-center">
                         <i class="fa-solid fa-user text-slate-700 text-6xl"></i>
-                        <div class="absolute right-4 top-4 bottom-4 w-1/3 bg-black/80 border-l border-accent/50 p-4 rounded-xl flex flex-col gap-3 shadow-2xl backdrop-blur-md">
-                            <div class="h-2 w-full bg-accent rounded animate-pulse"></div>
-                            <div class="h-2 w-2/3 bg-slate-600 rounded opacity-50"></div>
-                            <div class="h-2 w-3/4 bg-slate-600 rounded opacity-50"></div>
-                            <div class="h-2 w-1/2 bg-slate-600 rounded mt-2 opacity-50"></div>
-                            <div class="mt-auto p-3 bg-accent/10 border border-accent/20 rounded-lg">
-                                <div class="h-1.5 w-full bg-accent/50 rounded mb-2"></div>
-                                <div class="h-1.5 w-2/3 bg-accent/50 rounded"></div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] max-w-[400px] bg-black/90 border border-white/10 rounded-xl flex flex-col shadow-2xl backdrop-blur-md overflow-hidden z-20">
+                            <div class="bg-white/5 px-4 py-2 flex items-center justify-between border-b border-white/5">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[10px] text-slate-400 font-mono">LIVE AUDIO</span>
+                                </div>
+                                <span class="text-[10px] text-accent font-bold">WHIS-AI</span>
+                            </div>
+                            
+                            <div class="p-4 space-y-4">
+                                <div>
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Detected Question</p>
+                                    <p class="text-sm font-medium text-white leading-tight">"How do you handle hot partitions in a Kafka topic?"</p>
+                                </div>
+                                
+                                <div class="bg-accent/5 border-l-2 border-accent pl-3 py-1">
+                                    <p class="text-[10px] text-accent font-bold mb-1">Suggested Answer</p>
+                                    <p class="text-xs text-slate-300 leading-relaxed">
+                                        <span id="slider-answer-text"></span><span class="slider-cursor"></span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                    </div>
@@ -1093,8 +1117,6 @@
 
   <script>
     // --- PHYSICS ENGINE (PERFORMANCE OPTIMIZED) ---
-    // The previous version ran on every mousemove, causing lag.
-    // This version uses requestAnimationFrame to throttle updates.
     function initPhysics() {
         if(window.innerWidth < 768) return;
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
@@ -1635,9 +1657,30 @@
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
-    // --- NEW: SLIDER LOGIC ---
+    // --- NEW: SLIDER LOGIC & REAL-TIME ANSWER TYPING ---
     function updateSlider(val) {
         document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
+    }
+
+    const sliderAnswerText = "In Kafka, hot partitions occur when one partition receives significantly more data. We can fix this by changing the partitioning key to distribute load evenly or using a random partitioner.";
+    let sIdx = 0;
+    function typeSliderAnswer() {
+        const el = document.getElementById('slider-answer-text');
+        if(!el) return;
+        
+        if(sIdx < sliderAnswerText.length) {
+            el.textContent += sliderAnswerText.charAt(sIdx);
+            sIdx++;
+            // Randomize typing speed slightly for realism
+            setTimeout(typeSliderAnswer, Math.random() * 30 + 30);
+        } else {
+            // Wait and then restart
+            setTimeout(() => {
+                el.textContent = "";
+                sIdx = 0;
+                typeSliderAnswer();
+            }, 5000);
+        }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1646,6 +1689,7 @@
         initUptimeCounter(); // Init the new counter
         typeCode();
         typeEffect(); // Init the new company typewriter
+        typeSliderAnswer(); // Init the Slider Answer Typewriter
         checkUser();
         detectOS();
         fetchPricingConfig();
