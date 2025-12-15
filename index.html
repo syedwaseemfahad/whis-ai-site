@@ -41,7 +41,7 @@
             'butter': 'cubic-bezier(0.23, 1, 0.32, 1)'
           },
           screens: {
-            'wide': '1600px', // Custom breakpoint for Wide Windows Laptops
+            'wide': '1600px',
           }
         }
       }
@@ -56,11 +56,10 @@
   <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
     
   <style>
-    /* --- VIBRANT COLOR ENGINE --- */
+    /* --- COLOR ENGINE --- */
     :root {
         --accent: #00f2ff;
         --accent-glow: rgba(0, 242, 255, 0.4);
-        /* Default Layout Variables (Mobile/Fallback) */
         --layout-width: 100%; 
         --layout-padding: 1.5rem;
     }
@@ -71,38 +70,21 @@
         inherits: true;
     }
 
-    /* --- OS SPECIFIC OVERRIDES --- */
-    
-    /* WINDOWS MODE: Wide, Expansive, High Information Density */
-    body.os-windows {
-        --layout-width: 1600px; /* Wider constraint for Windows */
-        --layout-padding: 3rem;
-    }
-    /* MAC MODE: Centered, Focused, Aesthetic "Tunnel Vision" */
-    body.os-mac {
-        --layout-width: 1100px; /* Tighter constraint for Mac */
-        --layout-padding: 2rem;
-    }
-    /* MOBILE MODE: handled by media queries, but set defaults */
+    /* --- OS LAYOUT LOGIC --- */
+    body.os-windows { --layout-width: 1600px; --layout-padding: 3rem; }
+    body.os-mac { --layout-width: 1100px; --layout-padding: 2rem; }
     @media(max-width: 768px) {
-        body.os-windows, body.os-mac {
-             --layout-width: 100%;
-             --layout-padding: 1rem;
-        }
+        body.os-windows, body.os-mac { --layout-width: 100%; --layout-padding: 1rem; }
     }
 
-    /* The Dynamic Container Class that applies the above variables */
     .os-container {
-        width: 100%;
-        max-width: var(--layout-width);
-        padding-left: var(--layout-padding);
-        padding-right: var(--layout-padding);
-        margin-left: auto;
-        margin-right: auto;
-        transition: max-width 0.5s ease, padding 0.5s ease;
+        width: 100%; max-width: var(--layout-width);
+        padding-left: var(--layout-padding); padding-right: var(--layout-padding);
+        margin-left: auto; margin-right: auto;
+        transition: max-width 0.5s cubic-bezier(0.23, 1, 0.32, 1), padding 0.5s ease;
     }
 
-    /* SMOOTHNESS OPTIMIZATIONS */
+    /* --- SMOOTH SCROLL CORE --- */
     html.lenis { height: auto; }
     .lenis.lenis-smooth { scroll-behavior: auto; }
     .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
@@ -110,17 +92,11 @@
     .lenis.lenis-scrolling iframe { pointer-events: none; }
 
     body { 
-        background-color: #000000; 
-        color: white; 
-        font-family: 'Inter', sans-serif; 
-        overflow-x: hidden; 
-        padding-bottom: 80px;
+        background-color: #000000; color: white; 
+        font-family: 'Inter', sans-serif; overflow-x: hidden; padding-bottom: 80px;
         animation: colorCycle 60s infinite linear;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale; /* Better text on Mac */
+        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     }
-
-    ::selection { background: var(--accent); color: black; }
 
     @keyframes colorCycle {
         0% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.4); }
@@ -138,14 +114,11 @@
     /* --- PHYSICS CARD --- */
     .physics-card {
         background: rgba(10, 10, 10, 0.6);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        position: relative;
-        overflow: hidden;
-        transform: translateZ(0); 
-        will-change: transform, border-color;
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
+        position: relative; overflow: hidden;
+        /* GPU Promotion */
+        transform: translateZ(0); will-change: transform;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.4s ease;
     }
     .physics-card::before {
@@ -160,118 +133,75 @@
         .physics-card {
             background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            transform: none !important; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); transform: none !important; 
         }
     }
 
-    /* --- SAFE REVEAL ANIMATION --- */
-    .reveal-item { opacity: 1; transform: translateY(0); transition: all 1s cubic-bezier(0.23, 1, 0.32, 1); }
-    .js-hidden { opacity: 0; transform: translateY(40px); filter: blur(10px); }
-    .reveal-visible { opacity: 1 !important; transform: translateY(0) !important; filter: blur(0) !important; }
+    /* --- ULTRA SMOOTH REVEAL SYSTEM --- */
+    /* 1. Default State: VISIBLE (Prevents black screen if JS fails or lags) */
+    .reveal-item { 
+        opacity: 1; transform: translateY(0); 
+        transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, transform; /* Hint browser to optimize */
+    }
+    
+    /* 2. Hidden State: Only applied by JS if element is TRULY off-screen */
+    .reveal-pending { 
+        opacity: 0; transform: translateY(60px) scale(0.98); 
+    }
 
-    /* --- INTRO SEQUENCE --- */
+    /* 3. Visible State: Applied when scrolled into view */
+    .reveal-active { 
+        opacity: 1 !important; transform: translateY(0) scale(1) !important; 
+    }
+
+    /* --- INTRO --- */
     .intro-overlay {
-        position: fixed; inset: 0; z-index: 9999;
-        background: black;
-        display: flex; align-items: center; justify-content: center;
-        pointer-events: none; padding: 20px;
-        animation: fadeOutOverlay 0.5s ease-in-out 3s forwards; /* Failsafe */
+        position: fixed; inset: 0; z-index: 9999; background: black;
+        display: flex; align-items: center; justify-content: center; pointer-events: none; padding: 20px;
+        animation: fadeOutOverlay 0.8s cubic-bezier(0.23, 1, 0.32, 1) 2.5s forwards;
     }
     @keyframes fadeOutOverlay { to { opacity: 0; visibility: hidden; } }
 
     .intro-text {
-        font-size: clamp(2rem, 5vw, 4rem); /* Responsive Font Size */
-        font-weight: 300; letter-spacing: -0.02em;
+        font-size: clamp(2rem, 5vw, 4rem); font-weight: 300; letter-spacing: -0.02em;
         background: linear-gradient(to bottom, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         opacity: 0; transform: scale(0.95); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center; width: 100%; max-width: 800px;
     }
     .intro-active { opacity: 1; transform: scale(1); }
 
-    /* --- CAROUSEL CSS --- */
-    .carousel-container { 
-        perspective: 1200px; display: flex; justify-content: center; align-items: center; 
-        height: 280px; position: relative; margin-top: 20px; margin-bottom: 20px;
-    }
+    /* --- MISC --- */
+    .carousel-container { perspective: 1200px; display: flex; justify-content: center; align-items: center; height: 280px; position: relative; margin: 20px 0; }
     @media (min-width: 768px) { .carousel-container { height: 650px; margin-top: 0; } }
-    
-    .carousel-item { 
-        position: absolute; width: 90%; aspect-ratio: 16/9; 
-        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
-        border-radius: 16px; overflow: hidden; background: #000; 
-        border: 1px solid rgba(255,255,255,0.1); 
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
+    .carousel-item { position: absolute; width: 90%; aspect-ratio: 16/9; transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); border-radius: 16px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
     @media (min-width: 768px) { .carousel-item { width: 85%; max-height: 100%; } }
-    
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
     .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
     .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
-    @media (min-width: 768px) {
-        .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
-        .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
-    }
+    @media (min-width: 768px) { .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); } .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); } }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
-
-    .pricing-elite { position: relative; }
-    .pricing-elite::after {
-        content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px;
-        background: linear-gradient(180deg, var(--accent), transparent 60%);
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
-    }
-
-    /* --- FAQ ANIMATION --- */
+    .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
     .group.active .faq-answer { max-height: 200px; transition: max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
     .group.active .faq-icon { transform: rotate(180deg); }
 
-    /* --- COMPONENT STYLES --- */
-    .comp-container {
-        position: relative; width: 100%; max-width: 1000px; margin: 0 auto;
-        border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15);
-        aspect-ratio: 16/9; background: #000; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
-        --position: 50%;
-    }
-    .mac-header {
-        position: absolute; top: 0; left: 0; right: 0; height: 32px;
-        background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1);
-        z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px;
-    }
-    .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .mac-red { background: #ff5f57; } .mac-yellow { background: #febc2e; } .mac-green { background: #28c840; }
-
+    /* --- SLIDER --- */
+    .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); aspect-ratio: 16/9; background: #000; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8); --position: 50%; }
+    .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 32px; background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px; }
+    .mac-dot { width: 10px; height: 10px; border-radius: 50%; } .mac-red { background: #ff5f57; } .mac-yellow { background: #febc2e; } .mac-green { background: #28c840; }
     .comp-image { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; pointer-events: none; user-select: none; }
-    .comp-overlay {
-        position: absolute; top: 32px; left: 0; width: 100%; bottom: 0;
-        clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #000; 
-    }
-    .comp-divider {
-        position: absolute; top: 32px; bottom: 0; left: var(--position);
-        width: 1px; background: rgba(255,255,255,0.5); z-index: 20;
-        transform: translateX(-50%); box-shadow: 0 0 20px var(--accent); pointer-events: none;
-    }
-    .comp-slider {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none;
-    }
+    .comp-overlay { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #000; }
+    .comp-divider { position: absolute; top: 32px; bottom: 0; left: var(--position); width: 1px; background: rgba(255,255,255,0.5); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 20px var(--accent); pointer-events: none; }
+    .comp-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none; }
     .comp-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 40px; height: 100vh; background: transparent; cursor: ew-resize; }
-    .comp-handle-btn {
-        position: absolute; top: 50%; left: var(--position); width: 6px; height: 48px; background: white; border-radius: 4px;
-        transform: translate(-50%, -50%); z-index: 21; pointer-events: none;
-        box-shadow: 0 0 20px var(--accent), 0 0 10px white; transition: height 0.2s ease;
-    }
+    .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 6px; height: 48px; background: white; border-radius: 4px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 20px var(--accent), 0 0 10px white; transition: height 0.2s ease; }
     .comp-container:hover .comp-handle-btn { height: 64px; }
-    .comp-label {
-        position: absolute; top: 48px; padding: 4px 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
-        color: white; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
-        border-radius: 6px; pointer-events: none; z-index: 15;
-    }
-    .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); }
-    .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
+    .comp-label { position: absolute; top: 48px; padding: 4px 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); color: white; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; pointer-events: none; z-index: 15; }
+    .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); } .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
     .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--accent); animation: blink 1s step-end infinite; vertical-align: text-bottom; }
     @keyframes blink { 50% { opacity: 0; } }
   </style>
@@ -366,12 +296,10 @@
             <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
             <span id="signup-badge-text">🔥 150+ signups today</span>
           </div>
-          
           <div class="text-[10px] text-green-400 font-mono tracking-widest uppercase opacity-90">
              <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No meeting access
           </div>
       </div>
-        
       <a href="#demo" class="mt-8 text-xs text-slate-400 hover:text-white border-b border-dashed border-slate-600 pb-0.5 transition-colors duration-300">
           See why 7,300+ candidates switched to Whis-AI
       </a>
@@ -389,15 +317,12 @@
              </div>
              <div class="p-6 font-mono text-sm min-h-[250px] relative">
                  <div id="hero-status" class="text-slate-500 mb-3 text-xs flex items-center gap-2 hidden">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> 
-                    Listening to audio...
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Listening to audio...
                  </div>
-                 
                  <div id="hero-question-container" class="mb-6 hidden">
                     <span class="text-accent text-xs uppercase tracking-wider block mb-1">INTERVIEWER QUESTION DETECTED:</span>
                     <p id="hero-question-text" class="text-white text-lg"></p>
                  </div>
-
                  <div id="hero-answer-container" class="p-4 bg-white/5 rounded-lg border-l-2 border-accent text-slate-300 leading-relaxed shadow-lg hidden">
                      <span class="text-accent text-xs font-bold block mb-1">Suggested Answer:</span>
                      <span id="hero-answer-text"></span><span class="typing-cursor"></span>
@@ -408,56 +333,39 @@
 
     <div class="w-full relative z-20 mb-2 reveal-item">
         <div class="carousel-container" id="carouselContainer"></div>
-        <div class="text-center mt-4">
-              <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p>
-        </div>
+        <div class="text-center mt-4"><p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p></div>
     </div>
   </section>
 
   <section class="py-12 border-t border-white/5 bg-[#050505] relative overflow-hidden">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20 pointer-events-none"></div>
-
     <div class="os-container relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
             <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-all duration-500 reveal-item">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-green-500 uppercase tracking-widest">
-                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
-                        Running
-                    </span>
+                    <span class="text-[10px] font-mono text-green-500 uppercase tracking-widest"><span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>Running</span>
                     <i class="fa-solid fa-clock text-white/10 text-xl group-hover:text-green-500/20 transition duration-500"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> SYSTEM_UPTIME (HOURS)</div>
                     <div class="text-2xl font-mono font-bold text-white tracking-tighter" id="uptime-counter">62,402</div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    <span class="text-green-400">+1.2/hr</span> compilation rate
-                </div>
+                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400"><span class="text-green-400">+1.2/hr</span> compilation rate</div>
             </div>
-
             <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-purple-500/30 transition-all duration-500 reveal-item">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest">
-                        <i class="fa-solid fa-lock mr-2"></i>Verified
-                    </span>
+                    <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest"><i class="fa-solid fa-lock mr-2"></i>Verified</span>
                     <i class="fa-solid fa-briefcase text-white/10 text-xl group-hover:text-purple-500/20 transition duration-500"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> OFFERS_SECURED_TOTAL</div>
                     <div class="text-2xl font-mono font-bold text-white tracking-tighter">6,894</div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    Database integrity: <span class="text-purple-400">100%</span>
-                </div>
+                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">Database integrity: <span class="text-purple-400">100%</span></div>
             </div>
-
             <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-accent/30 transition-all duration-500 reveal-item">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-accent uppercase tracking-widest">
-                        <i class="fa-solid fa-network-wired mr-2"></i>Connected
-                    </span>
+                    <span class="text-[10px] font-mono text-accent uppercase tracking-widest"><i class="fa-solid fa-network-wired mr-2"></i>Connected</span>
                     <i class="fa-solid fa-building text-white/10 text-xl group-hover:text-accent/20 transition duration-500"></i>
                 </div>
                 <div>
@@ -468,11 +376,8 @@
                         <span class="w-2 h-6 bg-accent animate-pulse ml-1"></span>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    Access Granted via <span class="text-accent">Port 443</span>
-                </div>
+                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">Access Granted via <span class="text-accent">Port 443</span></div>
             </div>
-
         </div>
     </div>
   </section>
@@ -480,54 +385,38 @@
   <section id="features" class="py-20 border-t border-white/5 bg-[#0a0a0a]">
       <div class="os-container">
           <h2 class="text-3xl font-medium text-white mb-16 text-center reveal-item">The Core Stack.</h2>
-           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 wide:grid-cols-4 gap-6">
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Voice Capture</h3>
-                  <p class="text-sm text-slate-400">Captures voice and gives output based on it.</p>
+                  <h3 class="text-white font-bold mb-2">Voice Capture</h3><p class="text-sm text-slate-400">Captures voice and gives output based on it.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-desktop text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Screen Vision</h3>
-                  <p class="text-sm text-slate-400">Captures screen and gets output based on it.</p>
+                  <h3 class="text-white font-bold mb-2">Screen Vision</h3><p class="text-sm text-slate-400">Captures screen and gets output based on it.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-keyboard text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Direct Input</h3>
-                  <p class="text-sm text-slate-400">Input text directly and get output.</p>
+                  <h3 class="text-white font-bold mb-2">Direct Input</h3><p class="text-sm text-slate-400">Input text directly and get output.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-eye-slash text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">100% Invisible</h3>
-                  <p class="text-sm text-slate-400">Completely invisible to screenshare.</p>
+                  <h3 class="text-white font-bold mb-2">100% Invisible</h3><p class="text-sm text-slate-400">Completely invisible to screenshare.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-ghost text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Ghost Mode</h3>
-                  <p class="text-sm text-slate-400">No dock or icon for the app.</p>
+                  <h3 class="text-white font-bold mb-2">Ghost Mode</h3><p class="text-sm text-slate-400">No dock or icon for the app.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 text-yellow-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-language text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Universal Translator</h3>
-                  <p class="text-sm text-slate-400">Any language you or interviewer talk, app will understand and gives answers in english.</p>
+                  <h3 class="text-white font-bold mb-2">Universal Translator</h3><p class="text-sm text-slate-400">Any language you or interviewer talk, app will understand and gives answers in english.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4 text-pink-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-brain text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Smart Context</h3>
-                  <p class="text-sm text-slate-400">Any one can put context (what meeting or interview) answers will be based on that.</p>
+                  <h3 class="text-white font-bold mb-2">Smart Context</h3><p class="text-sm text-slate-400">Any one can put context (what meeting or interview) answers will be based on that.</p>
               </div>
-
               <div class="physics-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5 reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-gift text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Free Trial</h3>
-                  <p class="text-sm text-slate-300">Every new user gets 3 free trial sessions which they can use and test all the complete paid features.</p>
+                  <h3 class="text-white font-bold mb-2">Free Trial</h3><p class="text-sm text-slate-300">Every new user gets 3 free trial sessions which they can use and test all the complete paid features.</p>
               </div>
           </div>
       </div>
@@ -546,31 +435,11 @@
                       </tr>
                   </thead>
                   <tbody class="text-sm">
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Undetectable Overlay</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Yes (Ghost Mode)</td>
-                      </tr>
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Real-time Audio Sync</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No (Typing needed)</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Auto-Capture</td>
-                      </tr>
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Resume Context</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Hallucinates</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Perfect Alignment</td>
-                      </tr>
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Visual Diagram Analysis</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Slow/Upload</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Instant Vision</td>
-                      </tr>
-                      <tr class="hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Latency</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500">3-5 Seconds</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-bolt text-accent mr-2"></i> < 1 Second</td>
-                      </tr>
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition"><td class="p-4 md:p-6 text-slate-300 font-bold">Undetectable Overlay</td><td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No</td><td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Yes (Ghost Mode)</td></tr>
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition"><td class="p-4 md:p-6 text-slate-300 font-bold">Real-time Audio Sync</td><td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No (Typing needed)</td><td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Auto-Capture</td></tr>
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition"><td class="p-4 md:p-6 text-slate-300 font-bold">Resume Context</td><td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Hallucinates</td><td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Perfect Alignment</td></tr>
+                      <tr class="border-b border-white/5 hover:bg-white/5 transition"><td class="p-4 md:p-6 text-slate-300 font-bold">Visual Diagram Analysis</td><td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Slow/Upload</td><td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Instant Vision</td></tr>
+                      <tr class="hover:bg-white/5 transition"><td class="p-4 md:p-6 text-slate-300 font-bold">Latency</td><td class="p-4 md:p-6 border-l border-white/5 text-slate-500">3-5 Seconds</td><td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-bolt text-accent mr-2"></i> < 1 Second</td></tr>
                   </tbody>
               </table>
           </div>
@@ -583,9 +452,7 @@
           <div class="flex-1 space-y-6 reveal-item">
               <div class="inline-block px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider">New Feature</div>
               <h2 class="text-3xl md:text-4xl font-medium text-white">Context Intelligence.</h2>
-              <p class="text-slate-400 text-lg leading-relaxed">
-                  Generic AI gives generic answers. Whis-AI allows you to create up to <strong class="text-white">10 Custom Context Profiles</strong>. Upload your Resume, the Job Description (JD), or specific project notes.
-              </p>
+              <p class="text-slate-400 text-lg leading-relaxed">Generic AI gives generic answers. Whis-AI allows you to create up to <strong class="text-white">10 Custom Context Profiles</strong>. Upload your Resume, the Job Description (JD), or specific project notes.</p>
               <ul class="space-y-4 text-sm text-slate-300">
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Tailored Answers:</strong> The AI references your past experience when answering "Tell me about a time..."</span></li>
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Role Alignment:</strong> Answers are optimized for the specific JD you are interviewing for.</span></li>
@@ -594,35 +461,12 @@
           </div>
           <div class="flex-1 w-full reveal-item">
               <div class="physics-card p-6 border border-white/10 bg-[#111]">
-                  <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
-                      <span class="text-xs font-bold text-slate-500">ACTIVE CONTEXT</span>
-                      <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Enabled</span>
-                  </div>
+                  <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-4"><span class="text-xs font-bold text-slate-500">ACTIVE CONTEXT</span><span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Enabled</span></div>
                   <div class="space-y-3">
-                      <div class="p-3 rounded bg-white/5 border border-accent/30 flex items-center justify-between">
-                          <div class="flex items-center gap-3">
-                              <i class="fa-solid fa-file-pdf text-red-400"></i>
-                              <div>
-                                  <div class="text-xs font-bold text-white">Google_SDE2_Resume.pdf</div>
-                                  <div class="text-[10px] text-slate-500">Uploaded 2h ago</div>
-                              </div>
-                          </div>
-                          <i class="fa-solid fa-toggle-on text-accent text-xl"></i>
-                      </div>
-                      <div class="p-3 rounded bg-white/5 border border-white/5 flex items-center justify-between opacity-50">
-                          <div class="flex items-center gap-3">
-                              <i class="fa-solid fa-file-lines text-blue-400"></i>
-                              <div>
-                                  <div class="text-xs font-bold text-white">Amazon_LP_Notes.txt</div>
-                                  <div class="text-[10px] text-slate-500">Uploaded 1d ago</div>
-                              </div>
-                          </div>
-                          <i class="fa-solid fa-toggle-off text-slate-600 text-xl"></i>
-                      </div>
+                      <div class="p-3 rounded bg-white/5 border border-accent/30 flex items-center justify-between"><div class="flex items-center gap-3"><i class="fa-solid fa-file-pdf text-red-400"></i><div><div class="text-xs font-bold text-white">Google_SDE2_Resume.pdf</div><div class="text-[10px] text-slate-500">Uploaded 2h ago</div></div></div><i class="fa-solid fa-toggle-on text-accent text-xl"></i></div>
+                      <div class="p-3 rounded bg-white/5 border border-white/5 flex items-center justify-between opacity-50"><div class="flex items-center gap-3"><i class="fa-solid fa-file-lines text-blue-400"></i><div><div class="text-xs font-bold text-white">Amazon_LP_Notes.txt</div><div class="text-[10px] text-slate-500">Uploaded 1d ago</div></div></div><i class="fa-solid fa-toggle-off text-slate-600 text-xl"></i></div>
                   </div>
-                  <div class="mt-4 p-3 bg-accent/5 rounded border-l-2 border-accent">
-                      <p class="text-[10px] text-slate-300 italic">"Based on your resume's experience with Kafka, you should mention how you handled partition tolerance in this system design..."</p>
-                  </div>
+                  <div class="mt-4 p-3 bg-accent/5 rounded border-l-2 border-accent"><p class="text-[10px] text-slate-300 italic">"Based on your resume's experience with Kafka, you should mention how you handled partition tolerance in this system design..."</p></div>
               </div>
           </div>
       </div>
@@ -633,43 +477,19 @@
           <div class="grid lg:grid-cols-2 gap-16 items-center">
               <div class="space-y-8 reveal-item">
                   <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">They Ask. You Answer.</h2>
-                  <p class="text-slate-400 text-lg font-light leading-relaxed">
-                      Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span>
-                  </p>
-                   
+                  <p class="text-slate-400 text-lg font-light leading-relaxed">Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span></p>
                   <div class="physics-card p-8">
-                      <div class="flex items-center gap-4 mb-6">
-                          <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Live Interview Audio</span>
-                      </div>
-                      <div class="flex items-center gap-1 h-12 opacity-80">
-                          <div class="w-1 bg-white rounded-full h-4 animate-pulse"></div>
-                          <div class="w-1 bg-white rounded-full h-8 animate-pulse delay-75"></div>
-                          <div class="w-1 bg-white rounded-full h-12 animate-pulse delay-150"></div>
-                          <div class="w-1 bg-white rounded-full h-6 animate-pulse delay-100"></div>
-                          <div class="w-1 bg-white rounded-full h-10 animate-pulse delay-200"></div>
-                          <div class="w-1 bg-white rounded-full h-5 animate-pulse delay-75"></div>
-                      </div>
+                      <div class="flex items-center gap-4 mb-6"><div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div><span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Live Interview Audio</span></div>
+                      <div class="flex items-center gap-1 h-12 opacity-80"><div class="w-1 bg-white rounded-full h-4 animate-pulse"></div><div class="w-1 bg-white rounded-full h-8 animate-pulse delay-75"></div><div class="w-1 bg-white rounded-full h-12 animate-pulse delay-150"></div><div class="w-1 bg-white rounded-full h-6 animate-pulse delay-100"></div><div class="w-1 bg-white rounded-full h-10 animate-pulse delay-200"></div><div class="w-1 bg-white rounded-full h-5 animate-pulse delay-75"></div></div>
                       <p class="mt-6 text-sm text-slate-400 italic">"Can you optimize this DP solution to O(n) space complexity?"</p>
                   </div>
               </div>
-
               <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col reveal-item">
                   <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
-                      <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
-                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
-                      </div>
-                      <div class="flex gap-4 text-[10px] font-mono font-bold text-slate-500">
-                          <span class="text-accent cursor-pointer">PYTHON</span>
-                          <span class="hover:text-white cursor-pointer transition">C++</span>
-                          <span class="hover:text-white cursor-pointer transition">JAVA</span>
-                      </div>
+                      <div class="flex gap-2"><div class="w-3 h-3 rounded-full bg-white/10"></div><div class="w-3 h-3 rounded-full bg-white/10"></div></div>
+                      <div class="flex gap-4 text-[10px] font-mono font-bold text-slate-500"><span class="text-accent cursor-pointer">PYTHON</span><span class="hover:text-white cursor-pointer transition">C++</span><span class="hover:text-white cursor-pointer transition">JAVA</span></div>
                   </div>
-                  <div class="p-6 flex-grow overflow-hidden relative">
-                      <pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300"></pre>
-                      <span id="cursor" class="absolute w-2 h-4 bg-accent animate-pulse"></span>
-                  </div>
+                  <div class="p-6 flex-grow overflow-hidden relative"><pre id="code-display" class="text-xs md:text-sm leading-relaxed text-slate-300"></pre><span id="cursor" class="absolute w-2 h-4 bg-accent animate-pulse"></span></div>
               </div>
           </div>
       </div>
@@ -677,35 +497,18 @@
 
   <section class="py-20 border-t border-white/5 bg-black/40">
       <div class="max-w-6xl mx-auto px-6 text-center reveal-item"> 
-          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
-              <span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span>
-          </div>
+          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6"><span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span></div>
           <h2 class="text-3xl font-medium text-white mb-8">Invisible to Zoom, Teams & Meets.</h2>
-           
           <div class="comp-container" id="comparisonSlider">
-              <div class="mac-header">
-                  <div class="mac-dot mac-red"></div>
-                  <div class="mac-dot mac-yellow"></div>
-                  <div class="mac-dot mac-green"></div>
-              </div>
-
-              <div class="comp-image">
-                  <video src="interviewee.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-              </div>
-
-              <div class="comp-overlay">
-                   <video src="interviewer.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-              </div>
-
+              <div class="mac-header"><div class="mac-dot mac-red"></div><div class="mac-dot mac-yellow"></div><div class="mac-dot mac-green"></div></div>
+              <div class="comp-image"><video src="interviewee.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video></div>
+              <div class="comp-overlay"><video src="interviewer.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video></div>
               <div class="comp-divider"></div>
               <input type="range" min="0" max="100" value="50" class="comp-slider" oninput="updateSlider(this.value)">
-              
               <div class="comp-handle-btn"></div>
-              
               <div class="comp-label label-left">Interviewer View</div>
               <div class="comp-label label-right">Your View</div>
           </div>
-          
           <p class="text-xs text-slate-500 mt-6 tracking-wide uppercase">Drag slider to reveal undetectable mode</p>
       </div>
   </section>
@@ -714,19 +517,8 @@
     <div class="os-container text-center mt-12 reveal-item">
         <h2 class="text-4xl font-medium text-white mb-6">Unbeatable Value.</h2>
         <p class="text-slate-400 mb-12">One offer pays for a lifetime. Cancel anytime.</p>
-         
-        <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-12">
-           <button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly</button>
-        </div>
-
-        <div class="flex justify-center mb-12">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-900/20 border border-green-500/30">
-                <i class="fa-solid fa-shield-check text-green-400"></i>
-                <span class="text-xs font-bold text-green-400">7-Day Money Back Guarantee</span>
-            </div>
-        </div>
-
+        <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-12"><button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition" onclick="setCycle('monthly')">Monthly</button><button id="btnAnnual" class="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly</button></div>
+        <div class="flex justify-center mb-12"><div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-900/20 border border-green-500/30"><i class="fa-solid fa-shield-check text-green-400"></i><span class="text-xs font-bold text-green-400">7-Day Money Back Guarantee</span></div></div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
             <div class="physics-card p-8 text-left flex flex-col h-full border-white/5 hover:border-white/10 transition duration-300">
                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Starter</h3>
@@ -739,7 +531,6 @@
                 </div>
                 <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-bold uppercase transition duration-300">Download</button>
             </div>
-
             <div class="physics-card p-8 text-left flex flex-col h-full border-white/20 hover:border-white/40 transition duration-300">
                 <h3 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Pro License</h3>
                 <div class="text-4xl font-bold text-white mb-6" id="pricePro">...</div>
@@ -751,7 +542,6 @@
                 </div>
                 <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Upgrade</button>
             </div>
-
             <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-accent hover:shadow-[0_0_50px_var(--accent-glow)] transition duration-500">
                 <div class="absolute top-0 right-0 p-4"><i class="fa-solid fa-crown text-accent text-xl"></i></div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Elite License</h3>
@@ -773,54 +563,22 @@
           <div class="flex justify-between items-end mb-12 reveal-item">
               <h2 id="testimonials" class="text-3xl font-medium text-white">Engineers love Whis.</h2>
               <div class="text-right">
-                  <div class="flex gap-1 text-accent text-sm mb-1">
-                      <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                  </div>
+                  <div class="flex gap-1 text-accent text-sm mb-1"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
                   <p class="text-[10px] text-slate-500">Rated 4.9/5 by 2,000+ users</p>
               </div>
           </div>
-           
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div class="physics-card p-8 flex flex-col justify-between reveal-item">
-                  <div>
-                      <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">JK</div>
-                      <div>
-                          <p class="text-xs font-bold text-white">James K.</p>
-                          <p class="text-[10px] text-slate-500">Google, Senior SDE</p>
-                      </div>
-                  </div>
+                  <div><i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i><p class="text-slate-300 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p></div>
+                  <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">JK</div><div><p class="text-xs font-bold text-white">James K.</p><p class="text-[10px] text-slate-500">Google, Senior SDE</p></div></div>
               </div>
-
               <div class="physics-card p-8 flex flex-col justify-between border-accent/20 reveal-item">
-                  <div>
-                      <i class="fa-solid fa-quote-left text-accent/20 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"The HLD visual analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-xs font-bold">SM</div>
-                      <div>
-                          <p class="text-xs font-bold text-white">Sarah M.</p>
-                          <p class="text-[10px] text-slate-500">Amazon, SDE II</p>
-                      </div>
-                  </div>
+                  <div><i class="fa-solid fa-quote-left text-accent/20 text-4xl mb-4"></i><p class="text-slate-300 text-sm leading-relaxed mb-6">"The HLD visual analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p></div>
+                  <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-xs font-bold">SM</div><div><p class="text-xs font-bold text-white">Sarah M.</p><p class="text-[10px] text-slate-500">Amazon, SDE II</p></div></div>
               </div>
-
               <div class="physics-card p-8 flex flex-col justify-between reveal-item">
-                  <div>
-                      <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold">AL</div>
-                      <div>
-                          <p class="text-xs font-bold text-white">Arjun L.</p>
-                          <p class="text-[10px] text-slate-500">Microsoft, L61</p>
-                      </div>
-                  </div>
+                  <div><i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i><p class="text-slate-300 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p></div>
+                  <div class="flex items-center gap-3 border-t border-white/5 pt-4"><div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold">AL</div><div><p class="text-xs font-bold text-white">Arjun L.</p><p class="text-[10px] text-slate-500">Microsoft, L61</p></div></div>
               </div>
           </div>
       </div>
@@ -830,22 +588,11 @@
       <div class="max-w-4xl mx-auto px-6 text-center reveal-item">
           <h2 class="text-4xl font-medium text-white mb-6">Is Whis-AI Free?</h2>
           <div class="text-5xl font-bold text-accent mb-6">Yes.</div>
-          <p class="text-slate-300 text-lg leading-relaxed mb-8">
-              We believe in democratizing interview preparation. That's why we offer <strong class="text-white">3 Claim Sessions (Trial)</strong> and <strong class="text-white">10 Free Syntheses Daily</strong> to every user, forever.
-          </p>
+          <p class="text-slate-300 text-lg leading-relaxed mb-8">We believe in democratizing interview preparation. That's why we offer <strong class="text-white">3 Claim Sessions (Trial)</strong> and <strong class="text-white">10 Free Syntheses Daily</strong> to every user, forever.</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-3xl mx-auto">
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Cost Centric</h3>
-                  <p class="text-xs text-slate-400">The most affordable premium option in the market. Why pay $50+ elsewhere?</p>
-              </div>
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Daily Free Usage</h3>
-                  <p class="text-xs text-slate-400">10 free requests every 24 hours. Perfect for light practice or short rounds.</p>
-              </div>
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Full Features</h3>
-                  <p class="text-xs text-slate-400">Trial sessions include Audio, Visual, and Context features unlocked.</p>
-              </div>
+              <div class="p-6 rounded-xl bg-white/5 border border-white/10"><h3 class="text-white font-bold mb-2">Cost Centric</h3><p class="text-xs text-slate-400">The most affordable premium option in the market. Why pay $50+ elsewhere?</p></div>
+              <div class="p-6 rounded-xl bg-white/5 border border-white/10"><h3 class="text-white font-bold mb-2">Daily Free Usage</h3><p class="text-xs text-slate-400">10 free requests every 24 hours. Perfect for light practice or short rounds.</p></div>
+              <div class="p-6 rounded-xl bg-white/5 border border-white/10"><h3 class="text-white font-bold mb-2">Full Features</h3><p class="text-xs text-slate-400">Trial sessions include Audio, Visual, and Context features unlocked.</p></div>
           </div>
           <button onclick="openDownloadModal()" class="mt-12 px-8 py-3 rounded-full bg-white text-black font-bold hover:bg-slate-200 transition duration-300 ease-butter">Start For Free</button>
       </div>
@@ -855,42 +602,10 @@
       <div class="max-w-3xl mx-auto px-6 reveal-item">
           <h2 id="faq" class="text-3xl font-medium text-white mb-12 text-center">Common Questions.</h2>
           <div class="space-y-4">
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Is Whis really undetectable?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis uses system-level audio capture and screen OCR that runs entirely outside of the browser. Screenshare tools like Zoom or Teams only capture specific windows or the browser viewport; they cannot detect Whis running in the background as a separate native process.</p>
-                  </div>
-              </div>
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Can I get a refund if it doesn't work?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the application doesn't work on your machine or you face technical issues we can't resolve, simply email support for a full refund. No questions asked.</p>
-                  </div>
-              </div>
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Does it work for Python, Java and C++?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can toggle your preferred output language in the settings, and the AI will generate code specifically in that syntax.</p>
-                  </div>
-              </div>
-               <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Does it work on Mac and Windows?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
-                  </div>
-                  <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes, we have native applications for both Windows (10/11) and macOS (Intel & M1/M2/M3 Silicon). Linux support is coming soon.</p>
-                  </div>
-              </div>
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')"><div class="p-4 md:p-6 flex justify-between items-center"><h3 class="text-sm font-bold text-white">Is Whis really undetectable?</h3><i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i></div><div class="faq-answer px-6"><p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis uses system-level audio capture and screen OCR that runs entirely outside of the browser. Screenshare tools like Zoom or Teams only capture specific windows or the browser viewport; they cannot detect Whis running in the background as a separate native process.</p></div></div>
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')"><div class="p-4 md:p-6 flex justify-between items-center"><h3 class="text-sm font-bold text-white">Can I get a refund if it doesn't work?</h3><i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i></div><div class="faq-answer px-6"><p class="pb-6 text-slate-400 text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the application doesn't work on your machine or you face technical issues we can't resolve, simply email support for a full refund. No questions asked.</p></div></div>
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')"><div class="p-4 md:p-6 flex justify-between items-center"><h3 class="text-sm font-bold text-white">Does it work for Python, Java and C++?</h3><i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i></div><div class="faq-answer px-6"><p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can toggle your preferred output language in the settings, and the AI will generate code specifically in that syntax.</p></div></div>
+              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')"><div class="p-4 md:p-6 flex justify-between items-center"><h3 class="text-sm font-bold text-white">Does it work on Mac and Windows?</h3><i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i></div><div class="faq-answer px-6"><p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes, we have native applications for both Windows (10/11) and macOS (Intel & M1/M2/M3 Silicon). Linux support is coming soon.</p></div></div>
           </div>
       </div>
   </section>
@@ -918,9 +633,7 @@
 
   <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
       <div class="physics-card p-8 max-w-sm w-full text-center border border-green-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-              <i class="fa-solid fa-check text-2xl text-green-400"></i>
-          </div>
+          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-check text-2xl text-green-400"></i></div>
           <h3 class="text-xl font-bold text-white mb-2">Upgrade Complete</h3>
           <p class="text-slate-400 text-sm mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
           <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition">Initialize System</button>
@@ -930,20 +643,10 @@
   <div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
     <div class="physics-card p-8 max-w-sm w-full text-center border border-white/20 relative">
         <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-         
         <h3 class="text-xl font-bold text-white mb-2">Select Payment Method</h3>
         <p class="text-xs text-slate-400 mb-8">Choose your preferred secure gateway.</p>
-
-        <button onclick="triggerRazorpayFlow(event)" class="w-full py-3 mb-4 rounded-xl bg-[#3395ff] text-white font-bold hover:brightness-110 transition flex items-center justify-center gap-3">
-            <i class="fa-solid fa-credit-card"></i> Pay via Razorpay (INR)
-        </button>
-
-        <div class="relative flex py-2 items-center mb-4">
-            <div class="flex-grow border-t border-white/10"></div>
-            <span class="flex-shrink mx-4 text-[10px] text-slate-500">OR PAYPAL (USD)</span>
-            <div class="flex-grow border-t border-white/10"></div>
-        </div>
-
+        <button onclick="triggerRazorpayFlow(event)" class="w-full py-3 mb-4 rounded-xl bg-[#3395ff] text-white font-bold hover:brightness-110 transition flex items-center justify-center gap-3"><i class="fa-solid fa-credit-card"></i> Pay via Razorpay (INR)</button>
+        <div class="relative flex py-2 items-center mb-4"><div class="flex-grow border-t border-white/10"></div><span class="flex-shrink mx-4 text-[10px] text-slate-500">OR PAYPAL (USD)</span><div class="flex-grow border-t border-white/10"></div></div>
         <div id="paypal-button-container" class="w-full min-h-[45px]"></div>
     </div>
   </div>
@@ -953,14 +656,8 @@
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-lg font-medium text-white mb-6">Select Platform</h3>
         <div class="space-y-3">
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.3.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
-                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
-                <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i>
-            </a>
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.2.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
-                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-windows text-xl"></i> Windows</span>
-                <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i>
-            </a>
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.3.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group"><span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span><i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i></a>
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.2.windows/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group"><span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-windows text-xl"></i> Windows</span><i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i></a>
         </div>
     </div>
   </div>
@@ -972,10 +669,7 @@
         <h3 id="modalUserName" class="text-lg font-bold text-white mb-6">User</h3>
         <div class="bg-white/5 rounded-xl p-6 text-left mb-6 border border-white/5">
             <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
-            <div class="flex justify-between items-baseline">
-                <span id="modalPlanName" class="text-xl font-bold text-white">Free</span>
-                <span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">ACTIVE</span>
-            </div>
+            <div class="flex justify-between items-baseline"><span id="modalPlanName" class="text-xl font-bold text-white">Free</span><span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">ACTIVE</span></div>
             <div id="modalPlanValidity" class="text-[10px] text-slate-400 mt-2"></div>
         </div>
         <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition">Sign Out</button>
@@ -983,87 +677,81 @@
   </div>
 
   <script>
-    // --- 0. SAFELY INITIALIZE LENIS (FAIL-SAFE) ---
+    // --- 0. SAFELY INITIALIZE LENIS (ULTRA-HEAVY DAMPENING) ---
     let lenis;
     try {
         if (typeof Lenis !== 'undefined') {
             lenis = new Lenis({
-                duration: 1.2,
+                duration: 1.5, // Increased for heavier feel
                 easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                 direction: 'vertical',
                 gestureDirection: 'vertical',
                 smooth: true,
+                mouseMultiplier: 1,
                 smoothTouch: false,
                 touchMultiplier: 2,
             });
-
-            function raf(time) {
-                lenis.raf(time);
-                requestAnimationFrame(raf);
-            }
+            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
             requestAnimationFrame(raf);
-        } else {
-            console.warn("Lenis not loaded. Falling back to native scroll.");
-        }
-    } catch (e) {
-        console.error("Lenis Init Failed:", e);
-    }
+        } else { console.warn("Lenis not loaded."); }
+    } catch (e) { console.error(e); }
 
-    // --- NEW: OS & DEVICE DETECTION ENGINE ---
-    // This dynamically adjusts the layout width based on the platform
-    function detectAndOptimizeLayout() {
-        const platform = navigator.platform.toLowerCase();
-        const body = document.body;
-
-        if (platform.includes('win')) {
-            body.classList.add('os-windows');
-            console.log("Optimizing Layout for Windows (Wide Mode)");
-        } else if (platform.includes('mac') || platform.includes('iphone') || platform.includes('ipad')) {
-            body.classList.add('os-mac');
-            console.log("Optimizing Layout for macOS (Focused Mode)");
-        } else {
-            // Default Fallback
-            body.classList.add('os-mac'); // Default to focused
-        }
-    }
-
-    // --- SCROLL REVEAL LOGIC (FAILSAFE) ---
+    // --- 1. LOOK-AHEAD REVEAL ENGINE (NO BLACK SCREEN) ---
     function initScrollReveal() {
+        // We do NOT hide initially via JS loop to avoid flashing.
+        // Instead, we use a MutationObserver-like approach with IntersectionObserver
+        // triggering extremely early (200px look-ahead).
+        
         const elements = document.querySelectorAll('.reveal-item');
-        elements.forEach(el => el.classList.add('js-hidden'));
-
+        
+        // Immediate check: If element is well below fold, hide it for animation.
+        // If it is near viewport, leave it visible.
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.remove('js-hidden');
-                    entry.target.classList.add('reveal-visible');
+                    entry.target.classList.add('reveal-active');
+                    entry.target.classList.remove('reveal-pending');
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 });
+        }, { 
+            rootMargin: '0px 0px 200px 0px', // The Magic Number: Triggers 200px BEFORE entering viewport
+            threshold: 0.01 
+        });
 
-        elements.forEach((el) => observer.observe(el));
+        elements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            // Only hide if it's really far down (more than window height + buffer)
+            if (rect.top > window.innerHeight + 100) {
+                el.classList.add('reveal-pending');
+                observer.observe(el);
+            }
+        });
     }
 
-    // --- PHYSICS ENGINE (PERFORMANCE OPTIMIZED) ---
+    // --- 2. OS DETECTION ---
+    function detectAndOptimizeLayout() {
+        const platform = navigator.platform.toLowerCase();
+        const body = document.body;
+        if (platform.includes('win')) { body.classList.add('os-windows'); } 
+        else if (platform.includes('mac') || platform.includes('iphone')) { body.classList.add('os-mac'); } 
+        else { body.classList.add('os-mac'); }
+    }
+
+    // --- 3. PHYSICS ---
     function initPhysics() {
         if(window.innerWidth < 768) return;
         const cards = document.querySelectorAll('.physics-card, .carousel-item');
         let ticking = false;
-
         document.body.addEventListener('mousemove', (e) => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const clientX = e.clientX;
-                    const clientY = e.clientY;
-                    
+                    const clientX = e.clientX; const clientY = e.clientY;
                     cards.forEach(card => {
                         const rect = card.getBoundingClientRect();
                         if (rect.top < window.innerHeight && rect.bottom > 0) {
-                             const x = clientX - rect.left;
-                             const y = clientY - rect.top;
-                             card.style.setProperty('--mouse-x', `${x}px`);
-                             card.style.setProperty('--mouse-y', `${y}px`);
+                             const x = clientX - rect.left; const y = clientY - rect.top;
+                             card.style.setProperty('--mouse-x', `${x}px`); card.style.setProperty('--mouse-y', `${y}px`);
                         }
                     });
                     ticking = false;
@@ -1073,438 +761,116 @@
         });
     }
 
-    // --- CINEMATIC INTRO LOGIC ---
+    // --- LOGIC ---
     function playIntro() {
         const t1 = document.getElementById('intro-text');
         const layer = document.getElementById('intro-layer');
         if(!t1 || !layer) return;
-
         setTimeout(() => t1.classList.add('intro-active'), 100);
-        setTimeout(() => { layer.style.opacity = '0'; }, 2000); 
-        setTimeout(() => { layer.style.display = 'none'; }, 2500);
+        setTimeout(() => { layer.style.pointerEvents = 'none'; }, 2000); 
     }
 
-    // --- CAROUSEL LOGIC ---
-    const videos = [
-        { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
-        { src: 'text.mp4', label: 'CODE SYNTHESIS' },
-        { src: 'audio.mp4', label: 'AUDIO INGESTION' }
-    ];
+    const videos = [{ src: 'visual.mp4', label: 'VISUAL CONTEXT' }, { src: 'text.mp4', label: 'CODE SYNTHESIS' }, { src: 'audio.mp4', label: 'AUDIO INGESTION' }];
     let activeIndex = 0;
-     
     function initCarousel() {
         const container = document.getElementById('carouselContainer');
         if(!container) return;
         container.innerHTML = '';
         videos.forEach((v, i) => {
-            const div = document.createElement('div');
-            div.className = 'carousel-item physics-card'; 
-            div.id = `c-item-${i}`;
-            const video = document.createElement('video');
-            video.src = v.src; 
-            video.muted = true; 
-            video.playsInline = true; 
+            const div = document.createElement('div'); div.className = 'carousel-item physics-card'; div.id = `c-item-${i}`;
+            const video = document.createElement('video'); video.src = v.src; video.muted = true; video.playsInline = true; 
             video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; 
-            div.appendChild(video);
-            container.appendChild(div);
+            div.appendChild(video); container.appendChild(div);
         });
         updateCarousel();
     }
-
     function updateCarousel() {
-        const total = videos.length;
-        const prev = (activeIndex - 1 + total) % total;
-        const next = (activeIndex + 1) % total;
-        
+        const total = videos.length; const prev = (activeIndex - 1 + total) % total; const next = (activeIndex + 1) % total;
         videos.forEach((_, i) => {
-            const el = document.getElementById(`c-item-${i}`);
-            if(!el) return;
-            const vid = el.querySelector('video');
-            vid.onended = null; 
-
+            const el = document.getElementById(`c-item-${i}`); if(!el) return;
+            const vid = el.querySelector('video'); vid.onended = null; 
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
-            
-            if(i === activeIndex) {
-                el.classList.add('item-center');
-                vid.play().catch(()=>{});
-                vid.style.opacity = '1';
-                vid.onended = () => {
-                    activeIndex = (activeIndex + 1) % videos.length; 
-                    updateCarousel(); 
-                };
-            } else if (i === prev) {
-                el.classList.add('item-left');
-                vid.pause(); vid.currentTime = 0;
-                vid.style.opacity = '0.4';
-            } else if (i === next) {
-                el.classList.add('item-right');
-                vid.pause(); vid.currentTime = 0;
-                vid.style.opacity = '0.4';
-            } else {
-                el.classList.add('item-hidden');
-                vid.pause(); vid.currentTime = 0;
-            }
+            if(i === activeIndex) { el.classList.add('item-center'); vid.play().catch(()=>{}); vid.style.opacity = '1'; vid.onended = () => { activeIndex = (activeIndex + 1) % videos.length; updateCarousel(); }; } 
+            else if (i === prev) { el.classList.add('item-left'); vid.pause(); vid.currentTime = 0; vid.style.opacity = '0.4'; } 
+            else if (i === next) { el.classList.add('item-right'); vid.pause(); vid.currentTime = 0; vid.style.opacity = '0.4'; } 
+            else { el.classList.add('item-hidden'); vid.pause(); vid.currentTime = 0; }
         });
-        const label = document.getElementById('featureLabel');
-        if(label) label.innerText = videos[activeIndex].label;
+        const label = document.getElementById('featureLabel'); if(label) label.innerText = videos[activeIndex].label;
     }
 
-    // --- TYPEWRITER ---
-    const codeLines = [
-        { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
-        { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
-        { text: "        if not ", class: "keyword" }, { text: "height: ", class: "" }, { text: "return ", class: "keyword" }, { text: "0\n", class: "number" },
-        { text: "        l, r = ", class: "" }, { text: "0", class: "number" }, { text: ", len(height) - ", class: "" }, { text: "1\n", class: "number" },
-        { text: "        leftMax, rightMax = height[l], height[r]\n", class: "" },
-        { text: "        res = ", class: "" }, { text: "0\n", class: "number" },
-        { text: "        while ", class: "keyword" }, { text: "l < r:\n", class: "" },
-        { text: "            if ", class: "keyword" }, { text: "leftMax < rightMax:\n", class: "" },
-        { text: "                l += ", class: "" }, { text: "1\n", class: "number" },
-        { text: "                leftMax = max(leftMax, height[l])\n", class: "" },
-        { text: "                res += leftMax - height[l]\n", class: "" },
-        { text: "            else", class: "keyword" }, { text: ":\n", class: "" },
-        { text: "                r -= ", class: "" }, { text: "1\n", class: "number" },
-        { text: "                rightMax = max(rightMax, height[r])\n", class: "" },
-        { text: "                res += rightMax - height[r]\n", class: "" },
-        { text: "        return ", class: "keyword" }, { text: "res", class: "" }
-    ];
+    const codeLines = [{ text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" }, { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" }, { text: "        if not ", class: "keyword" }, { text: "height: ", class: "" }, { text: "return ", class: "keyword" }, { text: "0\n", class: "number" }, { text: "        l, r = ", class: "" }, { text: "0", class: "number" }, { text: ", len(height) - ", class: "" }, { text: "1\n", class: "number" }, { text: "        leftMax, rightMax = height[l], height[r]\n", class: "" }, { text: "        res = ", class: "" }, { text: "0\n", class: "number" }, { text: "        while ", class: "keyword" }, { text: "l < r:\n", class: "" }, { text: "            if ", class: "keyword" }, { text: "leftMax < rightMax:\n", class: "" }, { text: "                l += ", class: "" }, { text: "1\n", class: "number" }, { text: "                leftMax = max(leftMax, height[l])\n", class: "" }, { text: "                res += leftMax - height[l]\n", class: "" }, { text: "            else", class: "keyword" }, { text: ":\n", class: "" }, { text: "                r -= ", class: "" }, { text: "1\n", class: "number" }, { text: "                rightMax = max(rightMax, height[r])\n", class: "" }, { text: "                res += rightMax - height[r]\n", class: "" }, { text: "        return ", class: "keyword" }, { text: "res", class: "" }];
     let currentPart = 0; let currentChar = 0;
     function typeCode() {
-        const el = document.getElementById('code-display');
-        if(!el) return;
+        const el = document.getElementById('code-display'); if(!el) return;
         if (currentPart < codeLines.length) {
-            const part = codeLines[currentPart];
-            let span = el.lastElementChild;
-            if (currentChar === 0 || !span) {
-                span = document.createElement('span');
-                if (part.class) span.className = part.class;
-                el.appendChild(span);
-            }
-            span.textContent += part.text[currentChar];
-            currentChar++;
-            if (currentChar >= part.text.length) {
-                currentPart++;
-                currentChar = 0;
-            }
-            setTimeout(typeCode, 15);
-        } else {
-            setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000);
-        }
+            const part = codeLines[currentPart]; let span = el.lastElementChild;
+            if (currentChar === 0 || !span) { span = document.createElement('span'); if (part.class) span.className = part.class; el.appendChild(span); }
+            span.textContent += part.text[currentChar]; currentChar++;
+            if (currentChar >= part.text.length) { currentPart++; currentChar = 0; } setTimeout(typeCode, 15);
+        } else { setTimeout(() => { el.innerHTML = ''; currentPart = 0; currentChar = 0; typeCode(); }, 4000); }
     }
 
-    // --- UPTIME COUNTER ---
     function initUptimeCounter() {
-        const counterEl = document.getElementById('uptime-counter');
-        if(!counterEl) return;
-        let currentCount = 62402;
-        setInterval(() => {
-            currentCount += Math.floor(Math.random() * 2);
-            counterEl.innerText = currentCount.toLocaleString();
-        }, 1500);
+        const counterEl = document.getElementById('uptime-counter'); if(!counterEl) return;
+        let currentCount = 62402; setInterval(() => { currentCount += Math.floor(Math.random() * 2); counterEl.innerText = currentCount.toLocaleString(); }, 1500);
     }
 
-    // --- COMPANY TYPEWRITER ---
     const companyWords = ["Google", "Netflix", "Meta", "Amazon", "Apple", "Uber", "Airbnb"];
     let wordIndex = 0; let charIndex = 0; let isDeleting = false;
-
     function typeEffect() {
-        const textEl = document.getElementById('typewriter-text');
-        if(!textEl) return;
+        const textEl = document.getElementById('typewriter-text'); if(!textEl) return;
         const currentWord = companyWords[wordIndex];
-        if (isDeleting) {
-            textEl.innerText = currentWord.substring(0, charIndex - 1);
-            charIndex--;
-        } else {
-            textEl.innerText = currentWord.substring(0, charIndex + 1);
-            charIndex++;
-        }
+        if (isDeleting) { textEl.innerText = currentWord.substring(0, charIndex - 1); charIndex--; } 
+        else { textEl.innerText = currentWord.substring(0, charIndex + 1); charIndex++; }
         let typeSpeed = isDeleting ? 50 : 150;
-        if (!isDeleting && charIndex === currentWord.length) {
-            typeSpeed = 2000; isDeleting = true;
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false; wordIndex = (wordIndex + 1) % companyWords.length; typeSpeed = 500; 
-        }
+        if (!isDeleting && charIndex === currentWord.length) { typeSpeed = 2000; isDeleting = true; } 
+        else if (isDeleting && charIndex === 0) { isDeleting = false; wordIndex = (wordIndex + 1) % companyWords.length; typeSpeed = 500; }
         setTimeout(typeEffect, typeSpeed);
     }
 
-    // --- DYNAMIC SIGNUPS ---
     function updateDynamicSignups() {
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const istDate = new Date(utc + istOffset);
-        let hour = istDate.getHours();
-        let count = (hour * hour) + 942;
-        if(count === 0) count = 15; 
-        const badge = document.getElementById('signup-badge-text');
-        if(badge) badge.innerText = `🔥 ${count} signups today`;
+        const now = new Date(); const istOffset = 5.5 * 60 * 60 * 1000; const utc = now.getTime() + (now.getTimezoneOffset() * 60000); const istDate = new Date(utc + istOffset);
+        let hour = istDate.getHours(); let count = (hour * hour) + 942; if(count === 0) count = 15; 
+        const badge = document.getElementById('signup-badge-text'); if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
-    let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
-    let PRICING_CONFIG = null; let GOOGLE_CLIENT_ID = null;
+    let currentUser = null, currentCycle = 'monthly', currentTier = 'free', PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
 
     async function fetchPricingConfig() {
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/config`);
-            if(res.ok) {
-                const data = await res.json();
-                PRICING_CONFIG = data.pricing;
-                GOOGLE_CLIENT_ID = data.googleClientId;
-                updatePricingUI();
-                document.getElementById('btnPro').disabled = false;
-                document.getElementById('btnElite').disabled = false;
-            }
-        } catch(e) { console.error("Config Fetch Error", e); }
+        try { const res = await fetch(`${BACKEND_URL}/api/config`); if(res.ok) { const data = await res.json(); PRICING_CONFIG = data.pricing; GOOGLE_CLIENT_ID = data.googleClientId; updatePricingUI(); document.getElementById('btnPro').disabled = false; document.getElementById('btnElite').disabled = false; } } catch(e) { console.error(e); }
     }
-
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
-     
-    function updateNavUI(u){ 
-        document.getElementById('signInBtn').style.display='none'; 
-        const profileTrigger = document.getElementById('userProfileTrigger');
-        profileTrigger.classList.remove('hidden'); profileTrigger.classList.add('flex'); 
-        document.getElementById('navUserAvatar').src = u.avatarUrl; 
-        document.getElementById('navPlanBadge').innerText = "FREE";
-        document.getElementById('navPlanBadge').classList.add('text-slate-400');
-    }
-     
-    async function handleGoogleRes(res){
-        try {
-            const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})});
-            const d=await r.json();
-            if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateNavUI(currentUser); fetchUserStatus(); closeLoginModal(); }
-        } catch(e){ console.error(e); }
-    }
-     
-    function formatPrice(amount, discount) {
-        if (!amount) return "...";
-        if(discount > 0) {
-            const discounted = (amount * (1 - discount/100)).toFixed(2); 
-            return `<span>$${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">$${amount.toFixed(2)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
-        }
-        return `$${amount.toFixed(2)}`;
-    }
+    function updateNavUI(u){ document.getElementById('signInBtn').style.display='none'; const p = document.getElementById('userProfileTrigger'); p.classList.remove('hidden'); p.classList.add('flex'); document.getElementById('navUserAvatar').src = u.avatarUrl; document.getElementById('navPlanBadge').innerText = "FREE"; document.getElementById('navPlanBadge').classList.add('text-slate-400'); }
+    async function handleGoogleRes(res){ try { const r=await fetch(`${BACKEND_URL}/api/auth/google`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:res.credential})}); const d=await r.json(); if(d.success){ localStorage.setItem('whisUser',JSON.stringify(d.user)); currentUser=d.user; updateNavUI(currentUser); fetchUserStatus(); closeLoginModal(); } } catch(e){ console.error(e); } }
+    function formatPrice(amount, discount) { if (!amount) return "..."; if(discount > 0) { const discounted = (amount * (1 - discount/100)).toFixed(2); return `<span>$${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">$${amount.toFixed(2)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`; } return `$${amount.toFixed(2)}`; }
+    function setCycle(c){ currentCycle=c; const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual'); if(c==='monthly'){ btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition"; } else { btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition"; } updatePricingUI(); }
+    function updatePricingUI() { if (!PRICING_CONFIG) return; const proDiv = document.getElementById('pricePro'); const eliteDiv = document.getElementById('priceStealth'); let proPrice = 0.00, elitePrice = 0.00, proDisc = PRICING_CONFIG.pro.discount, eliteDisc = PRICING_CONFIG.pro_plus.discount; if (currentCycle === 'monthly') { proPrice = PRICING_CONFIG.pro.monthly; elitePrice = PRICING_CONFIG.pro_plus.monthly; proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`; eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`; } else { proPrice = PRICING_CONFIG.pro.annual_per_month; elitePrice = PRICING_CONFIG.pro_plus.annual_per_month; proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`; eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`; } }
+    async function fetchUserStatus() { if(!currentUser) return; try { const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}}); const d = await r.json(); if(d.active) currentTier = d.tier; else currentTier = 'free'; const badge = document.getElementById('navPlanBadge'); const validityEl = document.getElementById('modalPlanValidity'); if(d.active){ badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO'; badge.classList.remove('text-slate-400'); badge.classList.add('text-accent'); document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License'; document.getElementById('modalPlanStatus').innerText = 'ACTIVE'; if(d.expiry || d.validUntil) { const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString(); validityEl.innerText = "Valid until: " + dateStr; } else { validityEl.innerText = "Active Subscription"; } const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite'); if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; } if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; } } else { badge.innerText = 'FREE'; badge.classList.add('text-slate-400'); badge.classList.remove('text-accent'); document.getElementById('modalPlanName').innerText = 'Free Tier'; document.getElementById('modalPlanStatus').innerText = 'ACTIVE'; validityEl.innerText = "Lifetime Free Access"; } document.getElementById('modalUserName').innerText = currentUser.name; document.getElementById('modalUserAvatar').src = currentUser.avatarUrl; } catch(e){} }
 
-    function setCycle(c){
-        currentCycle=c;
-        const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual');
-        if(c==='monthly'){
-            btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
-        } else {
-            btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
-        }
-        updatePricingUI();
-    }
-
-    function updatePricingUI() {
-        if (!PRICING_CONFIG) return;
-        const proDiv = document.getElementById('pricePro');
-        const eliteDiv = document.getElementById('priceStealth');
-        let proPrice = 0.00, elitePrice = 0.00;
-        let proDisc = PRICING_CONFIG.pro.discount;
-        let eliteDisc = PRICING_CONFIG.pro_plus.discount;
-
-        if (currentCycle === 'monthly') {
-            proPrice = PRICING_CONFIG.pro.monthly;
-            elitePrice = PRICING_CONFIG.pro_plus.monthly;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
-        } else {
-            proPrice = PRICING_CONFIG.pro.annual_per_month;
-            elitePrice = PRICING_CONFIG.pro_plus.annual_per_month;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
-        }
-    }
-
-    async function fetchUserStatus() {
-        if(!currentUser) return;
-        try {
-            const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
-            const d = await r.json();
-            if(d.active) currentTier = d.tier; else currentTier = 'free';
-            const badge = document.getElementById('navPlanBadge');
-            const validityEl = document.getElementById('modalPlanValidity');
-            if(d.active){
-                badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
-                badge.classList.remove('text-slate-400');
-                badge.classList.add('text-accent');
-                document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
-                document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
-                if(d.expiry || d.validUntil) {
-                    const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
-                    validityEl.innerText = "Valid until: " + dateStr;
-                } else {
-                    validityEl.innerText = "Active Subscription";
-                }
-                const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
-                if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
-                if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
-            } else {
-                badge.innerText = 'FREE';
-                badge.classList.add('text-slate-400');
-                badge.classList.remove('text-accent');
-                document.getElementById('modalPlanName').innerText = 'Free Tier';
-                document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
-                validityEl.innerText = "Lifetime Free Access";
-            }
-            document.getElementById('modalUserName').innerText = currentUser.name;
-            document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
-        } catch(e){}
-    }
-
-    // --- PAYMENT ---
-    let selectedTierForPayment = null; 
-    const paymentModal = document.getElementById('paymentModal');
-
-    function initiatePayment(targetTier) {
-        if(!currentUser){ openLoginModal(); return; }
-        if(currentTier === 'pro_plus') return;
-        if(currentTier === 'pro' && targetTier === 'pro') return;
-        selectedTierForPayment = targetTier;
-        openPaymentModal();
-    }
-
-    function openPaymentModal() {
-        paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
-        document.getElementById('paypal-button-container').innerHTML = '';
-        paypal.Buttons({
-            style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-            createOrder: async function(data, actions) {
-                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle })
-                });
-                const orderData = await res.json();
-                return orderData.id; 
-            },
-            onApprove: async function(data, actions) {
-                const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
-                });
-                const details = await res.json();
-                if (details.success) {
-                    closePaymentModal();
-                    document.getElementById('successModal').classList.remove('hidden');
-                    document.getElementById('successModal').classList.add('flex');
-                } else { alert("PayPal transaction verification failed."); }
-            },
-            onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
-        }).render('#paypal-button-container');
-    }
-
+    let selectedTierForPayment = null; const paymentModal = document.getElementById('paymentModal');
+    function initiatePayment(targetTier) { if(!currentUser){ openLoginModal(); return; } if(currentTier === 'pro_plus') return; if(currentTier === 'pro' && targetTier === 'pro') return; selectedTierForPayment = targetTier; openPaymentModal(); }
+    function openPaymentModal() { paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex'); document.getElementById('paypal-button-container').innerHTML = ''; paypal.Buttons({ style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }, createOrder: async function(data, actions) { const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle }) }); const orderData = await res.json(); return orderData.id; }, onApprove: async function(data, actions) { const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId }) }); const details = await res.json(); if (details.success) { closePaymentModal(); document.getElementById('successModal').classList.remove('hidden'); document.getElementById('successModal').classList.add('flex'); } else { alert("PayPal verification failed."); } }, onError: function (err) { console.error(err); alert("Payment failed."); } }).render('#paypal-button-container'); }
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
-
-    async function triggerRazorpayFlow(event) {
-        const targetTier = selectedTierForPayment;
-        const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        const btn = event.currentTarget; const orig = btn.innerHTML; 
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade })
-            });
-            const data = await res.json();
-            if(data.order_id){
-                const rzp1 = new Razorpay({
-                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI", "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
-                    "handler": async function (response){ 
-                        try {
-                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-                                method: 'POST', headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
-                            });
-                            const verifyData = await verifyRes.json();
-                            if(verifyData.success){
-                                closePaymentModal();
-                                document.getElementById('successModal').classList.remove('hidden');
-                                document.getElementById('successModal').classList.add('flex');
-                            } else { alert("Verification Failed. Contact Support."); }
-                        } catch(e) { console.error(e); alert("Network Error during verification."); }
-                    },
-                    "theme": { "color": "#00f2ff" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
-                });
-                rzp1.open();
-            }
-        } catch(e){ console.error(e); btn.innerHTML = orig; }
-    }
-
+    async function triggerRazorpayFlow(event) { const targetTier = selectedTierForPayment; const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus'); const btn = event.currentTarget; const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'; try { const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade }) }); const data = await res.json(); if(data.order_id){ const rzp1 = new Razorpay({ "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI", "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id, "handler": async function (response){ try { const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature }) }); const verifyData = await verifyRes.json(); if(verifyData.success){ closePaymentModal(); document.getElementById('successModal').classList.remove('hidden'); document.getElementById('successModal').classList.add('flex'); } else { alert("Verification Failed."); } } catch(e) { console.error(e); alert("Network Error."); } }, "theme": { "color": "#00f2ff" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } } }); rzp1.open(); } } catch(e){ console.error(e); btn.innerHTML = orig; } }
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
-    function openLoginModal(){
-        loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
-        if(window.google && GOOGLE_CLIENT_ID){
-            google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
-            google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
-        } else { console.warn("Google Auth not ready"); }
-    }
-    function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
-    function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
-    function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
-    function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
-    function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
+    function openLoginModal(){ loginModal.classList.remove('hidden'); loginModal.classList.add('flex'); if(window.google && GOOGLE_CLIENT_ID){ google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes}); google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"}); } }
+    function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');} function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');} function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');} function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');} function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
-    // --- SLIDER & HERO ---
     function updateSlider(val) { document.getElementById('comparisonSlider').style.setProperty('--position', val + '%'); }
-
-    const heroQ = '"Can you explain the difference between a Process and a Thread?"';
-    const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
-    let heroQIdx = 0; let heroAIdx = 0;
-
-    function typeHeroSequence() {
-        const statusEl = document.getElementById('hero-status');
-        const qContainer = document.getElementById('hero-question-container');
-        const qTextEl = document.getElementById('hero-question-text');
-        const aContainer = document.getElementById('hero-answer-container');
-        const aTextEl = document.getElementById('hero-answer-text');
-        if(!statusEl) return;
-        statusEl.classList.remove('hidden'); qContainer.classList.add('hidden'); aContainer.classList.add('hidden');
-        qTextEl.textContent = ''; aTextEl.textContent = ''; heroQIdx = 0; heroAIdx = 0;
-        setTimeout(() => {
-             qContainer.classList.remove('hidden');
-             typeHeroQuestion(qTextEl, () => {
-                 setTimeout(() => {
-                     aContainer.classList.remove('hidden');
-                     typeHeroAnswer(aTextEl, () => { setTimeout(typeHeroSequence, 6000); });
-                 }, 800);
-             });
-        }, 1500);
-    }
-    function typeHeroQuestion(el, callback) {
-        if(heroQIdx < heroQ.length) { el.textContent += heroQ.charAt(heroQIdx); heroQIdx++; setTimeout(() => typeHeroQuestion(el, callback), 30); } else { callback(); }
-    }
-    function typeHeroAnswer(el, callback) {
-        if(heroAIdx < heroA.length) { el.textContent += heroA.charAt(heroAIdx); heroAIdx++; setTimeout(() => typeHeroAnswer(el, callback), 20); } else { callback(); }
-    }
+    const heroQ = '"Can you explain the difference between a Process and a Thread?"'; const heroA = 'A process is an independent program in execution...'; let heroQIdx = 0; let heroAIdx = 0;
+    function typeHeroSequence() { const statusEl = document.getElementById('hero-status'); const qContainer = document.getElementById('hero-question-container'); const qTextEl = document.getElementById('hero-question-text'); const aContainer = document.getElementById('hero-answer-container'); const aTextEl = document.getElementById('hero-answer-text'); if(!statusEl) return; statusEl.classList.remove('hidden'); qContainer.classList.add('hidden'); aContainer.classList.add('hidden'); qTextEl.textContent = ''; aTextEl.textContent = ''; heroQIdx = 0; heroAIdx = 0; setTimeout(() => { qContainer.classList.remove('hidden'); typeHeroQuestion(qTextEl, () => { setTimeout(() => { aContainer.classList.remove('hidden'); typeHeroAnswer(aTextEl, () => { setTimeout(typeHeroSequence, 6000); }); }, 800); }); }, 1500); }
+    function typeHeroQuestion(el, callback) { if(heroQIdx < heroQ.length) { el.textContent += heroQ.charAt(heroQIdx); heroQIdx++; setTimeout(() => typeHeroQuestion(el, callback), 30); } else { callback(); } }
+    function typeHeroAnswer(el, callback) { if(heroAIdx < heroA.length) { el.textContent += heroA.charAt(heroAIdx); heroAIdx++; setTimeout(() => typeHeroAnswer(el, callback), 20); } else { callback(); } }
 
     let sliderAutoPlay = true; let sliderTime = 0;
-    function initSliderAutoPlay() {
-        const sliderContainer = document.getElementById('comparisonSlider');
-        const sliderInput = sliderContainer.querySelector('.comp-slider');
-        sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; });
-        sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; });
-        sliderContainer.addEventListener('mouseleave', () => { sliderAutoPlay = true; });
-        sliderContainer.addEventListener('touchend', () => { sliderAutoPlay = true; });
-        function animate() {
-            if (sliderAutoPlay) {
-                sliderTime += 0.02;
-                const pos = 50 + (35 * Math.sin(sliderTime)); 
-                updateSlider(pos);
-                if(sliderInput) sliderInput.value = pos; 
-            }
-            requestAnimationFrame(animate);
-        }
-        animate();
-    }
+    function initSliderAutoPlay() { const sliderContainer = document.getElementById('comparisonSlider'); const sliderInput = sliderContainer.querySelector('.comp-slider'); sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; }); sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; }); sliderContainer.addEventListener('mouseleave', () => { sliderAutoPlay = true; }); sliderContainer.addEventListener('touchend', () => { sliderAutoPlay = true; }); function animate() { if (sliderAutoPlay) { sliderTime += 0.02; const pos = 50 + (35 * Math.sin(sliderTime)); updateSlider(pos); if(sliderInput) sliderInput.value = pos; } requestAnimationFrame(animate); } animate(); }
 
     document.addEventListener("DOMContentLoaded", () => {
-        detectAndOptimizeLayout(); // NEW: RUNS IMMEDIATELY
-        initScrollReveal();
+        detectAndOptimizeLayout();
         playIntro();
+        initScrollReveal(); // NOW USING LOOK-AHEAD
         initCarousel();
         initUptimeCounter();
         typeCode();
@@ -1514,7 +880,6 @@
         checkUser();
         fetchPricingConfig();
         updateDynamicSignups();
-        // startIstMidnightTimer(); // REMOVED TIMER
         setTimeout(initPhysics, 500);
     });
   </script>
