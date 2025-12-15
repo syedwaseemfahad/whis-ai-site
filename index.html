@@ -84,7 +84,7 @@
     .border-accent { border-color: var(--accent); transition: border-color 1s; }
     .shadow-accent { box-shadow: 0 0 30px var(--accent-glow); transition: box-shadow 1s; }
 
-    /* --- PHYSICS CARD --- */
+    /* --- PHYSICS CARD (OPTIMIZED) --- */
     .physics-card {
         background: rgba(10, 10, 10, 0.6);
         backdrop-filter: blur(20px);
@@ -93,6 +93,11 @@
         position: relative;
         overflow: hidden;
         transition: transform 0.2s ease, border-color 1s;
+        
+        /* HARDWARE ACCELERATION FIXES */
+        transform: translate3d(0, 0, 0); 
+        backface-visibility: hidden;     
+        will-change: transform, box-shadow; 
     }
     .physics-card::before {
         content: "";
@@ -1057,31 +1062,53 @@
   </div>
 
   <script>
-    // --- PHYSICS ENGINE (PERFORMANCE OPTIMIZED) ---
+    // --- PHYSICS ENGINE (OPTIMIZED TO FIX LAGGING) ---
     function initPhysics() {
         if(window.innerWidth < 768) return;
-        const cards = document.querySelectorAll('.physics-card, .carousel-item');
+        
+        const cards = Array.from(document.querySelectorAll('.physics-card, .carousel-item'));
+        let cardCaches = [];
         let ticking = false;
 
+        // 1. Calculate positions ONLY on load and resize (Heavy work done once)
+        function cachePositions() {
+            cardCaches = cards.map(card => {
+                const rect = card.getBoundingClientRect();
+                return {
+                    el: card,
+                    // Store position relative to PAGE (so scroll doesn't break it)
+                    left: rect.left + window.scrollX,
+                    top: rect.top + window.scrollY
+                };
+            });
+        }
+
+        // 2. Initialize and Listen for Layout Changes
+        cachePositions();
+        window.addEventListener('resize', cachePositions, { passive: true });
+        // Recalculate on scroll to ensure accuracy if layout shifts
+        window.addEventListener('scroll', cachePositions, { passive: true });
+
+        // 3. Fast Mouse Loop (No layout thrashing)
         document.body.addEventListener('mousemove', (e) => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const clientX = e.clientX;
-                    const clientY = e.clientY;
+                    const mouseX = e.pageX;
+                    const mouseY = e.pageY;
                     
-                    cards.forEach(card => {
-                        const rect = card.getBoundingClientRect();
-                        // Only calculate if card is somewhat near/visible (simple optimization)
-                        const x = clientX - rect.left;
-                        const y = clientY - rect.top;
-                        card.style.setProperty('--mouse-x', `${x}px`);
-                        card.style.setProperty('--mouse-y', `${y}px`);
+                    cardCaches.forEach(item => {
+                        // Pure Math: No expensive DOM reads here
+                        const x = mouseX - item.left;
+                        const y = mouseY - item.top;
+                        
+                        item.el.style.setProperty('--mouse-x', `${x}px`);
+                        item.el.style.setProperty('--mouse-y', `${y}px`);
                     });
                     ticking = false;
                 });
                 ticking = true;
             }
-        });
+        }, { passive: true });
     }
 
     // --- 5. CINEMATIC INTRO LOGIC (FASTER & COMBINED) ---
@@ -1685,24 +1712,35 @@
         }
     }
 
-    // --- SLIDER AUTO-ANIMATION (UPDATED FOR RESUME) ---
+    // --- SLIDER AUTO-ANIMATION (OPTIMIZED FOR MOBILE) ---
     let sliderAutoPlay = true;
     let sliderTime = 0;
+    let isSliderVisible = false;
 
     function initSliderAutoPlay() {
         const sliderContainer = document.getElementById('comparisonSlider');
+        if(!sliderContainer) return;
+        
         const sliderInput = sliderContainer.querySelector('.comp-slider');
         
-        // Stop on interaction
-        sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; });
-        sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; });
+        // 1. Visibility Observer (Saves Battery)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isSliderVisible = entry.isIntersecting;
+            });
+        }, { threshold: 0.1 }); 
+        
+        observer.observe(sliderContainer);
 
-        // Resume on leave/end
+        // 2. Interaction Listeners
+        sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; });
+        sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; }, { passive: true });
         sliderContainer.addEventListener('mouseleave', () => { sliderAutoPlay = true; });
         sliderContainer.addEventListener('touchend', () => { sliderAutoPlay = true; });
 
+        // 3. Optimized Animation Loop
         function animate() {
-            if (sliderAutoPlay) {
+            if (sliderAutoPlay && isSliderVisible) {
                 // Elegant sine wave motion: Center(50) + Amplitude(35) * sin(speed * time)
                 sliderTime += 0.02;
                 const pos = 50 + (35 * Math.sin(sliderTime)); 
@@ -1722,7 +1760,7 @@
         typeEffect(); // Init the new company typewriter
         // typeSliderAnswer(); // Removed simulated typing inside slider since we are using video now
         typeHeroSequence(); // Init Hero Sequence
-        initSliderAutoPlay(); // Init Auto Slider
+        initSliderAutoPlay(); // Init Auto Slider (OPTIMIZED)
         checkUser();
         detectOS();
         fetchPricingConfig();
