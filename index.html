@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-XXXXXXXXXX');
   </script>
 
@@ -15,6 +14,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
    
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script> 
+  
   <script>
     tailwind.config = {
       theme: {
@@ -35,6 +36,9 @@
           keyframes: {
             scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-100%)' } },
             float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+          },
+          transitionTimingFunction: {
+            'butter': 'cubic-bezier(0.23, 1, 0.32, 1)' /* The Secret Sauce for smooth hover */
           }
         }
       }
@@ -61,13 +65,38 @@
         inherits: true;
     }
 
+    /* SMOOTHNESS OPTIMIZATIONS */
+    html.lenis {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    .lenis.lenis-scrolling iframe {
+      pointer-events: none;
+    }
+
     body { 
         background-color: #000000; 
         color: white; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
-        padding-bottom: 80px; /* Space for sticky bar */
+        padding-bottom: 80px;
         animation: colorCycle 60s infinite linear;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    ::selection {
+        background: var(--accent);
+        color: black;
     }
 
     @keyframes colorCycle {
@@ -78,48 +107,49 @@
         100% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.4); }
     }
 
-    /* Use the dynamic color */
-    .text-accent { color: var(--accent); transition: color 1s; }
-    .bg-accent { background-color: var(--accent); transition: background-color 1s; }
-    .border-accent { border-color: var(--accent); transition: border-color 1s; }
-    .shadow-accent { box-shadow: 0 0 30px var(--accent-glow); transition: box-shadow 1s; }
+    .text-accent { color: var(--accent); transition: color 1s ease; }
+    .bg-accent { background-color: var(--accent); transition: background-color 1s ease; }
+    .border-accent { border-color: var(--accent); transition: border-color 1s ease; }
+    .shadow-accent { box-shadow: 0 0 30px var(--accent-glow); transition: box-shadow 1s ease; }
 
     /* --- PHYSICS CARD (OPTIMIZED) --- */
     .physics-card {
         background: rgba(10, 10, 10, 0.6);
         backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 24px;
         position: relative;
         overflow: hidden;
-        transition: transform 0.2s ease, border-color 1s;
-        
-        /* HARDWARE ACCELERATION FIXES */
-        transform: translate3d(0, 0, 0); 
-        backface-visibility: hidden;     
-        will-change: transform, box-shadow; 
+        /* Hardware Acceleration */
+        transform: translateZ(0); 
+        will-change: transform, border-color;
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.4s ease;
     }
     .physics-card::before {
         content: "";
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+        background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.08), transparent 40%);
         opacity: 0;
-        transition: opacity 0.5s;
+        transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         pointer-events: none;
         z-index: 2;
     }
     .physics-card:hover::before { opacity: 1; }
-    .physics-card:hover { border-color: rgba(255, 255, 255, 0.2); }
+    .physics-card:hover { 
+        border-color: rgba(255, 255, 255, 0.25); 
+        transform: translateY(-2px) scale(1.005);
+    }
 
-    /* --- MOBILE OPTIMIZATION FOR CARDS (ELEGANT GLOW WITHOUT HOVER) --- */
     @media (max-width: 768px) {
         .physics-card {
             background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            /* Remove hover transform on mobile for better scrolling */
+            transform: none !important; 
         }
-        /* Subtle glow on bottom edge for mobile elegance */
         .physics-card::after {
             content: '';
             position: absolute;
@@ -128,6 +158,19 @@
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
             opacity: 0.5;
         }
+    }
+
+    /* --- SCROLL REVEAL ANIMATION --- */
+    .reveal-hidden {
+        opacity: 0;
+        transform: translateY(40px);
+        filter: blur(10px);
+        transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .reveal-visible {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
     }
 
     /* --- INTRO SEQUENCE --- */
@@ -141,7 +184,7 @@
     .intro-text {
         font-size: 2rem; md:font-size: 3rem; font-weight: 300; letter-spacing: -0.02em;
         background: linear-gradient(to bottom, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        opacity: 0; transform: scale(0.95); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        opacity: 0; transform: scale(0.95); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center; width: 100%; max-width: 800px;
     }
     .intro-active { opacity: 1; transform: scale(1); }
@@ -156,6 +199,7 @@
         position: relative; 
         margin-top: 20px;
         margin-bottom: 20px;
+        will-change: transform;
     }
     @media (min-width: 768px) { 
         .carousel-container { height: 650px; margin-top: 0; } 
@@ -185,18 +229,12 @@
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
-    /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #c678dd; } 
     .function { color: #61afef; } 
     .string { color: #98c379; } 
     .number { color: #d19a66; } 
 
-    /* --- SCROLL HIDE --- */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    /* --- PRICING ELITE GLOW --- */
     .pricing-elite { position: relative; }
     .pricing-elite::after {
         content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px;
@@ -210,25 +248,21 @@
     .faq-answer {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+        transition: max-height 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     }
     .group.active .faq-answer {
         max-height: 200px;
-        transition: max-height 0.3s cubic-bezier(1, 0, 1, 0);
+        transition: max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     }
     .group.active .faq-icon {
         transform: rotate(180deg);
     }
 
-    /* --- MOBILE SPECIFIC --- */
-    .snap-mandatory-x { scroll-snap-type: x mandatory; }
-    .snap-center { scroll-snap-align: center; }
-
-    /* --- NEW PREMIUM SLIDER STYLES (MAC + VIDEO) --- */
+    /* --- COMPONENT STYLES --- */
     .comp-container {
         position: relative;
         width: 100%;
-        max-width: 1000px; /* INCREASED SIZE */
+        max-width: 1000px;
         margin: 0 auto;
         border-radius: 12px;
         overflow: hidden;
@@ -238,8 +272,6 @@
         box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
         --position: 50%;
     }
-    
-    /* Mac Window Header */
     .mac-header {
         position: absolute;
         top: 0; left: 0; right: 0;
@@ -257,97 +289,35 @@
     .mac-yellow { background: #febc2e; }
     .mac-green { background: #28c840; }
 
-    .comp-image {
-        position: absolute;
-        top: 32px; /* Below header */
-        left: 0; width: 100%; bottom: 0;
-        pointer-events: none;
-        user-select: none;
-    }
-
+    .comp-image { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; pointer-events: none; user-select: none; }
     .comp-overlay {
-        position: absolute;
-        top: 32px; /* Below header */
-        left: 0; width: 100%; bottom: 0;
-        /* The clip logic: shows only the left part */
+        position: absolute; top: 32px; left: 0; width: 100%; bottom: 0;
         clip-path: inset(0 calc(100% - var(--position)) 0 0);
-        z-index: 10;
-        background: #000; 
+        z-index: 10; background: #000; 
     }
-
-    /* The glowing separator line */
     .comp-divider {
-        position: absolute;
-        top: 32px; bottom: 0; left: var(--position);
-        width: 1px;
-        background: rgba(255,255,255,0.5);
-        z-index: 20;
-        transform: translateX(-50%);
-        box-shadow: 0 0 20px var(--accent);
-        pointer-events: none;
+        position: absolute; top: 32px; bottom: 0; left: var(--position);
+        width: 1px; background: rgba(255,255,255,0.5); z-index: 20;
+        transform: translateX(-50%); box-shadow: 0 0 20px var(--accent); pointer-events: none;
     }
-
-    /* The Draggable Range Input */
     .comp-slider {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 30;
-        opacity: 0;
-        cursor: ew-resize;
-        margin: 0;
-        -webkit-appearance: none;
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none;
     }
-    .comp-slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 40px; height: 100vh;
-        background: transparent;
-        cursor: ew-resize;
-    }
-
-    /* The Premium Handle (No Arrows) */
+    .comp-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 40px; height: 100vh; background: transparent; cursor: ew-resize; }
     .comp-handle-btn {
-        position: absolute;
-        top: 50%; left: var(--position);
-        width: 6px; height: 48px;
-        background: white;
-        border-radius: 4px;
-        transform: translate(-50%, -50%);
-        z-index: 21;
-        pointer-events: none;
-        box-shadow: 0 0 20px var(--accent), 0 0 10px white;
-        transition: height 0.2s ease;
+        position: absolute; top: 50%; left: var(--position); width: 6px; height: 48px; background: white; border-radius: 4px;
+        transform: translate(-50%, -50%); z-index: 21; pointer-events: none;
+        box-shadow: 0 0 20px var(--accent), 0 0 10px white; transition: height 0.2s ease;
     }
-    .comp-container:hover .comp-handle-btn {
-        height: 64px;
-    }
-
+    .comp-container:hover .comp-handle-btn { height: 64px; }
     .comp-label {
-        position: absolute;
-        top: 48px;
-        padding: 4px 12px;
-        background: rgba(0,0,0,0.8);
-        backdrop-filter: blur(4px);
-        color: white;
-        font-size: 10px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        border-radius: 6px;
-        pointer-events: none;
-        z-index: 15;
+        position: absolute; top: 48px; padding: 4px 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+        color: white; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+        border-radius: 6px; pointer-events: none; z-index: 15;
     }
     .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); }
     .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
-
-    /* Typing Cursor */
-    .typing-cursor {
-        display: inline-block;
-        width: 2px;
-        height: 1em;
-        background-color: var(--accent);
-        animation: blink 1s step-end infinite;
-        vertical-align: text-bottom;
-    }
+    .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--accent); animation: blink 1s step-end infinite; vertical-align: text-bottom; }
     @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
@@ -363,12 +333,12 @@
   </div>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-[var(--accent)] rounded-full blur-[150px] opacity-10 transition-colors duration-1000"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900/10 rounded-full blur-[150px] opacity-10"></div>
+      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-[var(--accent)] rounded-full blur-[150px] opacity-10 transition-colors duration-1000 will-change-transform"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900/10 rounded-full blur-[150px] opacity-10 will-change-transform"></div>
       <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
   </div>
 
-  <nav class="fixed top-[40px] w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5">
+  <nav class="fixed top-[40px] w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-accent transition-colors duration-1000">
@@ -378,22 +348,22 @@
       </a>
        
       <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5">
-        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Features</a>
-        <a href="#demo" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Demo</a>
-        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Reviews</a>
-        <a href="#pricing" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Pricing</a>
-        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">FAQ</a>
+        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition-colors duration-300">Features</a>
+        <a href="#demo" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition-colors duration-300">Demo</a>
+        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition-colors duration-300">Reviews</a>
+        <a href="#pricing" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition-colors duration-300">Pricing</a>
+        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition-colors duration-300">FAQ</a>
       </div>
 
       <div class="flex items-center gap-5">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition">Sign In</button>
+          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition duration-300">Sign In</button>
            
-          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 transition-transform duration-300 ease-butter">
              <span class="relative z-10"><i class="fa-brands fa-windows mr-1"></i> <i class="fa-brands fa-apple mr-1"></i> Get App</span>
              <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-20 transition duration-300"></div>
           </button>
            
-          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition">
+          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition duration-300">
             <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover" />
             <span id="navPlanBadge" class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">FREE</span>
           </button>
@@ -402,21 +372,21 @@
   </nav>
 
   <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-2xl border-t border-white/10 p-4 pb-8 grid grid-cols-2 gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
-      <a href="#demo" class="py-4 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+      <a href="#demo" class="py-4 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2 active:scale-95 transition-transform duration-200">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
-      <button onclick="openDownloadModal()" class="py-4 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_20px_var(--accent-glow)] flex items-center justify-center gap-2 active:scale-95 transition-transform">
+      <button onclick="openDownloadModal()" class="py-4 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_20px_var(--accent-glow)] flex items-center justify-center gap-2 active:scale-95 transition-transform duration-200">
           <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Try Free
       </button>
   </div>
 
-  <a href="https://wa.me/9092435258" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
+  <a href="https://wa.me/9092435258" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition duration-300 ease-butter md:bottom-8">
       <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
       <span class="absolute right-14 bg-white text-black text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
   </a>
 
   <section class="relative pt-28 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
+    <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center reveal-hidden">
        
       <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-6 text-white">
         Helps you answer interviews<br>
@@ -436,7 +406,7 @@
       </div>
 
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-3">
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 ease-butter shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-3">
              Try Free – No Credit Card / No Setup
         </button>
       </div>
@@ -452,12 +422,12 @@
           </div>
       </div>
         
-      <a href="#demo" class="mt-8 text-xs text-slate-400 hover:text-white border-b border-dashed border-slate-600 pb-0.5">
+      <a href="#demo" class="mt-8 text-xs text-slate-400 hover:text-white border-b border-dashed border-slate-600 pb-0.5 transition-colors duration-300">
           See why 7,300+ candidates switched to Whis-AI
       </a>
     </div>
 
-    <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4">
+    <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4 reveal-hidden">
         <div class="physics-card p-0 bg-[#0a0a0a] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden">
              <div class="bg-[#111] px-4 py-3 flex items-center justify-between border-b border-white/10">
                  <div class="flex gap-2">
@@ -486,7 +456,7 @@
         </div>
     </div>
 
-    <div class="w-full relative z-20 mb-2">
+    <div class="w-full relative z-20 mb-2 reveal-hidden">
         <div class="carousel-container" id="carouselContainer"></div>
         <div class="text-center mt-4">
               <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p>
@@ -500,13 +470,13 @@
     <div class="max-w-7xl mx-auto px-6 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-colors duration-500">
+            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-all duration-500 reveal-hidden">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-green-500 uppercase tracking-widest">
                         <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
                         Running
                     </span>
-                    <i class="fa-solid fa-clock text-white/10 text-xl group-hover:text-green-500/20 transition"></i>
+                    <i class="fa-solid fa-clock text-white/10 text-xl group-hover:text-green-500/20 transition duration-500"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> SYSTEM_UPTIME (HOURS)</div>
@@ -517,12 +487,12 @@
                 </div>
             </div>
 
-            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-purple-500/30 transition-colors duration-500">
+            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-purple-500/30 transition-all duration-500 reveal-hidden">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest">
                         <i class="fa-solid fa-lock mr-2"></i>Verified
                     </span>
-                    <i class="fa-solid fa-briefcase text-white/10 text-xl group-hover:text-purple-500/20 transition"></i>
+                    <i class="fa-solid fa-briefcase text-white/10 text-xl group-hover:text-purple-500/20 transition duration-500"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> OFFERS_SECURED_TOTAL</div>
@@ -533,12 +503,12 @@
                 </div>
             </div>
 
-            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-accent/30 transition-colors duration-500">
+            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-accent/30 transition-all duration-500 reveal-hidden">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-accent uppercase tracking-widest">
                         <i class="fa-solid fa-network-wired mr-2"></i>Connected
                     </span>
-                    <i class="fa-solid fa-building text-white/10 text-xl group-hover:text-accent/20 transition"></i>
+                    <i class="fa-solid fa-building text-white/10 text-xl group-hover:text-accent/20 transition duration-500"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> TARGET_SYSTEMS</div>
@@ -559,53 +529,53 @@
 
   <section id="features" class="py-20 border-t border-white/5 bg-[#0a0a0a]">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-16 text-center">The Core Stack.</h2>
+          <h2 class="text-3xl font-medium text-white mb-16 text-center reveal-hidden">The Core Stack.</h2>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Voice Capture</h3>
                   <p class="text-sm text-slate-400">Captures voice and gives output based on it.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition"><i class="fa-solid fa-desktop text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-desktop text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Screen Vision</h3>
                   <p class="text-sm text-slate-400">Captures screen and gets output based on it.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-400 group-hover:scale-110 transition"><i class="fa-solid fa-keyboard text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-keyboard text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Direct Input</h3>
                   <p class="text-sm text-slate-400">Input text directly and get output.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition"><i class="fa-solid fa-eye-slash text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-eye-slash text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">100% Invisible</h3>
                   <p class="text-sm text-slate-400">Completely invisible to screenshare.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-ghost text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Ghost Mode</h3>
                   <p class="text-sm text-slate-400">No dock or icon for the app.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 text-yellow-400 group-hover:scale-110 transition"><i class="fa-solid fa-language text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 text-yellow-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-language text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Universal Translator</h3>
                   <p class="text-sm text-slate-400">Any language you or interviewer talk, app will understand and gives answers in english.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4 text-pink-400 group-hover:scale-110 transition"><i class="fa-solid fa-brain text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4 text-pink-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-brain text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Smart Context</h3>
                   <p class="text-sm text-slate-400">Any one can put context (what meeting or interview) answers will be based on that.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5">
-                  <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition"><i class="fa-solid fa-gift text-xl"></i></div>
+              <div class="physics-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5 reveal-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-gift text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Free Trial</h3>
                   <p class="text-sm text-slate-300">Every new user gets 3 free trial sessions which they can use and test all the complete paid features.</p>
               </div>
@@ -615,8 +585,8 @@
 
   <section class="py-20 border-t border-white/5 bg-[#080808]">
       <div class="max-w-4xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 text-center">Why not just use ChatGPT?</h2>
-          <div class="physics-card overflow-hidden">
+          <h2 class="text-3xl font-medium text-white mb-12 text-center reveal-hidden">Why not just use ChatGPT?</h2>
+          <div class="physics-card overflow-hidden reveal-hidden">
               <table class="w-full text-left border-collapse">
                   <thead>
                       <tr class="bg-white/5 border-b border-white/10">
@@ -654,13 +624,13 @@
                   </tbody>
               </table>
           </div>
-          <p class="text-center text-xs text-slate-500 mt-6 italic">Don't risk your dream job with generic tools. Use the specialist.</p>
+          <p class="text-center text-xs text-slate-500 mt-6 italic reveal-hidden">Don't risk your dream job with generic tools. Use the specialist.</p>
       </div>
   </section>
 
   <section class="py-20 border-t border-white/5 bg-black">
       <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
-          <div class="flex-1 space-y-6">
+          <div class="flex-1 space-y-6 reveal-hidden">
               <div class="inline-block px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider">New Feature</div>
               <h2 class="text-3xl md:text-4xl font-medium text-white">Context Intelligence.</h2>
               <p class="text-slate-400 text-lg leading-relaxed">
@@ -672,7 +642,7 @@
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Instant Toggle:</strong> Switch contexts in 1 click between different company interviews.</span></li>
               </ul>
           </div>
-          <div class="flex-1 w-full">
+          <div class="flex-1 w-full reveal-hidden">
               <div class="physics-card p-6 border border-white/10 bg-[#111]">
                   <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
                       <span class="text-xs font-bold text-slate-500">ACTIVE CONTEXT</span>
@@ -711,7 +681,7 @@
   <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
       <div class="max-w-7xl mx-auto px-6">
           <div class="grid lg:grid-cols-2 gap-16 items-center">
-              <div class="space-y-8">
+              <div class="space-y-8 reveal-hidden">
                   <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">They Ask. You Answer.</h2>
                   <p class="text-slate-400 text-lg font-light leading-relaxed">
                       Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span>
@@ -734,7 +704,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col">
+              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col reveal-hidden">
                   <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
                       <div class="flex gap-2">
                         <div class="w-3 h-3 rounded-full bg-white/10"></div>
@@ -756,7 +726,8 @@
   </section>
 
   <section class="py-20 border-t border-white/5 bg-black/40">
-      <div class="max-w-6xl mx-auto px-6 text-center"> <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
+      <div class="max-w-6xl mx-auto px-6 text-center reveal-hidden"> 
+          <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
               <span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span>
           </div>
           <h2 class="text-3xl font-medium text-white mb-8">Invisible to Zoom, Teams & Meets.</h2>
@@ -790,7 +761,7 @@
   </section>
 
   <section id="pricing" class="py-32 border-t border-white/5 relative">
-    <div class="max-w-7xl mx-auto px-6 text-center mt-12">
+    <div class="max-w-7xl mx-auto px-6 text-center mt-12 reveal-hidden">
         <h2 class="text-4xl font-medium text-white mb-6">Unbeatable Value.</h2>
         <p class="text-slate-400 mb-12">One offer pays for a lifetime. Cancel anytime.</p>
          
@@ -807,7 +778,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
-            <div class="physics-card p-8 text-left flex flex-col h-full border-white/5">
+            <div class="physics-card p-8 text-left flex flex-col h-full border-white/5 hover:border-white/10 transition duration-300">
                 <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Starter</h3>
                 <div class="text-4xl font-bold text-white mb-6">Free</div>
                 <div class="space-y-4 text-xs text-slate-400 mb-8 flex-grow">
@@ -816,10 +787,10 @@
                     <p class="flex gap-3 opacity-50"><i class="fa-solid fa-xmark"></i> No Stealth Mode</p>
                     <p class="flex gap-3 opacity-50"><i class="fa-solid fa-xmark"></i> No Visual Context</p>
                 </div>
-                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-bold uppercase transition">Download</button>
+                <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-xs font-bold uppercase transition duration-300">Download</button>
             </div>
 
-            <div class="physics-card p-8 text-left flex flex-col h-full border-white/20">
+            <div class="physics-card p-8 text-left flex flex-col h-full border-white/20 hover:border-white/40 transition duration-300">
                 <h3 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Pro License</h3>
                 <div class="text-4xl font-bold text-white mb-6" id="pricePro">...</div>
                 <div class="space-y-4 text-xs text-slate-300 mb-8 flex-grow">
@@ -828,10 +799,10 @@
                     <p class="flex gap-3"><i class="fa-solid fa-check text-white"></i> Audio Ingestion</p>
                     <p class="flex gap-3 text-red-400"><i class="fa-solid fa-video"></i> Visible on Screenshare</p>
                 </div>
-                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition disabled:opacity-50 disabled:cursor-not-allowed">Upgrade</button>
+                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-xs font-bold uppercase transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">Upgrade</button>
             </div>
 
-            <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-accent">
+            <div class="physics-card pricing-elite p-8 text-left flex flex-col h-full bg-[#050505] shadow-accent hover:shadow-[0_0_50px_var(--accent-glow)] transition duration-500">
                 <div class="absolute top-0 right-0 p-4"><i class="fa-solid fa-crown text-accent text-xl"></i></div>
                 <h3 class="text-xs font-bold text-accent uppercase tracking-widest mb-4">Elite License</h3>
                 <div class="text-4xl font-bold text-white mb-6" id="priceStealth">...</div>
@@ -841,7 +812,7 @@
                     <p class="flex gap-3"><i class="fa-solid fa-keyboard text-accent"></i> Direct Input Mode</p>
                     <p class="flex gap-3"><i class="fa-solid fa-user-secret text-accent"></i> Ghost Dock (No Icon)</p>
                 </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-xs font-bold uppercase transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">Get Elite</button>
+                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-xs font-bold uppercase transition duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">Get Elite</button>
             </div>
         </div>
     </div>
@@ -849,7 +820,7 @@
 
   <section class="py-24 border-t border-white/5 bg-[#050505]">
       <div class="max-w-7xl mx-auto px-6">
-          <div class="flex justify-between items-end mb-12">
+          <div class="flex justify-between items-end mb-12 reveal-hidden">
               <h2 id="testimonials" class="text-3xl font-medium text-white">Engineers love Whis.</h2>
               <div class="text-right">
                   <div class="flex gap-1 text-accent text-sm mb-1">
@@ -860,7 +831,7 @@
           </div>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div class="physics-card p-8 flex flex-col justify-between">
+              <div class="physics-card p-8 flex flex-col justify-between reveal-hidden">
                   <div>
                       <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
                       <p class="text-slate-300 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
@@ -874,7 +845,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-8 flex flex-col justify-between border-accent/20">
+              <div class="physics-card p-8 flex flex-col justify-between border-accent/20 reveal-hidden">
                   <div>
                       <i class="fa-solid fa-quote-left text-accent/20 text-4xl mb-4"></i>
                       <p class="text-slate-300 text-sm leading-relaxed mb-6">"The HLD visual analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
@@ -888,7 +859,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-8 flex flex-col justify-between">
+              <div class="physics-card p-8 flex flex-col justify-between reveal-hidden">
                   <div>
                       <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
                       <p class="text-slate-300 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
@@ -906,7 +877,7 @@
   </section>
 
   <section class="py-24 border-t border-white/5 bg-[#050505]">
-      <div class="max-w-4xl mx-auto px-6 text-center">
+      <div class="max-w-4xl mx-auto px-6 text-center reveal-hidden">
           <h2 class="text-4xl font-medium text-white mb-6">Is Whis-AI Free?</h2>
           <div class="text-5xl font-bold text-accent mb-6">Yes.</div>
           <p class="text-slate-300 text-lg leading-relaxed mb-8">
@@ -926,12 +897,12 @@
                   <p class="text-xs text-slate-400">Trial sessions include Audio, Visual, and Context features unlocked.</p>
               </div>
           </div>
-          <button onclick="openDownloadModal()" class="mt-12 px-8 py-3 rounded-full bg-white text-black font-bold hover:bg-slate-200 transition">Start For Free</button>
+          <button onclick="openDownloadModal()" class="mt-12 px-8 py-3 rounded-full bg-white text-black font-bold hover:bg-slate-200 transition duration-300 ease-butter">Start For Free</button>
       </div>
   </section>
 
   <section class="py-24 border-t border-white/5 bg-black">
-      <div class="max-w-3xl mx-auto px-6">
+      <div class="max-w-3xl mx-auto px-6 reveal-hidden">
           <h2 id="faq" class="text-3xl font-medium text-white mb-12 text-center">Common Questions.</h2>
           <div class="space-y-4">
               <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
@@ -974,7 +945,7 @@
       </div>
   </section>
 
-  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12">
+  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12 reveal-hidden">
     <div class="flex flex-wrap justify-center gap-6 text-slate-500 text-xs font-medium">
         <a href="/contact" class="hover:text-white transition">Contact</a>
         <a href="/troubleshoot" class="hover:text-white transition">Troubleshoot</a>
@@ -1062,53 +1033,66 @@
   </div>
 
   <script>
-    // --- PHYSICS ENGINE (OPTIMIZED TO FIX LAGGING) ---
+    // --- 0. INITIALIZE LENIS (BUTTER SCROLL) ---
+    // This intercepts native scroll and adds physics-based interpolation
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential easing
+        direction: 'vertical',
+        gestureDirection: 'vertical',
+        smooth: true,
+        smoothTouch: false, // Touch usually better native, but can enable if needed
+        touchMultiplier: 2,
+    });
+
+    function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // --- SCROLL REVEAL LOGIC ---
+    function initScrollReveal() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal-visible');
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const hiddenElements = document.querySelectorAll('.reveal-hidden');
+        hiddenElements.forEach((el) => observer.observe(el));
+    }
+
+    // --- PHYSICS ENGINE (PERFORMANCE OPTIMIZED) ---
     function initPhysics() {
         if(window.innerWidth < 768) return;
-        
-        const cards = Array.from(document.querySelectorAll('.physics-card, .carousel-item'));
-        let cardCaches = [];
+        const cards = document.querySelectorAll('.physics-card, .carousel-item');
         let ticking = false;
 
-        // 1. Calculate positions ONLY on load and resize (Heavy work done once)
-        function cachePositions() {
-            cardCaches = cards.map(card => {
-                const rect = card.getBoundingClientRect();
-                return {
-                    el: card,
-                    // Store position relative to PAGE (so scroll doesn't break it)
-                    left: rect.left + window.scrollX,
-                    top: rect.top + window.scrollY
-                };
-            });
-        }
-
-        // 2. Initialize and Listen for Layout Changes
-        cachePositions();
-        window.addEventListener('resize', cachePositions, { passive: true });
-        // Recalculate on scroll to ensure accuracy if layout shifts
-        window.addEventListener('scroll', cachePositions, { passive: true });
-
-        // 3. Fast Mouse Loop (No layout thrashing)
         document.body.addEventListener('mousemove', (e) => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const mouseX = e.pageX;
-                    const mouseY = e.pageY;
+                    const clientX = e.clientX;
+                    const clientY = e.clientY;
                     
-                    cardCaches.forEach(item => {
-                        // Pure Math: No expensive DOM reads here
-                        const x = mouseX - item.left;
-                        const y = mouseY - item.top;
-                        
-                        item.el.style.setProperty('--mouse-x', `${x}px`);
-                        item.el.style.setProperty('--mouse-y', `${y}px`);
+                    cards.forEach(card => {
+                        const rect = card.getBoundingClientRect();
+                        // Optimization: Only calculate if card is near visible viewport area
+                        if (rect.top < window.innerHeight && rect.bottom > 0) {
+                             const x = clientX - rect.left;
+                             const y = clientY - rect.top;
+                             card.style.setProperty('--mouse-x', `${x}px`);
+                             card.style.setProperty('--mouse-y', `${y}px`);
+                        }
                     });
                     ticking = false;
                 });
                 ticking = true;
             }
-        }, { passive: true });
+        });
     }
 
     // --- 5. CINEMATIC INTRO LOGIC (FASTER & COMBINED) ---
@@ -1712,35 +1696,24 @@
         }
     }
 
-    // --- SLIDER AUTO-ANIMATION (OPTIMIZED FOR MOBILE) ---
+    // --- SLIDER AUTO-ANIMATION (UPDATED FOR RESUME) ---
     let sliderAutoPlay = true;
     let sliderTime = 0;
-    let isSliderVisible = false;
 
     function initSliderAutoPlay() {
         const sliderContainer = document.getElementById('comparisonSlider');
-        if(!sliderContainer) return;
-        
         const sliderInput = sliderContainer.querySelector('.comp-slider');
         
-        // 1. Visibility Observer (Saves Battery)
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                isSliderVisible = entry.isIntersecting;
-            });
-        }, { threshold: 0.1 }); 
-        
-        observer.observe(sliderContainer);
-
-        // 2. Interaction Listeners
+        // Stop on interaction
         sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; });
-        sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; }, { passive: true });
+        sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; });
+
+        // Resume on leave/end
         sliderContainer.addEventListener('mouseleave', () => { sliderAutoPlay = true; });
         sliderContainer.addEventListener('touchend', () => { sliderAutoPlay = true; });
 
-        // 3. Optimized Animation Loop
         function animate() {
-            if (sliderAutoPlay && isSliderVisible) {
+            if (sliderAutoPlay) {
                 // Elegant sine wave motion: Center(50) + Amplitude(35) * sin(speed * time)
                 sliderTime += 0.02;
                 const pos = 50 + (35 * Math.sin(sliderTime)); 
@@ -1753,19 +1726,22 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Initialize Core Logic
+        initScrollReveal();
         playIntro();
-        initCarousel(); // RESTORED
-        initUptimeCounter(); // Init the new counter
+        initCarousel();
+        initUptimeCounter();
         typeCode();
-        typeEffect(); // Init the new company typewriter
-        // typeSliderAnswer(); // Removed simulated typing inside slider since we are using video now
-        typeHeroSequence(); // Init Hero Sequence
-        initSliderAutoPlay(); // Init Auto Slider (OPTIMIZED)
+        typeEffect();
+        typeHeroSequence();
+        initSliderAutoPlay();
         checkUser();
         detectOS();
         fetchPricingConfig();
         updateDynamicSignups();
-        startIstMidnightTimer(); // REPLACED: NEW IST LOGIC
+        startIstMidnightTimer();
+        
+        // Delay physics slightly to let DOM settle
         setTimeout(initPhysics, 500);
     });
   </script>
