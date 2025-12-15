@@ -278,11 +278,6 @@
 </head>
 <body class="no-scrollbar">
 
-  <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-600 to-orange-600 flex justify-center items-center gap-4 shadow-[0_0_20px_rgba(220,38,38,0.5)] z-[60]">
-      <span class="text-white font-bold text-xs md:text-sm uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-2"></i>Flash Sale Ends Tonight</span>
-      <div id="fomo-timer" class="font-mono font-bold text-white bg-black/20 px-3 py-0.5 rounded text-xs md:text-sm">--:--:--</div>
-  </div>
-
   <div id="intro-layer" class="intro-overlay">
       <h1 id="intro-text" class="intro-text">Your Potential Deserves More.<br>You have come to the right place.</h1>
   </div>
@@ -293,7 +288,7 @@
       <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
   </div>
 
-  <nav class="fixed top-[40px] w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+  <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
     <div class="os-container flex items-center justify-between h-full">
       <a href="/" class="flex items-center gap-3 group">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-accent transition-colors duration-1000">
@@ -1245,26 +1240,6 @@
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- FOMO TIMER ---
-    function startIstMidnightTimer() {
-        const timerEl = document.getElementById('fomo-timer');
-        if(!timerEl) return;
-        function update() {
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const istOffset = 5.5 * 60 * 60 * 1000;
-            const istTime = new Date(utc + istOffset);
-            const nextMidnight = new Date(istTime);
-            nextMidnight.setHours(24, 0, 0, 0);
-            let diff = nextMidnight - istTime;
-            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const m = Math.floor((diff / (1000 * 60)) % 60);
-            const s = Math.floor((diff / 1000) % 60);
-            timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-        update(); setInterval(update, 1000);
-    }
-
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
@@ -1539,7 +1514,7 @@
         checkUser();
         fetchPricingConfig();
         updateDynamicSignups();
-        startIstMidnightTimer();
+        // startIstMidnightTimer(); // REMOVED TIMER
         setTimeout(initPhysics, 500);
     });
   </script>
