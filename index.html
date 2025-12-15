@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
    
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script> 
   
   <script>
     tailwind.config = {
@@ -38,7 +38,7 @@
             float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
           },
           transitionTimingFunction: {
-            'butter': 'cubic-bezier(0.23, 1, 0.32, 1)' /* The Secret Sauce for smooth hover */
+            'butter': 'cubic-bezier(0.23, 1, 0.32, 1)'
           }
         }
       }
@@ -66,21 +66,11 @@
     }
 
     /* SMOOTHNESS OPTIMIZATIONS */
-    html.lenis {
-      height: auto;
-    }
-    .lenis.lenis-smooth {
-      scroll-behavior: auto;
-    }
-    .lenis.lenis-smooth [data-lenis-prevent] {
-      overscroll-behavior: contain;
-    }
-    .lenis.lenis-stopped {
-      overflow: hidden;
-    }
-    .lenis.lenis-scrolling iframe {
-      pointer-events: none;
-    }
+    html.lenis { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+    .lenis.lenis-scrolling iframe { pointer-events: none; }
 
     body { 
         background-color: #000000; 
@@ -90,14 +80,9 @@
         padding-bottom: 80px;
         animation: colorCycle 60s infinite linear;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
     }
 
-    ::selection {
-        background: var(--accent);
-        color: black;
-    }
+    ::selection { background: var(--accent); color: black; }
 
     @keyframes colorCycle {
         0% { --accent: #00f2ff; --accent-glow: rgba(0, 242, 255, 0.4); }
@@ -112,7 +97,7 @@
     .border-accent { border-color: var(--accent); transition: border-color 1s ease; }
     .shadow-accent { box-shadow: 0 0 30px var(--accent-glow); transition: box-shadow 1s ease; }
 
-    /* --- PHYSICS CARD (OPTIMIZED) --- */
+    /* --- PHYSICS CARD --- */
     .physics-card {
         background: rgba(10, 10, 10, 0.6);
         backdrop-filter: blur(20px);
@@ -147,40 +132,46 @@
             background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            /* Remove hover transform on mobile for better scrolling */
             transform: none !important; 
-        }
-        .physics-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 20%; right: 20%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0.5;
         }
     }
 
-    /* --- SCROLL REVEAL ANIMATION --- */
-    .reveal-hidden {
+    /* --- SAFE REVEAL ANIMATION (Default Visible) --- */
+    /* By default, things are visible. JS will add 'opacity-0' if it loads correctly. 
+       This prevents black screen if JS crashes. */
+    .reveal-item {
+        opacity: 1; /* Safety Default */
+        transform: translateY(0);
+        transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    
+    /* Only hide if JS successfully adds this class */
+    .js-hidden {
         opacity: 0;
         transform: translateY(40px);
         filter: blur(10px);
-        transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .reveal-visible {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
     }
 
-    /* --- INTRO SEQUENCE --- */
+    .reveal-visible {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        filter: blur(0) !important;
+    }
+
+    /* --- INTRO SEQUENCE (With CSS Backup) --- */
     .intro-overlay {
         position: fixed; inset: 0; z-index: 9999;
         background: black;
         display: flex; align-items: center; justify-content: center;
         pointer-events: none;
         padding: 20px;
+        /* Backup Animation in case JS fails: Fade out after 3s */
+        animation: fadeOutOverlay 0.5s ease-in-out 3s forwards;
     }
+    @keyframes fadeOutOverlay {
+        to { opacity: 0; visibility: hidden; }
+    }
+
     .intro-text {
         font-size: 2rem; md:font-size: 3rem; font-weight: 300; letter-spacing: -0.02em;
         background: linear-gradient(to bottom, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -192,33 +183,19 @@
     /* --- CAROUSEL CSS --- */
     .carousel-container { 
         perspective: 1200px; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        height: 280px; 
-        position: relative; 
-        margin-top: 20px;
-        margin-bottom: 20px;
-        will-change: transform;
+        display: flex; justify-content: center; align-items: center; 
+        height: 280px; position: relative; margin-top: 20px; margin-bottom: 20px;
     }
-    @media (min-width: 768px) { 
-        .carousel-container { height: 650px; margin-top: 0; } 
-    }
+    @media (min-width: 768px) { .carousel-container { height: 650px; margin-top: 0; } }
     
     .carousel-item { 
-        position: absolute; 
-        width: 90%; 
-        aspect-ratio: 16/9; 
+        position: absolute; width: 90%; aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
-        border-radius: 16px; 
-        overflow: hidden; 
-        background: #000; 
+        border-radius: 16px; overflow: hidden; background: #000; 
         border: 1px solid rgba(255,255,255,0.1); 
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-    @media (min-width: 768px) { 
-        .carousel-item { width: 85%; max-height: 100%; } 
-    }
+    @media (min-width: 768px) { .carousel-item { width: 85%; max-height: 100%; } }
     
     .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
     .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
@@ -230,70 +207,40 @@
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); }
     
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
-    .keyword { color: #c678dd; } 
-    .function { color: #61afef; } 
-    .string { color: #98c379; } 
-    .number { color: #d19a66; } 
+    .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
 
     .pricing-elite { position: relative; }
     .pricing-elite::after {
         content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px;
         background: linear-gradient(180deg, var(--accent), transparent 60%);
         -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; mask-composite: exclude;
-        pointer-events: none;
+        -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
     }
 
     /* --- FAQ ANIMATION --- */
-    .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .group.active .faq-answer {
-        max-height: 200px;
-        transition: max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .group.active .faq-icon {
-        transform: rotate(180deg);
-    }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+    .group.active .faq-answer { max-height: 200px; transition: max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
+    .group.active .faq-icon { transform: rotate(180deg); }
 
     /* --- COMPONENT STYLES --- */
     .comp-container {
-        position: relative;
-        width: 100%;
-        max-width: 1000px;
-        margin: 0 auto;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.15);
-        aspect-ratio: 16/9;
-        background: #000;
-        box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
+        position: relative; width: 100%; max-width: 1000px; margin: 0 auto;
+        border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15);
+        aspect-ratio: 16/9; background: #000; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
         --position: 50%;
     }
     .mac-header {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 32px;
-        background: rgba(30, 30, 30, 0.95);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        z-index: 50;
-        display: flex;
-        align-items: center;
-        padding-left: 12px;
-        gap: 8px;
+        position: absolute; top: 0; left: 0; right: 0; height: 32px;
+        background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1);
+        z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px;
     }
     .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .mac-red { background: #ff5f57; }
-    .mac-yellow { background: #febc2e; }
-    .mac-green { background: #28c840; }
+    .mac-red { background: #ff5f57; } .mac-yellow { background: #febc2e; } .mac-green { background: #28c840; }
 
     .comp-image { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; pointer-events: none; user-select: none; }
     .comp-overlay {
         position: absolute; top: 32px; left: 0; width: 100%; bottom: 0;
-        clip-path: inset(0 calc(100% - var(--position)) 0 0);
-        z-index: 10; background: #000; 
+        clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #000; 
     }
     .comp-divider {
         position: absolute; top: 32px; bottom: 0; left: var(--position);
@@ -386,7 +333,7 @@
   </a>
 
   <section class="relative pt-28 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center reveal-hidden">
+    <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center reveal-item">
        
       <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-6 text-white">
         Helps you answer interviews<br>
@@ -427,7 +374,7 @@
       </a>
     </div>
 
-    <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4 reveal-hidden">
+    <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4 reveal-item">
         <div class="physics-card p-0 bg-[#0a0a0a] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden">
              <div class="bg-[#111] px-4 py-3 flex items-center justify-between border-b border-white/10">
                  <div class="flex gap-2">
@@ -456,7 +403,7 @@
         </div>
     </div>
 
-    <div class="w-full relative z-20 mb-2 reveal-hidden">
+    <div class="w-full relative z-20 mb-2 reveal-item">
         <div class="carousel-container" id="carouselContainer"></div>
         <div class="text-center mt-4">
               <p id="featureLabel" class="text-[10px] font-mono text-accent uppercase tracking-[0.3em]">Visual Analysis</p>
@@ -470,7 +417,7 @@
     <div class="max-w-7xl mx-auto px-6 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-all duration-500 reveal-hidden">
+            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-all duration-500 reveal-item">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-green-500 uppercase tracking-widest">
                         <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
@@ -487,7 +434,7 @@
                 </div>
             </div>
 
-            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-purple-500/30 transition-all duration-500 reveal-hidden">
+            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-purple-500/30 transition-all duration-500 reveal-item">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest">
                         <i class="fa-solid fa-lock mr-2"></i>Verified
@@ -503,7 +450,7 @@
                 </div>
             </div>
 
-            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-accent/30 transition-all duration-500 reveal-hidden">
+            <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-accent/30 transition-all duration-500 reveal-item">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-accent uppercase tracking-widest">
                         <i class="fa-solid fa-network-wired mr-2"></i>Connected
@@ -529,52 +476,52 @@
 
   <section id="features" class="py-20 border-t border-white/5 bg-[#0a0a0a]">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-16 text-center reveal-hidden">The Core Stack.</h2>
+          <h2 class="text-3xl font-medium text-white mb-16 text-center reveal-item">The Core Stack.</h2>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Voice Capture</h3>
                   <p class="text-sm text-slate-400">Captures voice and gives output based on it.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-desktop text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Screen Vision</h3>
                   <p class="text-sm text-slate-400">Captures screen and gets output based on it.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-keyboard text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Direct Input</h3>
                   <p class="text-sm text-slate-400">Input text directly and get output.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-eye-slash text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">100% Invisible</h3>
                   <p class="text-sm text-slate-400">Completely invisible to screenshare.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-ghost text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Ghost Mode</h3>
                   <p class="text-sm text-slate-400">No dock or icon for the app.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 text-yellow-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-language text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Universal Translator</h3>
                   <p class="text-sm text-slate-400">Any language you or interviewer talk, app will understand and gives answers in english.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4 text-pink-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-brain text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Smart Context</h3>
                   <p class="text-sm text-slate-400">Any one can put context (what meeting or interview) answers will be based on that.</p>
               </div>
 
-              <div class="physics-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5 reveal-hidden">
+              <div class="physics-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5 reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-gift text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Free Trial</h3>
                   <p class="text-sm text-slate-300">Every new user gets 3 free trial sessions which they can use and test all the complete paid features.</p>
@@ -585,8 +532,8 @@
 
   <section class="py-20 border-t border-white/5 bg-[#080808]">
       <div class="max-w-4xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 text-center reveal-hidden">Why not just use ChatGPT?</h2>
-          <div class="physics-card overflow-hidden reveal-hidden">
+          <h2 class="text-3xl font-medium text-white mb-12 text-center reveal-item">Why not just use ChatGPT?</h2>
+          <div class="physics-card overflow-hidden reveal-item">
               <table class="w-full text-left border-collapse">
                   <thead>
                       <tr class="bg-white/5 border-b border-white/10">
@@ -624,13 +571,13 @@
                   </tbody>
               </table>
           </div>
-          <p class="text-center text-xs text-slate-500 mt-6 italic reveal-hidden">Don't risk your dream job with generic tools. Use the specialist.</p>
+          <p class="text-center text-xs text-slate-500 mt-6 italic reveal-item">Don't risk your dream job with generic tools. Use the specialist.</p>
       </div>
   </section>
 
   <section class="py-20 border-t border-white/5 bg-black">
       <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
-          <div class="flex-1 space-y-6 reveal-hidden">
+          <div class="flex-1 space-y-6 reveal-item">
               <div class="inline-block px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider">New Feature</div>
               <h2 class="text-3xl md:text-4xl font-medium text-white">Context Intelligence.</h2>
               <p class="text-slate-400 text-lg leading-relaxed">
@@ -642,7 +589,7 @@
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Instant Toggle:</strong> Switch contexts in 1 click between different company interviews.</span></li>
               </ul>
           </div>
-          <div class="flex-1 w-full reveal-hidden">
+          <div class="flex-1 w-full reveal-item">
               <div class="physics-card p-6 border border-white/10 bg-[#111]">
                   <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
                       <span class="text-xs font-bold text-slate-500">ACTIVE CONTEXT</span>
@@ -681,7 +628,7 @@
   <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
       <div class="max-w-7xl mx-auto px-6">
           <div class="grid lg:grid-cols-2 gap-16 items-center">
-              <div class="space-y-8 reveal-hidden">
+              <div class="space-y-8 reveal-item">
                   <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">They Ask. You Answer.</h2>
                   <p class="text-slate-400 text-lg font-light leading-relaxed">
                       Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span>
@@ -704,7 +651,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col reveal-hidden">
+              <div class="physics-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col reveal-item">
                   <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
                       <div class="flex gap-2">
                         <div class="w-3 h-3 rounded-full bg-white/10"></div>
@@ -726,7 +673,7 @@
   </section>
 
   <section class="py-20 border-t border-white/5 bg-black/40">
-      <div class="max-w-6xl mx-auto px-6 text-center reveal-hidden"> 
+      <div class="max-w-6xl mx-auto px-6 text-center reveal-item"> 
           <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
               <span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span>
           </div>
@@ -761,7 +708,7 @@
   </section>
 
   <section id="pricing" class="py-32 border-t border-white/5 relative">
-    <div class="max-w-7xl mx-auto px-6 text-center mt-12 reveal-hidden">
+    <div class="max-w-7xl mx-auto px-6 text-center mt-12 reveal-item">
         <h2 class="text-4xl font-medium text-white mb-6">Unbeatable Value.</h2>
         <p class="text-slate-400 mb-12">One offer pays for a lifetime. Cancel anytime.</p>
          
@@ -820,7 +767,7 @@
 
   <section class="py-24 border-t border-white/5 bg-[#050505]">
       <div class="max-w-7xl mx-auto px-6">
-          <div class="flex justify-between items-end mb-12 reveal-hidden">
+          <div class="flex justify-between items-end mb-12 reveal-item">
               <h2 id="testimonials" class="text-3xl font-medium text-white">Engineers love Whis.</h2>
               <div class="text-right">
                   <div class="flex gap-1 text-accent text-sm mb-1">
@@ -831,7 +778,7 @@
           </div>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div class="physics-card p-8 flex flex-col justify-between reveal-hidden">
+              <div class="physics-card p-8 flex flex-col justify-between reveal-item">
                   <div>
                       <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
                       <p class="text-slate-300 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
@@ -845,7 +792,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-8 flex flex-col justify-between border-accent/20 reveal-hidden">
+              <div class="physics-card p-8 flex flex-col justify-between border-accent/20 reveal-item">
                   <div>
                       <i class="fa-solid fa-quote-left text-accent/20 text-4xl mb-4"></i>
                       <p class="text-slate-300 text-sm leading-relaxed mb-6">"The HLD visual analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
@@ -859,7 +806,7 @@
                   </div>
               </div>
 
-              <div class="physics-card p-8 flex flex-col justify-between reveal-hidden">
+              <div class="physics-card p-8 flex flex-col justify-between reveal-item">
                   <div>
                       <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
                       <p class="text-slate-300 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
@@ -877,7 +824,7 @@
   </section>
 
   <section class="py-24 border-t border-white/5 bg-[#050505]">
-      <div class="max-w-4xl mx-auto px-6 text-center reveal-hidden">
+      <div class="max-w-4xl mx-auto px-6 text-center reveal-item">
           <h2 class="text-4xl font-medium text-white mb-6">Is Whis-AI Free?</h2>
           <div class="text-5xl font-bold text-accent mb-6">Yes.</div>
           <p class="text-slate-300 text-lg leading-relaxed mb-8">
@@ -902,7 +849,7 @@
   </section>
 
   <section class="py-24 border-t border-white/5 bg-black">
-      <div class="max-w-3xl mx-auto px-6 reveal-hidden">
+      <div class="max-w-3xl mx-auto px-6 reveal-item">
           <h2 id="faq" class="text-3xl font-medium text-white mb-12 text-center">Common Questions.</h2>
           <div class="space-y-4">
               <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
@@ -945,7 +892,7 @@
       </div>
   </section>
 
-  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12 reveal-hidden">
+  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12 reveal-item">
     <div class="flex flex-wrap justify-center gap-6 text-slate-500 text-xs font-medium">
         <a href="/contact" class="hover:text-white transition">Contact</a>
         <a href="/troubleshoot" class="hover:text-white transition">Troubleshoot</a>
@@ -1033,37 +980,54 @@
   </div>
 
   <script>
-    // --- 0. INITIALIZE LENIS (BUTTER SCROLL) ---
-    // This intercepts native scroll and adds physics-based interpolation
-    const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential easing
-        direction: 'vertical',
-        gestureDirection: 'vertical',
-        smooth: true,
-        smoothTouch: false, // Touch usually better native, but can enable if needed
-        touchMultiplier: 2,
-    });
+    // --- 0. SAFELY INITIALIZE LENIS ---
+    // Wrapped in try/catch so if it fails, site still works.
+    let lenis;
+    try {
+        if (typeof Lenis !== 'undefined') {
+            lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                smoothTouch: false,
+                touchMultiplier: 2,
+            });
 
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+        } else {
+            console.warn("Lenis not loaded. Falling back to native scroll.");
+        }
+    } catch (e) {
+        console.error("Lenis Init Failed:", e);
     }
-    requestAnimationFrame(raf);
 
-    // --- SCROLL REVEAL LOGIC ---
+    // --- SCROLL REVEAL LOGIC (FAILSAFE) ---
+    // Elements default to visible (opacity: 1) in CSS now.
+    // We only add 'js-hidden' if this script runs successfully.
     function initScrollReveal() {
+        const elements = document.querySelectorAll('.reveal-item');
+        
+        // 1. Initial State: Hide them via JS
+        elements.forEach(el => el.classList.add('js-hidden'));
+
+        // 2. Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
+                    entry.target.classList.remove('js-hidden');
                     entry.target.classList.add('reveal-visible');
-                    observer.unobserve(entry.target); // Only animate once
+                    observer.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.1 });
 
-        const hiddenElements = document.querySelectorAll('.reveal-hidden');
-        hiddenElements.forEach((el) => observer.observe(el));
+        elements.forEach((el) => observer.observe(el));
     }
 
     // --- PHYSICS ENGINE (PERFORMANCE OPTIMIZED) ---
@@ -1080,7 +1044,6 @@
                     
                     cards.forEach(card => {
                         const rect = card.getBoundingClientRect();
-                        // Optimization: Only calculate if card is near visible viewport area
                         if (rect.top < window.innerHeight && rect.bottom > 0) {
                              const x = clientX - rect.left;
                              const y = clientY - rect.top;
@@ -1095,17 +1058,18 @@
         });
     }
 
-    // --- 5. CINEMATIC INTRO LOGIC (FASTER & COMBINED) ---
+    // --- CINEMATIC INTRO LOGIC ---
     function playIntro() {
         const t1 = document.getElementById('intro-text');
         const layer = document.getElementById('intro-layer');
-        // Faster sequence
+        if(!t1 || !layer) return;
+
         setTimeout(() => t1.classList.add('intro-active'), 100);
         setTimeout(() => { layer.style.opacity = '0'; }, 2000); 
         setTimeout(() => { layer.style.display = 'none'; }, 2500);
     }
 
-    // --- RESTORED CAROUSEL LOGIC ---
+    // --- CAROUSEL LOGIC ---
     const videos = [
         { src: 'visual.mp4', label: 'VISUAL CONTEXT' },
         { src: 'text.mp4', label: 'CODE SYNTHESIS' },
@@ -1115,7 +1079,7 @@
      
     function initCarousel() {
         const container = document.getElementById('carouselContainer');
-        if(!container) return; // Prevent errors if container is replaced
+        if(!container) return;
         container.innerHTML = '';
         videos.forEach((v, i) => {
             const div = document.createElement('div');
@@ -1124,14 +1088,8 @@
             const video = document.createElement('video');
             video.src = v.src; 
             video.muted = true; 
-            // Removed 'loop = true' so the 'ended' event can actually fire
             video.playsInline = true; 
-            
-            if(window.innerWidth < 768) {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
-            } else {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; 
-            }
+            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; 
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -1147,8 +1105,6 @@
             const el = document.getElementById(`c-item-${i}`);
             if(!el) return;
             const vid = el.querySelector('video');
-            
-            // Clear previous event listeners to prevent duplicate triggers
             vid.onended = null; 
 
             el.className = 'carousel-item physics-card transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]';
@@ -1157,31 +1113,28 @@
                 el.classList.add('item-center');
                 vid.play().catch(()=>{});
                 vid.style.opacity = '1';
-                
-                // NEW LOGIC: When this video ends, move to the next slide
                 vid.onended = () => {
                     activeIndex = (activeIndex + 1) % videos.length; 
                     updateCarousel(); 
                 };
-
             } else if (i === prev) {
                 el.classList.add('item-left');
-                vid.pause(); vid.currentTime = 0; // Reset video
+                vid.pause(); vid.currentTime = 0;
                 vid.style.opacity = '0.4';
             } else if (i === next) {
                 el.classList.add('item-right');
-                vid.pause(); vid.currentTime = 0; // Reset video
+                vid.pause(); vid.currentTime = 0;
                 vid.style.opacity = '0.4';
             } else {
                 el.classList.add('item-hidden');
-                vid.pause(); vid.currentTime = 0; // Reset video
+                vid.pause(); vid.currentTime = 0;
             }
         });
         const label = document.getElementById('featureLabel');
         if(label) label.innerText = videos[activeIndex].label;
     }
 
-    // --- 1. CODE TYPEWRITER (Formatted) ---
+    // --- TYPEWRITER ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -1203,7 +1156,6 @@
     let currentPart = 0; let currentChar = 0;
     function typeCode() {
         const el = document.getElementById('code-display');
-        const cursor = document.getElementById('cursor');
         if(!el) return;
         if (currentPart < codeLines.length) {
             const part = codeLines[currentPart];
@@ -1225,32 +1177,25 @@
         }
     }
 
-    // --- NEW: UPTIME COUNTER LOGIC (Live Success Terminal) ---
+    // --- UPTIME COUNTER ---
     function initUptimeCounter() {
         const counterEl = document.getElementById('uptime-counter');
         if(!counterEl) return;
-        // REDUCED NUMBER (0.01x)
         let currentCount = 62402;
-
         setInterval(() => {
-            // Smaller random increment
             currentCount += Math.floor(Math.random() * 2);
             counterEl.innerText = currentCount.toLocaleString();
         }, 1500);
     }
 
-    // --- NEW: COMPANY TYPEWRITER LOGIC (Live Success Terminal) ---
+    // --- COMPANY TYPEWRITER ---
     const companyWords = ["Google", "Netflix", "Meta", "Amazon", "Apple", "Uber", "Airbnb"];
-    let wordIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
+    let wordIndex = 0; let charIndex = 0; let isDeleting = false;
 
     function typeEffect() {
         const textEl = document.getElementById('typewriter-text');
         if(!textEl) return;
-
         const currentWord = companyWords[wordIndex];
-         
         if (isDeleting) {
             textEl.innerText = currentWord.substring(0, charIndex - 1);
             charIndex--;
@@ -1258,84 +1203,54 @@
             textEl.innerText = currentWord.substring(0, charIndex + 1);
             charIndex++;
         }
-
         let typeSpeed = isDeleting ? 50 : 150;
-
         if (!isDeleting && charIndex === currentWord.length) {
-            typeSpeed = 2000; 
-            isDeleting = true;
+            typeSpeed = 2000; isDeleting = true;
         } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            wordIndex = (wordIndex + 1) % companyWords.length;
-            typeSpeed = 500; 
+            isDeleting = false; wordIndex = (wordIndex + 1) % companyWords.length; typeSpeed = 500; 
         }
-
         setTimeout(typeEffect, typeSpeed);
     }
 
-    // --- DYNAMIC SIGNUP COUNTER (Hour * Hour) ---
+    // --- DYNAMIC SIGNUPS ---
     function updateDynamicSignups() {
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
         const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
         const istDate = new Date(utc + istOffset);
-         
         let hour = istDate.getHours();
-        let count = hour * hour;
-        count = count+942;
+        let count = (hour * hour) + 942;
         if(count === 0) count = 15; 
-         
         const badge = document.getElementById('signup-badge-text');
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- UPDATED FOMO TIMER LOGIC (IST MIDNIGHT) ---
+    // --- FOMO TIMER ---
     function startIstMidnightTimer() {
         const timerEl = document.getElementById('fomo-timer');
         if(!timerEl) return;
-
         function update() {
             const now = new Date();
-            // Get current time in UTC
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            
-            // IST Offset is UTC + 5.5 hours
             const istOffset = 5.5 * 60 * 60 * 1000;
             const istTime = new Date(utc + istOffset);
-
-            // Calculate next midnight in IST
             const nextMidnight = new Date(istTime);
             nextMidnight.setHours(24, 0, 0, 0);
-
-            // Time difference
             let diff = nextMidnight - istTime;
-            
-            // Format
             const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
             const m = Math.floor((diff / (1000 * 60)) % 60);
             const s = Math.floor((diff / 1000) % 60);
-
             timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
-
-        // Run immediately then interval
-        update();
-        setInterval(update, 1000);
+        update(); setInterval(update, 1000);
     }
 
     // --- BACKEND LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
-     
-    // FETCHED FROM BACKEND
-    let PRICING_CONFIG = null;
-    let GOOGLE_CLIENT_ID = null;
+    let PRICING_CONFIG = null; let GOOGLE_CLIENT_ID = null;
 
-    function detectOS(){
-        const p = navigator.platform.toLowerCase(); 
-        const ua = navigator.userAgent.toLowerCase();
-        // Removed logic modifying heroDownloadBtn as per new strict text requirement
-    }
+    function detectOS(){ /* ... */ }
 
     async function fetchPricingConfig() {
         try {
@@ -1356,8 +1271,7 @@
     function updateNavUI(u){ 
         document.getElementById('signInBtn').style.display='none'; 
         const profileTrigger = document.getElementById('userProfileTrigger');
-        profileTrigger.classList.remove('hidden'); 
-        profileTrigger.classList.add('flex'); 
+        profileTrigger.classList.remove('hidden'); profileTrigger.classList.add('flex'); 
         document.getElementById('navUserAvatar').src = u.avatarUrl; 
         document.getElementById('navPlanBadge').innerText = "FREE";
         document.getElementById('navPlanBadge').classList.add('text-slate-400');
@@ -1373,7 +1287,6 @@
      
     function formatPrice(amount, discount) {
         if (!amount) return "...";
-        // MODIFIED: Use $ and toFixed(2) for USD display
         if(discount > 0) {
             const discounted = (amount * (1 - discount/100)).toFixed(2); 
             return `<span>$${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">$${amount.toFixed(2)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
@@ -1449,152 +1362,86 @@
         } catch(e){}
     }
 
-    // --- PAYMENT LOGIC (UPDATED FOR DUAL GATEWAY) ---
+    // --- PAYMENT ---
     let selectedTierForPayment = null; 
     const paymentModal = document.getElementById('paymentModal');
 
-    // 1. Trigger Payment Selection
     function initiatePayment(targetTier) {
         if(!currentUser){ openLoginModal(); return; }
-         
-        // Check if valid upgrade
         if(currentTier === 'pro_plus') return;
         if(currentTier === 'pro' && targetTier === 'pro') return;
-
         selectedTierForPayment = targetTier;
         openPaymentModal();
     }
 
-    // 2. Open Modal & Initialize PayPal
     function openPaymentModal() {
-        paymentModal.classList.remove('hidden'); 
-        paymentModal.classList.add('flex');
-         
-        // Clear previous buttons
+        paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
         document.getElementById('paypal-button-container').innerHTML = '';
-
-        // Render PayPal Buttons
         paypal.Buttons({
             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-            
-            // Setup Transaction
             createOrder: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        googleId: currentUser.googleId, 
-                        tier: selectedTierForPayment, 
-                        cycle: currentCycle
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle })
                 });
                 const orderData = await res.json();
                 return orderData.id; 
             },
-
-            // On Approve
             onApprove: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        orderID: data.orderID,
-                        googleId: currentUser.googleId
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
                 });
-                
                 const details = await res.json();
                 if (details.success) {
                     closePaymentModal();
                     document.getElementById('successModal').classList.remove('hidden');
                     document.getElementById('successModal').classList.add('flex');
-                } else {
-                    alert("PayPal transaction verification failed.");
-                }
+                } else { alert("PayPal transaction verification failed."); }
             },
-            
-            onError: function (err) {
-                console.error('PayPal Error', err);
-                alert("Payment could not be processed with PayPal.");
-            }
+            onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
         }).render('#paypal-button-container');
     }
 
-    function closePaymentModal() {
-        paymentModal.classList.add('hidden');
-        paymentModal.classList.remove('flex');
-    }
+    function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
 
-    // 3. Razorpay Specific Logic
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
         const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-         
-        const btn = event.currentTarget; 
-        const orig = btn.innerHTML; 
+        const btn = event.currentTarget; const orig = btn.innerHTML; 
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-         
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    googleId: currentUser.googleId, 
-                    tier: targetTier, 
-                    cycle: currentCycle, 
-                    isUpgrade: isUpgrade
-                })
+                body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade })
             });
             const data = await res.json();
-             
             if(data.order_id){
                 const rzp1 = new Razorpay({
-                    "key": data.key_id, 
-                    "amount": data.amount, 
-                    "currency": data.currency, 
-                    "name": "Whis AI",
-                    "description": isUpgrade ? "Upgrade" : "License", 
-                    "order_id": data.order_id,
+                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI", "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
                     "handler": async function (response){ 
                         try {
                             const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_signature: response.razorpay_signature
-                                })
+                                method: 'POST', headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
                             });
                             const verifyData = await verifyRes.json();
                             if(verifyData.success){
                                 closePaymentModal();
                                 document.getElementById('successModal').classList.remove('hidden');
                                 document.getElementById('successModal').classList.add('flex');
-                            } else {
-                                alert("Verification Failed. Contact Support.");
-                            }
-                        } catch(e) {
-                            console.error(e);
-                            alert("Network Error during verification.");
-                        }
+                            } else { alert("Verification Failed. Contact Support."); }
+                        } catch(e) { console.error(e); alert("Network Error during verification."); }
                     },
-                    "theme": { "color": "#00f2ff" },
-                    "modal": {
-                        "ondismiss": function(){ btn.innerHTML = orig; }
-                    }
+                    "theme": { "color": "#00f2ff" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
                 rzp1.open();
             }
-        } catch(e){ 
-            console.error(e); 
-            btn.innerHTML = orig; 
-        }
+        } catch(e){ console.error(e); btn.innerHTML = orig; }
     }
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
-
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
-     
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         if(window.google && GOOGLE_CLIENT_ID){
@@ -1602,44 +1449,18 @@
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
         } else { console.warn("Google Auth not ready"); }
     }
-     
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
     function openDownloadModal(){downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
-    // --- NEW: SLIDER LOGIC & REAL-TIME ANSWER TYPING ---
-    function updateSlider(val) {
-        document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
-    }
+    // --- SLIDER & HERO ---
+    function updateSlider(val) { document.getElementById('comparisonSlider').style.setProperty('--position', val + '%'); }
 
-    const sliderAnswerText = "In Kafka, hot partitions occur when one partition receives significantly more data. We can fix this by changing the partitioning key to distribute load evenly or using a random partitioner.";
-    let sIdx = 0;
-    function typeSliderAnswer() {
-        const el = document.getElementById('slider-answer-text');
-        if(!el) return;
-        
-        if(sIdx < sliderAnswerText.length) {
-            el.textContent += sliderAnswerText.charAt(sIdx);
-            sIdx++;
-            // Randomize typing speed slightly for realism
-            setTimeout(typeSliderAnswer, Math.random() * 30 + 30);
-        } else {
-            // Wait and then restart
-            setTimeout(() => {
-                el.textContent = "";
-                sIdx = 0;
-                typeSliderAnswer();
-            }, 5000);
-        }
-    }
-
-    // --- HERO CARD REAL-TIME ANIMATION SEQUENCE ---
     const heroQ = '"Can you explain the difference between a Process and a Thread?"';
     const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
-    let heroQIdx = 0;
-    let heroAIdx = 0;
+    let heroQIdx = 0; let heroAIdx = 0;
 
     function typeHeroSequence() {
         const statusEl = document.getElementById('hero-status');
@@ -1647,74 +1468,36 @@
         const qTextEl = document.getElementById('hero-question-text');
         const aContainer = document.getElementById('hero-answer-container');
         const aTextEl = document.getElementById('hero-answer-text');
-
         if(!statusEl) return;
-
-        // Reset
-        statusEl.classList.remove('hidden');
-        qContainer.classList.add('hidden');
-        aContainer.classList.add('hidden');
-        qTextEl.textContent = '';
-        aTextEl.textContent = '';
-        heroQIdx = 0;
-        heroAIdx = 0;
-
-        // Sequence Start: 1. Status visible for 1.5s
+        statusEl.classList.remove('hidden'); qContainer.classList.add('hidden'); aContainer.classList.add('hidden');
+        qTextEl.textContent = ''; aTextEl.textContent = ''; heroQIdx = 0; heroAIdx = 0;
         setTimeout(() => {
-             // 2. Show Question Container & Type Question
              qContainer.classList.remove('hidden');
              typeHeroQuestion(qTextEl, () => {
-                 // 3. Pause briefly then Show Answer Container
                  setTimeout(() => {
                      aContainer.classList.remove('hidden');
-                     typeHeroAnswer(aTextEl, () => {
-                         // 4. Finished. Wait 6 seconds and restart
-                         setTimeout(typeHeroSequence, 6000);
-                     });
+                     typeHeroAnswer(aTextEl, () => { setTimeout(typeHeroSequence, 6000); });
                  }, 800);
              });
         }, 1500);
     }
-
     function typeHeroQuestion(el, callback) {
-        if(heroQIdx < heroQ.length) {
-            el.textContent += heroQ.charAt(heroQIdx);
-            heroQIdx++;
-            setTimeout(() => typeHeroQuestion(el, callback), 30);
-        } else {
-            callback();
-        }
+        if(heroQIdx < heroQ.length) { el.textContent += heroQ.charAt(heroQIdx); heroQIdx++; setTimeout(() => typeHeroQuestion(el, callback), 30); } else { callback(); }
     }
-
     function typeHeroAnswer(el, callback) {
-        if(heroAIdx < heroA.length) {
-            el.textContent += heroA.charAt(heroAIdx);
-            heroAIdx++;
-            setTimeout(() => typeHeroAnswer(el, callback), 20); // Faster typing for answer
-        } else {
-            callback();
-        }
+        if(heroAIdx < heroA.length) { el.textContent += heroA.charAt(heroAIdx); heroAIdx++; setTimeout(() => typeHeroAnswer(el, callback), 20); } else { callback(); }
     }
 
-    // --- SLIDER AUTO-ANIMATION (UPDATED FOR RESUME) ---
-    let sliderAutoPlay = true;
-    let sliderTime = 0;
-
+    let sliderAutoPlay = true; let sliderTime = 0;
     function initSliderAutoPlay() {
         const sliderContainer = document.getElementById('comparisonSlider');
         const sliderInput = sliderContainer.querySelector('.comp-slider');
-        
-        // Stop on interaction
         sliderContainer.addEventListener('mouseenter', () => { sliderAutoPlay = false; });
         sliderContainer.addEventListener('touchstart', () => { sliderAutoPlay = false; });
-
-        // Resume on leave/end
         sliderContainer.addEventListener('mouseleave', () => { sliderAutoPlay = true; });
         sliderContainer.addEventListener('touchend', () => { sliderAutoPlay = true; });
-
         function animate() {
             if (sliderAutoPlay) {
-                // Elegant sine wave motion: Center(50) + Amplitude(35) * sin(speed * time)
                 sliderTime += 0.02;
                 const pos = 50 + (35 * Math.sin(sliderTime)); 
                 updateSlider(pos);
@@ -1726,7 +1509,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        // Initialize Core Logic
         initScrollReveal();
         playIntro();
         initCarousel();
@@ -1740,8 +1522,6 @@
         fetchPricingConfig();
         updateDynamicSignups();
         startIstMidnightTimer();
-        
-        // Delay physics slightly to let DOM settle
         setTimeout(initPhysics, 500);
     });
   </script>
