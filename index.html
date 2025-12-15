@@ -39,6 +39,9 @@
           },
           transitionTimingFunction: {
             'butter': 'cubic-bezier(0.23, 1, 0.32, 1)'
+          },
+          screens: {
+            'wide': '1600px', // Custom breakpoint for Wide Windows Laptops
           }
         }
       }
@@ -57,12 +60,46 @@
     :root {
         --accent: #00f2ff;
         --accent-glow: rgba(0, 242, 255, 0.4);
+        /* Default Layout Variables (Mobile/Fallback) */
+        --layout-width: 100%; 
+        --layout-padding: 1.5rem;
     }
     
     @property --accent {
         syntax: '<color>';
         initial-value: #00f2ff;
         inherits: true;
+    }
+
+    /* --- OS SPECIFIC OVERRIDES --- */
+    
+    /* WINDOWS MODE: Wide, Expansive, High Information Density */
+    body.os-windows {
+        --layout-width: 1600px; /* Wider constraint for Windows */
+        --layout-padding: 3rem;
+    }
+    /* MAC MODE: Centered, Focused, Aesthetic "Tunnel Vision" */
+    body.os-mac {
+        --layout-width: 1100px; /* Tighter constraint for Mac */
+        --layout-padding: 2rem;
+    }
+    /* MOBILE MODE: handled by media queries, but set defaults */
+    @media(max-width: 768px) {
+        body.os-windows, body.os-mac {
+             --layout-width: 100%;
+             --layout-padding: 1rem;
+        }
+    }
+
+    /* The Dynamic Container Class that applies the above variables */
+    .os-container {
+        width: 100%;
+        max-width: var(--layout-width);
+        padding-left: var(--layout-padding);
+        padding-right: var(--layout-padding);
+        margin-left: auto;
+        margin-right: auto;
+        transition: max-width 0.5s ease, padding 0.5s ease;
     }
 
     /* SMOOTHNESS OPTIMIZATIONS */
@@ -80,6 +117,7 @@
         padding-bottom: 80px;
         animation: colorCycle 60s infinite linear;
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale; /* Better text on Mac */
     }
 
     ::selection { background: var(--accent); color: black; }
@@ -106,26 +144,17 @@
         border-radius: 24px;
         position: relative;
         overflow: hidden;
-        /* Hardware Acceleration */
         transform: translateZ(0); 
         will-change: transform, border-color;
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.4s ease;
     }
     .physics-card::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
+        content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
         background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.08), transparent 40%);
-        opacity: 0;
-        transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        pointer-events: none;
-        z-index: 2;
+        opacity: 0; transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1); pointer-events: none; z-index: 2;
     }
     .physics-card:hover::before { opacity: 1; }
-    .physics-card:hover { 
-        border-color: rgba(255, 255, 255, 0.25); 
-        transform: translateY(-2px) scale(1.005);
-    }
+    .physics-card:hover { border-color: rgba(255, 255, 255, 0.25); transform: translateY(-2px) scale(1.005); }
 
     @media (max-width: 768px) {
         .physics-card {
@@ -136,44 +165,24 @@
         }
     }
 
-    /* --- SAFE REVEAL ANIMATION (Default Visible) --- */
-    /* By default, things are visible. JS will add 'opacity-0' if it loads correctly. 
-       This prevents black screen if JS crashes. */
-    .reveal-item {
-        opacity: 1; /* Safety Default */
-        transform: translateY(0);
-        transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    
-    /* Only hide if JS successfully adds this class */
-    .js-hidden {
-        opacity: 0;
-        transform: translateY(40px);
-        filter: blur(10px);
-    }
+    /* --- SAFE REVEAL ANIMATION --- */
+    .reveal-item { opacity: 1; transform: translateY(0); transition: all 1s cubic-bezier(0.23, 1, 0.32, 1); }
+    .js-hidden { opacity: 0; transform: translateY(40px); filter: blur(10px); }
+    .reveal-visible { opacity: 1 !important; transform: translateY(0) !important; filter: blur(0) !important; }
 
-    .reveal-visible {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-        filter: blur(0) !important;
-    }
-
-    /* --- INTRO SEQUENCE (With CSS Backup) --- */
+    /* --- INTRO SEQUENCE --- */
     .intro-overlay {
         position: fixed; inset: 0; z-index: 9999;
         background: black;
         display: flex; align-items: center; justify-content: center;
-        pointer-events: none;
-        padding: 20px;
-        /* Backup Animation in case JS fails: Fade out after 3s */
-        animation: fadeOutOverlay 0.5s ease-in-out 3s forwards;
+        pointer-events: none; padding: 20px;
+        animation: fadeOutOverlay 0.5s ease-in-out 3s forwards; /* Failsafe */
     }
-    @keyframes fadeOutOverlay {
-        to { opacity: 0; visibility: hidden; }
-    }
+    @keyframes fadeOutOverlay { to { opacity: 0; visibility: hidden; } }
 
     .intro-text {
-        font-size: 2rem; md:font-size: 3rem; font-weight: 300; letter-spacing: -0.02em;
+        font-size: clamp(2rem, 5vw, 4rem); /* Responsive Font Size */
+        font-weight: 300; letter-spacing: -0.02em;
         background: linear-gradient(to bottom, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         opacity: 0; transform: scale(0.95); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         text-align: center; width: 100%; max-width: 800px;
@@ -182,8 +191,7 @@
 
     /* --- CAROUSEL CSS --- */
     .carousel-container { 
-        perspective: 1200px; 
-        display: flex; justify-content: center; align-items: center; 
+        perspective: 1200px; display: flex; justify-content: center; align-items: center; 
         height: 280px; position: relative; margin-top: 20px; margin-bottom: 20px;
     }
     @media (min-width: 768px) { .carousel-container { height: 650px; margin-top: 0; } }
@@ -268,7 +276,7 @@
     @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
-<body>
+<body class="no-scrollbar">
 
   <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-600 to-orange-600 flex justify-center items-center gap-4 shadow-[0_0_20px_rgba(220,38,38,0.5)] z-[60]">
       <span class="text-white font-bold text-xs md:text-sm uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-2"></i>Flash Sale Ends Tonight</span>
@@ -286,7 +294,7 @@
   </div>
 
   <nav class="fixed top-[40px] w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
-    <div class="w-full max-w-7xl px-6 flex items-center justify-between">
+    <div class="os-container flex items-center justify-between h-full">
       <a href="/" class="flex items-center gap-3 group">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-accent transition-colors duration-1000">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -335,7 +343,7 @@
   <section class="relative pt-28 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
     <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center reveal-item">
        
-      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-6 text-white">
+      <h1 class="text-4xl md:text-7xl wide:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-6 text-white transition-all duration-300">
         Helps you answer interviews<br>
         <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] transition-colors duration-1000">in real-time.</span>
       </h1>
@@ -374,8 +382,8 @@
       </a>
     </div>
 
-    <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4 reveal-item">
-        <div class="physics-card p-0 bg-[#0a0a0a] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden">
+    <div class="os-container mb-12 relative z-20 reveal-item">
+        <div class="physics-card p-0 bg-[#0a0a0a] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden max-w-4xl mx-auto">
              <div class="bg-[#111] px-4 py-3 flex items-center justify-between border-b border-white/10">
                  <div class="flex gap-2">
                      <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
@@ -414,7 +422,7 @@
   <section class="py-12 border-t border-white/5 bg-[#050505] relative overflow-hidden">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20 pointer-events-none"></div>
 
-    <div class="max-w-7xl mx-auto px-6 relative z-10">
+    <div class="os-container relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
             <div class="physics-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-all duration-500 reveal-item">
@@ -475,10 +483,10 @@
   </section>
 
   <section id="features" class="py-20 border-t border-white/5 bg-[#0a0a0a]">
-      <div class="max-w-7xl mx-auto px-6">
+      <div class="os-container">
           <h2 class="text-3xl font-medium text-white mb-16 text-center reveal-item">The Core Stack.</h2>
            
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 wide:grid-cols-4 gap-6">
               <div class="physics-card p-6 hover:bg-white/5 transition group reveal-item">
                   <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition duration-300 ease-butter"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
                   <h3 class="text-white font-bold mb-2">Voice Capture</h3>
@@ -576,7 +584,7 @@
   </section>
 
   <section class="py-20 border-t border-white/5 bg-black">
-      <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+      <div class="os-container flex flex-col md:flex-row items-center gap-12">
           <div class="flex-1 space-y-6 reveal-item">
               <div class="inline-block px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider">New Feature</div>
               <h2 class="text-3xl md:text-4xl font-medium text-white">Context Intelligence.</h2>
@@ -626,7 +634,7 @@
   </section>
 
   <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
-      <div class="max-w-7xl mx-auto px-6">
+      <div class="os-container">
           <div class="grid lg:grid-cols-2 gap-16 items-center">
               <div class="space-y-8 reveal-item">
                   <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">They Ask. You Answer.</h2>
@@ -708,7 +716,7 @@
   </section>
 
   <section id="pricing" class="py-32 border-t border-white/5 relative">
-    <div class="max-w-7xl mx-auto px-6 text-center mt-12 reveal-item">
+    <div class="os-container text-center mt-12 reveal-item">
         <h2 class="text-4xl font-medium text-white mb-6">Unbeatable Value.</h2>
         <p class="text-slate-400 mb-12">One offer pays for a lifetime. Cancel anytime.</p>
          
@@ -766,7 +774,7 @@
   </section>
 
   <section class="py-24 border-t border-white/5 bg-[#050505]">
-      <div class="max-w-7xl mx-auto px-6">
+      <div class="os-container">
           <div class="flex justify-between items-end mb-12 reveal-item">
               <h2 id="testimonials" class="text-3xl font-medium text-white">Engineers love Whis.</h2>
               <div class="text-right">
@@ -980,8 +988,7 @@
   </div>
 
   <script>
-    // --- 0. SAFELY INITIALIZE LENIS ---
-    // Wrapped in try/catch so if it fails, site still works.
+    // --- 0. SAFELY INITIALIZE LENIS (FAIL-SAFE) ---
     let lenis;
     try {
         if (typeof Lenis !== 'undefined') {
@@ -1007,16 +1014,29 @@
         console.error("Lenis Init Failed:", e);
     }
 
+    // --- NEW: OS & DEVICE DETECTION ENGINE ---
+    // This dynamically adjusts the layout width based on the platform
+    function detectAndOptimizeLayout() {
+        const platform = navigator.platform.toLowerCase();
+        const body = document.body;
+
+        if (platform.includes('win')) {
+            body.classList.add('os-windows');
+            console.log("Optimizing Layout for Windows (Wide Mode)");
+        } else if (platform.includes('mac') || platform.includes('iphone') || platform.includes('ipad')) {
+            body.classList.add('os-mac');
+            console.log("Optimizing Layout for macOS (Focused Mode)");
+        } else {
+            // Default Fallback
+            body.classList.add('os-mac'); // Default to focused
+        }
+    }
+
     // --- SCROLL REVEAL LOGIC (FAILSAFE) ---
-    // Elements default to visible (opacity: 1) in CSS now.
-    // We only add 'js-hidden' if this script runs successfully.
     function initScrollReveal() {
         const elements = document.querySelectorAll('.reveal-item');
-        
-        // 1. Initial State: Hide them via JS
         elements.forEach(el => el.classList.add('js-hidden'));
 
-        // 2. Observer
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1249,8 +1269,6 @@
     const BACKEND_URL="https://whis-backend.onrender.com";
     let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
     let PRICING_CONFIG = null; let GOOGLE_CLIENT_ID = null;
-
-    function detectOS(){ /* ... */ }
 
     async function fetchPricingConfig() {
         try {
@@ -1509,6 +1527,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        detectAndOptimizeLayout(); // NEW: RUNS IMMEDIATELY
         initScrollReveal();
         playIntro();
         initCarousel();
@@ -1518,7 +1537,6 @@
         typeHeroSequence();
         initSliderAutoPlay();
         checkUser();
-        detectOS();
         fetchPricingConfig();
         updateDynamicSignups();
         startIstMidnightTimer();
