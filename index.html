@@ -1164,7 +1164,15 @@
     // ADDED: Currency Logic Variables
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90; // Fallback
-    const IS_INDIA = Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Kolkata';
+
+    // === CRITICAL FIX FOR TIMEZONE DETECTION ===
+    // Checks for:
+    // 1. Timezone name contains 'Kolkata' (Modern Browsers)
+    // 2. Timezone name contains 'Calcutta' (Older/Legacy)
+    // 3. Timezone offset is exactly -330 minutes (UTC +5:30) - This catches ALL India users
+    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
+                  || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
+                  || new Date().getTimezoneOffset() === -330;
 
     async function fetchPricingConfig() {
         try {
