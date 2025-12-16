@@ -601,8 +601,8 @@
         <p class="text-slate-400 mb-12">One offer pays for a lifetime. Cancel anytime.</p>
          
         <div class="inline-flex bg-white/5 p-1 rounded-lg border border-white/10 mb-12">
-           <button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('annual')">Yearly</button>
+           <button id="btnMonthly" class="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnAnnual" class="px-6 py-2 rounded text-xs font-bold bg-white text-black transition" onclick="setCycle('annual')">Yearly</button>
         </div>
 
         <div class="flex justify-center mb-12">
@@ -1155,8 +1155,16 @@
 
     // --- 10. BACKEND & LOGIC ---
     const BACKEND_URL="https://whis-backend.onrender.com";
-    let currentUser = null, currentCycle = 'monthly', currentTier = 'free';
+    let currentUser = null; 
+    
+    // CHANGED: Default is now ANNUAL
+    let currentCycle = 'annual'; 
+    let currentTier = 'free';
+    
+    // ADDED: Currency Logic Variables
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
+    let EXCHANGE_RATE = 90; // Fallback
+    const IS_INDIA = Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Kolkata';
 
     async function fetchPricingConfig() {
         try {
@@ -1165,6 +1173,10 @@
                 const data = await res.json();
                 PRICING_CONFIG = data.pricing;
                 GOOGLE_CLIENT_ID = data.googleClientId;
+                
+                // ADDED: Update exchange rate from server if available
+                if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
+
                 updatePricingUI();
                 document.getElementById('btnPro').disabled = false;
                 document.getElementById('btnElite').disabled = false;
@@ -1194,20 +1206,48 @@
      
     function formatPrice(amount, discount) {
         if (!amount) return "...";
-        if(discount > 0) {
-            const discounted = (amount * (1 - discount/100)).toFixed(2); 
-            return `<span>$${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">$${amount.toFixed(2)}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+        
+        // ADDED: Currency Conversion Logic
+        let displayAmount = amount;
+        let currencySymbol = "$";
+
+        if (IS_INDIA) {
+            displayAmount = Math.floor(amount * EXCHANGE_RATE); // Convert USD to INR
+            currencySymbol = "₹";
         }
-        return `$${amount.toFixed(2)}`;
+
+        if(discount > 0) {
+            // Calculate discounted price
+            let discounted = 0;
+            if (IS_INDIA) {
+                // For INR, calculate discount on the converted integer amount
+                discounted = Math.floor(displayAmount * (1 - discount/100));
+            } else {
+                // For USD, keep 2 decimals
+                discounted = (amount * (1 - discount/100)).toFixed(2);
+                displayAmount = displayAmount.toFixed(2);
+            }
+            
+            return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+        }
+        
+        // No discount
+        const finalVal = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
+        return `${currencySymbol}${finalVal}`;
     }
 
     function setCycle(c){
         currentCycle=c;
         const btnM=document.getElementById('btnMonthly'); const btnA=document.getElementById('btnAnnual');
+        
         if(c==='monthly'){
-            btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
+            // Monthly Active
+            btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; 
+            btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
         } else {
-            btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
+            // Annual Active
+            btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; 
+            btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
         }
         updatePricingUI();
     }
