@@ -1,60 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Refunds – Whis</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},colors:{page:'#050505'},backgroundImage:{'grid-pattern':'linear-gradient(to right, #202020 1px, transparent 1px), linear-gradient(to bottom, #202020 1px, transparent 1px)'}}}}</script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>body{background-color:#050505;color:white;}.glass-nav{background:rgba(5,5,5,0.7);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05);}.bg-grid{background-size:40px 40px;mask-image:radial-gradient(circle at center, black, transparent 80%);opacity:0.1;}</style>
+    <meta charset="UTF-8" />
+    <title>Refunds – Whis-AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #05091c;
+            --glass-bg: rgba(5, 9, 28, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --accent-gradient: linear-gradient(135deg, #3da8ff, #4df4b1);
+            --text-main: #e9ecf5;
+            --text-sub: #8b93a8;
+            --font-main: "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, rgba(61, 168, 255, 0.12) 0%, transparent 50%),
+                              linear-gradient(160deg, rgba(20, 30, 60, 0.4) 0%, rgba(5, 8, 20, 0.85) 100%);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Global Header (Consistent with Whis-AI) --- */
+        .whis-global-header {
+            height: 70px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            background: rgba(5, 5, 5, 0.4);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: fixed;
+            top: 0;
+            z-index: 10000;
+        }
+
+        .whis-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whis-logo-svg {
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(0 0 5px rgba(77, 244, 177, 0.6));
+        }
+
+        .whis-logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .close-link {
+            text-decoration: none;
+            color: var(--text-sub);
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .close-link:hover { color: #fff; }
+
+        /* --- Content Area --- */
+        main {
+            max-width: 900px;
+            margin: 100px auto 60px;
+            padding: 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(40px) saturate(180%);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 10px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .policy-subtitle {
+            color: var(--text-sub);
+            font-size: 13px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+
+        section { margin-bottom: 40px; }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 15px;
+        }
+
+        p { color: var(--text-main); font-weight: 300; margin: 0 0 15px; }
+
+        .policy-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 15px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 15px 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-weight: 300;
+            font-size: 14px;
+        }
+
+        ul li::before {
+            content: "•";
+            color: var(--accent-blue);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        strong {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            font-size: 12px;
+            color: var(--text-sub);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
 </head>
-<body class="min-h-screen relative selection:bg-blue-500/30">
-  <div class="fixed inset-0 bg-grid bg-grid-pattern pointer-events-none"></div>
-  
-  <nav class="fixed top-0 w-full z-50 glass-nav h-[70px] flex items-center justify-center">
-    <div class="w-full max-w-5xl px-6 flex items-center justify-between">
-      <a href="index.html" class="text-sm font-bold tracking-widest text-white">WHIS.AI</a>
-      <a href="index.html" class="text-xs text-slate-500 hover:text-white transition">Close</a>
-    </div>
-  </nav>
+<body>
 
-  <main class="pt-32 pb-24 px-6 relative z-10">
-    <div class="max-w-3xl mx-auto">
-        <div class="mb-12 border-b border-white/10 pb-8">
-            <h1 class="text-4xl font-medium mb-3 text-white">Cancellation & Refunds</h1>
-            <p class="text-slate-500 text-sm">Transparent policies for your peace of mind.</p>
-        </div>
+    <nav class="whis-global-header">
+       <div class="whis-logo-container">
+            <svg class="whis-logo-svg" viewBox="0 0 24 24" fill="none" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#3da8ff;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#4df4b1;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path d="M13 2 L3 14 h9 l-1 8 10 -12 h-9 l1 -8 z"></path>
+            </svg>
+            <span class="whis-logo-text">Whis-AI</span>
+       </div>
+       <a href="index.html" class="close-link">Close</a>
+    </nav>
 
-        <div class="space-y-12 text-slate-400 font-light leading-relaxed">
-            <section>
-                <h2 class="text-xl font-medium text-white mb-4">Cancellation Policy</h2>
-                <div class="bg-white/5 border border-white/5 rounded-xl p-6">
-                    <p class="mb-4 text-sm">You can cancel your subscription instantly via your User Profile. Upon cancellation:</p>
-                    <ul class="list-disc pl-5 space-y-2 text-sm">
-                        <li>Your premium access continues until the end of the current billing cycle.</li>
-                        <li>No future charges will be applied.</li>
-                    </ul>
-                </div>
-            </section>
+    <main>
+        <header>
+            <h1>Cancellation & Refunds</h1>
+            <p class="policy-subtitle">Transparent policies for your peace of mind.</p>
+        </header>
 
-            <section>
-                <h2 class="text-xl font-medium text-white mb-4">Refund Eligibility</h2>
-                <p>Since Whis offers immediate digital access, refunds are generally not provided for partial periods. However, we guarantee refunds in the following cases:</p>
-                <ul class="list-disc pl-5 space-y-2 mt-4">
-                    <li><strong class="text-white font-normal">Technical Failures:</strong> If the software fails to work on your device and our support team cannot fix it within 48 hours.</li>
-                    <li><strong class="text-white font-normal">Billing Errors:</strong> Duplicate charges or charges after a confirmed cancellation.</li>
+        <section>
+            <h2>Cancellation Policy</h2>
+            <div class="policy-card">
+                <p style="font-size: 14px; margin-bottom: 12px;">You can cancel your subscription instantly via your User Profile. Upon cancellation:</p>
+                <ul>
+                    <li>Your premium access continues until the end of the current billing cycle.</li>
+                    <li>No future charges will be applied.</li>
                 </ul>
-            </section>
+            </div>
+        </section>
 
-            <section>
-                <h2 class="text-xl font-medium text-white mb-4">Processing Time</h2>
-                <p>Refunds are processed within 5-7 business days and credited back to the original payment method.</p>
-            </section>
-        </div>
-    </div>
-  </main>
-  
-  <footer class="border-t border-white/5 py-12 text-center text-xs text-slate-600 relative z-10">&copy; 2025 Whis AI.</footer>
+        <section>
+            <h2>Refund Eligibility</h2>
+            <p>Since Whis-AI offers immediate digital access, refunds are generally not provided for partial periods. However, we guarantee refunds in the following cases:</p>
+            <ul>
+                <li><strong>Technical Failures:</strong> If the software fails to work on your device and our support team cannot fix it within 48 hours.</li>
+                <li><strong>Billing Errors:</strong> Duplicate charges or charges after a confirmed cancellation.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Processing Time</h2>
+            <p>Refunds are processed within 5-7 business days and credited back to the original payment method.</p>
+        </section>
+    </main>
+    
+    <footer>&copy; 2025 Whis AI. All rights reserved.</footer>
 </body>
 </html>
