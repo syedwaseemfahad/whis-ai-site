@@ -3,327 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whis-AI | User Guide & Installation</title>
+    <title>Whis-AI | Master Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --primary-color: #3da8ff;
-            --accent-color: #4df4b1;
-            --warning-color: #f59e0b;
-            --bg-dark: #0f172a;
-            --text-light: #e2e8f0;
-            --sidebar-bg: #1e293b;
-            --card-bg: #1e293b;
-            --sidebar-width: 260px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --bg-dark: #05091c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --accent-blue: #3da8ff;
+            --accent-green: #4df4b1;
+            --accent-gradient: linear-gradient(135deg, #3da8ff, #4df4b1);
+            --text-main: #e9ecf5;
+            --text-sub: #8b93a8;
+            --font-main: "SF Pro Text", "Segoe UI", system-ui, sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-light);
             background-color: var(--bg-dark);
-            display: flex;
+            background-image: radial-gradient(circle at 50% 0%, rgba(61, 168, 255, 0.15) 0%, transparent 50%);
+            color: var(--text-main); font-family: var(--font-main); line-height: 1.6; margin: 0; padding: 0;
         }
 
-        /* Sidebar */
-        nav {
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: var(--sidebar-bg);
-            border-right: 1px solid #334155;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-y: auto;
-            padding: 2rem 1.5rem;
+        .container { max-width: 1100px; margin: 0 auto; padding: 60px 20px; }
+        header { text-align: center; margin-bottom: 60px; }
+        .logo-text { font-size: 3.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; letter-spacing: -1px; }
+        
+        /* Platform Switcher */
+        .platform-switcher { display: flex; justify-content: center; gap: 20px; margin-bottom: 50px; }
+        .tab-btn { 
+            padding: 14px 40px; border-radius: 30px; border: 1px solid var(--glass-border); 
+            background: var(--glass-bg); color: var(--text-sub); cursor: pointer; font-weight: 600; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1.1rem;
+        }
+        .tab-btn.active { background: var(--accent-gradient); color: #000; border: none; box-shadow: 0 0 25px rgba(77, 244, 177, 0.4); }
+
+        .platform-content { display: none; animation: fadeIn 0.6s ease-out forwards; }
+        .platform-content.active { display: block; }
+
+        section { 
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 28px; 
+            padding: 45px; margin-bottom: 40px; backdrop-filter: blur(25px); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
-        nav h2 {
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 2rem;
-            font-weight: 800;
-        }
+        h2 { font-size: 2rem; color: var(--accent-green); margin-bottom: 30px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; }
+        h3 { color: var(--accent-blue); margin-top: 35px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
+        
+        .kbd { background: #1a1e2e; padding: 4px 10px; border-radius: 8px; border: 1px solid #3da8ff; color: #4df4b1; font-family: monospace; font-size: 0.9em; box-shadow: 0 3px 0 #000; }
+        .code-block { background: #000; color: #4df4b1; padding: 18px; border-radius: 12px; font-family: 'Courier New', monospace; border: 1px solid var(--glass-border); margin: 20px 0; display: block; overflow-x: auto; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .card { background: rgba(255,255,255,0.04); border-radius: 22px; padding: 30px; border: 1px solid var(--glass-border); transition: all 0.3s ease; }
+        .card:hover { border-color: var(--accent-blue); background: rgba(255,255,255,0.07); transform: translateY(-5px); }
 
-        nav ul { list-style: none; }
-        nav li { margin-bottom: 1rem; }
+        .alert { padding: 25px; border-radius: 18px; margin: 25px 0; border-left: 6px solid; }
+        .alert-error { background: rgba(255, 107, 107, 0.08); border-color: #ff6b6b; color: #ff6b6b; }
+        .alert-info { background: rgba(61, 168, 255, 0.08); border-color: #3da8ff; color: #3da8ff; }
 
-        nav a {
-            text-decoration: none;
-            color: #94a3b8;
-            font-weight: 500;
-            transition: color 0.2s;
-            display: block;
-        }
-
-        nav a:hover, nav a.active {
-            color: var(--accent-color);
-        }
-
-        /* Main Content */
-        main {
-            margin-left: var(--sidebar-width);
-            padding: 3rem 4rem;
-            max-width: 1000px;
-            width: 100%;
-        }
-
-        section {
-            margin-bottom: 4rem;
-            scroll-margin-top: 2rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: #fff;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 1rem;
-        }
-
-        h2 {
-            font-size: 1.8rem;
-            color: #fff;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        h3 {
-            font-size: 1.3rem;
-            color: var(--primary-color);
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        p, li {
-            color: #cbd5e1;
-            margin-bottom: 1rem;
-        }
-
-        strong { color: #fff; }
-
-        /* Alerts / Notes */
-        .alert-box {
-            background: rgba(245, 158, 11, 0.1);
-            border-left: 4px solid var(--warning-color);
-            padding: 1.5rem;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 1.5rem;
-        }
-        .alert-box h4 {
-            color: var(--warning-color);
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-
-        /* Keycaps / Shortcuts */
-        kbd {
-            background-color: #334155;
-            border-radius: 4px;
-            border: 1px solid #475569;
-            box-shadow: 0 2px 0 #1e293b;
-            color: #fff;
-            display: inline-block;
-            font-size: 0.85em;
-            font-weight: 700;
-            line-height: 1;
-            padding: 4px 8px;
-            white-space: nowrap;
-            font-family: monospace;
-        }
-
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 2rem;
-            background: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #334155;
-        }
-
-        th {
-            background-color: rgba(61, 168, 255, 0.1);
-            color: var(--primary-color);
-        }
-
-        /* Troubleshooting Accordion */
-        details {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-        }
-
-        summary {
-            font-weight: bold;
-            color: var(--primary-color);
-            list-style: none;
-            position: relative;
-            padding-left: 1.5rem;
-        }
-
-        summary::before {
-            content: "►";
-            position: absolute;
-            left: 0;
-            font-size: 0.8rem;
-            color: var(--text-light);
-            transition: transform 0.2s;
-        }
-
-        details[open] summary::before {
-            transform: rotate(90deg);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            nav { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid #334155; }
-            main { margin-left: 0; padding: 2rem; }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        footer { text-align: center; padding: 80px 0; color: var(--text-sub); border-top: 1px solid var(--glass-border); margin-top: 60px; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <h2>Whis-AI Guide</h2>
-        <ul>
-            <li><a href="#intro">Overview</a></li>
-            <li><a href="#installation">Installation Guide</a></li>
-            <li><a href="#shortcuts">Keyboard Shortcuts</a></li>
-            <li><a href="#setup">Permissions Setup</a></li>
-            <li><a href="#troubleshooting">Troubleshooting</a></li>
-        </ul>
-    </nav>
+<div class="container">
+    <header>
+        <h1 class="logo-text">Whis-AI</h1>
+        <p>Your Intelligent Thought Partner for Live Technical Interviews</p>
+    </header>
 
-    <main>
-        
-        <section id="intro">
-            <h1>Desktop Copilot Overview</h1>
-            <p>Whis-AI is a smart desktop overlay assistant designed for live meetings and interviews. It stays "Always on Top" of your windows, capturing system audio to provide real-time assistance.</p>
-        </section>
+    <div class="platform-switcher">
+        <button class="tab-btn active" onclick="showPlatform('mac')"><i class="fa-brands fa-apple"></i> macOS</button>
+        <button class="tab-btn" onclick="showPlatform('win')"><i class="fa-brands fa-windows"></i> Windows</button>
+    </div>
 
-        <section id="installation">
-            <h1>Installation Guide</h1>
-            <div class="alert-box">
-                <h4>⚠️ Important Security Note</h4>
-                <p>Because this app is a private internal tool, it is not "Signed" by Apple or Microsoft. You will see a security warning when opening it for the first time. Follow the steps below to bypass it.</p>
+    <div id="mac-platform" class="platform-content active">
+        <section>
+            <h2><i class="fa-solid fa-download"></i> Phase 1: Installation</h2>
+            <p>1. <strong>Install:</strong> Drag <code>Whis.app</code> from your Downloads folder directly into your <strong>Applications</strong> folder.</p>
+            <p>2. <strong>First Launch:</strong> Open your Applications folder and double-click <strong>Whis</strong> to start. <em>Note: On macOS, launching from the Applications folder is the required way to open the app</em>.</p>
+            
+            <div class="alert alert-error">
+                <strong><i class="fa-solid fa-terminal"></i> Fix for "App is Damaged" Error</strong>
+                <p>On some macOS machines, security policies may flag the file. If you receive a "Damaged File" or "Unidentified Developer" error, open your <strong>Terminal</strong> and run this exact command:</p>
+                <code class="code-block">sudo xattr -rd com.apple.quarantine /Applications/Whis.app</code>
+                <p>Enter your system password when prompted (characters will not appear as you type) and press Enter. Now the app will open perfectly.</p>
             </div>
 
-            <h3>Installing on macOS (.dmg)</h3>
-            <p>When you double-click the app, you may see a popup saying: <em>"Whis-AI cannot be opened because the developer cannot be verified"</em> or <em>"App is damaged"</em>.</p>
-            <ol>
-                <li>Open your <strong>Downloads</strong> folder in Finder.</li>
-                <li><strong>Right-click</strong> (or Control+Click) on the <code>Whis-AI</code> app icon.</li>
-                <li>Select <strong>Open</strong> from the menu.</li>
-                <li>A new popup will appear asking if you are sure. Click <strong>Open</strong>.</li>
-            </ol>
-            <p><em>Alternative:</em> Go to <strong>System Settings > Privacy & Security</strong>. Scroll down to the "Security" section and click "Open Anyway" next to Whis-AI.</p>
-
-            <h3>Installing on Windows (.exe)</h3>
-            <p>When you run the installer, you may see a blue window saying: <em>"Windows protected your PC"</em> (Microsoft Defender SmartScreen).</p>
-            <ol>
-                <li>Click the underline text that says <strong>More info</strong>.</li>
-                <li>A new button will appear at the bottom. Click <strong>Run anyway</strong>.</li>
-            </ol>
+            <h3><i class="fa-solid fa-shield-check"></i> Required Permissions</h3>
+            <p>For Whis-AI to function, the following permissions must be toggled <strong>ON</strong> in your Mac <em>System Settings > Privacy & Security</em>:</p>
+            <div class="grid">
+                <div class="card"><strong>Microphone</strong>: Allow access so the app can hear audio.</div>
+                <div class="card"><strong>Accessibility</strong>: Allows the app to stay on top of other windows.</div>
+                <div class="card"><strong>Screen Recording</strong>: Required for the screenshot feature to work.</div>
+            </div>
         </section>
 
-        <section id="shortcuts">
-            <h1>Keyboard Shortcuts</h1>
-            <p>Whis-AI is designed for speed. Use these shortcuts to control the app without leaving your meeting window.</p>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th width="40%">Shortcut (Mac / Win)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><kbd>Cmd</kbd> + <kbd>\</kbd> <br> <kbd>Ctrl</kbd> + <kbd>\</kbd></td>
-                        <td><strong>Toggle Visibility</strong><br>Hide or Show the app instantly.</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>Cmd</kbd> + <kbd>K</kbd> <br> <kbd>Ctrl</kbd> + <kbd>K</kbd></td>
-                        <td><strong>Toggle Listening</strong><br>Start/Stop listening to system audio.</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> <br> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td>
-                        <td><strong>Screenshot & Ask</strong><br>Captures current screen and asks AI for help.</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>Alt</kbd> + <kbd>Arrow Keys</kbd></td>
-                        <td><strong>Nudge Window</strong><br>Move the overlay window pixel-by-pixel.</td>
-                    </tr>
-                    <tr>
-                        <td><kbd>Cmd</kbd> + <kbd>Enter</kbd></td>
-                        <td><strong>Send Message</strong><br>Manually send typed text.</td>
-                    </tr>
-                </tbody>
-            </table>
+        <section>
+            <h2><i class="fa-solid fa-keyboard"></i> macOS Shortcuts</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3><span class="kbd">⌘ + \</span> Hide Chatbox</h3>
+                    <p>Instantly removes the app from <strong>your</strong> view. If you lose the chatbox, use this to bring it back.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="kbd">⌘ + K</span> Microphone</h3>
+                    <p>Start or stop listening to the interviewer instantly.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="kbd">⌘ + ⇧ + C</span> Screenshot</h3>
+                    <p>Capture a problem on your screen for the AI to solve.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="kbd">⌥ + Arrows</span> Move Window</h3>
+                    <p>Reposition the app anywhere on your screen in 10-pixel steps.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="win-platform" class="platform-content">
+        <section>
+            <h2><i class="fa-solid fa-download"></i> Phase 1: Installation</h2>
+            <p>1. <strong>Install:</strong> Run the <code>.exe</code> installer file.</p>
+            <p>2. <strong>SmartScreen Bypass:</strong> If a blue window appears saying "Windows protected your PC," click <u>More Info</u> and then click <strong>Run Anyway</strong>.</p>
+            <p>3. <strong>Launch:</strong> Open <strong>Whis</strong> from your Start Menu or desktop shortcut.</p>
         </section>
 
-        <section id="setup">
-            <h1>Permissions Setup</h1>
-            <p>To capture meeting audio, the app requires specific system permissions.</p>
-            
-            <h3>1. Screen Recording (Audio Capture)</h3>
-            <p>This is the most critical permission. It allows Whis-AI to "listen" to the audio coming out of your speakers (Zoom, Teams, etc.).</p>
-            <ul>
-                <li><strong>macOS:</strong> Go to <em>System Settings > Privacy & Security > Screen Recording</em>. Toggle "Whis-AI" to <strong>ON</strong>.</li>
-            </ul>
-
-            <h3>2. Microphone Access</h3>
-            <p>Used as a backup if system audio capture fails, or if you want to speak to the assistant directly.</p>
+        <section>
+            <h2><i class="fa-solid fa-keyboard"></i> Windows Shortcuts</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3><span class="kbd">Ctrl + \</span> Hide Chatbox</h3>
+                    <p>Instantly removes the app from <strong>your</strong> view. If you lose the chatbox, use this to bring it back.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="kbd">Ctrl + K</span> Microphone</h3>
+                    <p>Start or stop listening to the interviewer instantly.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="kbd">Ctrl + ⇧ + C</span> Screenshot</h3>
+                    <p>Capture a problem on your screen for the AI to solve.</p>
+                </div>
+                <div class="card">
+                    <h3><span class="kbd">Alt + Arrows</span> Move Window</h3>
+                    <p>Reposition the app anywhere on your screen in 10-pixel steps.</p>
+                </div>
+            </div>
         </section>
+    </div>
 
-        <section id="troubleshooting">
-            <h1>Troubleshooting</h1>
+    <section>
+        <h2><i class="fa-solid fa-ghost"></i> Phase 2: Visibility vs. Invisibility</h2>
+        <div class="alert alert-info">
+            <p><strong>Crucial Distinction:</strong> It is important to know the difference between hiding the app from yourself and protecting your screen share.</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h3>The Hide Shortcut (<span class="kbd">Ctrl + \</span>)</h3>
+                <p>This is for <strong>physical privacy</strong>. It removes the app from your own screen so no one looking at your monitor can see it. However, it may still be visible in a screen share unless you have digital protection.</p>
+            </div>
+            <div class="card" style="border-color: var(--accent-green);">
+                <h3>Screenshare Invisibility (Elite Only)</h3>
+                <p>This is for <strong>digital privacy</strong>. Part of the <strong>Elite (Pro Plus) Plan</strong>, this feature uses "Content Protection" to automatically hide the overlay from viewers on Zoom, Teams, or Google Meet, even while you can see it.</p>
+            </div>
+        </div>
+    </section>
 
-            <details>
-                <summary>Status says "Audio Access Denied"</summary>
-                <p>The app failed to access the system audio.
-                <br><strong>Fix:</strong> Ensure you have granted "Screen Recording" permission in System Settings. If you just granted it, you <strong>must restart the app</strong> for it to take effect.</p>
-            </details>
+    <section>
+        <h2><i class="fa-solid fa-star"></i> Phase 3: Mastering Features</h2>
+        
+        <div class="feature-grid grid">
+            <div class="card">
+                <h3><i class="fa-solid fa-ear-listen"></i> Focused Listening</h3>
+                <p>The app is specifically tuned to <strong>only listen to the interviewer</strong>. It captures system sound so your own voice doesn't clutter the transcription.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-microphone"></i> Voice States</h3>
+                <p>The Mic button turns <strong>Red</strong> and pulses when active. If it hears silence, the app types a <strong>"."</strong> every second as a "heartbeat" to show it's still waiting for speech.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-camera"></i> Screenshot OCR</h3>
+                <p>Use the camera icon or hotkey to snap a prompt. The AI reads the text and provides a technical solution, including code and logic.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-layer-group"></i> Context Manager</h3>
+                <p>Upload your <strong>Resume or Job Description</strong> in the "Manage Contexts" menu. The AI prioritizes this data to give you personalized answers tailored to your experience.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-bullseye"></i> Crisp Mode</h3>
+                <p>Toggle the <strong>Bullseye</strong> icon for short, punchy answers under <strong>300 characters</strong>, perfect for fast reading during a call.</p>
+            </div>
+            <div class="card">
+                <h3><i class="fa-solid fa-bolt"></i> 10-Min Free Pass</h3>
+                <p>New users can access <strong>10-minute Trial sessions</strong> to experience the full power of Whis-AI. Use the "X" stop button next to the timer to end a trial manually.</p>
+            </div>
+        </div>
+    </section>
 
-            <details>
-                <summary>Sub-Overlay says "Active Plan Required"</summary>
-                <p>You have hit the <strong>10 free usage limit</strong> for the trial tier. You can check your status by clicking the Profile icon > Refresh Status.</p>
-            </details>
+    <section>
+        <h2><i class="fa-solid fa-power-off"></i> Phase 4: Closing the App</h2>
+        <div class="alert alert-info">
+            <p><strong>To Close Permanently:</strong> Standard window closing only hides the interface. To <u>fully exit</u> the app, you must click the <strong>"X" symbol button</strong> in the top-right corner of the application header.</p>
+        </div>
+    </section>
 
-            <details>
-                <summary>Login window is stuck or blank</summary>
-                <p>If the Google Login browser window doesn't redirect back:
-                <br>1. Close the app completely (Profile > Close App).
-                <br>2. Relaunch.
-                <br>3. Ensure your firewall is not blocking localhost connections.</p>
-            </details>
+    <section>
+        <h2><i class="fa-solid fa-crown"></i> Membership Plans</h2>
+        <div class="grid">
+            <div class="card" style="border-color: #3da8ff;">
+                <h3>Pro Plan</h3>
+                <ul>
+                    <li>Higher daily chat and screenshot limits.</li>
+                    <li>Standard priority AI processing.</li>
+                </ul>
+            </div>
+            <div class="card" style="border-color: #4df4b1;">
+                <h3>Elite (Pro Plus) Plan</h3>
+                <ul>
+                    <li>Maximum usage limits.</li>
+                    <li><strong>Screenshare Invisibility:</strong> Overlay is hidden from viewers on Zoom/Teams for total privacy.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
 
-            <details>
-                <summary>I can't find the app after minimizing</summary>
-                <p>Use the global shortcut <kbd>Cmd</kbd> + <kbd>\</kbd> (or <kbd>Ctrl</kbd> + <kbd>\</kbd>) to bring it back to focus. Check your system tray (top right on Mac, bottom right on Windows) for the Whis icon.</p>
-            </details>
+    <section style="text-align: center;">
+        <h2><i class="fa-solid fa-headset"></i> Support</h2>
+        <p>For any queries or technical issues, reach out to us directly:</p>
+        <p style="font-size: 1.5rem; color: var(--accent-green); font-weight: 700;">support@whis-ai.com</p>
+    </section>
 
-        </section>
+    <footer>
+        <p>&copy; 2025 Whis-AI. Elevate your performance with real-time intelligence.</p>
+    </footer>
+</div>
 
-    </main>
+<script>
+    function showPlatform(platform) {
+        document.querySelectorAll('.platform-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(platform + '-platform').classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>
 
 </body>
 </html>
