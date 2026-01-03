@@ -877,6 +877,82 @@
     </div>
   </div>
 
+  <div id="fomoModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-opacity duration-500">
+      <div class="perf-card relative max-w-md w-full overflow-hidden border border-accent/40 shadow-[0_0_100px_rgba(0,242,255,0.2)] animate-float">
+          
+          <div class="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle,var(--accent-glow)_0%,transparent_60%)] opacity-20 pointer-events-none animate-pulse-slow"></div>
+
+          <button onclick="closeFomoModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition z-50">
+              <i class="fa-solid fa-times text-xl"></i>
+          </button>
+
+          <div class="relative z-10 p-8">
+              <div class="text-center mb-6">
+                  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-[10px] font-bold text-red-400 mb-4 animate-pulse">
+                      <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                      CLOSING TONIGHT
+                  </div>
+                  <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">
+                      Get <span class="text-accent text-shadow">1 Month Elite</span> For Free.
+                  </h2>
+                  <p class="text-xs text-slate-400 leading-relaxed">
+                      We are giving away 50 Elite Licenses ($50 value) to testers. <br>
+                      <span class="text-white font-semibold underline decoration-accent/50">Fill this accurately or lose your spot.</span>
+                  </p>
+                  <div class="mt-3 text-[10px] font-mono text-slate-500">
+                      <i class="fa-solid fa-users text-accent mr-1"></i> <span id="slots-left" class="text-white font-bold">14</span> slots remaining
+                  </div>
+              </div>
+
+              <form id="fomoForm" onsubmit="submitFomoForm(event)" class="space-y-4">
+                  <div>
+                      <input type="text" id="fName" placeholder="Full Name *" required 
+                          class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent focus:outline-none focus:bg-white/10 transition placeholder-slate-600">
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-4">
+                      <input type="email" id="fEmail" placeholder="Email Address *" required 
+                          class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent focus:outline-none focus:bg-white/10 transition placeholder-slate-600">
+                      
+                      <input type="number" id="fYoe" placeholder="YOE (Years) *" required min="0" step="0.1"
+                          class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent focus:outline-none focus:bg-white/10 transition placeholder-slate-600">
+                  </div>
+
+                  <div>
+                      <input type="tel" id="fWhatsapp" placeholder="WhatsApp Number (with Country Code) *" required 
+                          class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent focus:outline-none focus:bg-white/10 transition placeholder-slate-600">
+                      <p class="text-[9px] text-slate-500 mt-1 ml-1">*Required for license activation code.</p>
+                  </div>
+
+                  <div>
+                      <select id="fRole" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-300 focus:border-accent focus:outline-none focus:bg-white/10 transition">
+                          <option value="" disabled selected>Target Role (Optional)</option>
+                          <option value="SDE-1">Software Engineer I (Junior)</option>
+                          <option value="SDE-2">Software Engineer II (Mid)</option>
+                          <option value="SDE-3">Senior Software Engineer</option>
+                          <option value="Manager">Engineering Manager</option>
+                          <option value="Intern">Intern</option>
+                      </select>
+                  </div>
+
+                  <button type="submit" id="fSubmitBtn" class="w-full py-4 mt-2 rounded-xl bg-gradient-to-r from-accent to-blue-600 text-black font-bold uppercase tracking-widest hover:brightness-110 transition shadow-[0_0_30px_rgba(0,242,255,0.3)] group relative overflow-hidden">
+                      <span class="relative z-10 flex items-center justify-center gap-2">
+                          Claim Elite Access <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                      </span>
+                      <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition duration-300"></div>
+                  </button>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <div id="fomoSuccess" class="fixed top-10 left-1/2 -translate-x-1/2 z-[400] hidden flex-col items-center animate-bounce">
+      <div class="perf-card px-8 py-4 bg-green-500/10 border border-green-500/50 text-green-400 font-bold flex items-center gap-3 backdrop-blur-md">
+          <i class="fa-solid fa-circle-check text-xl"></i>
+          <span>Application Received! Check your WhatsApp soon.</span>
+      </div>
+  </div>
+
   <script>
     // --- 1. OPTIMIZED CAROUSEL LOGIC ---
     const videos = [
@@ -1473,6 +1549,99 @@
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
+    // --- NEW: FOMO MODAL LOGIC ---
+    const fomoModal = document.getElementById('fomoModal');
+    
+    // Check if user has already submitted
+    const hasApplied = localStorage.getItem('whis_fomo_applied');
+
+    function showFomoModal() {
+        if(!hasApplied) {
+            fomoModal.classList.remove('hidden');
+            fomoModal.classList.add('flex');
+            startSlotsCountdown();
+        }
+    }
+
+    function closeFomoModal() {
+        fomoModal.classList.add('hidden');
+        fomoModal.classList.remove('flex');
+    }
+
+    // Fake countdown for "Slots Remaining" to create urgency
+    function startSlotsCountdown() {
+        const slotEl = document.getElementById('slots-left');
+        let slots = 14;
+        setInterval(() => {
+            if(Math.random() > 0.7 && slots > 3) {
+                slots--;
+                slotEl.innerText = slots;
+                slotEl.classList.add('text-red-500');
+                setTimeout(() => slotEl.classList.remove('text-red-500'), 500);
+            }
+        }, 8000);
+    }
+
+    async function submitFomoForm(e) {
+        e.preventDefault();
+        const btn = document.getElementById('fSubmitBtn');
+        const origText = btn.innerHTML;
+        
+        // Basic Validation
+        const name = document.getElementById('fName').value;
+        const email = document.getElementById('fEmail').value;
+        const whatsapp = document.getElementById('fWhatsapp').value;
+        const yoe = document.getElementById('fYoe').value;
+        const role = document.getElementById('fRole').value;
+
+        if(!name || !email || !whatsapp || !yoe) {
+            alert("Please fill all required fields to claim the offer.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Application...';
+
+        try {
+            // Using the defined BACKEND_URL from your existing script
+            const res = await fetch(`${BACKEND_URL}/api/request-access`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    name, email, whatsapp, yoe: parseFloat(yoe), targetRole: role 
+                })
+            });
+            
+            const data = await res.json();
+            
+            if(data.success) {
+                // Success UI
+                localStorage.setItem('whis_fomo_applied', 'true');
+                closeFomoModal();
+                
+                // Show Success Toast
+                const toast = document.getElementById('fomoSuccess');
+                toast.classList.remove('hidden');
+                toast.classList.add('flex');
+                
+                // Confetti or visual feedback
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('flex');
+                }, 5000);
+            } else {
+                alert(data.error || "Something went wrong.");
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        } catch(err) {
+            console.error(err);
+            alert("Network error. Please try again.");
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
         initUptimeCounter();
@@ -1484,6 +1653,7 @@
         fetchPricingConfig();
         updateDynamicSignups();
         startIstMidnightTimer();
+        setTimeout(showFomoModal, 2000);
     });
   </script>
 </body>
