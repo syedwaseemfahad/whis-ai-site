@@ -562,7 +562,7 @@
               <div class="space-y-8">
                   <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">They Ask. You Answer.</h2>
                   <p class="text-slate-400 text-lg font-light leading-relaxed">
-                      Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span>
+                      Whis listens to system audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span>
                   </p>
                    
                   <div class="perf-card p-8">
@@ -1596,16 +1596,28 @@
                 })
             });
             const data = await res.json();
+            
             if(data.success) {
                 localStorage.setItem('whis_fomo_applied', 'true');
                 closeFomoModal();
-                const toast = document.getElementById('fomoSuccess');
-                toast.classList.remove('hidden');
-                toast.classList.add('flex');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                    toast.classList.remove('flex');
-                }, 5000);
+
+                if (data.upgraded) {
+                    alert("🎉 Congratulations! Your 1-Month Elite Pass has been activated instantly.\n\nThe page will now refresh to load your new features.");
+                    location.reload(); 
+                } else {
+                    const toast = document.getElementById('fomoSuccess');
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                        toast.classList.remove('flex');
+                    }, 5000);
+                    
+                    if (!currentUser) {
+                        alert("Application received! Please Sign In with the same email (" + email + ") to check if your upgrade was applied.");
+                        openLoginModal();
+                    }
+                }
             } else {
                 alert(data.error || "Something went wrong.");
                 btn.disabled = false;
