@@ -1362,6 +1362,10 @@
         try {
             const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
             const d = await r.json();
+
+            // SAVE THE NEW FLAG FROM BACKEND
+            currentUser.hasUsedFreeElite = d.hasUsedFreeElite; 
+
             if(d.active) currentTier = d.tier; else currentTier = 'free';
             const badge = document.getElementById('navPlanBadge');
             const validityEl = document.getElementById('modalPlanValidity');
@@ -1543,10 +1547,26 @@
     const hasApplied = localStorage.getItem('whis_fomo_applied');
 
     function showFomoModal(fromButton = false) {
-        if(hasApplied) {
-            if(fromButton) openDownloadModal();
-            return; 
+        const hasApplied = localStorage.getItem('whis_fomo_applied');
+        
+        // 1. Client-side check (Browser memory)
+        if(hasApplied && !fromButton) return; 
+
+        // 2. User Account check (Server memory)
+        // If user is logged in...
+        if (currentUser) {
+            // ...and they are ALREADY on a paid tier -> Hide it
+            if (currentTier === 'pro' || currentTier === 'pro_plus') {
+                if(fromButton) alert("You are already on a Premium Plan!");
+                return;
+            }
+            // ...OR they have ALREADY used this free offer in the past -> Hide it
+            if (currentUser.hasUsedFreeElite) {
+                if(fromButton) alert("You have already claimed your Free Elite Month. This offer is one-time use only.");
+                return;
+            }
         }
+
         fomoModal.classList.remove('hidden');
         fomoModal.classList.add('flex');
         startSlotsCountdown();
@@ -1602,20 +1622,26 @@
                 closeFomoModal();
 
                 if (data.upgraded) {
-                    alert("🎉 Congratulations! Your 1-Month Elite Pass has been activated instantly.\n\nThe page will now refresh to load your new features.");
+                    alert("🎉 Congratulations! Your 1-Month Elite Pass has been activated instantly.\n\nThe page will now refresh.");
                     location.reload(); 
                 } else {
-                    const toast = document.getElementById('fomoSuccess');
-                    toast.classList.remove('hidden');
-                    toast.classList.add('flex');
-                    setTimeout(() => {
-                        toast.classList.add('hidden');
-                        toast.classList.remove('flex');
-                    }, 5000);
-                    
-                    if (!currentUser) {
-                        alert("Application received! Please Sign In with the same email (" + email + ") to check if your upgrade was applied.");
-                        openLoginModal();
+                    // CHECK: Did the server return a specific message (e.g., "Already used")?
+                    if (data.message && data.message.toLowerCase().includes("already used")) {
+                        alert("⚠️ " + data.message);
+                    } else {
+                        // Standard success for new request (or user not logged in)
+                        const toast = document.getElementById('fomoSuccess');
+                        toast.classList.remove('hidden');
+                        toast.classList.add('flex');
+                        setTimeout(() => {
+                            toast.classList.add('hidden');
+                            toast.classList.remove('flex');
+                        }, 5000);
+                        
+                        if (!currentUser) {
+                            alert("Application received! Please Sign In with the same email (" + email + ") to check if your upgrade was applied.");
+                            openLoginModal();
+                        }
                     }
                 }
             } else {
