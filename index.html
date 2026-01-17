@@ -9,43 +9,57 @@
     gtag('config', 'G-XXXXXXXXXX');
 
 
+// --- HIGH CONVERSION LOGIC (TIMER & SLOTS) ---
+    let modalTime = 300; // 5 Minutes
+    let timerInterval = null;
 
-    // 1. The 5-Minute Countdown Logic
-let modalTime = 300; 
-function startModalTimer() {
-    const timerEl = document.getElementById('modal-timer');
-    const interval = setInterval(() => {
-        const m = Math.floor(modalTime / 60);
-        const s = modalTime % 60;
-        timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        if (modalTime <= 0) clearInterval(interval);
-        modalTime--;
-    }, 1000);
-}
+    function startModalTimer() {
+        const timerEl = document.getElementById('modal-timer');
+        if (!timerEl || timerInterval) return; // Don't start if already running
+        
+        timerInterval = setInterval(() => {
+            const m = Math.floor(modalTime / 60);
+            const s = modalTime % 60;
+            timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            if (modalTime <= 0) {
+                clearInterval(timerInterval);
+                timerEl.innerText = "00:00";
+            }
+            modalTime--;
+        }, 1000);
+    }
 
-// 2. The Progress Bar Logic (Makes it "move" randomly)
-function updateScarcity() {
-    let slots = 4;
-    setInterval(() => {
-        if(Math.random() > 0.8 && slots > 1) {
-            slots--;
-            document.getElementById('slots-left-v2').innerText = slots;
-            const percent = 100 - (slots * 2);
-            document.getElementById('scarcity-bar').style.width = percent + '%';
-            document.getElementById('slots-percent').innerText = percent + '% FULL';
-        }
-    }, 12000);
-}
+    function updateScarcity() {
+        let slots = 4;
+        const scarcityInterval = setInterval(() => {
+            if(Math.random() > 0.8 && slots > 1) {
+                slots--;
+                const slotsEl = document.getElementById('slots-left-v2');
+                const barEl = document.getElementById('scarcity-bar');
+                const percentEl = document.getElementById('slots-percent');
 
-// 3. Connect it to your existing Open Modal function
-// Replace your old "showFomoModal" with this:
-function showFomoModal(fromButton = false) {
-    if(hasApplied && !fromButton) return;
-    fomoModal.classList.remove('hidden');
-    fomoModal.classList.add('flex');
-    startModalTimer(); // <--- This starts the clock!
-    updateScarcity();  // <--- This starts the progress bar!
-}
+                if(slotsEl) slotsEl.innerText = slots;
+                const percent = 100 - (slots * 2); // Makes the bar look nearly full
+                if(barEl) barEl.style.width = percent + '%';
+                if(percentEl) percentEl.innerText = percent + '% FULL';
+            }
+            if(slots <= 1) clearInterval(scarcityInterval);
+        }, 12000);
+    }
+
+    // --- UPDATED MODAL TRIGGER ---
+    function showFomoModal(fromButton = false) {
+        if(hasApplied && !fromButton) return;
+        
+        const fomoModal = document.getElementById('fomoModal');
+        fomoModal.classList.remove('hidden');
+        fomoModal.classList.add('flex');
+        
+        startModalTimer(); // Start the 5-min clock
+        updateScarcity();  // Start moving the progress bar
+        startSlotsCountdown(); // Keeps your original 14-slots logic running too
+    }
   </script>
 
   <meta charset="UTF-8" />
