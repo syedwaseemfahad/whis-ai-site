@@ -7,6 +7,45 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
+
+
+
+    // 1. The 5-Minute Countdown Logic
+let modalTime = 300; 
+function startModalTimer() {
+    const timerEl = document.getElementById('modal-timer');
+    const interval = setInterval(() => {
+        const m = Math.floor(modalTime / 60);
+        const s = modalTime % 60;
+        timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (modalTime <= 0) clearInterval(interval);
+        modalTime--;
+    }, 1000);
+}
+
+// 2. The Progress Bar Logic (Makes it "move" randomly)
+function updateScarcity() {
+    let slots = 4;
+    setInterval(() => {
+        if(Math.random() > 0.8 && slots > 1) {
+            slots--;
+            document.getElementById('slots-left-v2').innerText = slots;
+            const percent = 100 - (slots * 2);
+            document.getElementById('scarcity-bar').style.width = percent + '%';
+            document.getElementById('slots-percent').innerText = percent + '% FULL';
+        }
+    }, 12000);
+}
+
+// 3. Connect it to your existing Open Modal function
+// Replace your old "showFomoModal" with this:
+function showFomoModal(fromButton = false) {
+    if(hasApplied && !fromButton) return;
+    fomoModal.classList.remove('hidden');
+    fomoModal.classList.add('flex');
+    startModalTimer(); // <--- This starts the clock!
+    updateScarcity();  // <--- This starts the progress bar!
+}
   </script>
 
   <meta charset="UTF-8" />
