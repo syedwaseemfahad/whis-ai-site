@@ -1472,22 +1472,26 @@
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
 
-    async function fetchPricingConfig() {
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/config`);
-            if(res.ok) {
-                const data = await res.json();
-                PRICING_CONFIG = data.pricing;
-                GOOGLE_CLIENT_ID = data.googleClientId;
-                
-                if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
+async function fetchPricingConfig() {
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/config`);
+        if(res.ok) {
+            const data = await res.json();
+            PRICING_CONFIG = data.pricing;
+            GOOGLE_CLIENT_ID = data.googleClientId;
+            
+            if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
-                updatePricingUI();
-                document.getElementById('btnPro').disabled = false;
-                document.getElementById('btnElite').disabled = false;
-            }
-        } catch(e) { console.error("Config Fetch Error", e); }
-    }
+            updatePricingUI();
+            
+            // Start the global countdown sync for the pricing cards
+            startPricingTimers(); 
+
+            document.getElementById('btnPro').disabled = false;
+            document.getElementById('btnElite').disabled = false;
+        }
+    } catch(e) { console.error("Config Fetch Error", e); }
+}
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
      
