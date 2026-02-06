@@ -1760,6 +1760,47 @@
         }
     }
 
+    // Function to submit the floating lead bar number
+async function submitLeadNumber() {
+    const num = document.getElementById('leadWhatsapp').value;
+    const btn = document.getElementById('leadBtn');
+    if(!num || num.length < 8) { alert("Please enter a valid WhatsApp number."); return; }
+    
+    btn.disabled = true;
+    btn.innerText = "SENDING...";
+    
+    try {
+        // This sends the lead to your existing FOMO backend
+        await fetch(`https://api.whisai.com/api/fomo/apply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ whatsapp: num, source: 'floating_lead_bar' })
+        });
+        
+        document.getElementById('mobileLeadCapture').innerHTML = `
+            <div class="flex items-center gap-3 p-2">
+                <div class="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+                <p class="text-xs text-white">Discount code sent to <b>${num}</b>! Check WhatsApp.</p>
+            </div>
+        `;
+        setTimeout(() => document.getElementById('mobileLeadCapture').remove(), 5000);
+    } catch(e) {
+        btn.disabled = false;
+        btn.innerText = "GET CODE";
+        alert("Thank you! Check your WhatsApp for the offer.");
+    }
+}
+
+// Update your existing DOMContentLoaded listener
+document.addEventListener("DOMContentLoaded", () => {
+    // AUTOMATICALLY SHOW FOMO MODAL AFTER 5 SECONDS
+    setTimeout(() => {
+        if(!localStorage.getItem('whis_fomo_applied')) {
+            if(typeof showFomoModal === 'function') showFomoModal();
+        }
+    }, 5000);
+});
+
     document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
         initUptimeCounter();
