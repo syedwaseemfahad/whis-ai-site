@@ -1831,6 +1831,34 @@ async function submitLeadAndChat() {
         body: JSON.stringify({ whatsapp: num, source: 'lead_bar' })
     }).catch(e => console.log("Lead logged via WhatsApp redirect"));
 }
+
+
+    const buyers = [
+    { city: "Bangalore", plan: "Elite Stealth" },
+    { city: "San Francisco", plan: "Pro Monthly" },
+    { city: "Hyderabad", plan: "Elite Stealth" },
+    { city: "London", plan: "Quarterly Pass" },
+    { city: "New Delhi", plan: "Elite Stealth" },
+    { city: "Austin", plan: "Pro Monthly" }
+];
+
+function showPurchaseToast() {
+    const toast = document.getElementById('purchaseToast');
+    const user = document.getElementById('toastUser');
+    const randomBuyer = buyers[Math.floor(Math.random() * buyers.length)];
+    
+    user.innerText = `Someone from ${randomBuyer.city}`;
+    toast.classList.remove('hidden');
+    toast.classList.add('flex');
+    
+    setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+    }, 5000);
+}
+
+// Show a fake purchase every 25 seconds
+setInterval(showPurchaseToast, 25000);
     
 // Update your existing DOMContentLoaded listener
 document.addEventListener("DOMContentLoaded", () => {
@@ -1841,6 +1869,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, 5000);
 });
+
+    
 
     document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
@@ -1856,5 +1886,14 @@ document.addEventListener("DOMContentLoaded", () => {
         //setTimeout(showFomoModal, 5000);
     });
   </script>
+  <div id="purchaseToast" class="fixed bottom-6 left-6 z-[200] hidden items-center gap-3 bg-white text-black p-3 rounded-xl shadow-2xl animate-bounce-slow">
+    <div class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600">
+        <i class="fa-solid fa-shopping-cart text-xs"></i>
+    </div>
+    <div class="pr-4">
+        <p class="text-[10px] font-bold leading-tight" id="toastUser">Someone from Bangalore</p>
+        <p class="text-[9px] text-slate-500 leading-tight" id="toastAction">Just upgraded to Elite Stealth</p>
+    </div>
+</div>
 </body>
 </html>
