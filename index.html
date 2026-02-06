@@ -1822,6 +1822,28 @@ function updatePricingUI() {
         fomoModal.classList.remove('flex');
     }
 
+    function startPricingTimers() {
+    setInterval(() => {
+        document.querySelectorAll('.pricing-countdown').forEach(el => {
+            let parts = el.innerText.split(':');
+            let m = parseInt(parts[0]);
+            let s = parseInt(parts[1]);
+
+            if (s > 0) {
+                s--;
+            } else if (m > 0) {
+                m--;
+                s = 59;
+            } else {
+                // Keep it at 00:01 so it doesn't look broken when it ends
+                m = 0; s = 1; 
+            }
+
+            el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        });
+    }, 1000);
+}
+
     function startSlotsCountdown() {
         const slotEl = document.getElementById('slots-left');
         let slots = 14;
