@@ -236,14 +236,19 @@
 </head>
 <body class="no-scrollbar">
 
-  <div id="mobileLeadCapture" class="fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-col md:flex-row items-center gap-3 bg-black/90 backdrop-blur-3xl border border-cyan-400/20 p-4 rounded-2xl md:max-w-sm animate-float">
-    <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-cyan-400/20 flex items-center justify-center text-cyan-400 animate-pulse"><i class="fa-solid fa-gift"></i></div>
-        <p class="text-[11px] text-white font-medium leading-tight">Unlock a <span class="text-cyan-400 font-bold">Special Discount Code</span> via WhatsApp</p>
+<div id="mobileLeadCapture" class="fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-col md:flex-row items-center gap-3 bg-black/90 backdrop-blur-3xl border border-cyan-400/40 p-4 rounded-2xl md:max-w-md animate-float shadow-[0_0_30px_rgba(0,242,255,0.15)]">
+    <div class="flex items-center gap-3 flex-1">
+        <div class="w-10 h-10 min-w-[40px] rounded-full bg-cyan-400/20 flex items-center justify-center text-cyan-400 animate-pulse">
+            <i class="fa-solid fa-gift text-lg"></i>
+        </div>
+        <div>
+            <p class="text-[12px] text-white font-bold leading-tight">Claim your 25% Discount</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Enter WhatsApp to receive your unique code.</p>
+        </div>
     </div>
-    <div class="flex w-full gap-2 mt-2 md:mt-0">
-        <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none">
-        <button onclick="submitLeadNumber()" id="leadBtn" class="bg-cyan-400 text-black text-[10px] font-bold px-4 py-2 rounded-lg whitespace-nowrap hover:scale-105 transition">GET CODE</button>
+    <div class="flex w-full md:w-auto gap-2">
+        <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 md:w-40 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none placeholder:text-slate-600">
+        <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-cyan-400 text-black text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-white hover:scale-105 transition-all">GET CODE</button>
     </div>
     <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-black border border-white/20 rounded-full text-[10px] flex items-center justify-center text-slate-400 hover:text-white">✕</button>
 </div>
@@ -1760,37 +1765,51 @@
         }
     }
 
-    // Function to submit the floating lead bar number
-async function submitLeadNumber() {
+async function submitLeadAndChat() {
     const num = document.getElementById('leadWhatsapp').value;
     const btn = document.getElementById('leadBtn');
-    if(!num || num.length < 8) { alert("Please enter a valid WhatsApp number."); return; }
     
+    if(!num || num.length < 8) { 
+        alert("Please enter a valid WhatsApp number to receive your code."); 
+        return; 
+    }
+    
+    // Change button state to show progress
+    const originalText = btn.innerText;
     btn.disabled = true;
-    btn.innerText = "SENDING...";
-    
+    btn.innerText = "OPENING...";
+
+    // 1. Construct the WhatsApp URL
+    // This message is pre-filled so they just have to hit 'Send'
+    const message = encodeURIComponent(`Hi Whis-AI Team! 👋 I just saw the 25% discount offer on the website. Can I get my code? My number is ${num}`);
+    const whatsappUrl = `https://wa.me/8669110499?text=${message}`;
+
     try {
-        // This sends the lead to your existing FOMO backend
-        await fetch(`https://api.whisai.com/api/fomo/apply`, {
+        // 2. Save the lead in the background (Silent)
+        fetch(`https://api.whisai.com/api/fomo/apply`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ whatsapp: num, source: 'floating_lead_bar' })
+            body: JSON.stringify({ whatsapp: num, source: 'floating_lead_bar_v2' })
         });
-        
+
+        // 3. Immediately redirect to WhatsApp
+        // We do this in the same window to ensure the browser doesn't block it as a popup
+        window.location.href = whatsappUrl;
+
+        // 4. Update the UI for when they come back to the tab
         document.getElementById('mobileLeadCapture').innerHTML = `
-            <div class="flex items-center gap-3 p-2">
+            <div class="flex items-center gap-3 p-1">
                 <div class="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
-                <p class="text-xs text-white">Discount code sent to <b>${num}</b>! Check WhatsApp.</p>
+                <p class="text-xs text-white font-medium">Redirecting to WhatsApp...</p>
             </div>
         `;
-        setTimeout(() => document.getElementById('mobileLeadCapture').remove(), 5000);
+        setTimeout(() => document.getElementById('mobileLeadCapture').remove(), 3000);
+
     } catch(e) {
-        btn.disabled = false;
-        btn.innerText = "GET CODE";
-        alert("Thank you! Check your WhatsApp for the offer.");
+        // If the fetch fails, still open WhatsApp—don't let a server error stop a sale!
+        window.location.href = whatsappUrl;
     }
 }
-
 // Update your existing DOMContentLoaded listener
 document.addEventListener("DOMContentLoaded", () => {
     // AUTOMATICALLY SHOW FOMO MODAL AFTER 5 SECONDS
