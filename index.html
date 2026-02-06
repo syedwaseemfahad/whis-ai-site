@@ -1482,15 +1482,19 @@ async function fetchPricingConfig() {
             
             if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
+            // This is the key: Drawing the UI after data is ready
             updatePricingUI();
             
-            // Start the global countdown sync for the pricing cards
+            // Start the countdown timers
             startPricingTimers(); 
 
             document.getElementById('btnPro').disabled = false;
             document.getElementById('btnElite').disabled = false;
         }
-    } catch(e) { console.error("Config Fetch Error", e); }
+    } catch(e) { 
+        console.error("Config Fetch Error", e); 
+        // Fallback: If API fails, show a manual message or alert
+    }
 }
 
 
