@@ -1493,6 +1493,26 @@ async function fetchPricingConfig() {
     } catch(e) { console.error("Config Fetch Error", e); }
 }
 
+
+    function startPricingTimers() {
+    setInterval(() => {
+        document.querySelectorAll('.pricing-countdown').each(function(el) {
+            let parts = el.innerText.split(':');
+            let m = parseInt(parts[0]);
+            let s = parseInt(parts[1]);
+
+            if (s > 0) {
+                s--;
+            } else if (m > 0) {
+                m--;
+                s = 59;
+            }
+
+            el.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        });
+    }, 1000);
+}
+
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
      
     function updateNavUI(u){ 
