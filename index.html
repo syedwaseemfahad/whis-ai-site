@@ -1057,6 +1057,30 @@
     </div>
   </div>
 
+
+  <div id="whatsappModal" class="fixed inset-0 z-[250] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+    <div class="perf-card p-8 max-w-sm w-full text-center border border-accent/30 shadow-[0_0_50px_rgba(0,242,255,0.15)] relative">
+        <button onclick="closeWhatsappModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+        
+        <div class="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-6">
+            <i class="fa-brands fa-whatsapp text-3xl text-accent"></i>
+        </div>
+        
+        <h3 class="text-xl font-bold text-white mb-2">Final Step!</h3>
+        <p class="text-slate-400 text-sm mb-6">Enter your WhatsApp number to receive best discounts.</p>
+        
+        <div class="space-y-4">
+            <input type="tel" id="whatsappInput" placeholder="+1 234 567 890" 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent outline-none transition-all text-center text-lg tracking-wider">
+            
+            <button onclick="submitWhatsappNumber()" id="whatsappSubmitBtn" 
+                class="w-full py-4 rounded-xl bg-accent text-black font-black hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_var(--accent-glow)]">
+                CONTINUE TO DASHBOARD
+            </button>
+        </div>
+    </div>
+</div>
+
  <!-- <div id="fomoModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-opacity duration-500">
       <div class="perf-card relative max-w-md w-full overflow-hidden border border-accent/40 shadow-[0_0_100px_rgba(0,242,255,0.2)] animate-float">
           
@@ -1808,6 +1832,75 @@
         }
     }
 
+
+
+    // --- WHATSAPP MODAL LOGIC ---
+function openWhatsappModal() {
+    document.getElementById('whatsappModal').classList.remove('hidden');
+    document.getElementById('whatsappModal').classList.add('flex');
+}
+
+function closeWhatsappModal() {
+    document.getElementById('whatsappModal').classList.add('hidden');
+    document.getElementById('whatsappModal').classList.remove('flex');
+    localStorage.setItem('whis_wa_prompted', 'true');
+}
+
+async function submitWhatsappNumber() {
+    const phone = document.getElementById('whatsappInput').value;
+    const btn = document.getElementById('whatsappSubmitBtn');
+    
+    if(!phone || phone.length < 8) {
+        alert("Please enter a valid phone number");
+        return;
+    }
+
+    btn.innerText = "SAVING...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/user/update-phone`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ googleId: currentUser.googleId, phone: phone })
+        });
+        const data = await res.json();
+        if(data.success) {
+            // Update local storage user object
+            currentUser.phone = phone;
+            localStorage.setItem('whisUser', JSON.stringify(currentUser));
+            closeWhatsappModal();
+            // Show existing success modal or toast
+            if(typeof showSuccessToast === 'function') showSuccessToast("WhatsApp updated!");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Failed to save. Please try again.");
+    } finally {
+        btn.innerText = "CONTINUE TO DASHBOARD";
+        btn.disabled = false;
+    }
+}
+
+// Update handleGoogleRes to trigger the modal
+const originalHandleGoogleRes = handleGoogleRes;
+handleGoogleRes = async function(res) {
+    await originalHandleGoogleRes(res);
+    // After original logic sets currentUser, check for phone
+    if(currentUser && !currentUser.phone && !localStorage.getItem('whis_wa_prompted')) {
+        setTimeout(openWhatsappModal, 1500);
+    }
+}
+
+// Update checkUser to trigger for returning users missing phone
+const originalCheckUser = checkUser;
+checkUser = function() {
+    originalCheckUser();
+    if(currentUser && !currentUser.phone && !localStorage.getItem('whis_wa_prompted')) {
+        setTimeout(openWhatsappModal, 2000);
+    }
+}
+
 async function submitLeadAndChat() {
     const num = document.getElementById('leadWhatsapp').value;
     const btn = document.getElementById('leadBtn');
@@ -1831,6 +1924,8 @@ async function submitLeadAndChat() {
         body: JSON.stringify({ whatsapp: num, source: 'lead_bar' })
     }).catch(e => console.log("Lead logged via WhatsApp redirect"));
 }
+
+    
 
 
     const buyers = [
