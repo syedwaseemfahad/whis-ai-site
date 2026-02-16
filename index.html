@@ -8,13 +8,13 @@
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
 
-    // --- HIGH CONVERSION LOGIC ---
+    // --- HIGH CONVERSION LOGIC (TIMER & SLOTS) ---
     let modalTime = 300; // 5 Minutes
     let timerInterval = null;
 
     function startModalTimer() {
         const timerEl = document.getElementById('modal-timer');
-        if (!timerEl || timerInterval) return;
+        if (!timerEl || timerInterval) return; // Don't start if already running
         
         timerInterval = setInterval(() => {
             const m = Math.floor(modalTime / 60);
@@ -29,7 +29,6 @@
         }, 1000);
     }
 
-    // --- SCARCITY BAR LOGIC ---
     function updateScarcity() {
         let slots = 4;
         const scarcityInterval = setInterval(() => {
@@ -40,12 +39,27 @@
                 const percentEl = document.getElementById('slots-percent');
 
                 if(slotsEl) slotsEl.innerText = slots;
-                const percent = 100 - (slots * 2);
+                const percent = 100 - (slots * 2); // Makes the bar look nearly full
                 if(barEl) barEl.style.width = percent + '%';
                 if(percentEl) percentEl.innerText = percent + '% FULL';
             }
             if(slots <= 1) clearInterval(scarcityInterval);
         }, 12000);
+    }
+
+    // --- MODAL TRIGGER ---
+    function showFomoModal(fromButton = false) {
+        if(hasApplied && !fromButton) return;
+        
+        const fomoModal = document.getElementById('fomoModal');
+        if(fomoModal) {
+            fomoModal.classList.remove('hidden');
+            fomoModal.classList.add('flex');
+            
+            startModalTimer(); // Start the 5-min clock
+            updateScarcity();  // Start moving the progress bar
+            startSlotsCountdown(); // Keeps your original 14-slots logic running too
+        }
     }
   </script>
 
@@ -68,8 +82,7 @@
           },
           animation: { 
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 8s ease-in-out infinite',
-            'bounce-slow': 'bounce 3s infinite'
+            'float': 'float 8s ease-in-out infinite'
           },
           keyframes: {
             float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
@@ -109,6 +122,7 @@
         transition: all 0.3s ease;
     }
 
+    /* CSS-Only Color Cycle */
     @keyframes hueCycle {
         0% { filter: hue-rotate(0deg); }
         100% { filter: hue-rotate(360deg); }
@@ -119,6 +133,7 @@
     .bg-accent { background-color: var(--accent); }
     .border-accent { border-color: var(--accent); }
 
+    /* --- PERFORMANCE CARD --- */
     .perf-card {
         background: rgba(10, 10, 10, 0.6);
         backdrop-filter: blur(20px);
@@ -128,14 +143,16 @@
         position: relative;
         overflow: hidden;
         transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        transform: translateZ(0);
+        transform: translateZ(0); /* Force GPU Hardware Acceleration */
     }
 
     @keyframes spin-slow {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
-    .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+    .animate-spin-slow {
+        animation: spin-slow 8s linear infinite;
+    }
 
     .perf-card:hover {
         transform: translateY(-2px);
@@ -143,6 +160,7 @@
         box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
     }
 
+    /* Lightweight shine effect */
     .perf-card::after {
         content: "";
         position: absolute;
@@ -180,10 +198,11 @@
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
 
+    /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
 
-    /* --- MAC WINDOW --- */
+    /* --- MAC WINDOW & SLIDER --- */
     .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); aspect-ratio: 16/9; background: #000; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8); --position: 50%; }
     .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 32px; background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px; }
     .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
@@ -197,13 +216,16 @@
     .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); }
     .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
 
+    /* --- FAQ --- */
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); }
     .group.active .faq-answer { max-height: 200px; transition: max-height 0.3s cubic-bezier(1, 0, 1, 0); }
     .group.active .faq-icon { transform: rotate(180deg); }
 
+    /* --- SCROLLBAR --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
+    /* --- ELITE GLOW --- */
     .pricing-elite { position: relative; }
     .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
   </style>
@@ -216,15 +238,17 @@
             <i class="fa-solid fa-gift text-lg"></i>
         </div>
         <div>
-            <p class="text-[12px] text-white font-bold leading-tight">Claim your 25% Discount</p>
-            <p class="text-[10px] text-slate-400 leading-tight">Enter WhatsApp to receive your unique code.</p>
+            <p class="text-[12px] text-white font-bold leading-tight">Generate 20% Discount Coupon</p>
+            <p class="text-[10px] text-slate-400 leading-tight">Enter email to receive your unique code.</p>
         </div>
     </div>
     <div class="flex w-full md:w-auto gap-2">
-        <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 md:w-40 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none placeholder:text-slate-600">
-        <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-cyan-400 text-black text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-white hover:scale-105 transition-all">GET CODE</button>
+        <input type="email" id="leadEmail" placeholder="Your Email Address" class="flex-1 md:w-40 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none placeholder:text-slate-600">
+        <button onclick="submitLeadAndGetCoupon()" id="leadBtn" class="bg-cyan-400 text-black text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-white hover:scale-105 transition-all">GET CODE</button>
     </div>
+    <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-black border border-white/20 rounded-full text-[10px] flex items-center justify-center text-slate-400 hover:text-white">✕</button>
 </div>
+
 
   <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-600 to-orange-600 flex justify-center items-center gap-4 shadow-[0_0_20px_rgba(220,38,38,0.5)] z-[60]">
       <span class="text-white font-bold text-xs md:text-sm uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-2"></i>Flash Sale Ends Tonight</span>
@@ -279,7 +303,7 @@
       </button>
   </div>
 
-  <a href="https://wa.me/9092435258" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
+  <a href="https://wa.me/8669110499" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
       <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
       <span class="absolute right-14 bg-white text-black text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
   </a>
@@ -708,18 +732,19 @@
     <p class="text-sm text-slate-400">
         <i class="fa-solid fa-graduation-cap text-cyan-400 mr-2"></i> 
         Struggling with budget or currently unemployed? 
-        <a href="https://wa.me/9092435258?text=Hi, I am struggling with budget. Can I get a discount?" target="_blank" class="text-cyan-400 font-bold hover:underline ml-1">
+        <a href="https://wa.me/8669110499?text=Hi, I am struggling with budget. Can I get a discount?" target="_blank" class="text-cyan-400 font-bold hover:underline ml-1">
             Talk to our team for a scholarship discount.
         </a>
     </p>
 </div>
-        <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-8">
-           <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-white transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black shadow-lg transition-all" onclick="setCycle('annual')">Quarterly (Save 50%)</button>
+        <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-8 mt-8">
+           <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black transition-all" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnAnnual" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-white transition-all" onclick="setCycle('annual')">Quarterly (Save 50%)</button>
         </div>
-        
-        <div class="flex items-center justify-center gap-2 mb-16 text-[10px] text-slate-500">
-            <i class="fa-solid fa-shield-halved text-accent"></i> 7-Day Money Back Guarantee
+
+        <div class="mb-10 max-w-sm mx-auto flex gap-2">
+            <input type="text" id="couponInput" placeholder="Enter Coupon Code" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:border-accent outline-none">
+            <button onclick="applyCoupon()" class="bg-accent/20 text-accent border border-accent/50 px-4 py-2 rounded-lg text-xs font-bold hover:bg-accent/30 transition">Apply</button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
@@ -735,25 +760,8 @@
                 <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-[10px] font-bold uppercase tracking-widest transition-all">Download Trial</button>
             </div>
 
-            <div class="perf-card pricing-elite p-10 text-left flex flex-col border-accent/50 bg-[#050505] relative overflow-hidden scale-105 shadow-2xl z-20">
+            <div class="perf-card p-10 text-left flex flex-col border-white/20 bg-white/[0.03] scale-105 shadow-2xl z-20">
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-tighter shadow-xl">Most Popular</div>
-                <div class="absolute top-0 right-0 p-6 opacity-20"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
-                <div class="absolute bottom-6 right-6 opacity-30 rotate-[-15deg] border-2 border-accent rounded px-2 py-1">
-                    <span class="text-[8px] font-black text-accent uppercase tracking-widest">OFFER SECURED</span>
-                </div>
-                
-                <h3 class="text-[10px] font-bold text-accent uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
-                <div class="text-4xl font-bold text-white mb-8" id="priceStealth">...</div>
-                <div class="space-y-5 text-xs text-slate-200 mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-accent"><i class="fa-solid fa-bolt-lightning"></i> 6 Hours Mic Access / mo</p>
-                    <p class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-accent/50"></i> Invisible to Zoom/Teams</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-accent/50"></i> Hidden App Process</p>
-                </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(0,242,255,0.2)]">Go Elite</button>
-            </div>
-
-            <div class="perf-card p-10 text-left flex flex-col border-white/5 bg-white/[0.02]">
                 <h3 class="text-[10px] font-bold text-white uppercase tracking-[0.2em] mb-4">Pro Professional</h3>
                 <div class="text-4xl font-bold text-white mb-8" id="pricePro">...</div>
                 <div class="space-y-5 text-xs text-slate-300 mb-10 flex-grow">
@@ -763,6 +771,19 @@
                     <p class="flex items-center gap-3 text-red-400/80"><i class="fa-solid fa-eye"></i> Visible on Screen</p>
                 </div>
                 <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-[10px] font-bold uppercase tracking-widest transition-all">Upgrade Now</button>
+            </div>
+
+            <div class="perf-card pricing-elite p-10 text-left flex flex-col border-accent/20 bg-[#050505] relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-6 opacity-20"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
+                <h3 class="text-[10px] font-bold text-accent uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
+                <div class="text-4xl font-bold text-white mb-8" id="priceStealth">...</div>
+                <div class="space-y-5 text-xs text-slate-200 mb-10 flex-grow">
+                    <p class="flex items-center gap-3 font-medium text-accent"><i class="fa-solid fa-bolt-lightning"></i> 6 Hours Mic Access / mo</p>
+                    <p class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-accent/50"></i> Invisible to Zoom/Teams</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-accent/50"></i> Hidden App Process</p>
+                </div>
+                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(0,242,255,0.2)]">Go Elite</button>
             </div>
         </div>
 
@@ -932,6 +953,24 @@
       </div>
   </div>
 
+  <div id="phoneGateModal" class="fixed inset-0 z-[160] hidden items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
+    <div class="perf-card p-8 max-w-sm w-full text-center border border-accent/40 shadow-[0_0_50px_rgba(0,242,255,0.1)]">
+        <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4 text-accent animate-pulse">
+            <i class="fa-solid fa-download"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Final Step</h3>
+        <p class="text-xs text-slate-400 mb-6">Enter your mobile number to unlock the download link immediately.</p>
+        
+        <form onsubmit="submitPhoneGate(event)" class="space-y-4">
+            <input type="tel" id="gatePhone" placeholder="Mobile Number (e.g. +91 9999...)" required 
+                   class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent focus:outline-none placeholder-slate-600">
+            <button type="submit" class="w-full py-3 rounded-xl bg-accent text-black font-bold uppercase tracking-widest hover:brightness-110 transition shadow-[0_0_20px_rgba(0,242,255,0.2)]">
+                Unlock Download
+            </button>
+        </form>
+    </div>
+  </div>
+
   <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
       <div class="perf-card p-8 max-sm w-full text-center border border-green-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
           <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
@@ -987,7 +1026,7 @@
   
     <div class="pt-6 border-t border-white/5">
         <p class="text-[11px] text-slate-500 mb-3">Having trouble with payment?</p>
-        <a href="https://wa.me/9092435258?text=Hi%20Whis-AI%20Team!%20I'm%20at%20the%20checkout%20and%20need%20help%20with%20a%20discount%20or%20payment%20issue." 
+        <a href="https://wa.me/8669110499?text=Hi%20Whis-AI%20Team!%20I'm%20at%20the%20checkout%20and%20need%20help%20with%20a%20discount%20or%20payment%20issue." 
            target="_blank" 
            class="inline-flex items-center gap-2 text-cyan-400 text-xs font-bold hover:text-white transition">
             <i class="fa-brands fa-whatsapp text-lg"></i>
@@ -1004,10 +1043,9 @@
 </div>
 
   <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="perf-card p-8 max-md w-full border border-white/10">
+    <div class="perf-card p-8 max-md w-full border border-white/10 relative">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-lg font-medium text-white mb-6">Download</h3>
-        <p class="text-slate-400 text-sm mb-4">Your download should start automatically.</p>
+        <h3 class="text-lg font-medium text-white mb-6">Select Platform</h3>
         <div class="space-y-3">
             <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.m/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
                 <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
@@ -1026,7 +1064,6 @@
         <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
         <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-accent p-1" />
         <h3 id="modalUserName" class="text-lg font-bold text-white mb-6">User</h3>
-        <div class="text-[10px] text-accent font-bold uppercase tracking-widest mb-6 animate-pulse">Hi, Future Google Engineer</div>
         <div class="bg-white/5 rounded-xl p-6 text-left mb-6 border border-white/5">
             <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
             <div class="flex justify-between items-baseline">
@@ -1039,65 +1076,64 @@
     </div>
   </div>
 
+  <div id="fomoModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-xl transition-opacity duration-500">
+      <div class="perf-card relative max-w-md w-full overflow-hidden border border-accent/40 shadow-[0_0_100px_rgba(0,242,255,0.2)] animate-float">
+          
+          <div class="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle,var(--accent-glow)_0%,transparent_60%)] opacity-20 pointer-events-none animate-pulse-slow"></div>
 
-<div id="whatsappModal" class="fixed inset-0 z-[250] hidden items-center justify-center p-4 bg-black/95 backdrop-blur-2xl">
-    <div class="perf-card p-1 max-w-sm w-full bg-gradient-to-b from-accent/20 to-transparent rounded-[32px]">
-        <div class="bg-[#0a0a0a] p-8 rounded-[30px] text-center relative overflow-hidden">
-            
-            <div class="absolute -top-10 -left-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl"></div>
-            
-            <div class="w-20 h-20 rounded-3xl bg-accent/10 flex items-center justify-center mx-auto mb-6 border border-accent/20 rotate-3 hover:rotate-0 transition-transform duration-500">
-                <i class="fa-solid fa-shield-heart text-4xl text-accent animate-pulse"></i>
-            </div>
-            
-            <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">Unlock Download</h3>
-            <p class="text-slate-400 text-sm mb-8 leading-relaxed">
-                  Enter your WhatsApp to get the <span class="text-white font-semibold">direct download link</span> and activation code.
-            </p>
-            
-            <div class="space-y-4">
-                <div class="relative group">
-                    <input type="tel" id="whatsappInput" placeholder="WhatsApp (e.g. +91...)" 
-                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-accent focus:bg-white/10 outline-none transition-all text-center text-lg tracking-widest placeholder:text-slate-600 placeholder:tracking-normal">
+          <button onclick="document.getElementById('fomoModal').classList.add('hidden');document.getElementById('fomoModal').classList.remove('flex');" class="absolute top-4 right-4 text-slate-500 hover:text-white transition z-50">
+              <i class="fa-solid fa-times text-xl"></i>
+          </button>
+
+          <div class="relative z-10 p-8">
+              <div class="text-center mb-6">
+                  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-[10px] font-bold text-red-400 mb-4 animate-pulse">
+                      <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                      CLOSING TONIGHT
+                  </div>
+                  <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">
+                      Get <span class="text-accent text-shadow">Elite Stealth</span> Priority.
+                  </h2>
+                  <p class="text-xs text-slate-400 leading-relaxed">
+                      We are limiting Elite licenses to ensure server speed.<br>
+                      <span class="text-white font-semibold underline decoration-accent/50">Secure your spot now before pricing increases.</span>
+                  </p>
+                  <div class="mt-3 text-[10px] font-mono text-slate-500">
+                      <i class="fa-solid fa-users text-accent mr-1"></i> <span id="slots-left" class="text-white font-bold">14</span> slots remaining
+                  </div>
+              </div>
+
+            <div class="mb-6 p-4 rounded-xl bg-accent/10 border border-accent/20">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-hourglass-start text-accent animate-spin-slow"></i>
+                        <span class="text-[10px] text-slate-300 uppercase font-bold tracking-widest">Reserved for:</span>
+                    </div>
+                    <div id="modal-timer" class="text-accent font-mono font-bold text-lg">05:00</div>
                 </div>
                 
-                <button onclick="submitWhatsappNumber()" id="whatsappSubmitBtn" 
-                    class="w-full py-4 rounded-2xl bg-accent text-black font-black hover:scale-[1.02] active:scale-95 transition-all shadow-[0_20px_40px_-10px_rgba(0,242,255,0.3)] flex items-center justify-center gap-2">
-                    CONTINUE <i class="fa-solid fa-arrow-right text-xs"></i>
-                </button>
-            </div>
-            
-            <div class="mt-6 flex items-center justify-center gap-4">
-                <div class="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-                    <i class="fa-solid fa-circle-check text-accent"></i> Instant Access
-                </div>
-                <div class="w-1 h-1 rounded-full bg-white/10"></div>
-                <div class="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-                    <i class="fa-solid fa-lock text-accent"></i> Private & Secure
+                <div class="space-y-2">
+                    <div class="flex justify-between text-[9px] font-mono">
+                        <span class="text-slate-500">REDEMPTION PROGRESS</span>
+                        <span class="text-accent" id="slots-percent">92% FULL</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                        <div id="scarcity-bar" class="h-full bg-gradient-to-r from-blue-600 to-accent transition-all duration-1000" style="width: 92%"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div id="tryItModal" class="fixed inset-0 z-[400] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300">
-    <div class="perf-card p-8 max-w-md w-full text-center border border-accent/30 shadow-[0_0_60px_rgba(0,242,255,0.1)] relative">
-        <button onclick="document.getElementById('tryItModal').classList.add('hidden'); document.getElementById('tryItModal').classList.remove('flex');" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <i class="fa-solid fa-wand-magic-sparkles text-2xl text-accent"></i>
-        </div>
-        <h3 class="text-xl font-bold text-white mb-4">Just try it once.</h3>
-        <p class="text-slate-300 text-sm leading-relaxed mb-8">
-            We are sure you will like it and use it. Your life may change after using this.
-        </p>
-        <button onclick="document.getElementById('tryItModal').classList.add('hidden'); document.getElementById('tryItModal').classList.remove('flex'); openDownloadModal();" class="w-full py-3 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform">
-            Give it a Shot
-        </button>
-    </div>
-</div>
+            <button onclick="document.getElementById('fomoModal').classList.add('hidden');document.getElementById('fomoModal').classList.remove('flex'); window.location.href='#pricing'" class="w-full py-4 mt-2 rounded-xl bg-gradient-to-r from-accent to-blue-600 text-black font-bold uppercase tracking-widest hover:brightness-110 transition shadow-[0_0_30px_rgba(0,242,255,0.3)] group relative overflow-hidden">
+                  <span class="relative z-10 flex items-center justify-center gap-2">
+                      View Available Plans <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                  </span>
+            </button>
+          </div>
+      </div>
+  </div>
 
   <script>
-    // --- 1. CAROUSEL ---
+    // --- 1. OPTIMIZED CAROUSEL LOGIC ---
     const videos = [
         { src: 'visual.mp4', label: 'READING SCREEN' },
         { src: 'text.mp4', label: 'AUTO CODE WRITING' },
@@ -1168,7 +1204,7 @@
         if(label) label.innerText = videos[activeIndex].label;
     }
 
-    // --- 2. CODE TYPING ---
+    // --- 2. LIGHTWEIGHT TYPING EFFECT ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -1211,7 +1247,7 @@
         }
     }
 
-    // --- 3. UPTIME ---
+    // --- 3. UPTIME COUNTER ---
     function initUptimeCounter() {
         const counterEl = document.getElementById('uptime-counter');
         if(!counterEl) return;
@@ -1222,7 +1258,7 @@
         }, 1500);
     }
 
-    // --- 4. TYPEWRITER ---
+    // --- 4. COMPANY TYPEWRITER ---
     const companyWords = ["Google", "Netflix", "Meta", "Amazon", "Apple", "Uber", "Airbnb"];
     let wordIndex = 0;
     let charIndex = 0;
@@ -1256,7 +1292,7 @@
         setTimeout(typeEffect, typeSpeed);
     }
 
-    // --- 5. SIGNUPS ---
+    // --- 5. DYNAMIC SIGNUP COUNTER ---
     function updateDynamicSignups() {
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
@@ -1272,7 +1308,7 @@
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- 6. TIMER ---
+    // --- 6. IST MIDNIGHT TIMER ---
     function startIstMidnightTimer() {
         const timerEl = document.getElementById('fomo-timer');
         if(!timerEl) return;
@@ -1294,12 +1330,12 @@
         setInterval(update, 1000);
     }
 
-    // --- 7. SLIDER ---
+    // --- 7. SLIDER LOGIC ---
     function updateSlider(val) {
         document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
     }
 
-    // --- 8. HERO ANIMATION ---
+    // --- 8. HERO ANIMATION SEQUENCE ---
     const heroQ = '"Can you explain the difference between a Process and a Thread?"';
     const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
     let heroQIdx = 0;
@@ -1392,6 +1428,10 @@
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90; // Fallback
 
+    // Coupon State
+    let activeCouponCode = null; 
+    let couponDiscount = 0; // 0 or 20
+
     const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
@@ -1433,31 +1473,45 @@
         } catch(e){ console.error(e); }
     }
      
-    function formatPrice(amount, discount) {
-        if (!amount) return "...";
+    // Updated Formatting Logic with Total Calculation
+    function formatPrice(baseAmountUSD, planDiscount, isQuarterly) {
+        if (!baseAmountUSD) return "...";
         
-        let displayAmount = amount;
+        let amount = baseAmountUSD; 
+        
+        // If Quarterly, show total for 3 months
+        if (isQuarterly) amount = amount * 3;
+
         let currencySymbol = "$";
+        let displayAmount = amount;
 
         if (IS_INDIA) {
-            displayAmount = Math.floor(amount * EXCHANGE_RATE); 
+            displayAmount = Math.floor(amount * EXCHANGE_RATE);
             currencySymbol = "₹";
         }
 
-        if(discount > 0) {
-            let discounted = 0;
-            if (IS_INDIA) {
-                discounted = Math.floor(displayAmount * (1 - discount/100));
-            } else {
-                discounted = (amount * (1 - discount/100)).toFixed(2);
-                displayAmount = displayAmount.toFixed(2);
-            }
-            
-            return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+        // 1. Plan Discount
+        let finalAmount = displayAmount;
+        if(planDiscount > 0) {
+             finalAmount = IS_INDIA 
+                 ? Math.floor(displayAmount * (1 - planDiscount/100))
+                 : (displayAmount * (1 - planDiscount/100)).toFixed(2);
+        }
+
+        // 2. Coupon Discount
+        if(couponDiscount > 0) {
+             finalAmount = IS_INDIA
+                 ? Math.floor(finalAmount * (1 - couponDiscount/100))
+                 : (finalAmount * (1 - couponDiscount/100)).toFixed(2);
+        }
+
+        // Display Logic
+        if(planDiscount > 0 || couponDiscount > 0) {
+            let originalDisp = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
+            return `<span>${currencySymbol}${finalAmount}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">${currencySymbol}${originalDisp}</span>`;
         }
         
-        const finalVal = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
-        return `${currencySymbol}${finalVal}`;
+        return `${currencySymbol}${finalAmount}`;
     }
 
     function setCycle(c){
@@ -1467,6 +1521,7 @@
             btnM.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; 
             btnA.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
         } else {
+            // Quarterly Active
             btnA.className="px-6 py-2 rounded text-xs font-bold bg-white text-black transition"; 
             btnM.className="px-6 py-2 rounded text-xs font-bold text-slate-500 hover:text-white transition";
         }
@@ -1477,30 +1532,68 @@
         if (!PRICING_CONFIG) return;
         const proDiv = document.getElementById('pricePro');
         const eliteDiv = document.getElementById('priceStealth');
-        let proPrice = 0.00, elitePrice = 0.00;
-        let proDisc = PRICING_CONFIG.pro.discount;
-        let eliteDisc = PRICING_CONFIG.pro_plus.discount;
+        
+        let proRate = currentCycle === 'monthly' ? PRICING_CONFIG.pro.monthly : PRICING_CONFIG.pro.annual_per_month;
+        let eliteRate = currentCycle === 'monthly' ? PRICING_CONFIG.pro_plus.monthly : PRICING_CONFIG.pro_plus.annual_per_month;
 
-        if (currentCycle === 'monthly') {
-            proPrice = PRICING_CONFIG.pro.monthly;
-            elitePrice = PRICING_CONFIG.pro_plus.monthly;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
+        let suffix = currentCycle === 'monthly' ? '/month' : '/quarter';
+        let isQuart = currentCycle === 'annual';
+
+        proDiv.innerHTML = `${formatPrice(proRate, PRICING_CONFIG.pro.discount, isQuart)}<span class="text-[10px] text-slate-500 block font-normal mt-1">${suffix}</span>`;
+        eliteDiv.innerHTML = `${formatPrice(eliteRate, PRICING_CONFIG.pro_plus.discount, isQuart)}<span class="text-[10px] text-slate-500 block font-normal mt-1">${suffix}</span>`;
+    }
+
+    // --- COUPON LOGIC ---
+    async function applyCoupon() {
+        const code = document.getElementById('couponInput').value.trim();
+        if(!code) return alert("Please enter a code");
+        
+        // Simple front-end validation check for speed
+        if(code.startsWith("WHIS") && code.length > 6) {
+             activeCouponCode = code;
+             couponDiscount = 20;
+             updatePricingUI();
+             alert("Coupon Applied! 20% Discount added.");
         } else {
-            // UPDATED: Show Total Quarterly Price (Monthly * 3)
-            proPrice = PRICING_CONFIG.pro.annual_per_month * 3;
-            elitePrice = PRICING_CONFIG.pro_plus.annual_per_month * 3;
-            
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
+             alert("Invalid Coupon Code");
         }
     }
+
+    async function submitLeadAndGetCoupon() {
+        const email = document.getElementById('leadEmail').value;
+        const btn = document.getElementById('leadBtn');
+        if(!email || !email.includes('@')) { alert("Please enter valid email"); return; }
+        
+        btn.innerHTML = "...";
+        try {
+            // 1. Save Lead
+            await fetch(`${BACKEND_URL}/api/leads/add`, {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ email, source: 'coupon_bar' })
+            });
+            // 2. Generate Coupon
+            const res = await fetch(`${BACKEND_URL}/api/coupon/generate`, {
+                 method: 'POST', headers: {'Content-Type':'application/json'},
+                 body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if(data.success) {
+                alert(`Your Coupon Code: ${data.code}\nUse this at checkout for 20% OFF!`);
+                document.getElementById('couponInput').value = data.code;
+                applyCoupon(); // Auto apply
+                document.getElementById('mobileLeadCapture').remove();
+            }
+        } catch(e) { console.error(e); alert("Error generating code"); }
+        btn.innerHTML = "GET CODE";
+    }
+
 
     async function fetchUserStatus() {
         if(!currentUser) return;
         try {
             const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
             const d = await r.json();
+            currentUser.hasPhone = d.hasPhone; // Sync phone status
             if(d.active) currentTier = d.tier; else currentTier = 'free';
             const badge = document.getElementById('navPlanBadge');
             const validityEl = document.getElementById('modalPlanValidity');
@@ -1532,6 +1625,59 @@
         } catch(e){}
     }
 
+    // --- DOWNLOAD GATING (STRICT) ---
+    function openDownloadModal() {
+        // 1. Check if user is logged in AND has phone
+        if(currentUser && currentUser.hasPhone) {
+             document.getElementById('downloadModal').classList.remove('hidden');
+             document.getElementById('downloadModal').classList.add('flex');
+             return;
+        }
+        
+        // 2. If not, show Strict Phone Gate
+        document.getElementById('phoneGateModal').classList.remove('hidden');
+        document.getElementById('phoneGateModal').classList.add('flex');
+    }
+
+    async function submitPhoneGate(e) {
+        e.preventDefault();
+        const phone = document.getElementById('gatePhone').value;
+        if(!phone || phone.length < 8) { alert("Enter valid mobile number"); return; }
+        
+        try {
+            const body = { phone, source: 'download_gate' };
+            if(currentUser) body.googleId = currentUser.googleId;
+            
+            await fetch(`${BACKEND_URL}/api/leads/add`, {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(body)
+            });
+            
+            // Success: Close Gate, Open Download
+            document.getElementById('phoneGateModal').classList.add('hidden');
+            document.getElementById('phoneGateModal').classList.remove('flex');
+            
+            // Auto Trigger Download based on OS
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const link = isMac 
+                ? "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.m/Whis-1.0.1-arm64.dmg"
+                : "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.w/Whis.Setup.1.0.1.exe";
+            
+            window.location.href = link;
+            
+            // Show modal as backup
+            document.getElementById('downloadModal').classList.remove('hidden');
+            document.getElementById('downloadModal').classList.add('flex');
+            
+            // Update local user state if logged in
+            if(currentUser) currentUser.hasPhone = true;
+
+        } catch(e) { alert("Error saving details. Please try again."); }
+    }
+
+    function closeDownloadModal(){ document.getElementById('downloadModal').classList.add('hidden'); document.getElementById('downloadModal').classList.remove('flex'); }
+
+
     // --- PAYMENT LOGIC ---
     let selectedTierForPayment = null; 
     const paymentModal = document.getElementById('paymentModal');
@@ -1559,7 +1705,8 @@
                     body: JSON.stringify({
                         googleId: currentUser.googleId, 
                         tier: selectedTierForPayment, 
-                        cycle: currentCycle
+                        cycle: currentCycle,
+                        couponCode: activeCouponCode // Passing coupon
                     })
                 });
                 const orderData = await res.json();
@@ -1598,7 +1745,6 @@
 
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
-        const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
         const btn = event.currentTarget; 
         const orig = btn.innerHTML; 
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
@@ -1610,7 +1756,7 @@
                     googleId: currentUser.googleId, 
                     tier: targetTier, 
                     cycle: currentCycle, 
-                    isUpgrade: isUpgrade
+                    couponCode: activeCouponCode // Passing coupon
                 })
             });
             const data = await res.json();
@@ -1621,7 +1767,6 @@
                     "amount": data.amount, 
                     "currency": data.currency, 
                     "name": "Whis AI",
-                    "description": isUpgrade ? "Upgrade" : "License", 
                     "order_id": data.order_id,
                     "handler": async function (response){ 
                         try {
@@ -1662,7 +1807,7 @@
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
-    const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
+    const loginModal=document.getElementById('loginModal'); const profileModal=document.getElementById('profileModal');
      
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
@@ -1673,62 +1818,14 @@
     }
      
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');}
-    
-    // --- UPDATED DOWNLOAD LOGIC ---
-    function openDownloadModal(){
-        // 1. Check if we have phone number (or if already prompted)
-        // If no user or no phone, interrupt flow
-        if (currentUser && !currentUser.phone && !localStorage.getItem('whis_wa_saved')) {
-            openWhatsappModal();
-            return;
-        }
-
-        // 2. Detect OS
-        const userAgent = window.navigator.userAgent;
-        const isMac = /Mac/i.test(userAgent);
-        
-        // 3. Define URLs
-        const winUrl = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.w/Whis.Setup.1.0.1.exe";
-        const macUrl = "https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.m/Whis-1.0.1-arm64.dmg";
-        
-        const targetUrl = isMac ? macUrl : winUrl;
-
-        // 4. Trigger Direct Download via temporary link
-        const link = document.createElement('a');
-        link.href = targetUrl;
-        link.download = '';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // 5. Still show modal as fallback/confirmation
-        downloadModal.classList.remove('hidden');
-        downloadModal.classList.add('flex');
-    }
-    
-    function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');}
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
-    const fomoModal = document.getElementById('fomoModal');
     const hasApplied = localStorage.getItem('whis_fomo_applied');
 
-    function showFomoModal(fromButton = false) {
-        if(hasApplied && !fromButton) return;
-        
-        // Ensure element exists before accessing classList
-        if(fomoModal) {
-            fomoModal.classList.remove('hidden');
-            fomoModal.classList.add('flex');
-            startSlotsCountdown();
-        }
-    }
-
     function closeFomoModal() {
-        if(fomoModal) {
-            fomoModal.classList.add('hidden');
-            fomoModal.classList.remove('flex');
-        }
+        document.getElementById('fomoModal').classList.add('hidden');
+        document.getElementById('fomoModal').classList.remove('flex');
     }
 
     function startSlotsCountdown() {
@@ -1737,254 +1834,20 @@
         setInterval(() => {
             if(Math.random() > 0.7 && slots > 3) {
                 slots--;
-                if(slotEl) {
-                    slotEl.innerText = slots;
-                    slotEl.classList.add('text-red-500');
-                    setTimeout(() => slotEl.classList.remove('text-red-500'), 500);
-                }
+                slotEl.innerText = slots;
+                slotEl.classList.add('text-red-500');
+                setTimeout(() => slotEl.classList.remove('text-red-500'), 500);
             }
         }, 8000);
     }
 
-    async function submitFomoForm(e) {
-        e.preventDefault();
-        const btn = document.getElementById('fSubmitBtn');
-        const origText = btn.innerHTML;
-        const name = document.getElementById('fName').value;
-        const email = document.getElementById('fEmail').value;
-        const whatsapp = document.getElementById('fWhatsapp').value;
-        const yoe = document.getElementById('fYoe').value;
-
-        if(!name || !email || !whatsapp || !yoe) {
-            alert("Please fill all required fields to claim the offer.");
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Application...';
-
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/request-access`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    name, email, whatsapp, yoe: parseFloat(yoe)
-                })
-            });
-            const data = await res.json();
-            if(data.success) {
-                localStorage.setItem('whis_fomo_applied', 'true');
-                closeFomoModal();
-                const toast = document.getElementById('fomoSuccess');
-                toast.classList.remove('hidden');
-                toast.classList.add('flex');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                    toast.classList.remove('flex');
-                }, 5000);
-            } else {
-                alert(data.error || "Something went wrong.");
-                btn.disabled = false;
-                btn.innerHTML = origText;
-            }
-        } catch(err) {
-            console.error(err);
-            alert("Network error. Please try again.");
-            btn.disabled = false;
-            btn.innerHTML = origText;
-        }
-    }
-
-
-
-    // --- WHATSAPP MODAL LOGIC ---
-function openWhatsappModal() {
-    document.getElementById('whatsappModal').classList.remove('hidden');
-    document.getElementById('whatsappModal').classList.add('flex');
-}
-
-function closeWhatsappModal() {
-    document.getElementById('whatsappModal').classList.add('hidden');
-    document.getElementById('whatsappModal').classList.remove('flex');
-}
-
-async function submitWhatsappNumber() {
-    const phone = document.getElementById('whatsappInput').value;
-    const btn = document.getElementById('whatsappSubmitBtn');
-    
-    if(!phone || phone.length < 8) {
-        alert("Please enter a valid phone number");
-        return;
-    }
-
-    btn.innerText = "SAVING...";
-    btn.disabled = true;
-
-    try {
-        const res = await fetch(`${BACKEND_URL}/api/user/update-phone`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ googleId: currentUser.googleId, phone: phone })
-        });
-        const data = await res.json();
-        if(data.success) {
-            // Update local storage user object
-            currentUser.phone = phone;
-            localStorage.setItem('whisUser', JSON.stringify(currentUser));
-            localStorage.setItem('whis_wa_saved', 'true');
-            closeWhatsappModal();
-            // Resume the download flow
-            openDownloadModal();
-        }
-    } catch (e) {
-        console.error(e);
-        alert("Failed to save. Please try again.");
-    } finally {
-        btn.innerText = "CONTINUE";
-        btn.disabled = false;
-    }
-}
-
-async function submitLeadAndChat() {
-    const num = document.getElementById('leadWhatsapp').value;
-    const btn = document.getElementById('leadBtn');
-    
-    if(!num || num.length < 8) { 
-        alert("Please enter your WhatsApp number to get the discount."); 
-        return; 
-    }
-    
-    // 1. WhatsApp Redirect URL
-    const message = encodeURIComponent(`Hi Whis-AI! I want to buy the subscription. Can you give me a discount? My number is ${num}`);
-    const whatsappUrl = `https://wa.me/9092435258?text=${message}`;
-
-    // 2. Open WhatsApp immediately
-    window.location.href = whatsappUrl;
-
-    // 3. Log lead in background (optional/async)
-    fetch(`https://api.whisai.com/api/fomo/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ whatsapp: num, source: 'lead_bar' })
-    }).catch(e => console.log("Lead logged via WhatsApp redirect"));
-}
-
-    
-
-
     const buyers = [
   { city: "Bangalore", plan: "Elite Stealth" },
   { city: "Mumbai", plan: "Pro Monthly" },
-  { city: "Hyderabad", plan: "Elite Stealth Yearly" },
+  { city: "Hyderabad", plan: "Elite Stealth Quarterly" },
   { city: "Chennai", plan: "Elite Stealth" },
   { city: "New Delhi", plan: "Pro Monthly" },
-  { city: "Pune", plan: "Elite Stealth Yearly" },
-  { city: "Ahmedabad", plan: "Elite Stealth" },
-  { city: "Kolkata", plan: "Pro Monthly" },
-  { city: "Noida", plan: "Elite Stealth Yearly" },
-  { city: "Gurugram", plan: "Elite Stealth" },
-
-  { city: "Faridabad", plan: "Pro Monthly" },
-  { city: "Ghaziabad", plan: "Elite Stealth Yearly" },
-  { city: "Greater Noida", plan: "Elite Stealth" },
-  { city: "Indore", plan: "Pro Monthly" },
-  { city: "Bhopal", plan: "Elite Stealth Yearly" },
-  { city: "Jaipur", plan: "Elite Stealth" },
-  { city: "Udaipur", plan: "Pro Monthly" },
-  { city: "Jodhpur", plan: "Elite Stealth Yearly" },
-  { city: "Kota", plan: "Elite Stealth" },
-  { city: "Ajmer", plan: "Pro Monthly" },
-
-  { city: "Surat", plan: "Elite Stealth Yearly" },
-  { city: "Vadodara", plan: "Elite Stealth" },
-  { city: "Rajkot", plan: "Pro Monthly" },
-  { city: "Bhavnagar", plan: "Elite Stealth Yearly" },
-  { city: "Jamnagar", plan: "Elite Stealth" },
-  { city: "Gandhinagar", plan: "Pro Monthly" },
-  { city: "Gandhidham", plan: "Elite Stealth Yearly" },
-  { city: "Mehsana", plan: "Elite Stealth" },
-  { city: "Anand", plan: "Pro Monthly" },
-  { city: "Nadiad", plan: "Elite Stealth Yearly" },
-
-  { city: "Vapi", plan: "Elite Stealth" },
-  { city: "Navsari", plan: "Pro Monthly" },
-  { city: "Bharuch", plan: "Elite Stealth Yearly" },
-  { city: "Ankleshwar", plan: "Elite Stealth" },
-  { city: "Morbi", plan: "Pro Monthly" },
-  { city: "Wankaner", plan: "Elite Stealth Yearly" },
-  { city: "Palanpur", plan: "Elite Stealth" },
-  { city: "Patan", plan: "Pro Monthly" },
-  { city: "Deesa", plan: "Elite Stealth Yearly" },
-  { city: "Himmatnagar", plan: "Elite Stealth" },
-
-  { city: "Amreli", plan: "Pro Monthly" },
-  { city: "Junagadh", plan: "Elite Stealth Yearly" },
-  { city: "Porbandar", plan: "Elite Stealth" },
-  { city: "Dwarka", plan: "Pro Monthly" },
-  { city: "Veraval", plan: "Elite Stealth Yearly" },
-  { city: "Godhra", plan: "Elite Stealth" },
-  { city: "Dahod", plan: "Pro Monthly" },
-  { city: "Modasa", plan: "Elite Stealth Yearly" },
-  { city: "Kalol", plan: "Elite Stealth" },
-  { city: "Sanand", plan: "Pro Monthly" },
-
-  { city: "Nagpur", plan: "Elite Stealth Yearly" },
-  { city: "Nashik", plan: "Elite Stealth" },
-  { city: "Aurangabad", plan: "Pro Monthly" },
-  { city: "Kolhapur", plan: "Elite Stealth Yearly" },
-  { city: "Sangli", plan: "Elite Stealth" },
-  { city: "Satara", plan: "Pro Monthly" },
-  { city: "Solapur", plan: "Elite Stealth Yearly" },
-  { city: "Latur", plan: "Elite Stealth" },
-  { city: "Nanded", plan: "Pro Monthly" },
-  { city: "Jalgaon", plan: "Elite Stealth Yearly" },
-
-  { city: "Amravati", plan: "Elite Stealth" },
-  { city: "Akola", plan: "Pro Monthly" },
-  { city: "Chandrapur", plan: "Elite Stealth Yearly" },
-  { city: "Wardha", plan: "Elite Stealth" },
-  { city: "Yavatmal", plan: "Pro Monthly" },
-
-  { city: "Coimbatore", plan: "Elite Stealth Yearly" },
-  { city: "Madurai", plan: "Elite Stealth" },
-  { city: "Tiruchirappalli", plan: "Pro Monthly" },
-  { city: "Salem", plan: "Elite Stealth Yearly" },
-  { city: "Erode", plan: "Elite Stealth" },
-  { city: "Tiruppur", plan: "Pro Monthly" },
-  { city: "Vellore", plan: "Elite Stealth Yearly" },
-  { city: "Hosur", plan: "Elite Stealth" },
-  { city: "Thanjavur", plan: "Pro Monthly" },
-  { city: "Kumbakonam", plan: "Elite Stealth Yearly" },
-
-  { city: "Kochi", plan: "Elite Stealth" },
-  { city: "Thiruvananthapuram", plan: "Pro Monthly" },
-  { city: "Kozhikode", plan: "Elite Stealth Yearly" },
-  { city: "Thrissur", plan: "Elite Stealth" },
-  { city: "Kollam", plan: "Pro Monthly" },
-
-  { city: "Vijayawada", plan: "Elite Stealth Yearly" },
-  { city: "Guntur", plan: "Elite Stealth" },
-  { city: "Nellore", plan: "Pro Monthly" },
-  { city: "Tirupati", plan: "Elite Stealth Yearly" },
-  { city: "Kurnool", plan: "Elite Stealth" },
-  { city: "Visakhapatnam", plan: "Pro Monthly" },
-  { city: "Vizianagaram", plan: "Elite Stealth Yearly" },
-  { city: "Srikakulam", plan: "Elite Stealth" },
-  { city: "Rajahmundry", plan: "Pro Monthly" },
-  { city: "Eluru", plan: "Elite Stealth Yearly" },
-
-  { city: "Bhubaneswar", plan: "Elite Stealth" },
-  { city: "Cuttack", plan: "Pro Monthly" },
-  { city: "Rourkela", plan: "Elite Stealth Yearly" },
-  { city: "Sambalpur", plan: "Elite Stealth" },
-
-  { city: "Ranchi", plan: "Pro Monthly" },
-  { city: "Jamshedpur", plan: "Elite Stealth Yearly" },
-  { city: "Dhanbad", plan: "Elite Stealth" },
-  { city: "Bokaro", plan: "Pro Monthly" },
-
-  { city: "Patna", plan: "Elite Stealth Yearly" },
-  { city: "Gaya", plan: "Elite Stealth" }
+  { city: "Pune", plan: "Elite Stealth Quarterly" }
 ];
 
 function showPurchaseToast() {
@@ -2005,27 +1868,6 @@ function showPurchaseToast() {
 // Show a fake purchase every 25 seconds
 setInterval(showPurchaseToast, 25000);
     
-// Update your existing DOMContentLoaded listener
-document.addEventListener("DOMContentLoaded", () => {
-    // AUTOMATICALLY SHOW FOMO MODAL AFTER 5 SECONDS
-    setTimeout(() => {
-        if(!localStorage.getItem('whis_fomo_applied')) {
-            if(typeof showFomoModal === 'function') showFomoModal();
-        }
-    }, 5000);
-    
-    // NEW: Show "Try It" modal after 12 seconds
-    setTimeout(() => {
-        if(!localStorage.getItem('try_it_seen')) {
-            document.getElementById('tryItModal').classList.remove('hidden');
-            document.getElementById('tryItModal').classList.add('flex');
-            localStorage.setItem('try_it_seen', 'true');
-        }
-    }, 12000);
-});
-
-    
-
     document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
         initUptimeCounter();
@@ -2037,17 +1879,14 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchPricingConfig();
         updateDynamicSignups();
         startIstMidnightTimer();
-        //setTimeout(showFomoModal, 5000);
+        
+        // AUTOMATICALLY SHOW FOMO MODAL AFTER 12 SECONDS
+        setTimeout(() => {
+            if(!localStorage.getItem('whis_fomo_applied')) {
+                if(typeof showFomoModal === 'function') showFomoModal();
+            }
+        }, 12000);
     });
   </script>
-  <div id="purchaseToast" class="fixed bottom-6 left-6 z-[200] hidden items-center gap-3 bg-white text-black p-3 rounded-xl shadow-2xl animate-bounce-slow">
-    <div class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600">
-        <i class="fa-solid fa-shopping-cart text-xs"></i>
-    </div>
-    <div class="pr-4">
-        <p class="text-[10px] font-bold leading-tight" id="toastUser">Someone from Bangalore</p>
-        <p class="text-[9px] text-slate-500 leading-tight" id="toastAction">Just upgraded to Elite Stealth</p>
-    </div>
-</div>
 </body>
 </html>
