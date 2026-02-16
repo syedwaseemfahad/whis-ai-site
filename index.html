@@ -1003,7 +1003,7 @@
 </div>
 
   <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="perf-card p-8 max-md w-full border border-white/10">
+    <div class="perf-card p-8 max-md w-full border border-white/10 relative">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-lg font-medium text-white mb-6">Select Platform</h3>
         <div class="space-y-3">
@@ -1345,6 +1345,7 @@
     // Coupon State
     let activeCouponCode = null; 
     let couponDiscount = 0; // 0 or 20
+    let generatedCouponIdentity = null; // Stores what the user typed (WhatsApp/Email)
 
     const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
@@ -1357,9 +1358,7 @@
                 const data = await res.json();
                 PRICING_CONFIG = data.pricing;
                 GOOGLE_CLIENT_ID = data.googleClientId;
-                
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
-
                 updatePricingUI();
                 document.getElementById('btnPro').disabled = false;
                 document.getElementById('btnElite').disabled = false;
@@ -1479,6 +1478,9 @@
         
         btn.innerHTML = "...";
         try {
+            // Store the identifier for backend validation later
+            generatedCouponIdentity = num; 
+
             // 1. Save Lead
             await fetch(`${BACKEND_URL}/api/leads/add`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
@@ -1570,7 +1572,13 @@
             createOrder: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle, couponCode: activeCouponCode })
+                    body: JSON.stringify({ 
+                        googleId: currentUser.googleId, 
+                        tier: selectedTierForPayment, 
+                        cycle: currentCycle, 
+                        couponCode: activeCouponCode,
+                        couponIdentifier: generatedCouponIdentity // Passing identifier
+                    })
                 });
                 const orderData = await res.json(); return orderData.id; 
             },
@@ -1589,7 +1597,13 @@
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle, couponCode: activeCouponCode })
+                body:JSON.stringify({ 
+                    googleId: currentUser.googleId, 
+                    tier: selectedTierForPayment, 
+                    cycle: currentCycle, 
+                    couponCode: activeCouponCode,
+                    couponIdentifier: generatedCouponIdentity // Passing identifier
+                })
             });
             const data = await res.json();
             if(data.order_id){
