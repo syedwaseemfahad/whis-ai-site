@@ -8,14 +8,13 @@
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
 
-
-// --- HIGH CONVERSION LOGIC (TIMER & SLOTS) ---
+    // --- HIGH CONVERSION LOGIC ---
     let modalTime = 300; // 5 Minutes
     let timerInterval = null;
 
     function startModalTimer() {
         const timerEl = document.getElementById('modal-timer');
-        if (!timerEl || timerInterval) return; // Don't start if already running
+        if (!timerEl || timerInterval) return;
         
         timerInterval = setInterval(() => {
             const m = Math.floor(modalTime / 60);
@@ -30,6 +29,7 @@
         }, 1000);
     }
 
+    // --- SCARCITY BAR LOGIC ---
     function updateScarcity() {
         let slots = 4;
         const scarcityInterval = setInterval(() => {
@@ -40,28 +40,12 @@
                 const percentEl = document.getElementById('slots-percent');
 
                 if(slotsEl) slotsEl.innerText = slots;
-                const percent = 100 - (slots * 2); // Makes the bar look nearly full
+                const percent = 100 - (slots * 2);
                 if(barEl) barEl.style.width = percent + '%';
                 if(percentEl) percentEl.innerText = percent + '% FULL';
             }
             if(slots <= 1) clearInterval(scarcityInterval);
         }, 12000);
-    }
-
-    // --- UPDATED MODAL TRIGGER ---
-    function showFomoModal(fromButton = false) {
-        if(hasApplied && !fromButton) return;
-        
-        const fomoModal = document.getElementById('fomoModal');
-        // Check if element exists before accessing classList
-        if(fomoModal) {
-            fomoModal.classList.remove('hidden');
-            fomoModal.classList.add('flex');
-            
-            startModalTimer(); // Start the 5-min clock
-            updateScarcity();  // Start moving the progress bar
-            startSlotsCountdown(); // Keeps your original 14-slots logic running too
-        }
     }
   </script>
 
@@ -84,7 +68,8 @@
           },
           animation: { 
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 8s ease-in-out infinite'
+            'float': 'float 8s ease-in-out infinite',
+            'bounce-slow': 'bounce 3s infinite'
           },
           keyframes: {
             float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
@@ -117,27 +102,23 @@
     }
 
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-float { animation: float 6s ease-in-out infinite; }
 
-#mobileLeadCapture {
-    box-shadow: 0 20px 50px rgba(0,242,255,0.2);
-    transition: all 0.3s ease;
-}
+    #mobileLeadCapture {
+        box-shadow: 0 20px 50px rgba(0,242,255,0.2);
+        transition: all 0.3s ease;
+    }
 
-    
-    /* CSS-Only Color Cycle (High Performance replacement for JS animation) */
     @keyframes hueCycle {
         0% { filter: hue-rotate(0deg); }
         100% { filter: hue-rotate(360deg); }
     }
     .animate-hue { animation: hueCycle 60s infinite linear; will-change: filter; }
 
-    /* Use the dynamic color classes */
     .text-accent { color: var(--accent); }
     .bg-accent { background-color: var(--accent); }
     .border-accent { border-color: var(--accent); }
 
-    /* --- PERFORMANCE CARD (REPLACED LAGGY PHYSICS ENGINE) --- */
     .perf-card {
         background: rgba(10, 10, 10, 0.6);
         backdrop-filter: blur(20px);
@@ -147,27 +128,21 @@
         position: relative;
         overflow: hidden;
         transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        transform: translateZ(0); /* Force GPU Hardware Acceleration */
+        transform: translateZ(0);
     }
 
+    @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow { animation: spin-slow 8s linear infinite; }
 
-    /* This makes the tiny hourglass icon rotate smoothly */
-@keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-    animation: spin-slow 8s linear infinite;
-}
-
-    
     .perf-card:hover {
         transform: translateY(-2px);
         border-color: rgba(255, 255, 255, 0.2);
         box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
     }
 
-    /* Lightweight shine effect (CSS only, no JS) */
     .perf-card::after {
         content: "";
         position: absolute;
@@ -205,11 +180,10 @@
     }
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
 
-    /* --- CODE EDITOR --- */
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
 
-    /* --- MAC WINDOW & SLIDER --- */
+    /* --- MAC WINDOW --- */
     .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); aspect-ratio: 16/9; background: #000; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8); --position: 50%; }
     .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 32px; background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px; }
     .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
@@ -223,21 +197,29 @@
     .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); }
     .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
 
-    /* --- FAQ --- */
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); }
     .group.active .faq-answer { max-height: 200px; transition: max-height 0.3s cubic-bezier(1, 0, 1, 0); }
     .group.active .faq-icon { transform: rotate(180deg); }
 
-    /* --- SCROLLBAR --- */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* --- ELITE GLOW --- */
     .pricing-elite { position: relative; }
     .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
   </style>
 </head>
 <body class="no-scrollbar">
+
+<div id="offerToast" class="fixed top-24 right-6 z-[200] hidden items-center gap-3 bg-white/95 backdrop-blur-md text-black p-4 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.3)] border-l-4 border-green-500 animate-float">
+    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+        <i class="fa-solid fa-envelope-open-text text-lg"></i>
+    </div>
+    <div>
+        <p class="text-[10px] text-slate-500 font-bold tracking-wide uppercase">Gmail • Now</p>
+        <p class="text-xs font-bold leading-tight">HR Team: Offer Letter Enclosed</p>
+        <p class="text-[10px] text-slate-600 leading-tight mt-0.5">"We are pleased to extend you an offer..."</p>
+    </div>
+</div>
 
 <div id="mobileLeadCapture" class="fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-col md:flex-row items-center gap-3 bg-black/90 backdrop-blur-3xl border border-cyan-400/40 p-4 rounded-2xl md:max-w-md animate-float shadow-[0_0_30px_rgba(0,242,255,0.15)]">
     <div class="flex items-center gap-3 flex-1">
@@ -253,8 +235,7 @@
         <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 md:w-40 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none placeholder:text-slate-600">
         <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-cyan-400 text-black text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-white hover:scale-105 transition-all">GET CODE</button>
     </div>
-   </div>
-
+</div>
 
   <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-600 to-orange-600 flex justify-center items-center gap-4 shadow-[0_0_20px_rgba(220,38,38,0.5)] z-[60]">
       <span class="text-white font-bold text-xs md:text-sm uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-2"></i>Flash Sale Ends Tonight</span>
@@ -743,9 +724,13 @@
         </a>
     </p>
 </div>
-        <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-16">
+        <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-8">
            <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-white transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnAnnual" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black shadow-lg transition-all" onclick="setCycle('annual')">Quarterly (Save 20%)</button>
+           <button id="btnAnnual" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black shadow-lg transition-all" onclick="setCycle('annual')">Quarterly (Save 50%)</button>
+        </div>
+        
+        <div class="flex items-center justify-center gap-2 mb-16 text-[10px] text-slate-500">
+            <i class="fa-solid fa-shield-halved text-accent"></i> 7-Day Money Back Guarantee
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
@@ -764,6 +749,10 @@
             <div class="perf-card pricing-elite p-10 text-left flex flex-col border-accent/50 bg-[#050505] relative overflow-hidden scale-105 shadow-2xl z-20">
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-tighter shadow-xl">Most Popular</div>
                 <div class="absolute top-0 right-0 p-6 opacity-20"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
+                <div class="absolute bottom-6 right-6 opacity-30 rotate-[-15deg] border-2 border-accent rounded px-2 py-1">
+                    <span class="text-[8px] font-black text-accent uppercase tracking-widest">OFFER SECURED</span>
+                </div>
+                
                 <h3 class="text-[10px] font-bold text-accent uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
                 <div class="text-4xl font-bold text-white mb-8" id="priceStealth">...</div>
                 <div class="space-y-5 text-xs text-slate-200 mb-10 flex-grow">
@@ -1048,6 +1037,7 @@
         <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
         <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-accent p-1" />
         <h3 id="modalUserName" class="text-lg font-bold text-white mb-6">User</h3>
+        <div class="text-[10px] text-accent font-bold uppercase tracking-widest mb-6 animate-pulse">Hi, Future Google Engineer</div>
         <div class="bg-white/5 rounded-xl p-6 text-left mb-6 border border-white/5">
             <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
             <div class="flex justify-between items-baseline">
@@ -1118,7 +1108,7 @@
 </div>
 
   <script>
-    // --- 1. OPTIMIZED CAROUSEL LOGIC ---
+    // --- 1. CAROUSEL ---
     const videos = [
         { src: 'visual.mp4', label: 'READING SCREEN' },
         { src: 'text.mp4', label: 'AUTO CODE WRITING' },
@@ -1189,7 +1179,7 @@
         if(label) label.innerText = videos[activeIndex].label;
     }
 
-    // --- 2. LIGHTWEIGHT TYPING EFFECT ---
+    // --- 2. CODE TYPING ---
     const codeLines = [
         { text: "class ", class: "keyword" }, { text: "Solution", class: "function" }, { text: ":\n", class: "" },
         { text: "    def ", class: "keyword" }, { text: "trap", class: "function" }, { text: "(self, height: List[int]) -> int:\n", class: "" },
@@ -1232,7 +1222,7 @@
         }
     }
 
-    // --- 3. UPTIME COUNTER ---
+    // --- 3. UPTIME ---
     function initUptimeCounter() {
         const counterEl = document.getElementById('uptime-counter');
         if(!counterEl) return;
@@ -1243,7 +1233,7 @@
         }, 1500);
     }
 
-    // --- 4. COMPANY TYPEWRITER ---
+    // --- 4. TYPEWRITER ---
     const companyWords = ["Google", "Netflix", "Meta", "Amazon", "Apple", "Uber", "Airbnb"];
     let wordIndex = 0;
     let charIndex = 0;
@@ -1277,7 +1267,7 @@
         setTimeout(typeEffect, typeSpeed);
     }
 
-    // --- 5. DYNAMIC SIGNUP COUNTER ---
+    // --- 5. SIGNUPS ---
     function updateDynamicSignups() {
         const now = new Date();
         const istOffset = 5.5 * 60 * 60 * 1000;
@@ -1293,7 +1283,7 @@
         if(badge) badge.innerText = `🔥 ${count} signups today`;
     }
 
-    // --- 6. IST MIDNIGHT TIMER ---
+    // --- 6. TIMER ---
     function startIstMidnightTimer() {
         const timerEl = document.getElementById('fomo-timer');
         if(!timerEl) return;
@@ -1315,12 +1305,12 @@
         setInterval(update, 1000);
     }
 
-    // --- 7. SLIDER LOGIC ---
+    // --- 7. SLIDER ---
     function updateSlider(val) {
         document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
     }
 
-    // --- 8. HERO ANIMATION SEQUENCE ---
+    // --- 8. HERO ANIMATION ---
     const heroQ = '"Can you explain the difference between a Process and a Thread?"';
     const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
     let heroQIdx = 0;
@@ -1502,17 +1492,18 @@
         let proDisc = PRICING_CONFIG.pro.discount;
         let eliteDisc = PRICING_CONFIG.pro_plus.discount;
 
-        // CHANGED: Label text to Quarterly, but logic remains same
         if (currentCycle === 'monthly') {
             proPrice = PRICING_CONFIG.pro.monthly;
             elitePrice = PRICING_CONFIG.pro_plus.monthly;
             proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
             eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
         } else {
-            proPrice = PRICING_CONFIG.pro.annual_per_month;
-            elitePrice = PRICING_CONFIG.pro_plus.annual_per_month;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed quarterly)</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed quarterly)</span>`;
+            // UPDATED: Show Total Quarterly Price (Monthly * 3)
+            proPrice = PRICING_CONFIG.pro.annual_per_month * 3;
+            elitePrice = PRICING_CONFIG.pro_plus.annual_per_month * 3;
+            
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
         }
     }
 
@@ -1865,10 +1856,6 @@ async function submitWhatsappNumber() {
     }
 }
 
-// NOTE: Removed previous override of handleGoogleRes to prevent triggering WA modal on login.
-// It is now triggered only inside openDownloadModal.
-
-
 async function submitLeadAndChat() {
     const num = document.getElementById('leadWhatsapp').value;
     const btn = document.getElementById('leadBtn');
@@ -2028,6 +2015,19 @@ function showPurchaseToast() {
 
 // Show a fake purchase every 25 seconds
 setInterval(showPurchaseToast, 25000);
+
+// Show "Offer Letter" toast occasionally (Psychology trick)
+setInterval(() => {
+    const offerToast = document.getElementById('offerToast');
+    if(offerToast) {
+        offerToast.classList.remove('hidden');
+        offerToast.classList.add('flex');
+        setTimeout(() => {
+            offerToast.classList.add('hidden');
+            offerToast.classList.remove('flex');
+        }, 6000);
+    }
+}, 45000);
     
 // Update your existing DOMContentLoaded listener
 document.addEventListener("DOMContentLoaded", () => {
