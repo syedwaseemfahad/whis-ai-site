@@ -1535,15 +1535,16 @@
         let eliteDisc = PRICING_CONFIG.pro_plus.discount;
 
         if (currentCycle === 'monthly') {
-            proPrice = PRICING_CONFIG.pro.monthly;
-            elitePrice = PRICING_CONFIG.pro_plus.monthly;
+            proPrice = PRICING.pro.monthly;
+            elitePrice = PRICING.pro_plus.monthly;
             proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
             eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
         } else {
-            proPrice = PRICING_CONFIG.pro.annual_per_month;
-            elitePrice = PRICING_CONFIG.pro_plus.annual_per_month;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed yearly)</span>`;
+            // Displaying the total quarterly price divided by 3 to show a per-month comparison
+            proPrice = PRICING.pro.quarterly / 3;
+            elitePrice = PRICING.pro_plus.quarterly / 3;
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed quarterly)</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month (billed quarterly)</span>`;
         }
     }
 
