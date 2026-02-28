@@ -50,6 +50,7 @@
         if(hasApplied && !fromButton) return;
         
         const fomoModal = document.getElementById('fomoModal');
+        if(!fomoModal) return;
         fomoModal.classList.remove('hidden');
         fomoModal.classList.add('flex');
         
@@ -73,8 +74,8 @@
             mono: ['JetBrains Mono', 'Fira Code', 'monospace'] 
           },
           colors: { 
-            page: '#000000', 
-            glass: 'rgba(255, 255, 255, 0.05)'
+            page: '#ffffff', 
+            glass: 'rgba(0, 0, 0, 0.03)'
           },
           animation: { 
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -97,13 +98,13 @@
     
   <style>
     :root {
-        --accent: #00f2ff;
-        --accent-glow: rgba(0, 242, 255, 0.4);
+        --accent: #0284c7; /* Sky 600 for great contrast on light */
+        --accent-glow: rgba(2, 132, 199, 0.15);
     }
 
     body { 
-        background-color: #000000; 
-        color: white; 
+        background-color: #f8fafc; 
+        color: #0f172a; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
         padding-bottom: 80px; 
@@ -113,7 +114,7 @@
     .animate-float { animation: float 6s ease-in-out infinite; }
 
     #mobileLeadCapture {
-        box-shadow: 0 20px 50px rgba(0,242,255,0.2);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
     }
     
@@ -128,15 +129,16 @@
     .border-accent { border-color: var(--accent); }
 
     .perf-card {
-        background: rgba(10, 10, 10, 0.6);
+        background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(15, 23, 42, 0.08);
         border-radius: 24px;
         position: relative;
         overflow: hidden;
         transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         transform: translateZ(0);
+        box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
     }
 
     @keyframes spin-slow {
@@ -149,15 +151,15 @@
 
     .perf-card:hover {
         transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+        border-color: rgba(15, 23, 42, 0.15);
+        box-shadow: 0 15px 40px -10px rgba(0,0,0,0.08);
     }
 
     .perf-card::after {
         content: "";
         position: absolute;
         top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
         transform: skewX(-25deg);
         pointer-events: none;
         transition: 0.5s;
@@ -173,16 +175,16 @@
     .carousel-item { 
         position: absolute; width: 90%; aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
-        border-radius: 16px; overflow: hidden; background: #000; 
-        border: 1px solid rgba(255,255,255,0.1); 
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        border-radius: 16px; overflow: hidden; background: #f1f5f9; 
+        border: 1px solid rgba(15,23,42,0.1); 
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
         will-change: transform, opacity;
     }
     @media (min-width: 768px) { .carousel-item { width: 85%; max-height: 100%; } }
     
-    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
-    .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
-    .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.3; }
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
+    .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.5; }
+    .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.5; }
     @media (min-width: 768px) {
         .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
         .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
@@ -190,19 +192,20 @@
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
 
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
-    .keyword { color: #c678dd; } .function { color: #61afef; } .string { color: #98c379; } .number { color: #d19a66; } 
+    /* Light theme syntax highlighting */
+    .keyword { color: #a626a4; } .function { color: #4078f2; } .string { color: #50a14f; } .number { color: #986801; } 
 
-    .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); aspect-ratio: 16/9; background: #000; box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8); --position: 50%; }
-    .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 32px; background: rgba(30, 30, 30, 0.95); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px; }
+    .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(15,23,42,0.1); aspect-ratio: 16/9; background: #fff; box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15); --position: 50%; }
+    .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 32px; background: rgba(248, 250, 252, 0.95); border-bottom: 1px solid rgba(15,23,42,0.05); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 8px; }
     .mac-dot { width: 10px; height: 10px; border-radius: 50%; }
     .mac-red { background: #ff5f57; } .mac-yellow { background: #febc2e; } .mac-green { background: #28c840; }
     .comp-image { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; pointer-events: none; }
-    .comp-overlay { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #000; will-change: clip-path; }
-    .comp-divider { position: absolute; top: 32px; bottom: 0; left: var(--position); width: 1px; background: rgba(255,255,255,0.5); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 20px var(--accent); pointer-events: none; will-change: left; }
+    .comp-overlay { position: absolute; top: 32px; left: 0; width: 100%; bottom: 0; clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #fff; will-change: clip-path; }
+    .comp-divider { position: absolute; top: 32px; bottom: 0; left: var(--position); width: 1px; background: rgba(255,255,255,0.8); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 15px rgba(0,0,0,0.3); pointer-events: none; will-change: left; }
     .comp-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none; }
-    .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 6px; height: 48px; background: white; border-radius: 4px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 20px var(--accent), 0 0 10px white; transition: height 0.2s ease; will-change: left; }
-    .comp-label { position: absolute; top: 48px; padding: 4px 12px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); color: white; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; pointer-events: none; z-index: 15; }
-    .label-left { left: 16px; border: 1px solid rgba(255,255,255,0.2); }
+    .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 6px; height: 48px; background: white; border-radius: 4px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 10px rgba(0,0,0,0.2), 0 0 5px white; transition: height 0.2s ease; border: 1px solid rgba(0,0,0,0.1); will-change: left; }
+    .comp-label { position: absolute; top: 48px; padding: 4px 12px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); color: #334155; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; pointer-events: none; z-index: 15; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .label-left { left: 16px; border: 1px solid rgba(15,23,42,0.1); }
     .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
 
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); }
@@ -218,130 +221,130 @@
 </head>
 <body class="no-scrollbar">
 
-<div id="mobileLeadCapture" class="fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-col md:flex-row items-center gap-3 bg-black/90 backdrop-blur-3xl border border-cyan-400/40 p-4 rounded-2xl md:max-w-md animate-float shadow-[0_0_30px_rgba(0,242,255,0.15)]">
+<div id="mobileLeadCapture" class="fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-col md:flex-row items-center gap-3 bg-white/95 backdrop-blur-3xl border border-sky-200 p-4 rounded-2xl md:max-w-md animate-float shadow-xl">
     <div class="flex items-center gap-3 flex-1">
-        <div class="w-10 h-10 min-w-[40px] rounded-full bg-cyan-400/20 flex items-center justify-center text-cyan-400 animate-pulse">
+        <div class="w-10 h-10 min-w-[40px] rounded-full bg-sky-100 flex items-center justify-center text-sky-600 animate-pulse">
             <i class="fa-solid fa-gift text-lg"></i>
         </div>
         <div>
-            <p class="text-[12px] text-white font-bold leading-tight">Claim your 20% Discount</p>
-            <p class="text-[10px] text-slate-400 leading-tight">Enter WhatsApp to receive your unique code.</p>
+            <p class="text-[12px] text-slate-900 font-bold leading-tight">Claim your 20% Discount</p>
+            <p class="text-[10px] text-slate-500 leading-tight">Enter WhatsApp to receive your unique code.</p>
         </div>
     </div>
     <div class="flex w-full md:w-auto gap-2">
-        <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 md:w-40 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none placeholder:text-slate-600">
-        <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-cyan-400 text-black text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-white hover:scale-105 transition-all">GET CODE</button>
+        <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-sky-500 outline-none placeholder:text-slate-400">
+        <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-sky-500 text-white text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-sky-600 hover:scale-105 transition-all shadow-md">GET CODE</button>
     </div>
-    <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-black border border-white/20 rounded-full text-[10px] flex items-center justify-center text-slate-400 hover:text-white">✕</button>
+    <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-200 rounded-full text-[10px] flex items-center justify-center text-slate-400 hover:text-slate-700 shadow-sm">✕</button>
 </div>
 
-  <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-600 to-orange-600 flex justify-center items-center gap-4 shadow-[0_0_20px_rgba(220,38,38,0.5)] z-[60]">
+  <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-500 to-orange-500 flex justify-center items-center gap-4 shadow-sm z-[60]">
       <span class="text-white font-bold text-xs md:text-sm uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-2"></i>Flash Sale Ends Tonight</span>
       <div id="fomo-timer" class="font-mono font-bold text-white bg-black/20 px-3 py-0.5 rounded text-xs md:text-sm">--:--:--</div>
   </div>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-[var(--accent)] rounded-full blur-[150px] opacity-10"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-blue-900/10 rounded-full blur-[150px] opacity-10"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay"></div>
+      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-300 rounded-full blur-[150px] opacity-20"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-indigo-300 rounded-full blur-[150px] opacity-20"></div>
+      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-multiply"></div>
   </div>
 
-  <nav class="fixed top-[40px] w-full z-50 h-[80px] flex items-center justify-center bg-black/80 backdrop-blur-xl border-b border-white/5">
+  <nav class="fixed top-[40px] w-full z-50 h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-3 group animate-hue">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="text-accent">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="text-lg font-bold tracking-tight text-white">Whis-AI</span>
+        <span class="text-lg font-bold tracking-tight text-slate-900">Whis-AI</span>
       </a>
        
-      <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5">
-        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Features</a>
-        <a href="#demo" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Demo</a>
-        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Reviews</a>
-        <a href="#pricing" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Pricing</a>
-        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">FAQ</a>
-        <a href="/enterprise" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-full transition">Enterprise</a>
+      <div class="hidden md:flex items-center gap-1 bg-slate-50 p-1 rounded-full border border-slate-200">
+        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Features</a>
+        <a href="#demo" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Demo</a>
+        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Reviews</a>
+        <a href="#pricing" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Pricing</a>
+        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">FAQ</a>
+        <a href="/enterprise" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Enterprise</a>
       </div>
 
       <div class="flex items-center gap-5">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-400 hover:text-white transition">Sign In</button>
+          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition">Sign In</button>
            
-          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-white text-black text-xs font-bold overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold overflow-hidden shadow-md hover:shadow-lg transition">
              <span class="relative z-10"><i class="fa-brands fa-windows mr-1"></i> <i class="fa-brands fa-apple mr-1"></i> Get App</span>
-             <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-20 transition duration-300"></div>
+             <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition duration-300"></div>
           </button>
            
-          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 hover:border-white/30 transition">
-            <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-800 object-cover" />
-            <span id="navPlanBadge" class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">FREE</span>
+          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-3 bg-slate-100 pr-4 pl-1 py-1 rounded-full border border-slate-200 hover:border-slate-300 transition">
+            <img id="navUserAvatar" src="" class="w-8 h-8 rounded-full bg-slate-200 object-cover" />
+            <span id="navPlanBadge" class="text-[9px] font-bold text-slate-500 uppercase tracking-wide">FREE</span>
           </button>
       </div>
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-2xl border-t border-white/10 p-4 pb-8 grid grid-cols-2 gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
-      <a href="#demo" class="py-4 rounded-xl bg-white/10 text-white text-xs font-bold text-center border border-white/10 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-t border-slate-200 p-4 pb-8 grid grid-cols-2 gap-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+      <a href="#demo" class="py-4 rounded-xl bg-slate-100 text-slate-900 text-xs font-bold text-center border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-transform">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
-      <button onclick="openDownloadModal()" class="py-4 rounded-xl bg-[var(--accent)] text-black text-xs font-bold text-center shadow-[0_0_20px_var(--accent-glow)] flex items-center justify-center gap-2 active:scale-95 transition-transform">
+      <button onclick="openDownloadModal()" class="py-4 rounded-xl bg-[var(--accent)] text-white text-xs font-bold text-center shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
           <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Try Free
       </button>
   </div>
 
   <a href="https://wa.me/8669110499" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
       <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
-      <span class="absolute right-14 bg-white text-black text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
+      <span class="absolute right-14 bg-white text-slate-900 border border-slate-100 shadow-sm text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
   </a>
 
   <section class="relative pt-28 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
     <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
        
-      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-6 text-white">
+      <h1 class="text-4xl md:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-6 text-slate-900">
         Helps you answer interviews<br>
-        <span class="text-accent drop-shadow-[0_0_30px_var(--accent-glow)] animate-hue">in real-time.</span>
+        <span class="text-accent animate-hue inline-block">in real-time.</span>
       </h1>
        
-      <p class="text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed font-light">
-        Works seamlessly on Zoom, Meet & Teams. <span class="text-white font-medium">Leaves absolutely no trace.</span>
+      <p class="text-base md:text-lg text-slate-600 max-w-2xl mx-auto mb-6 leading-relaxed font-light">
+        Works seamlessly on Zoom, Meet & Teams. <span class="text-slate-900 font-medium">Leaves absolutely no trace.</span>
       </p>
 
-      <div class="flex items-center gap-2 md:gap-4 text-xs md:text-sm font-mono text-slate-400 mb-8 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
-        <span class="flex items-center"><i class="fa-solid fa-ear-listen text-slate-500 mr-2"></i>Listens</span>
-        <i class="fa-solid fa-arrow-right text-slate-600"></i>
-        <span class="flex items-center"><i class="fa-solid fa-eye text-slate-500 mr-2"></i>Reads Screen</span>
-        <i class="fa-solid fa-arrow-right text-slate-600"></i>
+      <div class="flex items-center gap-2 md:gap-4 text-xs md:text-sm font-mono text-slate-600 mb-8 bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm">
+        <span class="flex items-center"><i class="fa-solid fa-ear-listen text-slate-400 mr-2"></i>Listens</span>
+        <i class="fa-solid fa-arrow-right text-slate-400"></i>
+        <span class="flex items-center"><i class="fa-solid fa-eye text-slate-400 mr-2"></i>Reads Screen</span>
+        <i class="fa-solid fa-arrow-right text-slate-400"></i>
         <span class="flex items-center text-accent"><i class="fa-solid fa-pen-nib mr-2"></i>Writes answers</span>
       </div>
 
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition duration-300 shadow-[0_0_50px_rgba(255,255,255,0.2)] flex justify-center items-center gap-3">
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-slate-900 text-white text-sm font-bold hover:scale-105 transition duration-300 shadow-lg flex justify-center items-center gap-3">
              Try Free – No Credit Card / No Setup
         </button>
       </div>
 
       <div class="flex flex-col items-center mt-6 gap-3">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 backdrop-blur-md">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-50 border border-red-100 text-[10px] font-bold text-red-600 shadow-sm">
             <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
             <span id="signup-badge-text">🔥 150+ signups today</span>
           </div>
-          <div class="text-[10px] text-green-400 font-mono tracking-widest uppercase opacity-90">
+          <div class="text-[10px] text-green-600 font-mono tracking-widest uppercase opacity-90">
              <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No meeting access
           </div>
       </div>
         
-      <a href="#demo" class="mt-8 text-xs text-slate-400 hover:text-white border-b border-dashed border-slate-600 pb-0.5">
+      <a href="#demo" class="mt-8 text-xs text-slate-500 hover:text-slate-800 border-b border-dashed border-slate-400 pb-0.5 transition">
           See why 700+ candidates switched to Whis-AI
       </a>
     </div>
 
     <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4">
-        <div class="perf-card p-0 bg-[#0a0a0a] border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden">
-             <div class="bg-[#111] px-4 py-3 flex items-center justify-between border-b border-white/10">
+        <div class="perf-card p-0 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden">
+             <div class="bg-slate-50 px-4 py-3 flex items-center justify-between border-b border-slate-200">
                  <div class="flex gap-2">
-                     <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-                     <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                     <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                     <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                     <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                     <div class="w-3 h-3 rounded-full bg-green-400"></div>
                  </div>
                  <span class="text-[10px] text-slate-500 font-mono tracking-widest uppercase"><i class="fa-solid fa-ghost mr-2"></i>Ghost Mode: Active</span>
              </div>
@@ -353,10 +356,10 @@
                  
                  <div id="hero-question-container" class="mb-6 hidden">
                     <span class="text-accent text-xs uppercase tracking-wider block mb-1">INTERVIEWER QUESTION DETECTED:</span>
-                    <p id="hero-question-text" class="text-white text-lg"></p>
+                    <p id="hero-question-text" class="text-slate-900 text-lg font-medium"></p>
                  </div>
 
-                 <div id="hero-answer-container" class="p-4 bg-white/5 rounded-lg border-l-2 border-accent text-slate-300 leading-relaxed shadow-lg hidden">
+                 <div id="hero-answer-container" class="p-4 bg-slate-50 rounded-lg border-l-4 border-accent text-slate-800 leading-relaxed shadow-sm hidden">
                      <span class="text-accent text-xs font-bold block mb-1">Suggested Answer:</span>
                      <span id="hero-answer-text"></span><span class="inline-block w-2 h-4 bg-accent animate-pulse align-text-bottom ml-1"></span>
                  </div>
@@ -365,10 +368,10 @@
     </div>
 
     <div class="w-full max-w-6xl mx-auto px-6 text-center relative z-20 mb-12">
-        <div class="inline-block p-1 rounded-full border border-accent/30 bg-accent/5 px-4 mb-6">
-            <span class="text-xs font-bold text-accent">🛡️ 100% Undetectable</span>
+        <div class="inline-block p-1 rounded-full border border-sky-200 bg-sky-50 px-4 mb-6 shadow-sm">
+            <span class="text-xs font-bold text-sky-700">🛡️ 100% Undetectable</span>
         </div>
-        <h2 class="text-3xl font-medium text-white mb-8">Invisible to Zoom, Teams & Meets.</h2>
+        <h2 class="text-3xl font-medium text-slate-900 mb-8">Invisible to Zoom, Teams & Meets.</h2>
          
         <div class="comp-container" id="comparisonSlider">
             <div class="mac-header">
@@ -398,62 +401,62 @@
     </div>
   </section>
 
-  <section class="py-12 border-t border-white/5 bg-[#050505] relative overflow-hidden">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20 pointer-events-none"></div>
+  <section class="py-12 border-t border-slate-200 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:24px_24px] opacity-100 pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto px-6 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div class="perf-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-green-500/30 transition-colors duration-500">
+            <div class="perf-card p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-green-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-green-500 uppercase tracking-widest">
+                    <span class="text-[10px] font-mono text-green-600 uppercase tracking-widest">
                         <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
                         Running
                     </span>
-                    <i class="fa-solid fa-clock text-white/10 text-xl group-hover:text-green-500/20 transition"></i>
+                    <i class="fa-solid fa-clock text-slate-200 text-xl group-hover:text-green-500/50 transition"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> SYSTEM_UPTIME (HOURS)</div>
-                    <div class="text-2xl font-mono font-bold text-white tracking-tighter" id="uptime-counter">62,402</div>
+                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter" id="uptime-counter">62,402</div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    <span class="text-green-400">+1.2/hr</span> answer rate
+                <div class="mt-4 pt-4 border-t border-slate-100 text-[10px] font-mono text-slate-500">
+                    <span class="text-green-600 font-bold">+1.2/hr</span> answer rate
                 </div>
             </div>
 
-            <div class="perf-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-purple-500/30 transition-colors duration-500">
+            <div class="perf-card p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest">
+                    <span class="text-[10px] font-mono text-purple-600 uppercase tracking-widest">
                         <i class="fa-solid fa-lock mr-2"></i>Verified
                     </span>
-                    <i class="fa-solid fa-briefcase text-white/10 text-xl group-hover:text-purple-500/20 transition"></i>
+                    <i class="fa-solid fa-briefcase text-slate-200 text-xl group-hover:text-purple-500/50 transition"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> OFFERS_SECURED_TOTAL</div>
-                    <div class="text-2xl font-mono font-bold text-white tracking-tighter">6,894</div>
+                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter">6,894</div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    Database integrity: <span class="text-purple-400">100%</span>
+                <div class="mt-4 pt-4 border-t border-slate-100 text-[10px] font-mono text-slate-500">
+                    Database integrity: <span class="text-purple-600 font-bold">100%</span>
                 </div>
             </div>
 
-            <div class="perf-card p-6 bg-black/40 border border-white/10 flex flex-col justify-between group hover:border-accent/30 transition-colors duration-500">
+            <div class="perf-card p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-sky-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <span class="text-[10px] font-mono text-accent uppercase tracking-widest">
                         <i class="fa-solid fa-network-wired mr-2"></i>Connected
                     </span>
-                    <i class="fa-solid fa-building text-white/10 text-xl group-hover:text-accent/20 transition"></i>
+                    <i class="fa-solid fa-building text-slate-200 text-xl group-hover:text-accent/50 transition"></i>
                 </div>
                 <div>
                     <div class="text-[10px] font-mono text-slate-500 mb-1">> TARGET_SYSTEMS</div>
-                    <div class="text-2xl font-mono font-bold text-white tracking-tighter h-[32px] flex items-center">
+                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter h-[32px] flex items-center">
                         <span class="text-accent mr-2">$</span>
                         <span id="typewriter-text"></span>
                         <span class="w-2 h-6 bg-accent animate-pulse ml-1"></span>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                    Access Granted via <span class="text-accent">Port 443</span>
+                <div class="mt-4 pt-4 border-t border-slate-100 text-[10px] font-mono text-slate-500">
+                    Access Granted via <span class="text-accent font-bold">Port 443</span>
                 </div>
             </div>
 
@@ -461,12 +464,12 @@
     </div>
   </section>
 
-  <section id="guide" class="py-20 border-t border-white/5 bg-black/40">
+  <section id="guide" class="py-20 border-t border-slate-200 bg-slate-50">
       <div class="max-w-5xl mx-auto px-6 text-center">
-          <h2 class="text-3xl font-medium text-white mb-6">See it in action.</h2>
-          <p class="text-slate-400 mb-12">Watch the full setup guide and learn how to crack any interview.</p>
+          <h2 class="text-3xl font-medium text-slate-900 mb-6">See it in action.</h2>
+          <p class="text-slate-600 mb-12">Watch the full setup guide and learn how to crack any interview.</p>
           
-          <div class="perf-card p-2 relative w-full aspect-video overflow-hidden group">
+          <div class="perf-card p-2 relative w-full aspect-video overflow-hidden group shadow-lg">
               <iframe class="w-full h-full rounded-xl" 
                   src="https://www.youtube.com/embed/riJZniRiyKA?rel=0&modestbranding=1"
                   title="Whis-AI Guide" 
@@ -478,99 +481,99 @@
       </div>
   </section>
 
-  <section id="features" class="py-20 border-t border-white/5 bg-[#0a0a0a]">
+  <section id="features" class="py-20 border-t border-slate-200 bg-white">
       <div class="max-w-7xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-16 text-center">Main Features.</h2>
+          <h2 class="text-3xl font-medium text-slate-900 mb-16 text-center">Main Features.</h2>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 text-red-400 group-hover:scale-110 transition"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Voice Capture</h3>
-                  <p class="text-sm text-slate-400">Listens to the interview and gives answers instantly.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-4 text-red-500 group-hover:scale-110 transition"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Voice Capture</h3>
+                  <p class="text-sm text-slate-600">Listens to the interview and gives answers instantly.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition"><i class="fa-solid fa-desktop text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Screen Vision</h3>
-                  <p class="text-sm text-slate-400">Sees your screen and solves questions based on it.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 text-blue-500 group-hover:scale-110 transition"><i class="fa-solid fa-desktop text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Screen Vision</h3>
+                  <p class="text-sm text-slate-600">Sees your screen and solves questions based on it.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 text-green-400 group-hover:scale-110 transition"><i class="fa-solid fa-keyboard text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Direct Input</h3>
-                  <p class="text-sm text-slate-400">Type text directly to get help or answers.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mb-4 text-green-500 group-hover:scale-110 transition"><i class="fa-solid fa-keyboard text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Direct Input</h3>
+                  <p class="text-sm text-slate-600">Type text directly to get help or answers.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition"><i class="fa-solid fa-eye-slash text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">100% Invisible</h3>
-                  <p class="text-sm text-slate-400">Completely hidden during screen sharing.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-4 text-purple-500 group-hover:scale-110 transition"><i class="fa-solid fa-eye-slash text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">100% Invisible</h3>
+                  <p class="text-sm text-slate-600">Completely hidden during screen sharing.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-4 text-slate-400 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Ghost Mode</h3>
-                  <p class="text-sm text-slate-400">No app icon or menu bar visibility.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-4 text-slate-500 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Ghost Mode</h3>
+                  <p class="text-sm text-slate-600">No app icon or menu bar visibility.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 text-yellow-400 group-hover:scale-110 transition"><i class="fa-solid fa-language text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Universal Translator</h3>
-                  <p class="text-sm text-slate-400">Speaks any language? The app understands and gives answers in English.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-yellow-50 flex items-center justify-center mb-4 text-yellow-600 group-hover:scale-110 transition"><i class="fa-solid fa-language text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Universal Translator</h3>
+                  <p class="text-sm text-slate-600">Speaks any language? The app understands and gives answers in English.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group">
-                  <div class="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-4 text-pink-400 group-hover:scale-110 transition"><i class="fa-solid fa-brain text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Smart Context</h3>
-                  <p class="text-sm text-slate-400">Upload your resume or JD to get personalized answers.</p>
+              <div class="perf-card p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-pink-50 flex items-center justify-center mb-4 text-pink-500 group-hover:scale-110 transition"><i class="fa-solid fa-brain text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Smart Context</h3>
+                  <p class="text-sm text-slate-600">Upload your resume or JD to get personalized answers.</p>
               </div>
 
-              <div class="perf-card p-6 hover:bg-white/5 transition group border border-accent/20 bg-accent/5">
-                  <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition"><i class="fa-solid fa-gift text-xl"></i></div>
-                  <h3 class="text-white font-bold mb-2">Free Trial</h3>
-                  <p class="text-sm text-slate-300">New users get 3 free interviews to test all paid features.</p>
+              <div class="perf-card p-6 hover:bg-sky-50 transition group border border-sky-200 bg-sky-50/50 shadow-sm">
+                  <div class="w-12 h-12 rounded-xl bg-sky-100 flex items-center justify-center mb-4 text-accent group-hover:scale-110 transition"><i class="fa-solid fa-gift text-xl"></i></div>
+                  <h3 class="text-slate-900 font-bold mb-2">Free Trial</h3>
+                  <p class="text-sm text-slate-700">New users get 3 free interviews to test all paid features.</p>
               </div>
           </div>
       </div>
   </section>
 
-  <section class="py-20 border-t border-white/5 bg-[#080808]">
+  <section class="py-20 border-t border-slate-200 bg-slate-50">
       <div class="max-w-4xl mx-auto px-6">
-          <h2 class="text-3xl font-medium text-white mb-12 text-center">Why not just use ChatGPT?</h2>
-          <div class="perf-card overflow-hidden">
+          <h2 class="text-3xl font-medium text-slate-900 mb-12 text-center">Why not just use ChatGPT?</h2>
+          <div class="perf-card overflow-hidden bg-white shadow-md">
               <table class="w-full text-left border-collapse">
                   <thead>
-                      <tr class="bg-white/5 border-b border-white/10">
+                      <tr class="bg-slate-50 border-b border-slate-200">
                           <th class="p-4 md:p-6 text-xs text-slate-500 uppercase tracking-widest w-1/3">Feature</th>
-                          <th class="p-4 md:p-6 text-xs text-slate-500 uppercase tracking-widest w-1/3 border-l border-white/5">Generic AI</th>
-                          <th class="p-4 md:p-6 text-xs text-accent uppercase tracking-widest w-1/3 bg-accent/5 border-l border-accent/20">Whis-AI</th>
+                          <th class="p-4 md:p-6 text-xs text-slate-500 uppercase tracking-widest w-1/3 border-l border-slate-200">Generic AI</th>
+                          <th class="p-4 md:p-6 text-xs text-accent uppercase tracking-widest w-1/3 bg-sky-50 border-l border-sky-200">Whis-AI</th>
                       </tr>
                   </thead>
                   <tbody class="text-sm">
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Undetectable Mode</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Yes (Ghost Mode)</td>
+                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                          <td class="p-4 md:p-6 text-slate-800 font-bold">Undetectable Mode</td>
+                          <td class="p-4 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No</td>
+                          <td class="p-4 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium"><i class="fa-solid fa-check text-accent mr-2"></i> Yes (Ghost Mode)</td>
                       </tr>
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Listens to Live Audio</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No (Must type)</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Auto-Capture</td>
+                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                          <td class="p-4 md:p-6 text-slate-800 font-bold">Listens to Live Audio</td>
+                          <td class="p-4 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> No (Must type)</td>
+                          <td class="p-4 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium"><i class="fa-solid fa-check text-accent mr-2"></i> Auto-Capture</td>
                       </tr>
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Resume Knowledge</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Hallucinates</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Perfectly Synced</td>
+                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                          <td class="p-4 md:p-6 text-slate-800 font-bold">Resume Knowledge</td>
+                          <td class="p-4 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Hallucinates</td>
+                          <td class="p-4 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium"><i class="fa-solid fa-check text-accent mr-2"></i> Perfectly Synced</td>
                       </tr>
-                      <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Solves Screen Diagrams</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Slow/Manual</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-check text-accent mr-2"></i> Instant Vision</td>
+                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                          <td class="p-4 md:p-6 text-slate-800 font-bold">Solves Screen Diagrams</td>
+                          <td class="p-4 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Slow/Manual</td>
+                          <td class="p-4 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium"><i class="fa-solid fa-check text-accent mr-2"></i> Instant Vision</td>
                       </tr>
-                      <tr class="hover:bg-white/5 transition">
-                          <td class="p-4 md:p-6 text-slate-300 font-bold">Response Speed</td>
-                          <td class="p-4 md:p-6 border-l border-white/5 text-slate-500">3-5 Seconds</td>
-                          <td class="p-4 md:p-6 bg-accent/5 border-l border-accent/20 text-white"><i class="fa-solid fa-bolt text-accent mr-2"></i> < 1 Second</td>
+                      <tr class="hover:bg-slate-50 transition">
+                          <td class="p-4 md:p-6 text-slate-800 font-bold">Response Speed</td>
+                          <td class="p-4 md:p-6 border-l border-slate-100 text-slate-600">3-5 Seconds</td>
+                          <td class="p-4 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium"><i class="fa-solid fa-bolt text-accent mr-2"></i> < 1 Second</td>
                       </tr>
                   </tbody>
               </table>
@@ -579,87 +582,87 @@
       </div>
   </section>
 
-  <section class="py-20 border-t border-white/5 bg-black">
+  <section class="py-20 border-t border-slate-200 bg-white">
       <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
           <div class="flex-1 space-y-6">
-              <div class="inline-block px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold uppercase tracking-wider">New Feature</div>
-              <h2 class="text-3xl md:text-4xl font-medium text-white">Smart Context.</h2>
-              <p class="text-slate-400 text-lg leading-relaxed">
-                  Generic AI gives generic answers. Whis-AI allows you to create up to <strong class="text-white">10 Custom Context Profiles</strong>. Upload your Resume, the Job Description (JD), or specific project notes.
+              <div class="inline-block px-3 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-700 text-[10px] font-bold uppercase tracking-wider">New Feature</div>
+              <h2 class="text-3xl md:text-4xl font-medium text-slate-900">Smart Context.</h2>
+              <p class="text-slate-600 text-lg leading-relaxed">
+                  Generic AI gives generic answers. Whis-AI allows you to create up to <strong class="text-slate-900">10 Custom Context Profiles</strong>. Upload your Resume, the Job Description (JD), or specific project notes.
               </p>
-              <ul class="space-y-4 text-sm text-slate-300">
+              <ul class="space-y-4 text-sm text-slate-700">
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Tailored Answers:</strong> The AI uses your actual projects when answering "Tell me about a time..."</span></li>
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Role Matching:</strong> Answers are written specifically for the JD you are interviewing for.</span></li>
                   <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-accent mt-1"></i> <span><strong>Quick Switch:</strong> Change contexts in 1 click between different company interviews.</span></li>
               </ul>
           </div>
           <div class="flex-1 w-full">
-              <div class="perf-card p-6 border border-white/10 bg-[#111]">
-                  <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
+              <div class="perf-card p-6 border border-slate-200 bg-slate-50 shadow-md">
+                  <div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-4">
                       <span class="text-xs font-bold text-slate-500">ACTIVE PROFILE</span>
-                      <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded">Enabled</span>
+                      <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">Enabled</span>
                   </div>
                   <div class="space-y-3">
-                      <div class="p-3 rounded bg-white/5 border border-accent/30 flex items-center justify-between">
+                      <div class="p-3 rounded bg-white border border-sky-300 flex items-center justify-between shadow-sm">
                           <div class="flex items-center gap-3">
-                              <i class="fa-solid fa-file-pdf text-red-400"></i>
+                              <i class="fa-solid fa-file-pdf text-red-500"></i>
                               <div>
-                                  <div class="text-xs font-bold text-white">Google_SDE2_Resume.pdf</div>
+                                  <div class="text-xs font-bold text-slate-900">Google_SDE2_Resume.pdf</div>
                                   <div class="text-[10px] text-slate-500">Uploaded 2h ago</div>
                               </div>
                           </div>
                           <i class="fa-solid fa-toggle-on text-accent text-xl"></i>
                       </div>
-                      <div class="p-3 rounded bg-white/5 border border-white/5 flex items-center justify-between opacity-50">
+                      <div class="p-3 rounded bg-white border border-slate-200 flex items-center justify-between opacity-60">
                           <div class="flex items-center gap-3">
-                              <i class="fa-solid fa-file-lines text-blue-400"></i>
+                              <i class="fa-solid fa-file-lines text-blue-500"></i>
                               <div>
-                                  <div class="text-xs font-bold text-white">Amazon_LP_Notes.txt</div>
+                                  <div class="text-xs font-bold text-slate-900">Amazon_LP_Notes.txt</div>
                                   <div class="text-[10px] text-slate-500">Uploaded 1d ago</div>
                               </div>
                           </div>
-                          <i class="fa-solid fa-toggle-off text-slate-600 text-xl"></i>
+                          <i class="fa-solid fa-toggle-off text-slate-300 text-xl"></i>
                       </div>
                   </div>
-                  <div class="mt-4 p-3 bg-accent/5 rounded border-l-2 border-accent">
-                      <p class="text-[10px] text-slate-300 italic">"Based on your resume's experience with Kafka, you should mention how you handled partition tolerance in this system design..."</p>
+                  <div class="mt-4 p-3 bg-sky-50 rounded border-l-4 border-accent">
+                      <p class="text-[11px] text-slate-700 italic font-medium">"Based on your resume's experience with Kafka, you should mention how you handled partition tolerance in this system design..."</p>
                   </div>
               </div>
           </div>
       </div>
   </section>
 
-  <section id="demo" class="py-20 border-t border-white/5 bg-black/40">
+  <section id="demo" class="py-20 border-t border-slate-200 bg-slate-50">
       <div class="max-w-7xl mx-auto px-6">
           <div class="grid lg:grid-cols-2 gap-16 items-center">
               <div class="space-y-8">
-                  <h2 class="text-4xl md:text-5xl font-medium text-white tracking-tight">They Ask. You Answer.</h2>
-                  <p class="text-slate-400 text-lg font-light leading-relaxed">
-                      Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-white">It's like having a Senior Engineer whispering in your ear.</span>
+                  <h2 class="text-4xl md:text-5xl font-medium text-slate-900 tracking-tight">They Ask. You Answer.</h2>
+                  <p class="text-slate-600 text-lg font-light leading-relaxed">
+                      Whis listens to audio and sees your screen to write optimal solutions instantly. <br><span class="text-slate-900 font-medium">It's like having a Senior Engineer whispering in your ear.</span>
                   </p>
                    
-                  <div class="perf-card p-8">
+                  <div class="perf-card p-8 bg-white shadow-md">
                       <div class="flex items-center gap-4 mb-6">
                           <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                          <span class="text-[10px] font-mono text-white/50 uppercase tracking-widest">Live Interview Audio</span>
+                          <span class="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest">Live Interview Audio</span>
                       </div>
                       <div class="flex items-center gap-1 h-12 opacity-80">
-                          <div class="w-1 bg-white rounded-full h-4 animate-pulse"></div>
-                          <div class="w-1 bg-white rounded-full h-8 animate-pulse delay-75"></div>
-                          <div class="w-1 bg-white rounded-full h-12 animate-pulse delay-150"></div>
-                          <div class="w-1 bg-white rounded-full h-6 animate-pulse delay-100"></div>
-                          <div class="w-1 bg-white rounded-full h-10 animate-pulse delay-200"></div>
-                          <div class="w-1 bg-white rounded-full h-5 animate-pulse delay-75"></div>
+                          <div class="w-1 bg-slate-400 rounded-full h-4 animate-pulse"></div>
+                          <div class="w-1 bg-slate-400 rounded-full h-8 animate-pulse delay-75"></div>
+                          <div class="w-1 bg-slate-400 rounded-full h-12 animate-pulse delay-150"></div>
+                          <div class="w-1 bg-slate-400 rounded-full h-6 animate-pulse delay-100"></div>
+                          <div class="w-1 bg-slate-400 rounded-full h-10 animate-pulse delay-200"></div>
+                          <div class="w-1 bg-slate-400 rounded-full h-5 animate-pulse delay-75"></div>
                       </div>
-                      <p class="mt-6 text-sm text-slate-400 italic">"Can you optimize this DP solution to O(n) space complexity?"</p>
+                      <p class="mt-6 text-sm text-slate-700 italic">"Can you optimize this DP solution to O(n) space complexity?"</p>
                   </div>
               </div>
 
-              <div class="perf-card p-0 bg-[#0d0d0d] border border-white/10 h-[500px] flex flex-col">
-                  <div class="px-4 py-3 border-b border-white/5 flex justify-between items-center">
+              <div class="perf-card p-0 bg-slate-900 border border-slate-800 shadow-xl h-[500px] flex flex-col">
+                  <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-950">
                       <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
-                        <div class="w-3 h-3 rounded-full bg-white/10"></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-700"></div>
                       </div>
                       <div class="flex gap-4 text-[10px] font-mono font-bold text-slate-500">
                           <span class="text-accent cursor-pointer">PYTHON</span>
@@ -676,27 +679,27 @@
       </div>
   </section>
 
-  <section class="py-20 bg-[#050505]">
+  <section class="py-20 bg-white border-t border-slate-200">
     <div class="max-w-4xl mx-auto px-6">
-        <h2 class="text-3xl font-bold text-center mb-12">Why candidates are choosing Whis-AI over "Free" AI</h2>
-        <div class="grid md:grid-cols-2 gap-0 border border-white/10 rounded-3xl overflow-hidden">
-            <div class="p-8 bg-white/[0.02] border-r border-white/10">
+        <h2 class="text-3xl font-bold text-center mb-12 text-slate-900">Why candidates are choosing Whis-AI over "Free" AI</h2>
+        <div class="grid md:grid-cols-2 gap-0 border border-slate-200 rounded-3xl overflow-hidden shadow-lg">
+            <div class="p-8 bg-slate-50 border-r border-slate-200">
                 <p class="text-red-500 font-bold uppercase text-[10px] tracking-widest mb-4">The Old Way</p>
-                <ul class="space-y-4 text-sm text-slate-500">
+                <ul class="space-y-4 text-sm text-slate-600">
                     <li class="flex gap-3"><i class="fa-solid fa-xmark mt-1"></i> Switching tabs (Easy to catch)</li>
                     <li class="flex gap-3"><i class="fa-solid fa-xmark mt-1"></i> Laggy ChatGPT responses</li>
                     <li class="flex gap-3"><i class="fa-solid fa-xmark mt-1"></i> Interviewer sees your eyes moving</li>
-                    <li class="flex gap-3 font-bold text-slate-400 italic">Result: Rejection & Blacklisted</li>
+                    <li class="flex gap-3 font-bold text-slate-800 italic">Result: Rejection & Blacklisted</li>
                 </ul>
             </div>
-            <div class="p-8 bg-cyan-400/5 relative">
-                <div class="absolute top-4 right-4 text-cyan-400 animate-pulse text-xs font-bold">Recommended</div>
-                <p class="text-cyan-400 font-bold uppercase text-[10px] tracking-widest mb-4">The Whis-AI Way</p>
-                <ul class="space-y-4 text-sm text-slate-200">
-                    <li class="flex gap-3"><i class="fa-solid fa-check text-cyan-400 mt-1"></i> 100% Invisible Overlay</li>
-                    <li class="flex gap-3"><i class="fa-solid fa-check text-cyan-400 mt-1"></i> Real-time Mic Audio capture</li>
-                    <li class="flex gap-3"><i class="fa-solid fa-check text-cyan-400 mt-1"></i> Responses built for Senior Roles</li>
-                    <li class="flex gap-3 font-bold text-cyan-400">Result: $100k+ Job Offer secured</li>
+            <div class="p-8 bg-sky-50 relative">
+                <div class="absolute top-4 right-4 text-sky-600 animate-pulse text-xs font-bold">Recommended</div>
+                <p class="text-sky-600 font-bold uppercase text-[10px] tracking-widest mb-4">The Whis-AI Way</p>
+                <ul class="space-y-4 text-sm text-slate-800 font-medium">
+                    <li class="flex gap-3"><i class="fa-solid fa-check text-sky-600 mt-1"></i> 100% Invisible Overlay</li>
+                    <li class="flex gap-3"><i class="fa-solid fa-check text-sky-600 mt-1"></i> Real-time Mic Audio capture</li>
+                    <li class="flex gap-3"><i class="fa-solid fa-check text-sky-600 mt-1"></i> Responses built for Senior Roles</li>
+                    <li class="flex gap-3 font-bold text-sky-700">Result: $100k+ Job Offer secured</li>
                 </ul>
             </div>
         </div>
@@ -706,79 +709,77 @@
     </div>
 </section>
 
-<section id="pricing" class="py-32 border-t border-white/5 relative overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
+<section id="pricing" class="py-32 border-t border-slate-200 bg-slate-50 relative overflow-hidden">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-200 rounded-full blur-[120px] pointer-events-none opacity-50"></div>
 
     <div class="max-w-7xl mx-auto px-6 text-center mt-12 relative z-10">
-        <h2 class="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight">Invest in your career.</h2>
-        <p class="text-slate-400 mb-12 font-light">Join 7,000+ engineers who have unlocked their full potential.</p>
-         <div class="mt-12 p-6 rounded-2xl border border-dashed border-white/10 bg-white/5 max-w-2xl mx-auto text-center">
-            <p class="text-sm text-slate-400">
-                <i class="fa-solid fa-graduation-cap text-cyan-400 mr-2"></i> 
+        <h2 class="text-4xl md:text-5xl font-medium text-slate-900 mb-6 tracking-tight">Invest in your career.</h2>
+        <p class="text-slate-600 mb-12 font-light">Join 7,000+ engineers who have unlocked their full potential.</p>
+         <div class="mt-12 p-6 rounded-2xl border border-dashed border-slate-300 bg-white max-w-2xl mx-auto text-center shadow-sm">
+            <p class="text-sm text-slate-600">
+                <i class="fa-solid fa-graduation-cap text-sky-600 mr-2"></i> 
                 Struggling with budget or currently unemployed? 
-                <a href="https://wa.me/8669110499?text=Hi, I am struggling with budget. Can I get a discount?" target="_blank" class="text-cyan-400 font-bold hover:underline ml-1">
+                <a href="https://wa.me/8669110499?text=Hi, I am struggling with budget. Can I get a discount?" target="_blank" class="text-sky-600 font-bold hover:underline ml-1">
                     Talk to our team for a scholarship discount.
                 </a>
             </p>
         </div>
-        <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 mb-16 mt-6">
-           <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-white transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnQuarterly" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black shadow-lg transition-all" onclick="setCycle('quarterly')">Quarterly (Save 51%)</button>
+        <div class="inline-flex bg-slate-200 p-1 rounded-full border border-slate-300 mb-16 mt-6 shadow-inner">
+           <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnQuarterly" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('quarterly')">Quarterly (Save 51%)</button>
         </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
             
-    <div class="perf-card p-10 text-left flex flex-col border-white/5 bg-white/[0.02]">
+    <div class="perf-card p-10 text-left flex flex-col border-slate-200 bg-white shadow-sm">
         <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4">Foundation</h3>
-        <div class="text-4xl font-bold text-white mb-8">Free</div>
-        <div class="space-y-5 text-xs text-slate-400 mb-10 flex-grow">
-            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-600"></i> 10 Daily Answers</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-600"></i> Normal Speed</p>
-            <p class="flex items-center gap-3 opacity-30"><i class="fa-solid fa-circle-xmark"></i> Stealth Mode</p>
-            <p class="flex items-center gap-3 opacity-30"><i class="fa-solid fa-circle-xmark"></i> Screen Solving</p>
+        <div class="text-4xl font-bold text-slate-900 mb-8">Free</div>
+        <div class="space-y-5 text-xs text-slate-600 mb-10 flex-grow">
+            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400"></i> 10 Daily Answers</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400"></i> Normal Speed</p>
+            <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark"></i> Stealth Mode</p>
+            <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark"></i> Screen Solving</p>
         </div>
-        <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 text-[10px] font-bold uppercase tracking-widest transition-all">Download Trial</button>
+        <button onclick="openDownloadModal()" class="w-full py-4 rounded-xl border border-slate-300 text-slate-700 font-bold bg-slate-50 hover:bg-slate-100 text-[10px] uppercase tracking-widest transition-all">Download Trial</button>
     </div>
 
-
-
-    <div class="perf-card p-10 text-left flex flex-col border-white/20 bg-white/[0.03] shadow-xl z-20">
-        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-tighter shadow-xl">Most Popular</div>
-        <h3 class="text-[10px] font-bold text-white uppercase tracking-[0.2em] mb-4">Pro Professional</h3>
-        <div class="text-4xl font-bold text-white mb-8" id="pricePro">...</div>
-        <div class="space-y-5 text-xs text-slate-300 mb-10 flex-grow">
-            <p class="flex items-center gap-3 font-medium text-white"><i class="fa-solid fa-microphone-lines text-accent"></i> 8 Hours Mic Access / mo</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/50"></i> Unlimited Answers</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/50"></i> Screen Reading Tool</p>
-            <p class="flex items-center gap-3 text-red-400/80"><i class="fa-solid fa-eye"></i> Visible on Screen</p>
+    <div class="perf-card p-10 text-left flex flex-col border-slate-200 bg-white shadow-lg z-20">
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-tighter shadow-md">Most Popular</div>
+        <h3 class="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-4">Pro Professional</h3>
+        <div class="text-4xl font-bold text-slate-900 mb-8" id="pricePro">...</div>
+        <div class="space-y-5 text-xs text-slate-700 mb-10 flex-grow">
+            <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-microphone-lines text-accent"></i> 8 Hours Mic Access / mo</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80"></i> Unlimited Answers</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80"></i> Screen Reading Tool</p>
+            <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye"></i> Visible on Screen</p>
         </div>
-        <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-white text-black hover:bg-slate-200 text-[10px] font-bold uppercase tracking-widest transition-all">Upgrade Now</button>
+        <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-[10px] font-bold uppercase tracking-widest transition-all shadow-md">Upgrade Now</button>
     </div>
 
-      <div class="perf-card pricing-elite p-10 text-left flex flex-col border-accent/20 bg-[#050505] relative overflow-hidden shadow-2xl scale-105 z-30">
-        <div class="absolute top-0 right-0 p-6 opacity-20"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
-        <h3 class="text-[10px] font-bold text-accent uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
+    <div class="perf-card pricing-elite p-10 text-left flex flex-col border-accent/40 bg-slate-900 relative overflow-hidden shadow-2xl scale-105 z-30">
+        <div class="absolute top-0 right-0 p-6 opacity-10"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
+        <h3 class="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
         <div class="text-4xl font-bold text-white mb-8" id="priceStealth">...</div>
-        <div class="space-y-5 text-xs text-slate-200 mb-10 flex-grow">
-            <p class="flex items-center gap-3 font-medium text-accent"><i class="fa-solid fa-bolt-lightning"></i> 8 Hours Mic Access / mo</p>
-            <p class="flex items-center gap-3 font-semibold"><i class="fa-solid fa-shield-halved text-accent"></i> 100% Undetectable</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-accent/50"></i> Invisible to Zoom/Teams</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-accent/50"></i> Hidden App Process</p>
+        <div class="space-y-5 text-xs text-slate-300 mb-10 flex-grow">
+            <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning"></i> 8 Hours Mic Access / mo</p>
+            <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-sky-400"></i> 100% Undetectable</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80"></i> Invisible to Zoom/Teams</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80"></i> Hidden App Process</p>
         </div>
-        <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-accent text-black hover:brightness-110 text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_0_30px_rgba(0,242,255,0.2)]">Go Elite</button>
+        <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-xl bg-sky-500 text-white hover:bg-sky-400 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg">Go Elite</button>
     </div>
 
     </div>
 
-        <div class="max-w-3xl mx-auto mt-20 p-8 rounded-3xl bg-white/[0.02] border border-white/5 backdrop-blur-xl group hover:border-accent/20 transition-all duration-500">
+        <div class="max-w-3xl mx-auto mt-20 p-8 rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-sky-300 transition-all duration-500">
             <div class="flex flex-col md:flex-row items-center gap-8 text-left">
-                <div class="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0 group-hover:scale-110 transition-transform">
+                <div class="w-16 h-16 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-accent shrink-0 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-stopwatch text-2xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-white mb-2 uppercase tracking-wide">Smart Mic Credit System</h4>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Paid plans include <span class="text-white font-semibold">8-hours per month</span> of active mic listening time. To save your credits, the **Ghost Timer** only counts when your microphone is turned <span class="text-accent font-bold">ON</span>. Preparation time and breaks are never deducted from your balance.
+                    <h4 class="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Smart Mic Credit System</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Paid plans include <span class="text-slate-900 font-semibold">8-hours per month</span> of active mic listening time. To save your credits, the **Ghost Timer** only counts when your microphone is turned <span class="text-accent font-bold">ON</span>. Preparation time and breaks are never deducted from your balance.
                     </p>
                 </div>
             </div>
@@ -786,12 +787,12 @@
     </div>
 </section>
 
-  <section class="py-24 border-t border-white/5 bg-[#050505]">
+  <section class="py-24 border-t border-slate-200 bg-white">
       <div class="max-w-7xl mx-auto px-6">
           <div class="flex justify-between items-end mb-12">
-              <h2 id="testimonials" class="text-3xl font-medium text-white">Engineers love Whis.</h2>
+              <h2 id="testimonials" class="text-3xl font-medium text-slate-900">Engineers love Whis.</h2>
               <div class="text-right">
-                  <div class="flex gap-1 text-accent text-sm mb-1">
+                  <div class="flex gap-1 text-yellow-400 text-sm mb-1">
                       <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                   </div>
                   <p class="text-[10px] text-slate-500">Rated 4.9/5 by 2,000+ users</p>
@@ -799,43 +800,43 @@
           </div>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div class="perf-card p-8 flex flex-col justify-between">
+              <div class="perf-card p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
                   <div>
-                      <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
+                      <i class="fa-solid fa-quote-left text-slate-200 text-4xl mb-4"></i>
+                      <p class="text-slate-700 text-sm leading-relaxed mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
                   </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold">JK</div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white">JK</div>
                       <div>
-                          <p class="text-xs font-bold text-white">James K.</p>
+                          <p class="text-xs font-bold text-slate-900">James K.</p>
                           <p class="text-[10px] text-slate-500">Google, Senior SDE</p>
                       </div>
                   </div>
               </div>
 
-              <div class="perf-card p-8 flex flex-col justify-between border-accent/20">
+              <div class="perf-card p-8 flex flex-col justify-between bg-white border border-sky-200 shadow-sm">
                   <div>
-                      <i class="fa-solid fa-quote-left text-accent/20 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"The visual screen analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
+                      <i class="fa-solid fa-quote-left text-sky-200 text-4xl mb-4"></i>
+                      <p class="text-slate-700 text-sm leading-relaxed mb-6">"The visual screen analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
                   </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-xs font-bold">SM</div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-xs font-bold text-white">SM</div>
                       <div>
-                          <p class="text-xs font-bold text-white">Sarah M.</p>
+                          <p class="text-xs font-bold text-slate-900">Sarah M.</p>
                           <p class="text-[10px] text-slate-500">Amazon, SDE II</p>
                       </div>
                   </div>
               </div>
 
-              <div class="perf-card p-8 flex flex-col justify-between">
+              <div class="perf-card p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
                   <div>
-                      <i class="fa-solid fa-quote-left text-white/10 text-4xl mb-4"></i>
-                      <p class="text-slate-300 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
+                      <i class="fa-solid fa-quote-left text-slate-200 text-4xl mb-4"></i>
+                      <p class="text-slate-700 text-sm leading-relaxed mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
                   </div>
-                  <div class="flex items-center gap-3 border-t border-white/5 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold">AL</div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-xs font-bold text-white">AL</div>
                       <div>
-                          <p class="text-xs font-bold text-white">Arjun L.</p>
+                          <p class="text-xs font-bold text-slate-900">Arjun L.</p>
                           <p class="text-[10px] text-slate-500">Microsoft, L61</p>
                       </div>
                   </div>
@@ -844,198 +845,198 @@
       </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-[#050505]">
+  <section class="py-24 border-t border-slate-200 bg-slate-50">
       <div class="max-w-4xl mx-auto px-6 text-center">
-          <h2 class="text-4xl font-medium text-white mb-6">Is Whis-AI Free?</h2>
+          <h2 class="text-4xl font-medium text-slate-900 mb-6">Is Whis-AI Free?</h2>
           <div class="text-5xl font-bold text-accent mb-6">Yes.</div>
-          <p class="text-slate-300 text-lg leading-relaxed mb-8">
-              We believe in democratizing interview preparation. That's why we offer <strong class="text-white">3 Trial Interviews</strong> and <strong class="text-white">10 Free Daily Answers</strong> to every user, forever.
+          <p class="text-slate-700 text-lg leading-relaxed mb-8">
+              We believe in democratizing interview preparation. That's why we offer <strong class="text-slate-900">3 Trial Interviews</strong> and <strong class="text-slate-900">10 Free Daily Answers</strong> to every user, forever.
           </p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-3xl mx-auto">
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Cheaper Choice</h3>
-                  <p class="text-xs text-slate-400">The most affordable option in the market. Why pay $50+ elsewhere?</p>
+              <div class="p-6 rounded-xl bg-white border border-slate-200 shadow-sm">
+                  <h3 class="text-slate-900 font-bold mb-2">Cheaper Choice</h3>
+                  <p class="text-xs text-slate-600">The most affordable option in the market. Why pay $50+ elsewhere?</p>
               </div>
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Daily Free Use</h3>
-                  <p class="text-xs text-slate-400">10 free requests every 24 hours. Perfect for practice or short rounds.</p>
+              <div class="p-6 rounded-xl bg-white border border-slate-200 shadow-sm">
+                  <h3 class="text-slate-900 font-bold mb-2">Daily Free Use</h3>
+                  <p class="text-xs text-slate-600">10 free requests every 24 hours. Perfect for practice or short rounds.</p>
               </div>
-              <div class="p-6 rounded-xl bg-white/5 border border-white/10">
-                  <h3 class="text-white font-bold mb-2">Full Features</h3>
-                  <p class="text-xs text-slate-400">Trial interviews include Audio, Screen Reading, and Profile features.</p>
+              <div class="p-6 rounded-xl bg-white border border-slate-200 shadow-sm">
+                  <h3 class="text-slate-900 font-bold mb-2">Full Features</h3>
+                  <p class="text-xs text-slate-600">Trial interviews include Audio, Screen Reading, and Profile features.</p>
               </div>
           </div>
-          <button onclick="openDownloadModal()" class="mt-12 px-8 py-3 rounded-full bg-white text-black font-bold hover:bg-slate-200 transition">Start For Free</button>
+          <button onclick="openDownloadModal()" class="mt-12 px-8 py-3 rounded-full bg-slate-900 text-white shadow-md font-bold hover:bg-slate-800 transition">Start For Free</button>
       </div>
   </section>
 
-  <section class="py-24 border-t border-white/5 bg-black">
+  <section class="py-24 border-t border-slate-200 bg-white">
       <div class="max-w-3xl mx-auto px-6">
-          <h2 id="faq" class="text-3xl font-medium text-white mb-12 text-center">Common Questions.</h2>
+          <h2 id="faq" class="text-3xl font-medium text-slate-900 mb-12 text-center">Common Questions.</h2>
           <div class="space-y-4">
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
                   <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Is Whis really undetectable?</h3>
+                      <h3 class="text-sm font-bold text-slate-900">Is Whis really undetectable?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
                   </div>
                   <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis listens to system audio and scans the screen using technology that runs entirely outside of your browser. Meeting tools like Zoom or Teams only see the browser; they cannot detect Whis running in the background as a separate app.</p>
+                      <p class="pb-6 text-slate-600 text-sm leading-relaxed">Yes. Whis listens to system audio and scans the screen using technology that runs entirely outside of your browser. Meeting tools like Zoom or Teams only see the browser; they cannot detect Whis running in the background as a separate app.</p>
                   </div>
               </div>
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
                   <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Can I get a refund if it doesn't work?</h3>
+                      <h3 class="text-sm font-bold text-slate-900">Can I get a refund if it doesn't work?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
                   </div>
                   <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the app doesn't work on your laptop or you face issues we can't solve, simply email support for a full refund. No questions asked.</p>
+                      <p class="pb-6 text-slate-600 text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the app doesn't work on your laptop or you face issues we can't solve, simply email support for a full refund. No questions asked.</p>
                   </div>
               </div>
-              <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
                   <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Does it work for Python, Java and C++?</h3>
+                      <h3 class="text-sm font-bold text-slate-900">Does it work for Python, Java and C++?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
                   </div>
                   <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can choose your language in settings, and the AI will write code in that specific language.</p>
+                      <p class="pb-6 text-slate-600 text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can choose your language in settings, and the AI will write code in that specific language.</p>
                   </div>
               </div>
-               <div class="group border border-white/10 rounded-xl overflow-hidden bg-white/5 hover:border-white/20 transition cursor-pointer" onclick="this.classList.toggle('active')">
+               <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
                   <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-sm font-bold text-white">Does it work on Mac and Windows?</h3>
+                      <h3 class="text-sm font-bold text-slate-900">Does it work on Mac and Windows?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300"></i>
                   </div>
                   <div class="faq-answer px-6">
-                      <p class="pb-6 text-slate-400 text-sm leading-relaxed">Yes, we have apps for both Windows (10/11) and macOS (Intel & M1/M2/M3 chips). Linux support is coming soon.</p>
+                      <p class="pb-6 text-slate-600 text-sm leading-relaxed">Yes, we have apps for both Windows (10/11) and macOS (Intel & M1/M2/M3 chips). Linux support is coming soon.</p>
                   </div>
               </div>
           </div>
       </div>
   </section>
 
-  <footer class="py-12 bg-black border-t border-white/5 flex flex-col items-center gap-6 pb-32 md:pb-12">
+  <footer class="py-12 bg-slate-100 border-t border-slate-200 flex flex-col items-center gap-6 pb-32 md:pb-12">
     <div class="flex flex-wrap justify-center gap-6 text-slate-500 text-xs font-medium">
-        <a href="/contact" class="hover:text-white transition">Contact</a>
-        <a href="/troubleshoot" class="hover:text-white transition">Troubleshoot</a>
-        <a href="/shipping-policy" class="hover:text-white transition">Shipping Policy</a>
-        <a href="/support" class="hover:text-white transition">Support</a>
-        <a href="/terms" class="hover:text-white transition">Terms</a>
-        <a href="/refund-policy" class="hover:text-white transition">Refund Policy</a>
-        <a href="/privacy" class="hover:text-white transition">Privacy</a>
+        <a href="/contact" class="hover:text-slate-900 transition">Contact</a>
+        <a href="/troubleshoot" class="hover:text-slate-900 transition">Troubleshoot</a>
+        <a href="/shipping-policy" class="hover:text-slate-900 transition">Shipping Policy</a>
+        <a href="/support" class="hover:text-slate-900 transition">Support</a>
+        <a href="/terms" class="hover:text-slate-900 transition">Terms</a>
+        <a href="/refund-policy" class="hover:text-slate-900 transition">Refund Policy</a>
+        <a href="/privacy" class="hover:text-slate-900 transition">Privacy</a>
     </div>
-    <p class="text-slate-600 text-[10px]">Built for those who refuse to lose.</p>
+    <p class="text-slate-500 text-[10px]">Built for those who refuse to lose.</p>
   </footer>
 
-  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-      <div class="perf-card p-10 max-w-sm w-full text-center relative border border-white/20 shadow-2xl">
-        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-xl font-medium text-white mb-8">Sign In</h3>
+  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+      <div class="perf-card p-10 max-w-sm w-full text-center relative border border-slate-200 shadow-2xl bg-white">
+        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
+        <h3 class="text-xl font-medium text-slate-900 mb-8">Sign In</h3>
         <div id="googleBtnContainer" class="flex justify-center h-[50px] overflow-hidden"></div>
       </div>
   </div>
 
-  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-      <div class="perf-card p-8 max-sm w-full text-center border border-green-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-          <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-              <i class="fa-solid fa-check text-2xl text-green-400"></i>
+  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+      <div class="perf-card p-8 max-sm w-full text-center border border-green-300 shadow-[0_0_50px_rgba(16,185,129,0.1)] bg-white">
+          <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6">
+              <i class="fa-solid fa-check text-2xl text-green-500"></i>
           </div>
-          <h3 class="text-xl font-bold text-white mb-2">Upgrade Complete</h3>
-          <p class="text-slate-400 text-sm mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
-          <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition">Initialize System</button>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Upgrade Complete</h3>
+          <p class="text-slate-600 text-sm mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
+          <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 shadow transition">Initialize System</button>
       </div>
   </div>
 
-<div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
-    <div class="perf-card p-10 max-w-md w-full text-center border border-white/10 relative shadow-[0_0_50px_rgba(0,0,0,1)]">
-        <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-500 hover:text-white transition">
+<div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl">
+    <div class="perf-card p-10 max-w-md w-full text-center border border-slate-200 bg-white relative shadow-2xl">
+        <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-900 transition">
             <i class="fa-solid fa-times text-lg"></i>
         </button>
          
         <div class="mb-6">
-            <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">Secure Checkout</h3>
+            <h3 class="text-2xl font-bold text-slate-900 mb-2 tracking-tight">Secure Checkout</h3>
             <p class="text-xs text-slate-500 uppercase tracking-widest font-mono">Select your preferred gateway</p>
         </div>
 
         <div class="mb-6 flex gap-2">
-            <input type="text" id="couponInput" placeholder="Discount Coupon" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-sm text-white focus:border-accent outline-none uppercase">
-            <button onclick="applyCoupon()" class="bg-accent text-black font-bold px-4 py-2 rounded-lg text-xs whitespace-nowrap hover:bg-white transition">Apply</button>
+            <input type="text" id="couponInput" placeholder="Discount Coupon" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-2 text-sm text-slate-900 focus:border-accent outline-none uppercase placeholder:text-slate-400">
+            <button onclick="applyCoupon()" class="bg-accent text-white font-bold px-4 py-2 rounded-lg text-xs whitespace-nowrap hover:bg-sky-700 shadow transition">Apply</button>
         </div>
         <div id="couponMessage" class="text-xs font-bold mb-4 hidden"></div>
 
         <div class="space-y-4">
-            <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-accent/50 hover:bg-accent/5 transition-all duration-300">
+            <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-accent hover:bg-sky-50 transition-all duration-300">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-credit-card text-lg"></i>
                     </div>
                     <div class="text-left">
-                        <div class="text-sm font-bold text-white">Razorpay</div>
+                        <div class="text-sm font-bold text-slate-900">Razorpay</div>
                         <div class="text-[10px] text-slate-500">Cards, UPI, Netbanking (INR)</div>
                     </div>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-accent transition"></i>
+                <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-accent transition"></i>
             </button>
 
             <div class="relative flex py-3 items-center">
-                <div class="flex-grow border-t border-white/5"></div>
-                <span class="flex-shrink mx-4 text-[9px] font-mono text-slate-600 tracking-widest uppercase">Global Payments</span>
-                <div class="flex-grow border-t border-white/5"></div>
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-[9px] font-mono text-slate-400 tracking-widest uppercase">Global Payments</span>
+                <div class="flex-grow border-t border-slate-200"></div>
             </div>
 
             <div id="paypal-button-container" class="w-full overflow-hidden rounded-2xl"></div>
         </div>
         
-        <p class="mt-8 text-[10px] text-slate-600 flex items-center justify-center gap-2">
+        <p class="mt-8 text-[10px] text-slate-500 flex items-center justify-center gap-2">
             <i class="fa-solid fa-lock"></i> 256-bit Encrypted Transaction
         </p>
     </div>
 </div>
 
-<div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="perf-card p-10 max-w-md w-full border border-white/10 relative shadow-2xl">
-        <button onclick="closeEnterpriseModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times text-lg"></i></button>
-        <h3 class="text-2xl font-bold text-white mb-2">Enterprise Inquiry</h3>
-        <p class="text-xs text-slate-400 mb-6">Let's build a custom plan for your team.</p>
+<div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+    <div class="perf-card p-10 max-w-md w-full border border-slate-200 bg-white relative shadow-2xl">
+        <button onclick="closeEnterpriseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times text-lg"></i></button>
+        <h3 class="text-2xl font-bold text-slate-900 mb-2">Enterprise Inquiry</h3>
+        <p class="text-xs text-slate-600 mb-6">Let's build a custom plan for your team.</p>
         <form id="entForm" onsubmit="submitEnterpriseForm(event)" class="space-y-4 text-left">
-            <input type="email" id="entEmail" placeholder="Work Email" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none">
-            <input type="tel" id="entMobile" placeholder="Mobile Number" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none">
-            <textarea id="entQuery" placeholder="Tell us about your team's needs, team size, etc..." required rows="4" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-accent outline-none resize-none"></textarea>
-            <button type="submit" id="entSubmitBtn" class="w-full py-4 mt-2 rounded-xl bg-accent text-black font-bold uppercase tracking-widest hover:bg-white transition">Submit Inquiry</button>
+            <input type="email" id="entEmail" placeholder="Work Email" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-900 focus:border-accent outline-none placeholder:text-slate-400">
+            <input type="tel" id="entMobile" placeholder="Mobile Number" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-900 focus:border-accent outline-none placeholder:text-slate-400">
+            <textarea id="entQuery" placeholder="Tell us about your team's needs, team size, etc..." required rows="4" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm text-slate-900 focus:border-accent outline-none resize-none placeholder:text-slate-400"></textarea>
+            <button type="submit" id="entSubmitBtn" class="w-full py-4 mt-2 rounded-xl bg-accent text-white font-bold uppercase tracking-widest hover:bg-sky-700 shadow transition">Submit Inquiry</button>
         </form>
     </div>
 </div>
 
-  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="perf-card p-8 max-md w-full border border-white/10">
-        <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-lg font-medium text-white mb-6">Select Platform</h3>
+  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+    <div class="perf-card p-8 max-md w-full border border-slate-200 bg-white shadow-2xl">
+        <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
+        <h3 class="text-lg font-medium text-slate-900 mb-6">Select Platform</h3>
         <div class="space-y-3">
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.m/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
-                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
-                <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i>
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.m/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm">
+                <span class="flex items-center gap-3 text-sm text-slate-900 font-bold"><i class="fa-brands fa-apple text-xl"></i> macOS</span>
+                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
             </a>
-            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.w/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition group">
-                <span class="flex items-center gap-3 text-sm text-white font-bold"><i class="fa-brands fa-windows text-xl"></i> Windows</span>
-                <i class="fa-solid fa-arrow-right text-slate-500 group-hover:text-white"></i>
+            <a href="https://github.com/syedwaseemfahad/whis-releases/releases/download/v.1.8.w/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm">
+                <span class="flex items-center gap-3 text-sm text-slate-900 font-bold"><i class="fa-brands fa-windows text-xl"></i> Windows</span>
+                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
             </a>
         </div>
     </div>
   </div>
 
-  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-    <div class="perf-card p-8 max-sm w-full text-center border border-white/10">
-        <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+    <div class="perf-card p-8 max-sm w-full text-center border border-slate-200 bg-white shadow-2xl">
+        <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
         <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-accent p-1" />
-        <h3 id="modalUserName" class="text-lg font-bold text-white mb-6">User</h3>
-        <div class="bg-white/5 rounded-xl p-6 text-left mb-6 border border-white/5">
+        <h3 id="modalUserName" class="text-lg font-bold text-slate-900 mb-6">User</h3>
+        <div class="bg-slate-50 rounded-xl p-6 text-left mb-6 border border-slate-200 shadow-inner">
             <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
             <div class="flex justify-between items-baseline">
-                <span id="modalPlanName" class="text-xl font-bold text-white">Free</span>
-                <span id="modalPlanStatus" class="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">ACTIVE</span>
+                <span id="modalPlanName" class="text-xl font-bold text-slate-900">Free</span>
+                <span id="modalPlanStatus" class="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-700 font-bold">ACTIVE</span>
             </div>
-            <div id="modalPlanValidity" class="text-[10px] text-slate-400 mt-2"></div>
+            <div id="modalPlanValidity" class="text-[10px] text-slate-500 mt-2"></div>
         </div>
-        <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-bold uppercase transition">Sign Out</button>
+        <button onclick="logout()" class="w-full py-3 rounded-lg bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 text-xs font-bold uppercase transition">Sign Out</button>
     </div>
   </div>
 
@@ -1061,9 +1062,9 @@
             video.playsInline = true; 
             
             if(window.innerWidth < 768) {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;";
+               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#f8fafc;";
             } else {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#000;"; 
+               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#f8fafc;"; 
             }
             div.appendChild(video);
             container.appendChild(div);
@@ -1344,7 +1345,7 @@
         profileTrigger.classList.add('flex'); 
         document.getElementById('navUserAvatar').src = u.avatarUrl; 
         document.getElementById('navPlanBadge').innerText = "FREE";
-        document.getElementById('navPlanBadge').classList.add('text-slate-400');
+        document.getElementById('navPlanBadge').classList.add('text-slate-500');
     }
      
     async function handleGoogleRes(res){
@@ -1374,7 +1375,7 @@
                 discounted = (amount * (1 - discount/100)).toFixed(2);
                 displayAmount = displayAmount.toFixed(2);
             }
-            return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-500 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-black bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
         
         const finalVal = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
@@ -1385,11 +1386,11 @@
         currentCycle=c;
         const btnM=document.getElementById('btnMonthly'); const btnQ=document.getElementById('btnQuarterly');
         if(c==='monthly'){
-            btnM.className="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black shadow-lg transition-all"; 
-            btnQ.className="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-white transition-all";
+            btnM.className="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
+            btnQ.className="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
         } else {
-            btnQ.className="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-black shadow-lg transition-all"; 
-            btnM.className="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-white transition-all";
+            btnQ.className="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
+            btnM.className="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
         }
         updatePricingUI();
     }
@@ -1406,12 +1407,12 @@
             proPrice = PRICING_CONFIG.pro.monthly;
             elitePrice = PRICING_CONFIG.pro_plus.monthly;
             proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-300 block font-normal mt-1">/month</span>`;
         } else {
             proPrice = PRICING_CONFIG.pro.quarterly;
             elitePrice = PRICING_CONFIG.pro_plus.quarterly;
             proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-300 block font-normal mt-1">/quarter</span>`;
         }
     }
 
@@ -1425,7 +1426,7 @@
             const validityEl = document.getElementById('modalPlanValidity');
             if(d.active){
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
-                badge.classList.remove('text-slate-400');
+                badge.classList.remove('text-slate-500');
                 badge.classList.add('text-accent');
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
@@ -1440,7 +1441,7 @@
                 if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
             } else {
                 badge.innerText = 'FREE';
-                badge.classList.add('text-slate-400');
+                badge.classList.add('text-slate-500');
                 badge.classList.remove('text-accent');
                 document.getElementById('modalPlanName').innerText = 'Free Tier';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
@@ -1468,12 +1469,12 @@
                 currentCoupon = code;
                 currentCouponDiscount = data.discount;
                 msgEl.innerText = `✅ ${data.discount}% Discount Applied!`;
-                msgEl.className = "text-xs text-green-400 mb-4 font-bold block";
+                msgEl.className = "text-xs text-green-600 mb-4 font-bold block";
             } else {
                 currentCoupon = "";
                 currentCouponDiscount = 0;
                 msgEl.innerText = `❌ Invalid Coupon`;
-                msgEl.className = "text-xs text-red-400 mb-4 font-bold block";
+                msgEl.className = "text-xs text-red-500 mb-4 font-bold block";
             }
         } catch(e) {}
     }
@@ -1595,7 +1596,7 @@
                             alert("Network Error during verification.");
                         }
                     },
-                    "theme": { "color": "#00f2ff" },
+                    "theme": { "color": "#0284c7" },
                     "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
                 rzp1.open();
@@ -1623,7 +1624,6 @@
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
-    // ENTERPRISE MODAL LOGIC (KEPT IN CODEBASE AS REQUESTED, THOUGH NOT TRIGGERED)
     function openEnterpriseModal() { 
         document.getElementById('enterpriseModal').classList.remove('hidden'); 
         document.getElementById('enterpriseModal').classList.add('flex'); 
@@ -1674,12 +1674,14 @@
     const hasApplied = localStorage.getItem('whis_fomo_applied');
 
     function closeFomoModal() {
+        if(!fomoModal) return;
         fomoModal.classList.add('hidden');
         fomoModal.classList.remove('flex');
     }
 
     function startSlotsCountdown() {
         const slotEl = document.getElementById('slots-left');
+        if(!slotEl) return;
         let slots = 14;
         setInterval(() => {
             if(Math.random() > 0.7 && slots > 3) {
@@ -1719,12 +1721,14 @@
                 localStorage.setItem('whis_fomo_applied', 'true');
                 closeFomoModal();
                 const toast = document.getElementById('fomoSuccess');
-                toast.classList.remove('hidden');
-                toast.classList.add('flex');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                    toast.classList.remove('flex');
-                }, 5000);
+                if(toast) {
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                        toast.classList.remove('flex');
+                    }, 5000);
+                }
             } else {
                 alert(data.error || "Something went wrong.");
                 btn.disabled = false;
@@ -1773,6 +1777,7 @@
 
     function showPurchaseToast() {
         const toast = document.getElementById('purchaseToast');
+        if(!toast) return;
         const user = document.getElementById('toastUser');
         const randomBuyer = buyers[Math.floor(Math.random() * buyers.length)];
         
@@ -1809,8 +1814,8 @@
         setCycle('quarterly');
     });
   </script>
-  <div id="purchaseToast" class="fixed bottom-6 left-6 z-[200] hidden items-center gap-3 bg-white text-black p-3 rounded-xl shadow-2xl animate-bounce-slow">
-    <div class="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600">
+  <div id="purchaseToast" class="fixed bottom-6 left-6 z-[200] hidden items-center gap-3 bg-white text-slate-900 p-3 rounded-xl shadow-xl animate-bounce-slow border border-slate-200">
+    <div class="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
         <i class="fa-solid fa-shopping-cart text-xs"></i>
     </div>
     <div class="pr-4">
