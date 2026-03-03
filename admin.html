@@ -1,131 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Support Admin</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whis-AI Support Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-slate-100 p-6">
+<body class="h-screen flex overflow-hidden">
 
-<div class="max-w-md mx-auto mb-6 bg-yellow-100 border border-yellow-300 p-4 rounded-xl text-sm">
-  <div class="font-bold mb-2">🔎 Debug: Loaded Admin Password From Server</div>
-  <div id="debugPassword" class="font-mono text-red-600">Loading...</div>
-</div>
-
-<div id="loginBox" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
-  <h2 class="text-lg font-bold mb-4">Admin Login</h2>
-  <input id="adminPass" type="password" placeholder="Password" class="border w-full p-2 mb-3 rounded">
-  <button onclick="login()" class="bg-sky-500 text-white px-4 py-2 rounded w-full">Login</button>
-</div>
-
-<div id="adminPanel" class="hidden grid grid-cols-3 gap-4 h-[80vh] mt-6">
-
-  <div class="bg-white p-4 rounded-xl overflow-y-auto" id="conversationList"></div>
-
-  <div class="col-span-2 bg-white p-4 rounded-xl flex flex-col">
-    <div id="chatArea" class="flex-1 overflow-y-auto mb-3"></div>
-    <div class="flex gap-2">
-      <input id="replyInput" class="flex-1 border p-2 rounded">
-      <button onclick="sendReply()" class="bg-sky-500 text-white px-4 rounded">Send</button>
+    <div id="adminLogin" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-shield-halved text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Support Portal</h2>
+            <p class="text-xs text-slate-500 mb-6">Enter admin password to access live chats.</p>
+            <input type="password" id="adminPwd" placeholder="Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm focus:border-sky-500 outline-none mb-4" onkeypress="if(event.key === 'Enter') loginAdmin()">
+            <button onclick="loginAdmin()" class="w-full bg-sky-600 text-white font-bold py-3 rounded-lg hover:bg-sky-700 transition shadow-sm">Access Portal</button>
+            <p id="loginError" class="text-xs text-red-500 mt-3 hidden">Incorrect Password.</p>
+        </div>
     </div>
-  </div>
 
-</div>
+    <div id="adminDashboard" class="flex w-full h-full hidden">
+        
+        <div class="w-80 bg-white border-r border-slate-200 flex flex-col h-full shadow-sm z-10">
+            <div class="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <h1 class="font-bold text-sm"><i class="fa-solid fa-headset mr-2 text-sky-400"></i> Active Chats</h1>
+                <button onclick="logoutAdmin()" class="text-xs text-slate-400 hover:text-white transition"><i class="fa-solid fa-sign-out-alt"></i></button>
+            </div>
+            <div id="userList" class="flex-1 overflow-y-auto no-scrollbar divide-y divide-slate-100">
+                </div>
+        </div>
 
-<script>
-let adminPassword = "";
-let selectedEmail = "";
+        <div class="flex-1 flex flex-col bg-slate-50 relative">
+            
+            <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 z-20">
+                <i class="fa-regular fa-comments text-6xl text-slate-300 mb-4"></i>
+                <p class="text-slate-500 font-medium">Select a user from the sidebar to start chatting.</p>
+            </div>
 
-// Load debug password
-async function loadDebugPassword() {
-  try {
-    const res = await fetch("/api/support/admin/debug-password");
-    const data = await res.json();
-    document.getElementById("debugPassword").innerText = data.loadedPassword;
-  } catch (err) {
-    document.getElementById("debugPassword").innerText = "Error loading";
-  }
-}
+            <div id="activeChat" class="hidden flex-col h-full z-10">
+                <div class="bg-white border-b border-slate-200 p-4 shrink-0 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h2 id="activeEmail" class="font-bold text-slate-900 text-sm">user@example.com</h2>
+                            <p class="text-[10px] text-green-500 font-bold tracking-widest uppercase">Live</p>
+                        </div>
+                    </div>
+                </div>
 
-loadDebugPassword();
+                <div id="adminMessagesArea" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar flex flex-col">
+                    </div>
 
-async function login() {
-  const password = document.getElementById("adminPass").value;
+                <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+                    <div class="flex gap-2">
+                        <input type="text" id="adminInput" placeholder="Type your reply..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" onkeypress="if(event.key === 'Enter') sendAdminMessage()">
+                        <button onclick="sendAdminMessage()" class="bg-sky-600 text-white px-6 rounded-xl font-bold hover:bg-sky-700 transition shadow-sm"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
 
-  const res = await fetch("/api/support/admin/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ password })
-  });
+        </div>
+    </div>
 
-  if (res.ok) {
-    adminPassword = password;
-    document.getElementById("loginBox").classList.add("hidden");
-    document.getElementById("adminPanel").classList.remove("hidden");
-    loadConversations();
-  } else {
-    alert("Wrong password");
-  }
-}
+    <script>
+        const BACKEND_URL = "https://whis-backend.onrender.com"; // Adjust if testing locally
+        let adminPassword = sessionStorage.getItem('whisAdminPwd');
+        let selectedEmail = null;
+        let pollInterval = null;
+        let activeChatCount = 0;
 
-async function loadConversations() {
-  const res = await fetch("/api/support/admin/conversations", {
-    headers: { "x-admin-password": adminPassword }
-  });
+        // Auto-login check
+        if(adminPassword) {
+            checkLogin();
+        }
 
-  const data = await res.json();
-  const list = document.getElementById("conversationList");
-  list.innerHTML = "";
+        async function loginAdmin() {
+            const pwd = document.getElementById('adminPwd').value;
+            const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            });
+            const data = await res.json();
+            if(data.success) {
+                adminPassword = pwd;
+                sessionStorage.setItem('whisAdminPwd', pwd);
+                showDashboard();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
 
-  data.forEach(c => {
-    const div = document.createElement("div");
-    div.className = "p-2 border-b cursor-pointer hover:bg-slate-50";
-    div.innerText = c.userEmail;
-    div.onclick = () => loadChat(c.userEmail);
-    list.appendChild(div);
-  });
-}
+        async function checkLogin() {
+            const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: adminPassword })
+            });
+            const data = await res.json();
+            if(data.success) showDashboard();
+            else { sessionStorage.removeItem('whisAdminPwd'); adminPassword = null; }
+        }
 
-async function loadChat(email) {
-  selectedEmail = email;
-  const res = await fetch(`/api/support/messages?email=${email}`);
-  const data = await res.json();
+        function logoutAdmin() {
+            sessionStorage.removeItem('whisAdminPwd');
+            adminPassword = null;
+            clearInterval(pollInterval);
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('adminLogin').classList.remove('hidden');
+        }
 
-  const chatArea = document.getElementById("chatArea");
-  chatArea.innerHTML = "";
+        function showDashboard() {
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            pollData();
+            pollInterval = setInterval(pollData, 3000);
+        }
 
-  data.messages.forEach(m => {
-    const div = document.createElement("div");
-    div.className = m.sender === "admin" ? "text-right mb-2" : "text-left mb-2";
-    div.innerHTML = `<div class="inline-block px-3 py-2 rounded ${
-      m.sender === "admin"
-      ? "bg-sky-500 text-white"
-      : "bg-slate-200"
-    }">${m.message}</div>`;
-    chatArea.appendChild(div);
-  });
+        async function pollData() {
+            // Fetch User List
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/chats`);
+                const data = await res.json();
+                if(data.success) renderSidebar(data.chats);
+            } catch(e) {}
 
-  chatArea.scrollTop = chatArea.scrollHeight;
-}
+            // Fetch Active Chat
+            if(selectedEmail) {
+                try {
+                    const chatRes = await fetch(`${BACKEND_URL}/api/chat/history/${encodeURIComponent(selectedEmail)}`);
+                    const chatData = await chatRes.json();
+                    if(chatData.success) renderChat(chatData.messages);
+                } catch(e) {}
+            }
+        }
 
-async function sendReply() {
-  const message = document.getElementById("replyInput").value;
+        function renderSidebar(chats) {
+            const list = document.getElementById('userList');
+            list.innerHTML = '';
+            
+            if(chats.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 p-4 text-center">No active chats.</p>';
+            }
 
-  await fetch("/api/support/admin/reply", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-password": adminPassword
-    },
-    body: JSON.stringify({
-      email: selectedEmail,
-      message
-    })
-  });
+            chats.forEach(chat => {
+                const isSelected = chat._id === selectedEmail;
+                const div = document.createElement('div');
+                div.className = `p-4 cursor-pointer hover:bg-slate-50 transition border-l-4 ${isSelected ? 'border-sky-500 bg-sky-50/50' : 'border-transparent'}`;
+                div.onclick = () => selectUser(chat._id);
+                
+                const timeStr = new Date(chat.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-  document.getElementById("replyInput").value = "";
-  loadChat(selectedEmail);
-}
-</script>
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-sm text-slate-900 truncate pr-2">${chat._id}</span>
+                        <span class="text-[10px] text-slate-400 whitespace-nowrap">${timeStr}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-slate-500 truncate pr-2">${chat.latestMessage}</span>
+                        ${chat.unreadCount > 0 ? `<span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">${chat.unreadCount}</span>` : ''}
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
 
+        function selectUser(email) {
+            selectedEmail = email;
+            activeChatCount = 0; // reset to force scroll to bottom on first load
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('activeChat').classList.remove('hidden');
+            document.getElementById('activeChat').classList.add('flex');
+            document.getElementById('activeEmail').innerText = email;
+            
+            // Mark read immediately
+            fetch(`${BACKEND_URL}/api/admin/mark-read`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: selectedEmail, password: adminPassword })
+            });
+
+            pollData();
+        }
+
+        function renderChat(messages) {
+            const area = document.getElementById('adminMessagesArea');
+            area.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                // If it is support, it's on the right (blue). If user, on the left (white/gray).
+                div.className = `max-w-[75%] p-4 rounded-2xl text-sm shadow-sm ${msg.isSupport ? 'bg-sky-600 text-white self-end rounded-tr-sm' : 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm'}`;
+                div.innerText = msg.text;
+                area.appendChild(div);
+            });
+
+            if(messages.length > activeChatCount) {
+                area.scrollTop = area.scrollHeight;
+                activeChatCount = messages.length;
+            }
+        }
+
+        async function sendAdminMessage() {
+            const input = document.getElementById('adminInput');
+            const text = input.value.trim();
+            if(!text || !selectedEmail) return;
+
+            input.value = '';
+
+            const area = document.getElementById('adminMessagesArea');
+            const tempDiv = document.createElement('div');
+            tempDiv.className = `max-w-[75%] p-4 rounded-2xl text-sm shadow-sm bg-sky-600/80 text-white self-end rounded-tr-sm`;
+            tempDiv.innerText = text;
+            area.appendChild(tempDiv);
+            area.scrollTop = area.scrollHeight;
+
+            try {
+                await fetch(`${BACKEND_URL}/api/admin/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: selectedEmail, text, password: adminPassword })
+                });
+                pollData();
+            } catch(e) {
+                alert("Failed to send reply");
+            }
+        }
+    </script>
 </body>
 </html>
