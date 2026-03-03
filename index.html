@@ -228,11 +228,11 @@
         </div>
         <div>
             <p class="text-[12px] text-slate-900 font-bold leading-tight">Claim your 20% Discount</p>
-            <p class="text-[10px] text-slate-500 leading-tight">Enter WhatsApp to receive your unique code.</p>
+            <p class="text-[10px] text-slate-500 leading-tight">Enter Email to get a chat response instantly.</p>
         </div>
     </div>
     <div class="flex w-full md:w-auto gap-2">
-        <input type="tel" id="leadWhatsapp" placeholder="WhatsApp Number" class="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-sky-500 outline-none placeholder:text-slate-400">
+        <input type="email" id="leadEmail" placeholder="Your Email Address" class="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 focus:border-sky-500 outline-none placeholder:text-slate-400">
         <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-sky-500 text-white text-[10px] font-black px-4 py-2 rounded-lg whitespace-nowrap hover:bg-sky-600 hover:scale-105 transition-all shadow-md">GET CODE</button>
     </div>
     <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-white border border-slate-200 rounded-full text-[10px] flex items-center justify-center text-slate-400 hover:text-slate-700 shadow-sm">✕</button>
@@ -292,14 +292,10 @@
       </button>
   </div>
 
-  <!--<a href="https://wa.me/8669110499" target="_blank" class="fixed bottom-28 right-4 z-40 bg-[#25D366] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
-      <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
-      <span class="absolute right-14 bg-white text-slate-900 border border-slate-100 shadow-sm text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Need help?</span>
-  </a>-->
-
-  <!-- WhatsApp removed, replaced with live support -->
-
- 
+  <button onclick="toggleLiveChat()" class="fixed bottom-28 right-4 z-40 bg-sky-600 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
+      <i class="fa-solid fa-comments text-white text-2xl"></i>
+      <span class="absolute right-14 bg-white text-slate-900 border border-slate-100 shadow-sm text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Live Support</span>
+  </button>
 
   <section class="relative pt-28 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
     <div class="relative z-10 text-center max-w-5xl px-6 mb-10 flex flex-col items-center">
@@ -416,7 +412,7 @@
             <p class="text-sm text-slate-600">
                 <i class="fa-solid fa-graduation-cap text-sky-600 mr-2"></i> 
                 Struggling with budget or currently unemployed? 
-                <a href="https://wa.me/8669110499?text=Hi, I am struggling with budget. Can I get a discount?" target="_blank" class="text-sky-600 font-bold hover:underline ml-1">
+                <a href="#" onclick="toggleLiveChat('Hi, I am struggling with budget. Can I get a discount?'); return false;" class="text-sky-600 font-bold hover:underline ml-1">
                     Talk to our team for a scholarship discount.
                 </a>
             </p>
@@ -1047,6 +1043,29 @@
     </div>
   </div>
 
+  <div id="liveChatWidget" class="fixed bottom-20 right-4 md:bottom-24 md:right-8 z-[60] w-[320px] h-[450px] bg-white border border-slate-200 shadow-2xl rounded-2xl flex-col hidden overflow-hidden transition-all duration-300">
+      <div class="bg-sky-600 text-white p-4 flex justify-between items-center shadow-sm z-10">
+          <div class="font-bold text-sm"><i class="fa-solid fa-headset mr-2"></i> Live Support</div>
+          <button onclick="toggleLiveChat()" class="text-sky-100 hover:text-white"><i class="fa-solid fa-times"></i></button>
+      </div>
+      
+      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-6 bg-slate-50 relative">
+          <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-envelope text-xl"></i></div>
+          <p class="text-xs text-slate-600 mb-4 text-center">Please enter your email to start chatting with us.</p>
+          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-sky-500 outline-none mb-3">
+          <button onclick="startChatAuth()" class="w-full bg-sky-600 text-white font-bold text-xs py-2 rounded-lg hover:bg-sky-700 shadow-sm transition">Start Chat</button>
+      </div>
+
+      <div id="chatInterface" class="flex-1 flex-col hidden h-full relative bg-slate-50">
+          <div id="chatMessagesArea" class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col no-scrollbar" style="max-height: calc(100% - 60px);">
+              </div>
+          <div class="p-3 bg-white border-t border-slate-200 flex gap-2 absolute bottom-0 w-full">
+              <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-sky-500 outline-none" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+              <button onclick="sendChatMessage()" class="bg-sky-600 text-white px-3 py-2 rounded-lg hover:bg-sky-700 transition"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+          </div>
+      </div>
+  </div>
+
   <script>
     const videos = [
         { src: 'visual.mp4', label: 'READING SCREEN' },
@@ -1312,7 +1331,7 @@
         animate();
     }
 
-    const BACKEND_URL="https://whis-backend.onrender.com";
+    const BACKEND_URL="https://whis-backend.onrender.com"; // Adjust if testing locally
     let currentUser = null; 
     let currentCycle = 'monthly'; 
     let currentTier = 'free';
@@ -1748,25 +1767,135 @@
         }
     }
 
-    async function submitLeadAndChat() {
-        const num = document.getElementById('leadWhatsapp').value;
-        const btn = document.getElementById('leadBtn');
+    // Live Chat Functionality
+    let chatEmail = localStorage.getItem('chatEmail') || null;
+    let chatPollInterval = null;
+    let lastChatCount = 0;
+
+    function toggleLiveChat(prefillMsg = null) {
+        const widget = document.getElementById('liveChatWidget');
+        widget.classList.toggle('hidden');
+        widget.classList.toggle('flex');
         
-        if(!num || num.length < 8) { 
-            alert("Please enter your WhatsApp number to get the discount."); 
+        if(widget.classList.contains('flex')) {
+            initChat();
+            startChatPolling();
+            if(prefillMsg) {
+                document.getElementById('chatInput').value = prefillMsg;
+                setTimeout(sendChatMessage, 200); 
+            }
+        } else {
+            stopChatPolling();
+        }
+    }
+
+    function initChat() {
+        if (currentUser) chatEmail = currentUser.email;
+
+        if (chatEmail) {
+            document.getElementById('chatAuthScreen').classList.add('hidden');
+            document.getElementById('chatInterface').classList.remove('hidden');
+            document.getElementById('chatInterface').classList.add('flex');
+            fetchChatHistory();
+        } else {
+            document.getElementById('chatAuthScreen').classList.remove('hidden');
+            document.getElementById('chatInterface').classList.add('hidden');
+            document.getElementById('chatInterface').classList.remove('flex');
+        }
+    }
+
+    function startChatAuth() {
+        const emailInput = document.getElementById('chatAuthEmail').value.trim();
+        if (!emailInput || !emailInput.includes('@')) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        chatEmail = emailInput;
+        localStorage.setItem('chatEmail', chatEmail);
+        initChat();
+    }
+
+    async function fetchChatHistory() {
+        if (!chatEmail) return;
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chat/history/${encodeURIComponent(chatEmail)}`);
+            const data = await res.json();
+            if (data.success) {
+                renderChatMessages(data.messages);
+            }
+        } catch(e) { console.error("Chat sync error"); }
+    }
+
+    function renderChatMessages(messages) {
+        const area = document.getElementById('chatMessagesArea');
+        area.innerHTML = '';
+        
+        if(messages.length === 0) {
+            area.innerHTML = '<p class="text-[10px] text-slate-400 text-center mt-10">Start a conversation with our support team.</p>';
+        }
+
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = `max-w-[85%] p-3 rounded-xl text-xs ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start' : 'bg-sky-600 text-white self-end'}`;
+            div.innerText = msg.text;
+            area.appendChild(div);
+        });
+
+        // Scroll to bottom if new messages arrived
+        if (messages.length > lastChatCount) {
+            area.scrollTop = area.scrollHeight;
+            lastChatCount = messages.length;
+        }
+    }
+
+    async function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text || !chatEmail) return;
+
+        input.value = '';
+        
+        // Optimistic UI update
+        const area = document.getElementById('chatMessagesArea');
+        const tempDiv = document.createElement('div');
+        tempDiv.className = `max-w-[85%] p-3 rounded-xl text-xs bg-sky-600/80 text-white self-end`;
+        tempDiv.innerText = text;
+        area.appendChild(tempDiv);
+        area.scrollTop = area.scrollHeight;
+
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/chat/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: chatEmail, text })
+            });
+            if (res.ok) fetchChatHistory();
+        } catch(e) { alert("Failed to send message. Try again."); }
+    }
+
+    function startChatPolling() {
+        if(chatPollInterval) clearInterval(chatPollInterval);
+        chatPollInterval = setInterval(fetchChatHistory, 3000);
+    }
+    
+    function stopChatPolling() {
+        if(chatPollInterval) clearInterval(chatPollInterval);
+    }
+
+    function submitLeadAndChat() {
+        const email = document.getElementById('leadEmail').value;
+        if(!email || !email.includes('@')) { 
+            alert("Please enter a valid email address to get the discount."); 
             return; 
         }
         
-        const message = encodeURIComponent(`Hi Whis-AI! I want to buy the subscription. Can you give me a discount? My number is ${num}`);
-        const whatsappUrl = `https://wa.me/8669110499?text=${message}`;
+        chatEmail = email;
+        localStorage.setItem('chatEmail', chatEmail);
+        
+        const message = `Hi Whis-AI! I want to buy the subscription. Can you give me a discount? My email is ${email}`;
+        toggleLiveChat(message);
 
-        window.location.href = whatsappUrl;
-
-        fetch(`https://api.whisai.com/api/fomo/apply`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ whatsapp: num, source: 'lead_bar' })
-        }).catch(e => console.log("Lead logged via WhatsApp redirect"));
+        document.getElementById('mobileLeadCapture').remove();
     }
 
     const buyers = [
@@ -1830,107 +1959,5 @@
         <p class="text-[9px] text-slate-500 leading-tight" id="toastAction">Just upgraded to Elite Stealth</p>
     </div>
 </div>
-
-<!-- ================= FULL PAGE LIVE CHAT ================= -->
-
-<div id="chatLauncher" class="fixed bottom-28 right-4 z-50">
-  <button onclick="openChat()" class="w-14 h-14 rounded-full bg-sky-500 text-white shadow-xl hover:scale-110 transition flex items-center justify-center">
-    <i class="fa-solid fa-comments text-xl"></i>
-  </button>
-</div>
-
-<div id="chatOverlay" class="hidden fixed inset-0 bg-black/40 z-[60]"></div>
-
-<div id="chatPanel" class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-white shadow-2xl z-[70] transform translate-x-full transition-transform duration-300 flex flex-col">
-
-  <div class="bg-sky-500 text-white p-4 flex justify-between items-center">
-    <div>
-      <div class="font-bold">Live Support</div>
-      <div class="text-xs opacity-80">We usually reply in a few minutes</div>
-    </div>
-    <button onclick="closeChat()" class="text-white text-lg">✕</button>
-  </div>
-
-  <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 text-sm"></div>
-
-  <div class="p-4 border-t flex gap-2">
-    <input id="chatInput" class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-sky-500" placeholder="Type your message..." />
-    <button onclick="sendMessage()" class="bg-sky-500 text-white px-4 rounded-lg">Send</button>
-  </div>
-
-</div>
-
-<script>
-let chatInterval = null;
-
-function openChat() {
-  document.getElementById("chatOverlay").classList.remove("hidden");
-  document.getElementById("chatPanel").classList.remove("translate-x-full");
-  fetchMessages();
-  chatInterval = setInterval(fetchMessages, 3000);
-}
-
-function closeChat() {
-  document.getElementById("chatOverlay").classList.add("hidden");
-  document.getElementById("chatPanel").classList.add("translate-x-full");
-  clearInterval(chatInterval);
-}
-
-async function sendMessage() {
-  const input = document.getElementById("chatInput");
-  const message = input.value.trim();
-  if (!message) return;
-
-  const user = JSON.parse(localStorage.getItem("whisUser"));
-  if (!user || !user.email) {
-    alert("Please login first.");
-    return;
-  }
-
-  await fetch("/api/support/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: user.email,
-      name: user.name,
-      message
-    })
-  });
-
-  input.value = "";
-  fetchMessages();
-}
-
-async function fetchMessages() {
-  const user = JSON.parse(localStorage.getItem("whisUser"));
-  if (!user || !user.email) return;
-
-  const res = await fetch(`/api/support/messages?email=${user.email}`);
-  const data = await res.json();
-
-  const container = document.getElementById("chatMessages");
-  container.innerHTML = "";
-
-  data.messages.forEach(m => {
-    const wrapper = document.createElement("div");
-    wrapper.className = m.sender === "user" ? "text-right" : "text-left";
-
-    wrapper.innerHTML = `
-      <div class="inline-block px-4 py-2 rounded-2xl ${
-        m.sender === "user"
-          ? "bg-sky-500 text-white"
-          : "bg-white border"
-      }">
-        ${m.message}
-      </div>
-    `;
-
-    container.appendChild(wrapper);
-  });
-
-  container.scrollTop = container.scrollHeight;
-}
-</script>
-  
 </body>
 </html>
