@@ -1830,5 +1830,103 @@
         <p class="text-[9px] text-slate-500 leading-tight" id="toastAction">Just upgraded to Elite Stealth</p>
     </div>
 </div>
+
+  <!-- ================= LIVE CHAT WIDGET ================= -->
+<div id="chatWidget" class="fixed bottom-28 right-4 z-50">
+
+  <button onclick="toggleChat()" class="w-14 h-14 rounded-full bg-sky-500 text-white shadow-xl hover:scale-110 transition flex items-center justify-center">
+    <i class="fa-solid fa-comments text-xl"></i>
+  </button>
+
+  <div id="chatBox" class="hidden mt-4 w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+
+    <div class="bg-sky-500 text-white p-4 text-sm font-bold">
+      Live Support
+    </div>
+
+    <div id="chatMessages" class="flex-1 p-3 overflow-y-auto text-sm space-y-2 bg-slate-50"></div>
+
+    <div class="p-3 border-t border-slate-200 flex gap-2">
+      <input id="chatInput" class="flex-1 border rounded-lg px-3 py-2 text-xs" placeholder="Type your message..." />
+      <button onclick="sendMessage()" class="bg-sky-500 text-white px-3 rounded-lg text-xs">Send</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let chatOpen = false;
+let chatInterval = null;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById("chatBox").classList.toggle("hidden");
+
+  if (chatOpen) {
+    fetchMessages();
+    chatInterval = setInterval(fetchMessages, 3000);
+  } else {
+    clearInterval(chatInterval);
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById("chatInput");
+  const message = input.value.trim();
+  if (!message) return;
+
+  const user = JSON.parse(localStorage.getItem("whisUser"));
+  if (!user || !user.email) {
+    alert("Please login first.");
+    return;
+  }
+
+  await fetch("/api/support/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: user.email,
+      name: user.name,
+      message
+    })
+  });
+
+  input.value = "";
+  fetchMessages();
+}
+
+async function fetchMessages() {
+  const user = JSON.parse(localStorage.getItem("whisUser"));
+  if (!user || !user.email) return;
+
+  const res = await fetch(`/api/support/messages?email=${user.email}`);
+  const data = await res.json();
+
+  const container = document.getElementById("chatMessages");
+  container.innerHTML = "";
+
+  data.messages.forEach(m => {
+    const div = document.createElement("div");
+    div.className = m.sender === "user"
+      ? "text-right"
+      : "text-left";
+
+    div.innerHTML = `
+      <div class="inline-block px-3 py-2 rounded-lg ${
+        m.sender === "user"
+          ? "bg-sky-500 text-white"
+          : "bg-white border"
+      }">
+        ${m.message}
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+
+  container.scrollTop = container.scrollHeight;
+}
+</script>
+  
 </body>
 </html>
