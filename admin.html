@@ -6,13 +6,18 @@
 </head>
 <body class="bg-slate-100 p-6">
 
+<div class="max-w-md mx-auto mb-6 bg-yellow-100 border border-yellow-300 p-4 rounded-xl text-sm">
+  <div class="font-bold mb-2">🔎 Debug: Loaded Admin Password From Server</div>
+  <div id="debugPassword" class="font-mono text-red-600">Loading...</div>
+</div>
+
 <div id="loginBox" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
   <h2 class="text-lg font-bold mb-4">Admin Login</h2>
   <input id="adminPass" type="password" placeholder="Password" class="border w-full p-2 mb-3 rounded">
-  <button onclick="login()" class="bg-sky-500 text-white px-4 py-2 rounded">Login</button>
+  <button onclick="login()" class="bg-sky-500 text-white px-4 py-2 rounded w-full">Login</button>
 </div>
 
-<div id="adminPanel" class="hidden grid grid-cols-3 gap-4 h-[80vh]">
+<div id="adminPanel" class="hidden grid grid-cols-3 gap-4 h-[80vh] mt-6">
 
   <div class="bg-white p-4 rounded-xl overflow-y-auto" id="conversationList"></div>
 
@@ -30,8 +35,22 @@
 let adminPassword = "";
 let selectedEmail = "";
 
+// Load debug password
+async function loadDebugPassword() {
+  try {
+    const res = await fetch("/api/support/admin/debug-password");
+    const data = await res.json();
+    document.getElementById("debugPassword").innerText = data.loadedPassword;
+  } catch (err) {
+    document.getElementById("debugPassword").innerText = "Error loading";
+  }
+}
+
+loadDebugPassword();
+
 async function login() {
   const password = document.getElementById("adminPass").value;
+
   const res = await fetch("/api/support/admin/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
