@@ -98,7 +98,7 @@
     
   <style>
     :root {
-        --accent: #0284c7; /* Sky 600 for great contrast on light */
+        --accent: #0284c7; 
         --accent-glow: rgba(2, 132, 199, 0.15);
     }
 
@@ -192,7 +192,6 @@
     .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
 
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
-    /* Light theme syntax highlighting */
     .keyword { color: #a626a4; } .function { color: #4078f2; } .string { color: #50a14f; } .number { color: #986801; } 
 
     .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(15,23,42,0.1); aspect-ratio: 16/9; background: #fff; box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15); --position: 50%; }
@@ -217,6 +216,9 @@
     
     .pricing-elite { position: relative; }
     .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+
+    /* Support for Safe Area on Mobile Browsers */
+    .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
   </style>
 </head>
 <body class="no-scrollbar">
@@ -292,9 +294,9 @@
       </button>
   </div>
 
-  <button onclick="toggleLiveChat()" class="fixed bottom-28 right-4 z-40 bg-sky-600 w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition md:bottom-8">
+  <button onclick="toggleLiveChat()" class="fixed bottom-28 right-4 z-40 bg-sky-600 w-14 h-14 rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(2,132,199,0.4)] hover:scale-110 transition-transform md:bottom-8 md:right-8">
       <i class="fa-solid fa-comments text-white text-2xl"></i>
-      <span class="absolute right-14 bg-white text-slate-900 border border-slate-100 shadow-sm text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap hidden md:block">Live Support</span>
+      <span class="absolute right-16 bg-white text-slate-900 border border-slate-100 shadow-sm text-[11px] font-bold py-1.5 px-3 rounded-lg whitespace-nowrap hidden md:block before:content-[''] before:absolute before:right-[-4px] before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:bg-white before:border-r before:border-t before:border-slate-100 before:rotate-45">Need Help?</span>
   </button>
 
   <section class="relative pt-28 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
@@ -1043,28 +1045,33 @@
     </div>
   </div>
 
-  <div id="liveChatWidget" class="fixed bottom-20 right-4 md:bottom-24 md:right-8 z-[60] w-[320px] h-[450px] bg-white border border-slate-200 shadow-2xl rounded-2xl flex-col hidden overflow-hidden transition-all duration-300">
-      <div class="bg-sky-600 text-white p-4 flex justify-between items-center shadow-sm z-10">
-          <div class="flex items-center gap-2">
-             <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">A</div>
-             <div class="font-bold text-sm">Chat with Alex</div>
+  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
+      
+      <div class="bg-sky-600 text-white px-5 py-4 flex justify-between items-center shadow-md z-20 shrink-0">
+          <div class="font-bold text-sm flex items-center gap-2">
+              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div> Live Support
           </div>
-          <button onclick="toggleLiveChat()" class="text-sky-100 hover:text-white"><i class="fa-solid fa-times"></i></button>
+          <button onclick="toggleLiveChat()" class="text-sky-100 hover:text-white bg-sky-700/50 w-8 h-8 rounded-full flex items-center justify-center transition active:scale-95">
+              <i class="fa-solid fa-chevron-down md:hidden text-sm"></i>
+              <i class="fa-solid fa-times hidden md:block text-sm"></i>
+          </button>
       </div>
       
-      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-6 bg-slate-50 relative">
-          <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-envelope text-xl"></i></div>
-          <p class="text-xs text-slate-600 mb-4 text-center">Hey there! Enter your email to start chatting with us.</p>
-          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-sky-500 outline-none mb-3">
-          <button onclick="startChatAuth()" class="w-full bg-sky-600 text-white font-bold text-xs py-2 rounded-lg hover:bg-sky-700 shadow-sm transition">Start Chat</button>
+      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-8 bg-white relative z-10">
+          <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><i class="fa-solid fa-envelope-open-text text-2xl"></i></div>
+          <h3 class="text-xl font-bold text-slate-900 text-center mb-2">Welcome to Support</h3>
+          <p class="text-sm text-slate-500 mb-8 text-center leading-relaxed">Enter your email address to start chatting with our team instantly.</p>
+          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 text-sm focus:border-sky-500 outline-none mb-4 shadow-sm">
+          <button onclick="startChatAuth()" class="w-full bg-slate-900 text-white font-bold text-sm py-3.5 rounded-xl hover:bg-slate-800 shadow-md transition active:scale-95">Start Conversation</button>
       </div>
 
-      <div id="chatInterface" class="flex-1 flex-col hidden h-full relative bg-slate-50">
-          <div id="chatMessagesArea" class="flex-1 p-4 overflow-y-auto space-y-3 flex flex-col no-scrollbar pb-16" style="max-height: calc(100% - 50px);">
-              </div>
-          <div class="p-3 bg-white border-t border-slate-200 flex gap-2 absolute bottom-0 w-full z-10">
-              <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:border-sky-500 outline-none" onkeypress="if(event.key === 'Enter') sendChatMessage()">
-              <button onclick="sendChatMessage()" class="bg-sky-600 text-white px-3 py-2 rounded-lg hover:bg-sky-700 transition"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+      <div id="chatInterface" class="flex-1 hidden flex-col h-full bg-slate-50 overflow-hidden">
+          <div id="chatMessagesArea" class="flex-1 p-4 md:p-5 overflow-y-auto space-y-4 flex flex-col no-scrollbar bg-slate-50 z-10 pb-4">
+          </div>
+          
+          <div class="p-3 md:p-4 bg-white border-t border-slate-200 flex gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 safe-bottom">
+              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+              <button onclick="sendChatMessage()" class="bg-sky-600 text-white w-12 h-12 rounded-xl hover:bg-sky-700 transition shadow-md active:scale-95 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-sm"></i></button>
           </div>
       </div>
   </div>
@@ -1334,7 +1341,7 @@
         animate();
     }
 
-    const BACKEND_URL="https://whis-backend.onrender.com"; // Adjust if testing locally
+    const BACKEND_URL="https://whis-backend.onrender.com"; 
     let currentUser = null; 
     let currentCycle = 'monthly'; 
     let currentTier = 'free';
@@ -1770,22 +1777,44 @@
         }
     }
 
-    // Live Chat Functionality
+    // ================= LIVE CHAT LOGIC =================
+    
     let chatEmail = localStorage.getItem('chatEmail') || null;
     let chatPollInterval = null;
     let lastChatCount = 0;
-    
-    // Tracking active messages and typing state
-    let currentMessages = [];
-    let isAiTyping = false;
-    let lastTypingState = false;
+
+    // Smart Markdown Parser to fix **bold** and `code` rendering in responses
+    function formatMessage(text) {
+        if (!text) return "";
+        const div = document.createElement('div');
+        div.innerText = text; // Secures against basic XSS
+        let html = div.innerHTML;
+        
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-inherit">$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+        html = html.replace(/`([^`]+)`/g, '<code class="bg-black/10 px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
+        html = html.replace(/\n/g, '<br>');
+        
+        return html;
+    }
 
     function toggleLiveChat(prefillMsg = null) {
         const widget = document.getElementById('liveChatWidget');
-        widget.classList.toggle('hidden');
-        widget.classList.toggle('flex');
+        const isHidden = widget.classList.contains('hidden');
         
-        if(widget.classList.contains('flex')) {
+        if(isHidden) {
+            // Lock body scroll on mobile to give native app feel
+            if(window.innerWidth < 768) document.body.style.overflow = 'hidden';
+            
+            widget.classList.remove('hidden');
+            widget.classList.add('flex');
+            
+            // Trigger reflow for animation
+            void widget.offsetWidth;
+            
+            widget.classList.remove('opacity-0', 'translate-y-10', 'md:scale-95');
+            widget.classList.add('opacity-100', 'translate-y-0', 'md:scale-100');
+
             initChat();
             startChatPolling();
             if(prefillMsg) {
@@ -1793,6 +1822,17 @@
                 setTimeout(sendChatMessage, 200); 
             }
         } else {
+            // Restore scroll
+            if(window.innerWidth < 768) document.body.style.overflow = '';
+            
+            widget.classList.remove('opacity-100', 'translate-y-0', 'md:scale-100');
+            widget.classList.add('opacity-0', 'translate-y-10', 'md:scale-95');
+            
+            setTimeout(() => {
+                widget.classList.add('hidden');
+                widget.classList.remove('flex');
+            }, 300); // Matches duration-300
+            
             stopChatPolling();
         }
     }
@@ -1829,11 +1869,7 @@
             const res = await fetch(`${BACKEND_URL}/api/chat/history/${encodeURIComponent(chatEmail)}`);
             const data = await res.json();
             if (data.success) {
-                // If AI is typing, don't let polling overwrite optimistic UI
-                if(!isAiTyping) {
-                    currentMessages = data.messages;
-                    renderChatMessages(currentMessages);
-                }
+                renderChatMessages(data.messages);
             }
         } catch(e) { console.error("Chat sync error"); }
     }
@@ -1843,33 +1879,25 @@
         area.innerHTML = '';
         
         if(messages.length === 0) {
-            area.innerHTML = '<p class="text-[10px] text-slate-400 text-center mt-10">Start a conversation with our support team.</p>';
+            area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-4xl mb-3 opacity-20"></i><p class="text-xs">Start a conversation with our support team.</p></div>';
         }
 
         messages.forEach(msg => {
             const div = document.createElement('div');
-            div.className = `max-w-[85%] p-3 rounded-xl text-xs ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start' : 'bg-sky-600 text-white self-end'}`;
-            div.innerText = msg.text;
+            div.className = `max-w-[85%] p-3.5 rounded-2xl text-[13px] leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-sky-600 text-white self-end rounded-tr-sm'}`;
+            
+            const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            div.innerHTML = `
+                <div class="message-content">${formatMessage(msg.text)}</div>
+                <span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>
+            `;
             area.appendChild(div);
         });
 
-        // Inject the bouncing typing indicator if waiting for reply
-        if (isAiTyping) {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = `max-w-[85%] p-3 rounded-xl text-xs bg-white border border-slate-200 text-slate-500 self-start flex gap-1 items-center h-10`;
-            typingDiv.innerHTML = `
-                <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
-                <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
-            `;
-            area.appendChild(typingDiv);
-        }
-
-        // Scroll to bottom if new messages arrived or typing status changed
-        if (messages.length > lastChatCount || isAiTyping !== lastTypingState) {
+        if (messages.length > lastChatCount) {
             area.scrollTop = area.scrollHeight;
             lastChatCount = messages.length;
-            lastTypingState = isAiTyping;
         }
     }
 
@@ -1880,11 +1908,19 @@
 
         input.value = '';
         
-        // Optimistic UI update: instantly show user's message and the "typing..." bubble
-        const optimisticMsg = { text: text, isSupport: false, timestamp: new Date() };
-        currentMessages.push(optimisticMsg);
-        isAiTyping = true;
-        renderChatMessages(currentMessages);
+        // Optimistic UI Update
+        const area = document.getElementById('chatMessagesArea');
+        const tempDiv = document.createElement('div');
+        tempDiv.className = `max-w-[85%] p-3.5 rounded-2xl text-[13px] leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
+        
+        const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        tempDiv.innerHTML = `
+            <div class="message-content">${formatMessage(text)}</div>
+            <span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>
+        `;
+        area.appendChild(tempDiv);
+        area.scrollTop = area.scrollHeight;
+        lastChatCount++; 
 
         try {
             const res = await fetch(`${BACKEND_URL}/api/chat/send`, {
@@ -1892,21 +1928,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: chatEmail, text })
             });
-            
-            // Once the request finishes, AI has "finished typing"
-            isAiTyping = false; 
-            
-            if (res.ok) {
-                // Fetch the actual DB history to get the AI's reply
-                fetchChatHistory();
-            } else {
-                renderChatMessages(currentMessages); // just remove the typing indicator on fail
-            }
-        } catch(e) { 
-            isAiTyping = false;
-            renderChatMessages(currentMessages);
-            alert("Failed to send message. Try again."); 
-        }
+            if (res.ok) fetchChatHistory();
+        } catch(e) { alert("Failed to send message. Try again."); }
     }
 
     function startChatPolling() {
