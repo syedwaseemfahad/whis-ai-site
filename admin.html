@@ -91,30 +91,20 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://whis-backend.onrender.com"; 
+        const BACKEND_URL = "https://whis-backend.onrender.com"; // Adjust if testing locally
         let adminPassword = sessionStorage.getItem('whisAdminPwd');
         let selectedEmail = null;
         let pollInterval = null;
         let activeChatCount = 0;
 
+        function formatMessage(text) {
+            // Converts line breaks into <br> for properly rendered messages
+            return text.replace(/\n/g, '<br>');
+        }
+
         // Auto-login check
         if(adminPassword) {
             checkLogin();
-        }
-
-        // --- Smart Markdown Parser to fix AI bold tags ---
-        function formatMessage(text) {
-            if (!text) return "";
-            const div = document.createElement('div');
-            div.innerText = text; 
-            let html = div.innerHTML;
-            
-            html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-inherit">$1</strong>');
-            html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
-            html = html.replace(/`([^`]+)`/g, '<code class="bg-black/10 px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
-            html = html.replace(/\n/g, '<br>');
-            
-            return html;
         }
 
         async function loginAdmin() {
@@ -163,12 +153,14 @@
         }
 
         async function pollData() {
+            // Fetch User List
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/chats`);
                 const data = await res.json();
                 if(data.success) renderSidebar(data.chats);
             } catch(e) {}
 
+            // Fetch Active Chat
             if(selectedEmail) {
                 try {
                     const chatRes = await fetch(`${BACKEND_URL}/api/chat/history/${encodeURIComponent(selectedEmail)}`);
@@ -212,6 +204,7 @@
             selectedEmail = email;
             activeChatCount = 0; 
             
+            // Setup views
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('emptyState').classList.remove('md:flex');
             
@@ -219,6 +212,7 @@
             document.getElementById('activeChat').classList.add('flex');
             document.getElementById('activeEmail').innerText = email;
             
+            // Mobile navigation handling
             const sidebar = document.getElementById('sidebarPanel');
             const chatPanel = document.getElementById('chatPanel');
             
@@ -226,6 +220,7 @@
             chatPanel.classList.remove('hidden');
             chatPanel.classList.add('flex', 'slide-in');
 
+            // Mark read immediately
             fetch(`${BACKEND_URL}/api/admin/mark-read`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -234,6 +229,7 @@
 
             pollData();
             
+            // Focus input if on desktop
             if(window.innerWidth >= 768) {
                 document.getElementById('adminInput').focus();
             }
@@ -245,12 +241,14 @@
             const sidebar = document.getElementById('sidebarPanel');
             const chatPanel = document.getElementById('chatPanel');
             
+            // Reset mobile views
             sidebar.classList.remove('hidden', 'md:flex');
             sidebar.classList.add('flex');
             
             chatPanel.classList.add('hidden');
             chatPanel.classList.remove('flex', 'slide-in');
             
+            // Reset chat state
             document.getElementById('activeChat').classList.add('hidden');
             document.getElementById('activeChat').classList.remove('flex');
             document.getElementById('emptyState').classList.remove('hidden');
