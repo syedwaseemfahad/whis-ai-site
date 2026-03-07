@@ -28,24 +28,6 @@
         }, 1000);
     }
 
-    function updateScarcity() {
-        let slots = 4;
-        const scarcityInterval = setInterval(() => {
-            if(Math.random() > 0.8 && slots > 1) {
-                slots--;
-                const slotsEl = document.getElementById('slots-left-v2');
-                const barEl = document.getElementById('scarcity-bar');
-                const percentEl = document.getElementById('slots-percent');
-
-                if(slotsEl) slotsEl.innerText = slots;
-                const percent = 100 - (slots * 2);
-                if(barEl) barEl.style.width = percent + '%';
-                if(percentEl) percentEl.innerText = percent + '% FULL';
-            }
-            if(slots <= 1) clearInterval(scarcityInterval);
-        }, 12000);
-    }
-
     function showFomoModal(fromButton = false) {
         if(hasApplied && !fromButton) return;
         
@@ -55,8 +37,6 @@
         fomoModal.classList.add('flex');
         
         startModalTimer(); 
-        updateScarcity();  
-        startSlotsCountdown(); 
     }
   </script>
 
@@ -223,7 +203,7 @@
 </head>
 <body class="no-scrollbar">
 
-<div id="mobileLeadCapture" class="fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-col md:flex-row items-center gap-3 bg-white/95 backdrop-blur-3xl border border-sky-200 p-4 rounded-2xl md:max-w-md animate-float shadow-xl">
+<div id="mobileLeadCapture" class="hidden fixed bottom-[100px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex-col md:flex-row items-center gap-3 bg-white/95 backdrop-blur-3xl border border-sky-200 p-4 rounded-2xl md:max-w-md animate-float shadow-xl">
     <div class="flex items-center gap-3 flex-1">
         <div class="w-10 h-10 min-w-[40px] rounded-full bg-sky-100 flex items-center justify-center text-sky-600 animate-pulse">
             <i class="fa-solid fa-gift text-lg"></i>
@@ -326,9 +306,8 @@
       </div>
 
       <div class="flex flex-col items-center mt-6 gap-3">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-50 border border-red-100 text-[10px] font-bold text-red-600 shadow-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-            <span id="signup-badge-text">🔥 150+ signups today</span>
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-50 border border-green-100 text-[10px] font-bold text-green-700 shadow-sm">
+            <span id="signup-badge-text">Trusted by 7,000+ Software Engineers</span>
           </div>
           <div class="text-[10px] text-green-600 font-mono tracking-widest uppercase opacity-90">
              <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No meeting access
@@ -420,8 +399,8 @@
             </p>
         </div>
         <div class="inline-flex bg-slate-200 p-1 rounded-full border border-slate-300 mb-16 mt-6 shadow-inner">
-           <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnQuarterly" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('quarterly')">Quarterly (Save 51%)</button>
+           <button id="btnMonthly" class="px-8 py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnQuarterly" class="px-8 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('quarterly')">Quarterly (Save 51%)</button>
         </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
@@ -789,8 +768,6 @@
         </p>
     </div>
 </section>
-
-
 
   <section class="py-24 border-t border-slate-200 bg-white">
       <div class="max-w-7xl mx-auto px-6">
@@ -1227,21 +1204,6 @@
         setTimeout(typeEffect, typeSpeed);
     }
 
-    function updateDynamicSignups() {
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const istDate = new Date(utc + istOffset);
-         
-        let hour = istDate.getHours();
-        let count = hour * hour;
-        count = count+42;
-        if(count === 0) count = 15; 
-         
-        const badge = document.getElementById('signup-badge-text');
-        if(badge) badge.innerText = `🔥 ${count} signups today`;
-    }
-
     function startIstMidnightTimer() {
         const timerEl = document.getElementById('fomo-timer');
         if(!timerEl) return;
@@ -1506,11 +1468,13 @@
                 currentCouponDiscount = data.discount;
                 msgEl.innerText = `✅ ${data.discount}% Discount Applied!`;
                 msgEl.className = "text-xs text-green-600 mb-4 font-bold block";
+                updatePricingUI(); 
             } else {
                 currentCoupon = "";
                 currentCouponDiscount = 0;
                 msgEl.innerText = `❌ Invalid Coupon`;
                 msgEl.className = "text-xs text-red-500 mb-4 font-bold block";
+                updatePricingUI(); 
             }
         } catch(e) {}
     }
@@ -1713,20 +1677,6 @@
         if(!fomoModal) return;
         fomoModal.classList.add('hidden');
         fomoModal.classList.remove('flex');
-    }
-
-    function startSlotsCountdown() {
-        const slotEl = document.getElementById('slots-left');
-        if(!slotEl) return;
-        let slots = 14;
-        setInterval(() => {
-            if(Math.random() > 0.7 && slots > 3) {
-                slots--;
-                slotEl.innerText = slots;
-                slotEl.classList.add('text-red-500');
-                setTimeout(() => slotEl.classList.remove('text-red-500'), 500);
-            }
-        }, 8000);
     }
 
     async function submitFomoForm(e) {
@@ -1957,36 +1907,20 @@
         document.getElementById('mobileLeadCapture').remove();
     }
 
-    const buyers = [
-      { city: "Bangalore", plan: "Elite Stealth" },
-      { city: "Mumbai", plan: "Pro Monthly" },
-      { city: "Hyderabad", plan: "Elite Stealth Yearly" },
-      { city: "Chennai", plan: "Elite Stealth" },
-      { city: "New Delhi", plan: "Pro Monthly" },
-      { city: "Pune", plan: "Elite Stealth Yearly" },
-      { city: "Ahmedabad", plan: "Elite Stealth" },
-      { city: "Kolkata", plan: "Pro Monthly" },
-      { city: "Noida", plan: "Elite Stealth Yearly" },
-      { city: "Gurugram", plan: "Elite Stealth" }
-    ];
+    // Exit Intent Logic
+    let exitIntentTriggered = false;
 
-    function showPurchaseToast() {
-        const toast = document.getElementById('purchaseToast');
-        if(!toast) return;
-        const user = document.getElementById('toastUser');
-        const randomBuyer = buyers[Math.floor(Math.random() * buyers.length)];
-        
-        user.innerText = `Someone from ${randomBuyer.city}`;
-        toast.classList.remove('hidden');
-        toast.classList.add('flex');
-        
-        setTimeout(() => {
-            toast.classList.add('hidden');
-            toast.classList.remove('flex');
-        }, 5000);
-    }
-
-    setInterval(showPurchaseToast, 25000);
+    document.addEventListener("mouseleave", (e) => {
+        // Check if the mouse moved out through the top of the window (towards the URL bar/close button)
+        if (e.clientY < 0 && !exitIntentTriggered) {
+            const leadModal = document.getElementById('mobileLeadCapture');
+            if (leadModal) {
+                leadModal.classList.remove('hidden');
+                leadModal.classList.add('flex');
+                exitIntentTriggered = true; 
+            }
+        }
+    });
         
     document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
@@ -2003,20 +1937,10 @@
         initSliderAutoPlay();
         checkUser();
         fetchPricingConfig();
-        updateDynamicSignups();
         startIstMidnightTimer();
         
         setCycle('monthly');
     });
   </script>
-  <div id="purchaseToast" class="fixed bottom-6 left-6 z-[200] hidden items-center gap-3 bg-white text-slate-900 p-3 rounded-xl shadow-xl animate-bounce-slow border border-slate-200">
-    <div class="w-8 h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
-        <i class="fa-solid fa-shopping-cart text-xs"></i>
-    </div>
-    <div class="pr-4">
-        <p class="text-[10px] font-bold leading-tight" id="toastUser">Someone from Bangalore</p>
-        <p class="text-[9px] text-slate-500 leading-tight" id="toastAction">Just upgraded to Elite Stealth</p>
-    </div>
-</div>
 </body>
 </html>
