@@ -7,37 +7,6 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
-
-    let modalTime = 300; 
-    let timerInterval = null;
-
-    function startModalTimer() {
-        const timerEl = document.getElementById('modal-timer');
-        if (!timerEl || timerInterval) return; 
-        
-        timerInterval = setInterval(() => {
-            const m = Math.floor(modalTime / 60);
-            const s = modalTime % 60;
-            timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            
-            if (modalTime <= 0) {
-                clearInterval(timerInterval);
-                timerEl.innerText = "00:00";
-            }
-            modalTime--;
-        }, 1000);
-    }
-
-    function showFomoModal(fromButton = false) {
-        if(hasApplied && !fromButton) return;
-        
-        const fomoModal = document.getElementById('fomoModal');
-        if(!fomoModal) return;
-        fomoModal.classList.remove('hidden');
-        fomoModal.classList.add('flex');
-        
-        startModalTimer(); 
-    }
   </script>
 
   <meta charset="UTF-8" />
@@ -60,7 +29,7 @@
           animation: { 
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             'float': 'float 8s ease-in-out infinite',
-            'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+            'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
           },
           keyframes: {
             float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
@@ -71,7 +40,7 @@
     }
   </script>
    
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
    
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -80,8 +49,8 @@
     
   <style>
     :root {
-        --accent: #0284c7; 
-        --accent-glow: rgba(2, 132, 199, 0.15);
+        --accent: #0f172a; 
+        --accent-glow: rgba(15, 23, 42, 0.15);
     }
 
     body { 
@@ -89,18 +58,13 @@
         color: #0f172a; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
-        /* Safe area for iOS bottom bar */
         padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
+        -webkit-font-smoothing: antialiased;
     }
 
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .animate-float { animation: float 6s ease-in-out infinite; }
 
-    #mobileLeadCapture {
-        box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-    }
-    
     @keyframes hueCycle {
         0% { filter: hue-rotate(0deg); }
         100% { filter: hue-rotate(360deg); }
@@ -142,11 +106,10 @@
         .perf-card:hover::after { left: 150%; transition: 0.7s ease-in-out; }
     }
 
-    /* Carousel Updates for Mobile Swipe */
     .carousel-container { 
         perspective: 1200px; display: flex; justify-content: center; align-items: center; 
         height: 240px; position: relative; margin-top: 20px; margin-bottom: 20px;
-        touch-action: pan-y; /* Allows vertical scrolling but captures horizontal swipes */
+        touch-action: pan-y;
     }
     @media (min-width: 768px) { .carousel-container { height: 650px; margin-top: 0; } }
     
@@ -160,9 +123,7 @@
     }
     @media (min-width: 768px) { .carousel-item { width: 85%; max-height: 100%; transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); } }
     
-    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
-    
-    /* Tighter transform on mobile for better swiping feel */
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: rgba(15, 23, 42, 0.3); box-shadow: 0 0 40px rgba(0,0,0,0.1); }
     .item-left { z-index: 10; transform: translateX(-10%) scale(0.9) translateZ(-50px); opacity: 0.4; pointer-events: none; }
     .item-right { z-index: 10; transform: translateX(10%) scale(0.9) translateZ(-50px); opacity: 0.4; pointer-events: none; }
     
@@ -184,12 +145,11 @@
     .comp-divider { position: absolute; top: 32px; bottom: 0; left: var(--position); width: 1px; background: rgba(255,255,255,0.8); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 15px rgba(0,0,0,0.3); pointer-events: none; will-change: left; }
     .comp-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none; }
     
-    /* Larger handle button for better mobile touch */
     .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 8px; height: 56px; background: white; border-radius: 4px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 10px rgba(0,0,0,0.2), 0 0 5px white; border: 1px solid rgba(0,0,0,0.1); will-change: left; }
     
     .comp-label { position: absolute; top: 48px; padding: 4px 12px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); color: #334155; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; pointer-events: none; z-index: 15; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .label-left { left: 16px; border: 1px solid rgba(15,23,42,0.1); }
-    .label-right { right: 16px; border: 1px solid var(--accent); color: var(--accent); }
+    .label-right { right: 16px; border: 1px solid rgba(15,23,42,0.1); color: var(--accent); }
 
     .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); }
     .group.active .faq-answer { max-height: 250px; transition: max-height 0.3s cubic-bezier(1, 0, 1, 0); }
@@ -199,12 +159,10 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     .pricing-elite { position: relative; }
-    .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+    .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 25px; padding: 1px; background: linear-gradient(180deg, #38bdf8, transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
 
-    /* Support for Safe Area on Mobile Browsers */
     .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
     
-    /* Native App Bottom Sheet specific classes */
     .bottom-sheet-mobile {
         border-radius: 24px 24px 0 0;
         margin-bottom: 0;
@@ -214,58 +172,34 @@
 </head>
 <body class="no-scrollbar">
 
-<div id="mobileLeadCapture" class="hidden fixed bottom-[calc(80px+env(safe-area-inset-bottom))] md:bottom-8 md:right-20 left-2 right-2 md:left-auto z-[55] flex-col md:flex-row items-center gap-3 bg-white/95 backdrop-blur-3xl border border-sky-200 p-4 rounded-2xl md:max-w-md shadow-xl translate-y-10 opacity-0 md:translate-y-0 md:opacity-100 md:animate-float">
-    <div class="flex items-center gap-3 w-full md:flex-1">
-        <div class="w-10 h-10 min-w-[40px] rounded-full bg-sky-100 flex items-center justify-center text-sky-600 animate-pulse shrink-0">
-            <i class="fa-solid fa-gift text-lg"></i>
-        </div>
-        <div class="flex-1">
-            <p class="text-[13px] text-slate-900 font-bold leading-tight">Claim your 20% Discount</p>
-            <p class="text-[11px] text-slate-500 leading-tight">Enter Email to get a code instantly.</p>
-        </div>
-    </div>
-    <div class="flex w-full md:w-auto gap-2 mt-2 md:mt-0">
-        <input type="email" id="leadEmail" placeholder="Your Email Address" class="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 min-h-[44px] text-xs text-slate-900 focus:border-sky-500 outline-none placeholder:text-slate-400">
-        <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-sky-500 text-white text-[11px] font-black px-5 py-3 min-h-[44px] rounded-xl whitespace-nowrap hover:bg-sky-600 active:scale-95 transition-all shadow-md">GET CODE</button>
-    </div>
-    <button onclick="dismissLeadCapture()" class="absolute -top-3 -right-2 md:-top-2 md:-right-2 w-8 h-8 md:w-6 md:h-6 bg-white border border-slate-200 rounded-full text-[12px] md:text-[10px] flex items-center justify-center text-slate-500 hover:text-slate-700 shadow-md">✕</button>
-</div>
-
-  <div class="fixed top-0 left-0 right-0 h-[40px] bg-gradient-to-r from-red-500 to-orange-500 flex justify-center items-center gap-4 shadow-sm z-[60]">
-      <span class="text-white font-bold text-xs md:text-sm uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-2"></i>Flash Sale Ends Tonight</span>
-      <div id="fomo-timer" class="font-mono font-bold text-white bg-black/20 px-3 py-0.5 rounded text-xs md:text-sm">--:--:--</div>
-  </div>
-
   <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-300 rounded-full blur-[150px] opacity-20"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-indigo-300 rounded-full blur-[150px] opacity-20"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-multiply"></div>
+      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-slate-200 rounded-full blur-[150px] opacity-40"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-slate-200 rounded-full blur-[150px] opacity-40"></div>
+      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.015] mix-blend-multiply"></div>
   </div>
 
-  <nav class="fixed top-[40px] w-full z-50 h-[70px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm">
+  <nav class="fixed top-0 w-full z-50 h-[70px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm">
     <div class="w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 md:gap-3 group animate-hue">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-accent md:w-7 md:h-7">
+      <a href="/" class="flex items-center gap-2 md:gap-3 group">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-slate-900 md:w-7 md:h-7 transition-transform group-hover:scale-105">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span class="text-base md:text-lg font-bold tracking-tight text-slate-900">Whis-AI</span>
       </a>
        
-      <div class="hidden md:flex items-center gap-1 bg-slate-50 p-1 rounded-full border border-slate-200">
-         <a href="#pricing" class="px-6 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Pricing</a>
-        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Features</a>
-        <a href="#demo" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Demo</a>
-        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Reviews</a>
-        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">FAQ</a>
-        <a href="/enterprise" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Enterprise</a>
+      <div class="hidden md:flex items-center gap-1 bg-slate-50/80 p-1 rounded-full border border-slate-200 shadow-inner">
+         <a href="#pricing" class="px-6 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition hover:bg-white hover:shadow-sm">Pricing</a>
+        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition hover:bg-white hover:shadow-sm">Features</a>
+        <a href="#demo" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition hover:bg-white hover:shadow-sm">Demo</a>
+        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition hover:bg-white hover:shadow-sm">Reviews</a>
+        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition hover:bg-white hover:shadow-sm">FAQ</a>
       </div>
 
       <div class="flex items-center gap-3 md:gap-5">
           <button onclick="openLoginModal()" id="signInBtn" class="text-xs md:text-sm font-semibold text-slate-600 hover:text-slate-900 transition min-h-[44px] px-2">Sign In</button>
            
-          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold overflow-hidden shadow-md hover:shadow-lg transition">
-             <span class="relative z-10"><i class="fa-brands fa-windows mr-1"></i> <i class="fa-brands fa-apple mr-1"></i> Get App</span>
-             <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition duration-300"></div>
+          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold overflow-hidden shadow-md hover:shadow-xl hover:bg-slate-800 transition-all duration-300 active:scale-95">
+             <span class="relative z-10"><i class="fa-brands fa-windows mr-1"></i> <i class="fa-brands fa-apple mr-1"></i> Download App</span>
           </button>
            
           <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-2 md:gap-3 bg-slate-100 pr-3 md:pr-4 pl-1 py-1 rounded-full border border-slate-200 hover:border-slate-300 transition min-h-[44px]">
@@ -276,30 +210,30 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-[45] bg-white/90 backdrop-blur-2xl border-t border-slate-200/80 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-3 shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
-      <a href="#demo" class="flex-1 py-3.5 rounded-2xl bg-slate-100/80 text-slate-800 text-[13px] font-bold text-center border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-[45] bg-white/95 backdrop-blur-2xl border-t border-slate-200 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-3 shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
+      <a href="#demo" class="flex-1 py-3.5 rounded-2xl bg-slate-100 text-slate-800 text-[13px] font-bold text-center border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-transform">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
-      <button onclick="openDownloadModal()" class="flex-1 py-3.5 rounded-2xl bg-[var(--accent)] text-white text-[13px] font-bold text-center shadow-[0_8px_20px_var(--accent-glow)] flex items-center justify-center gap-2 active:scale-95 transition-transform">
-          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Try Free
+      <button onclick="openDownloadModal()" class="flex-1 py-3.5 rounded-2xl bg-slate-900 text-white text-[13px] font-bold text-center shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get App
       </button>
   </div>
 
-  <button onclick="toggleLiveChat()" class="fixed bottom-[calc(90px+env(safe-area-inset-bottom))] right-4 z-40 bg-sky-600 w-14 h-14 rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(2,132,199,0.4)] hover:scale-110 transition-transform md:bottom-8 md:right-8">
-      <i class="fa-solid fa-comments text-white text-2xl"></i>
-      <span class="absolute right-16 bg-white text-slate-900 border border-slate-100 shadow-sm text-[11px] font-bold py-1.5 px-3 rounded-lg whitespace-nowrap hidden md:block before:content-[''] before:absolute before:right-[-4px] before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:bg-white before:border-r before:border-t before:border-slate-100 before:rotate-45">Need Help?</span>
+  <button onclick="toggleLiveChat()" class="fixed bottom-[calc(90px+env(safe-area-inset-bottom))] right-4 z-[99] bg-slate-900 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all md:bottom-8 md:right-8 cursor-pointer pointer-events-auto border border-slate-700">
+      <i class="fa-solid fa-comments text-white text-xl"></i>
+      <span class="absolute right-16 bg-white text-slate-900 border border-slate-200 shadow-md text-[11px] font-bold py-1.5 px-3 rounded-lg whitespace-nowrap hidden md:block before:content-[''] before:absolute before:right-[-4px] before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:bg-white before:border-r before:border-t before:border-slate-200 before:rotate-45">Need Help?</span>
   </button>
 
-  <section class="relative pt-24 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
+  <section class="relative pt-32 md:pt-48 pb-12 overflow-hidden flex flex-col items-center">
     <div class="relative z-10 text-center max-w-5xl px-4 md:px-6 mb-8 md:mb-10 flex flex-col items-center">
        
-      <h1 class="text-5xl md:text-8xl font-medium tracking-tight leading-[1.05] md:leading-[1] mb-5 md:mb-6 text-slate-900">
+      <h1 class="text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.05] md:leading-[1] mb-5 md:mb-6 text-slate-900">
         Helps you answer interviews<br>
-        <span class="text-accent animate-hue inline-block mt-2 md:mt-0">in real-time.</span>
+        <span class="text-slate-500 inline-block mt-2 md:mt-0">in real-time.</span>
       </h1>
        
       <p class="text-[15px] md:text-lg text-slate-600 max-w-2xl mx-auto mb-6 md:mb-6 leading-relaxed font-light px-2">
-        Works seamlessly on Zoom, Meet & Teams. <span class="text-slate-900 font-medium block md:inline mt-1 md:mt-0">Leaves absolutely no trace.</span>
+        A seamless overlay for Zoom, Meet & Teams. <span class="text-slate-900 font-medium block md:inline mt-1 md:mt-0">Leaves absolutely no trace on screen share.</span>
       </p>
 
       <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[11px] md:text-sm font-mono text-slate-600 mb-8 bg-white px-4 py-2 md:py-3 rounded-2xl md:rounded-full border border-slate-200 shadow-sm max-w-[90vw]">
@@ -307,60 +241,38 @@
         <i class="fa-solid fa-arrow-right text-slate-300 md:text-slate-400"></i>
         <span class="flex items-center"><i class="fa-solid fa-eye text-slate-400 mr-1 md:mr-2"></i>Reads Screen</span>
         <i class="fa-solid fa-arrow-right text-slate-300 md:text-slate-400 hidden sm:block"></i>
-        <span class="flex items-center text-accent w-full sm:w-auto justify-center mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100"><i class="fa-solid fa-pen-nib mr-1 md:mr-2"></i>Writes answers</span>
+        <span class="flex items-center text-slate-900 font-bold w-full sm:w-auto justify-center mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100"><i class="fa-solid fa-pen-nib mr-1 md:mr-2"></i>Writes answers</span>
       </div>
 
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-slate-900 text-white text-sm font-bold hover:scale-105 transition duration-300 shadow-lg flex justify-center items-center gap-3">
-             Try Free – No Credit Card / No Setup
+        <button onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-slate-900 text-white text-sm font-bold hover:scale-105 active:scale-95 transition duration-300 shadow-lg flex justify-center items-center gap-3">
+             Download Trial – No Credit Card Required
         </button>
       </div>
 
       <div class="flex flex-col items-center mt-2 md:mt-6 gap-3">
-          <div class="inline-flex items-center gap-2 px-4 py-2 md:py-1.5 rounded-full bg-green-50 border border-green-100 text-[11px] md:text-[10px] font-bold text-green-700 shadow-sm">
-            <span id="signup-badge-text">Trusted by 7,000+ Software Engineers</span>
-          </div>
-          <div class="text-[9px] md:text-[10px] text-green-600 font-mono tracking-widest uppercase opacity-90 px-4 text-center leading-relaxed">
-             <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No meeting access
+          <div class="inline-flex items-center gap-2 px-4 py-2 md:py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[11px] md:text-[10px] font-bold text-slate-700 shadow-sm">
+            <span><i class="fa-solid fa-shield-halved mr-1.5 text-slate-400"></i>Trusted by 7,000+ Software Engineers</span>
           </div>
       </div>
-        
     </div>
 
-    <div class="w-full max-w-3xl mx-auto mb-12 relative z-20 px-4">
-        <div class="perf-card p-0 bg-white border border-slate-200 shadow-xl rounded-2xl overflow-hidden">
-             <div class="bg-slate-50 px-4 py-3 flex items-center justify-between border-b border-slate-200">
-                 <div class="flex gap-2">
-                     <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                     <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                     <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                 </div>
-                 <span class="text-[9px] md:text-[10px] text-slate-500 font-mono tracking-widest uppercase"><i class="fa-solid fa-ghost mr-2"></i>Ghost Mode: Active</span>
-             </div>
-             <div class="p-5 md:p-6 font-mono text-xs md:text-sm min-h-[280px] md:min-h-[330px] relative">
-                 <div id="hero-status" class="text-slate-500 mb-3 text-[10px] md:text-xs flex items-center gap-2 hidden">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> 
-                    Listening to audio...
-                 </div>
-                 
-                 <div id="hero-question-container" class="mb-5 md:mb-6 hidden">
-                    <span class="text-accent text-[10px] md:text-xs uppercase tracking-wider block mb-1.5">INTERVIEWER QUESTION DETECTED:</span>
-                    <p id="hero-question-text" class="text-slate-900 text-base md:text-lg font-medium leading-snug"></p>
-                 </div>
-
-                 <div id="hero-answer-container" class="p-4 bg-slate-50 rounded-xl border-l-4 border-accent text-slate-800 leading-relaxed shadow-sm hidden">
-                     <span class="text-accent text-[10px] md:text-xs font-bold block mb-1.5">Suggested Answer:</span>
-                     <span id="hero-answer-text"></span><span class="inline-block w-2 h-4 bg-accent animate-pulse align-text-bottom ml-1"></span>
-                 </div>
-             </div>
+    <div class="w-full mt-6 md:mt-10 border-y border-slate-200/60 bg-white/40 backdrop-blur-sm py-8 md:py-10 mb-12">
+        <p class="text-[10px] md:text-xs text-slate-400 font-mono text-center uppercase tracking-[0.2em] mb-6 md:mb-8 font-bold">Tested & Proven to work flawlessly with</p>
+        <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 hover:opacity-100 transition-opacity duration-500 px-6">
+            <span class="text-2xl md:text-3xl font-bold tracking-tighter text-[#2D8CFF]"><i class="fa-solid fa-video mr-1.5"></i>zoom</span>
+            <span class="text-lg md:text-xl font-medium text-slate-700 flex items-center gap-1.5"><svg class="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24"><path fill="#00832d" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg> Google Meet</span>
+            <span class="text-xl md:text-2xl font-semibold text-[#6264A7] flex items-center gap-1.5"><i class="fa-solid fa-users"></i> Teams</span>
+            <span class="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-1"><i class="fa-brands fa-aws text-[#FF9900]"></i> Amazon Chime</span>
+            <span class="text-lg md:text-xl font-bold font-mono text-[#00EA64]">HackerRank</span>
         </div>
     </div>
 
     <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-8 md:mb-12">
-        <div class="inline-block p-1 rounded-full border border-sky-200 bg-sky-50 px-4 mb-4 md:mb-6 shadow-sm">
-            <span class="text-[11px] md:text-xs font-bold text-sky-700">🛡️ 100% Undetectable</span>
+        <div class="inline-block p-1 rounded-full border border-slate-200 bg-white px-4 mb-4 md:mb-6 shadow-sm">
+            <span class="text-[11px] md:text-xs font-bold text-slate-700"><i class="fa-solid fa-eye-slash mr-1.5"></i> 100% Undetectable UI</span>
         </div>
-        <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-6 md:mb-8 px-2">Invisible to Zoom, Teams & Meets.</h2>
+        <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-6 md:mb-8 px-2">Invisible to your interviewer.</h2>
          
         <div class="comp-container rounded-2xl md:rounded-3xl shadow-2xl" id="comparisonSlider">
             <div class="mac-header h-[28px] md:h-[32px]">
@@ -391,8 +303,6 @@
   </section>
 
    <section id="pricing" class="py-16 md:py-32 border-t border-slate-200 bg-slate-50 relative overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-sky-200 rounded-full blur-[100px] md:blur-[120px] pointer-events-none opacity-50"></div>
-
     <div class="max-w-7xl mx-auto px-4 md:px-6 text-center mt-4 md:mt-12 relative z-10">
         <h2 class="text-3xl md:text-5xl font-medium text-slate-900 mb-4 md:mb-6 tracking-tight">Invest in your career.</h2>
         <p class="text-[15px] md:text-lg text-slate-600 mb-8 md:mb-12 font-light px-4">Join 7,000+ engineers who have unlocked their full potential.</p>
@@ -421,38 +331,38 @@
         <h3 class="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-4 mt-2 md:mt-0">Pro Professional</h3>
         <div class="text-4xl font-bold text-slate-900 mb-8" id="pricePro">...</div>
         <div class="space-y-5 text-[13px] md:text-xs text-slate-700 mb-10 flex-grow">
-            <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-microphone-lines text-accent text-lg md:text-base"></i> 8 Hours Mic Access / mo</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-lg md:text-base"></i> Unlimited Answers</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-lg md:text-base"></i> Screen Reading Tool</p>
-            <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye text-lg md:text-base"></i> Visible on Screen</p>
+            <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-microphone-lines text-slate-900 text-lg md:text-base"></i> 8 Hours Mic Access / mo</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-900/80 text-lg md:text-base"></i> Unlimited Answers</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-900/80 text-lg md:text-base"></i> Screen Reading Tool</p>
+            <p class="flex items-center gap-3 text-slate-500"><i class="fa-solid fa-eye text-lg md:text-base"></i> Visible on Screen</p>
         </div>
         <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 min-h-[48px] rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-[11px] md:text-[10px] font-bold uppercase tracking-widest transition-all shadow-md">Upgrade Now</button>
     </div>
 
-    <div class="perf-card pricing-elite p-8 md:p-10 text-left flex flex-col border-accent/40 bg-slate-900 relative overflow-hidden shadow-2xl z-30">
-        <div class="absolute top-0 right-0 p-6 opacity-10"><i class="fa-solid fa-ghost text-5xl md:text-4xl text-accent"></i></div>
-        <h3 class="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
+    <div class="perf-card pricing-elite p-8 md:p-10 text-left flex flex-col border-slate-800 bg-slate-900 relative overflow-hidden shadow-2xl z-30">
+        <div class="absolute top-0 right-0 p-6 opacity-10"><i class="fa-solid fa-ghost text-5xl md:text-4xl text-white"></i></div>
+        <h3 class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] mb-4">Elite Stealth</h3>
         <div class="text-4xl font-bold text-white mb-8" id="priceStealth">...</div>
-        <div class="space-y-5 text-[13px] md:text-xs text-slate-300 mb-10 flex-grow relative z-10">
-            <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning text-lg md:text-base"></i> 8 Hours Mic Access / mo</p>
-            <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-sky-400 text-lg md:text-base"></i> 100% Undetectable</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80 text-lg md:text-base"></i> Invisible to Zoom/Teams</p>
-            <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80 text-lg md:text-base"></i> Hidden App Process</p>
+        <div class="space-y-5 text-[13px] md:text-xs text-slate-400 mb-10 flex-grow relative z-10">
+            <p class="flex items-center gap-3 font-medium text-white"><i class="fa-solid fa-bolt-lightning text-lg md:text-base text-slate-300"></i> 8 Hours Mic Access / mo</p>
+            <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-slate-300 text-lg md:text-base"></i> 100% Undetectable</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-slate-400 text-lg md:text-base"></i> Invisible to Zoom/Teams</p>
+            <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-slate-400 text-lg md:text-base"></i> Hidden App Process</p>
         </div>
-        <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 min-h-[48px] rounded-xl bg-sky-500 text-white hover:bg-sky-400 text-[11px] md:text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg relative z-10">Go Elite</button>
+        <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 min-h-[48px] rounded-xl bg-white text-slate-900 hover:bg-slate-200 text-[11px] md:text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg relative z-10">Go Elite</button>
     </div>
 
     </div>
 
-        <div class="max-w-3xl mx-auto mt-12 md:mt-20 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-sky-300 transition-all duration-500">
+        <div class="max-w-3xl mx-auto mt-12 md:mt-20 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-slate-300 transition-all duration-500">
             <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-accent shrink-0 group-hover:scale-110 transition-transform">
+                <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-900 shrink-0 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-stopwatch text-xl md:text-2xl"></i>
                 </div>
                 <div>
                     <h4 class="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Smart Mic Credit System</h4>
                     <p class="text-[13px] md:text-xs text-slate-600 leading-relaxed">
-                        Paid plans include <span class="text-slate-900 font-semibold">8-hours per month</span> of active mic listening time. To save your credits, the **Ghost Timer** only counts when your microphone is turned <span class="text-accent font-bold">ON</span>. Preparation time and breaks are never deducted.
+                        Paid plans include <span class="text-slate-900 font-semibold">8-hours per month</span> of active mic listening time. To save your credits, the **Ghost Timer** only counts when your microphone is turned <span class="text-slate-900 font-bold">ON</span>. Preparation time and breaks are never deducted.
                     </p>
                 </div>
             </div>
@@ -461,18 +371,16 @@
 </section>
 
   <section class="py-16 md:py-12 border-t border-slate-200 bg-white relative overflow-hidden">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:24px_24px] opacity-100 pointer-events-none"></div>
-
     <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
 
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-green-400 transition-colors duration-500 shadow-sm">
+            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-slate-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-green-600 uppercase tracking-widest">
-                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2"></span>
+                    <span class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+                        <span class="inline-block w-2 h-2 rounded-full bg-slate-500 animate-pulse mr-2"></span>
                         Running
                     </span>
-                    <i class="fa-solid fa-clock text-slate-200 text-xl group-hover:text-green-500/50 transition"></i>
+                    <i class="fa-solid fa-clock text-slate-200 text-xl group-hover:text-slate-500 transition"></i>
                 </div>
                 <div>
                     <div class="text-[9px] md:text-[10px] font-mono text-slate-500 mb-1">> SYSTEM_UPTIME (HOURS)</div>
@@ -480,12 +388,12 @@
                 </div>
             </div>
 
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-colors duration-500 shadow-sm">
+            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-slate-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-purple-600 uppercase tracking-widest">
+                    <span class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
                         <i class="fa-solid fa-lock mr-2"></i>Verified
                     </span>
-                    <i class="fa-solid fa-briefcase text-slate-200 text-xl group-hover:text-purple-500/50 transition"></i>
+                    <i class="fa-solid fa-briefcase text-slate-200 text-xl group-hover:text-slate-500 transition"></i>
                 </div>
                 <div>
                     <div class="text-[9px] md:text-[10px] font-mono text-slate-500 mb-1">> OFFERS_SECURED_TOTAL</div>
@@ -493,19 +401,19 @@
                 </div>
             </div>
 
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-sky-400 transition-colors duration-500 shadow-sm">
+            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-slate-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-accent uppercase tracking-widest">
+                    <span class="text-[10px] font-mono text-slate-900 uppercase tracking-widest">
                         <i class="fa-solid fa-network-wired mr-2"></i>Connected
                     </span>
-                    <i class="fa-solid fa-building text-slate-200 text-xl group-hover:text-accent/50 transition"></i>
+                    <i class="fa-solid fa-building text-slate-200 text-xl group-hover:text-slate-500 transition"></i>
                 </div>
                 <div>
                     <div class="text-[9px] md:text-[10px] font-mono text-slate-500 mb-1">> TARGET_SYSTEMS</div>
                     <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter h-[32px] flex items-center">
-                        <span class="text-accent mr-2">$</span>
+                        <span class="text-slate-900 mr-2">$</span>
                         <span id="typewriter-text"></span>
-                        <span class="w-2 h-6 bg-accent animate-pulse ml-1"></span>
+                        <span class="w-2 h-6 bg-slate-900 animate-pulse ml-1"></span>
                     </div>
                 </div>
             </div>
@@ -514,54 +422,37 @@
     </div>
   </section>
 
-  <section id="guide" class="py-16 md:py-20 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-5xl mx-auto px-4 md:px-6 text-center">
-          <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-4 md:mb-6">See it in action.</h2>
-          <p class="text-[15px] md:text-base text-slate-600 mb-8 md:mb-12">Watch the full setup guide and learn how to crack any interview.</p>
-          
-          <div class="perf-card p-1.5 md:p-2 relative w-full aspect-video overflow-hidden group shadow-lg rounded-2xl md:rounded-[24px]">
-              <iframe class="w-full h-full rounded-xl" 
-                  src="https://www.youtube.com/embed/riJZniRiyKA?rel=0&modestbranding=1"
-                  title="Whis-AI Guide" 
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowfullscreen>
-              </iframe>
-          </div>
-      </div>
-  </section>
-
-  <section id="features" class="py-16 md:py-20 border-t border-slate-200 bg-white">
+  <section id="features" class="py-16 md:py-20 border-t border-slate-200 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
           <h2 class="text-3xl font-medium text-slate-900 mb-10 md:mb-16 text-center">Main Features.</h2>
            
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <div class="perf-card p-6 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
-                  <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center sm:mb-4 text-red-500 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
+              <div class="perf-card p-6 md:p-6 hover:bg-white transition group bg-slate-50 shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                  <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center sm:mb-4 text-slate-700 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-microphone-lines text-xl"></i></div>
                   <div class="text-left">
                       <h3 class="text-slate-900 font-bold mb-1 sm:mb-2 text-[15px] sm:text-base">Voice Capture</h3>
                       <p class="text-[13px] sm:text-sm text-slate-600">Listens to the interview and gives answers instantly.</p>
                   </div>
               </div>
 
-              <div class="perf-card p-6 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
-                  <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center sm:mb-4 text-blue-500 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-desktop text-xl"></i></div>
+              <div class="perf-card p-6 md:p-6 hover:bg-white transition group bg-slate-50 shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                  <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center sm:mb-4 text-slate-700 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-desktop text-xl"></i></div>
                   <div class="text-left">
                       <h3 class="text-slate-900 font-bold mb-1 sm:mb-2 text-[15px] sm:text-base">Screen Vision</h3>
                       <p class="text-[13px] sm:text-sm text-slate-600">Sees your screen and solves questions based on it.</p>
                   </div>
               </div>
 
-              <div class="perf-card p-6 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
-                  <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center sm:mb-4 text-green-500 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-keyboard text-xl"></i></div>
+              <div class="perf-card p-6 md:p-6 hover:bg-white transition group bg-slate-50 shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                  <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center sm:mb-4 text-slate-700 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-keyboard text-xl"></i></div>
                   <div class="text-left">
                       <h3 class="text-slate-900 font-bold mb-1 sm:mb-2 text-[15px] sm:text-base">Direct Input</h3>
                       <p class="text-[13px] sm:text-sm text-slate-600">Type text directly to get help or answers.</p>
                   </div>
               </div>
 
-              <div class="perf-card p-6 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
-                  <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center sm:mb-4 text-purple-500 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-eye-slash text-xl"></i></div>
+              <div class="perf-card p-6 md:p-6 hover:bg-white transition group bg-slate-50 shadow-sm flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                  <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center sm:mb-4 text-slate-700 group-hover:scale-110 transition shrink-0"><i class="fa-solid fa-eye-slash text-xl"></i></div>
                   <div class="text-left">
                       <h3 class="text-slate-900 font-bold mb-1 sm:mb-2 text-[15px] sm:text-base">100% Invisible</h3>
                       <p class="text-[13px] sm:text-sm text-slate-600">Completely hidden during screen sharing.</p>
@@ -571,9 +462,9 @@
       </div>
   </section>
 
-  <section class="py-12 bg-slate-900 border-t border-slate-800 overflow-hidden relative">
+  <section id="demo" class="py-12 bg-slate-900 border-t border-slate-800 overflow-hidden relative">
       <div class="text-center mb-6 z-10 relative">
-          <span class="px-3 py-1 rounded-full bg-slate-800 text-sky-400 text-[10px] font-bold uppercase tracking-widest border border-slate-700">Preview</span>
+          <span class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-widest border border-slate-700">Preview</span>
           <h3 id="featureLabel" class="text-white font-bold mt-4 text-lg">READING SCREEN</h3>
           <p class="text-slate-400 text-xs mt-1 md:hidden">Swipe to explore <i class="fa-solid fa-hand-pointer ml-1"></i></p>
       </div>
@@ -584,7 +475,7 @@
   <section class="py-16 md:py-20 border-t border-slate-200 bg-white">
       <div class="max-w-6xl mx-auto px-4 md:px-6 flex flex-col lg:flex-row items-center gap-10 md:gap-12">
           <div class="flex-1 space-y-5 md:space-y-6 text-center lg:text-left">
-              <div class="inline-block px-3 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-700 text-[10px] font-bold uppercase tracking-wider">New Feature</div>
+              <div class="inline-block px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider">New Feature</div>
               <h2 class="text-3xl md:text-4xl font-medium text-slate-900">Smart Context.</h2>
               <p class="text-[15px] md:text-lg text-slate-600 leading-relaxed px-2 lg:px-0">
                   Generic AI gives generic answers. Whis-AI allows you to create up to <strong class="text-slate-900">10 Custom Context Profiles</strong>. Upload your Resume, the Job Description (JD), or specific project notes.
@@ -597,7 +488,7 @@
                       <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">Enabled</span>
                   </div>
                   <div class="space-y-3">
-                      <div class="p-3 md:p-4 rounded-xl bg-white border border-sky-300 flex items-center justify-between shadow-sm">
+                      <div class="p-3 md:p-4 rounded-xl bg-white border border-slate-300 flex items-center justify-between shadow-sm">
                           <div class="flex items-center gap-3">
                               <i class="fa-solid fa-file-pdf text-red-500 text-lg"></i>
                               <div>
@@ -605,10 +496,10 @@
                                   <div class="text-[11px] md:text-[10px] text-slate-500">Uploaded 2h ago</div>
                               </div>
                           </div>
-                          <i class="fa-solid fa-toggle-on text-accent text-2xl"></i>
+                          <i class="fa-solid fa-toggle-on text-slate-900 text-2xl"></i>
                       </div>
                   </div>
-                  <div class="mt-4 p-3 md:p-4 bg-sky-50 rounded-xl border-l-4 border-accent">
+                  <div class="mt-4 p-3 md:p-4 bg-slate-100 rounded-xl border-l-4 border-slate-800">
                       <p class="text-[12px] md:text-[11px] text-slate-700 italic font-medium leading-relaxed">"Based on your resume's experience with Kafka, you should mention how you handled partition tolerance in this system design..."</p>
                   </div>
               </div>
@@ -619,7 +510,7 @@
   <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
       <div class="max-w-4xl mx-auto px-4 md:px-6 text-center">
           <h2 class="text-3xl md:text-4xl font-medium text-slate-900 mb-4 md:mb-6">Is Whis-AI Free?</h2>
-          <div class="text-4xl md:text-5xl font-bold text-accent mb-6">Yes.</div>
+          <div class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Yes.</div>
           <p class="text-[15px] md:text-lg text-slate-700 leading-relaxed mb-10 md:mb-8 px-2">
               We believe in democratizing interview preparation. That's why we offer <strong class="text-slate-900">3 Trial Interviews</strong> and <strong class="text-slate-900">10 Free Daily Answers</strong> to every user, forever.
           </p>
@@ -646,7 +537,7 @@
                   </div>
               </div>
           </div>
-          <button onclick="openDownloadModal()" class="mt-10 md:mt-12 w-full sm:w-auto px-8 py-4 md:py-3 rounded-xl md:rounded-full bg-slate-900 text-white shadow-md font-bold hover:bg-slate-800 transition min-h-[48px]">Start For Free</button>
+          <button onclick="openDownloadModal()" class="mt-10 md:mt-12 w-full sm:w-auto px-8 py-4 md:py-3 rounded-xl md:rounded-full bg-slate-900 text-white shadow-md font-bold hover:bg-slate-800 transition min-h-[48px] active:scale-95">Start For Free</button>
       </div>
   </section>
 
@@ -702,7 +593,7 @@
           </div>
           <h3 class="text-2xl md:text-xl font-bold text-slate-900 mb-2">Upgrade Complete</h3>
           <p class="text-slate-600 text-[15px] md:text-sm mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
-          <button onclick="window.location.reload()" class="w-full py-4 md:py-3 rounded-2xl md:rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 shadow transition min-h-[48px] active:scale-95">Initialize System</button>
+          <button onclick="window.location.reload()" class="w-full py-4 md:py-3 rounded-2xl md:rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 shadow transition min-h-[48px] active:scale-95">Initialize System</button>
       </div>
   </div>
 
@@ -719,15 +610,15 @@
         </div>
 
         <div class="mb-6 flex gap-2">
-            <input type="text" id="couponInput" placeholder="Discount Coupon" class="w-full bg-slate-50 border border-slate-300 rounded-xl md:rounded-lg px-4 py-3 md:py-2 text-[15px] md:text-sm text-slate-900 focus:border-accent outline-none uppercase placeholder:text-slate-400 min-h-[44px]">
-            <button onclick="applyCoupon()" class="bg-accent text-white font-bold px-5 py-3 md:py-2 rounded-xl md:rounded-lg text-[13px] md:text-xs whitespace-nowrap hover:bg-sky-700 shadow transition active:scale-95 min-h-[44px]">Apply</button>
+            <input type="text" id="couponInput" placeholder="Discount Coupon" class="w-full bg-slate-50 border border-slate-300 rounded-xl md:rounded-lg px-4 py-3 md:py-2 text-[15px] md:text-sm text-slate-900 focus:border-slate-400 outline-none uppercase placeholder:text-slate-400 min-h-[44px]">
+            <button onclick="applyCoupon()" class="bg-slate-900 text-white font-bold px-5 py-3 md:py-2 rounded-xl md:rounded-lg text-[13px] md:text-xs whitespace-nowrap hover:bg-slate-800 shadow transition active:scale-95 min-h-[44px]">Apply</button>
         </div>
         <div id="couponMessage" class="text-xs font-bold mb-4 hidden"></div>
 
         <div class="space-y-3 md:space-y-4">
-            <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-4 md:p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-accent hover:bg-sky-50 transition-all duration-300 active:scale-95 min-h-[64px]">
+            <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-4 md:p-4 bg-slate-50 border border-slate-200 rounded-2xl hover:border-slate-400 transition-all duration-300 active:scale-95 min-h-[64px]">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 md:w-10 md:h-10 rounded-xl bg-sky-100 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                    <div class="w-12 h-12 md:w-10 md:h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-900 group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-credit-card text-xl md:text-lg"></i>
                     </div>
                     <div class="text-left">
@@ -735,7 +626,7 @@
                         <div class="text-[11px] md:text-[10px] text-slate-500">Cards, UPI, Netbanking (INR)</div>
                     </div>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-accent transition"></i>
+                <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-slate-900 transition"></i>
             </button>
 
             <div class="relative flex py-2 md:py-3 items-center">
@@ -760,10 +651,10 @@
         <h3 class="text-2xl font-bold text-slate-900 mb-1">Enterprise Inquiry</h3>
         <p class="text-[13px] md:text-xs text-slate-600 mb-6">Let's build a custom plan for your team.</p>
         <form id="entForm" onsubmit="submitEnterpriseForm(event)" class="space-y-3 md:space-y-4 text-left">
-            <input type="email" id="entEmail" placeholder="Work Email" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 md:py-3 text-[15px] md:text-sm text-slate-900 focus:border-accent outline-none placeholder:text-slate-400 min-h-[48px]">
-            <input type="tel" id="entMobile" placeholder="Mobile Number" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 md:py-3 text-[15px] md:text-sm text-slate-900 focus:border-accent outline-none placeholder:text-slate-400 min-h-[48px]">
-            <textarea id="entQuery" placeholder="Tell us about your team's needs..." required rows="4" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-[15px] md:text-sm text-slate-900 focus:border-accent outline-none resize-none placeholder:text-slate-400"></textarea>
-            <button type="submit" id="entSubmitBtn" class="w-full py-4 mt-2 rounded-2xl md:rounded-xl bg-accent text-white font-bold uppercase tracking-widest hover:bg-sky-700 shadow transition active:scale-95 min-h-[48px]">Submit Inquiry</button>
+            <input type="email" id="entEmail" placeholder="Work Email" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 md:py-3 text-[15px] md:text-sm text-slate-900 focus:border-slate-400 outline-none placeholder:text-slate-400 min-h-[48px]">
+            <input type="tel" id="entMobile" placeholder="Mobile Number" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3.5 md:py-3 text-[15px] md:text-sm text-slate-900 focus:border-slate-400 outline-none placeholder:text-slate-400 min-h-[48px]">
+            <textarea id="entQuery" placeholder="Tell us about your team's needs..." required rows="4" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-[15px] md:text-sm text-slate-900 focus:border-slate-400 outline-none resize-none placeholder:text-slate-400"></textarea>
+            <button type="submit" id="entSubmitBtn" class="w-full py-4 mt-2 rounded-2xl md:rounded-xl bg-slate-900 text-white font-bold uppercase tracking-widest hover:bg-slate-800 shadow transition active:scale-95 min-h-[48px]">Submit Inquiry</button>
         </form>
     </div>
 </div>
@@ -776,11 +667,11 @@
         <div class="space-y-3">
             <a href="https://github.com/syedwaseeemfahad007-design/whis-ai/releases/download/v1.1.mac/Whis-1.0.1-arm64.dmg" class="flex items-center justify-between p-4 md:p-4 bg-slate-50 rounded-2xl md:rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm min-h-[64px] active:scale-95">
                 <span class="flex items-center gap-4 md:gap-3 text-[15px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-apple text-2xl md:text-xl text-slate-700"></i> macOS</span>
-                <i class="fa-solid fa-download text-slate-300 group-hover:text-accent"></i>
+                <i class="fa-solid fa-download text-slate-300 group-hover:text-slate-900"></i>
             </a>
             <a href="https://github.com/syedwaseeemfahad007-design/whis-ai/releases/download/v.1.1.w/Whis.Setup.1.0.1.exe" class="flex items-center justify-between p-4 md:p-4 bg-slate-50 rounded-2xl md:rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm min-h-[64px] active:scale-95">
                 <span class="flex items-center gap-4 md:gap-3 text-[15px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-windows text-2xl md:text-xl text-blue-500"></i> Windows</span>
-                <i class="fa-solid fa-download text-slate-300 group-hover:text-accent"></i>
+                <i class="fa-solid fa-download text-slate-300 group-hover:text-slate-900"></i>
             </a>
         </div>
         <p class="text-center text-[10px] text-slate-400 mt-6">App is completely hidden during screen share.</p>
@@ -791,7 +682,7 @@
     <div class="perf-card bottom-sheet-mobile md:p-8 md:max-w-sm w-full text-center border-t md:border border-slate-200 bg-white shadow-2xl pt-8 px-6 animate-slide-up md:animate-none">
         <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6 md:hidden"></div>
         <button onclick="closeProfileModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 w-8 h-8 flex items-center justify-center bg-slate-50 rounded-full md:bg-transparent md:top-4 md:right-4"><i class="fa-solid fa-times"></i></button>
-        <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-accent p-1 shadow-sm" />
+        <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border border-slate-200 p-1 shadow-sm" />
         <h3 id="modalUserName" class="text-xl md:text-lg font-bold text-slate-900 mb-6">User</h3>
         <div class="bg-slate-50 rounded-2xl md:rounded-xl p-5 md:p-6 text-left mb-6 border border-slate-200 shadow-inner">
             <p class="text-[11px] md:text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
@@ -805,23 +696,23 @@
     </div>
   </div>
 
-  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
+  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[110] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
       
-      <div class="bg-sky-600 text-white px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] flex justify-between items-center shadow-md z-20 shrink-0">
+      <div class="bg-slate-900 text-white px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] flex justify-between items-center shadow-md z-20 shrink-0">
           <div class="font-bold text-[15px] md:text-sm flex items-center gap-2">
               <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div> Live Support
           </div>
-          <button onclick="toggleLiveChat()" class="text-sky-100 hover:text-white bg-sky-700/50 w-8 h-8 rounded-full flex items-center justify-center transition active:scale-95">
+          <button onclick="toggleLiveChat()" class="text-slate-300 hover:text-white bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center transition active:scale-95">
               <i class="fa-solid fa-chevron-down md:hidden text-sm"></i>
               <i class="fa-solid fa-times hidden md:block text-sm"></i>
           </button>
       </div>
       
       <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-6 md:p-8 bg-white relative z-10">
-          <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><i class="fa-solid fa-envelope-open-text text-2xl"></i></div>
+          <div class="w-16 h-16 bg-slate-100 text-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"><i class="fa-solid fa-envelope-open-text text-2xl"></i></div>
           <h3 class="text-2xl md:text-xl font-bold text-slate-900 text-center mb-2">Welcome to Support</h3>
           <p class="text-[15px] md:text-sm text-slate-500 mb-8 text-center leading-relaxed">Enter your email address to start chatting with our team instantly.</p>
-          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-slate-50 border border-slate-300 rounded-2xl md:rounded-xl px-4 py-4 md:py-3.5 text-[15px] md:text-sm focus:border-sky-500 outline-none mb-4 shadow-sm min-h-[48px]">
+          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-slate-50 border border-slate-300 rounded-2xl md:rounded-xl px-4 py-4 md:py-3.5 text-[15px] md:text-sm focus:border-slate-400 outline-none mb-4 shadow-sm min-h-[48px]">
           <button onclick="startChatAuth()" class="w-full bg-slate-900 text-white font-bold text-[15px] md:text-sm py-4 md:py-3.5 rounded-2xl md:rounded-xl hover:bg-slate-800 shadow-md transition active:scale-95 min-h-[48px]">Start Conversation</button>
       </div>
 
@@ -830,8 +721,8 @@
           </div>
           
           <div class="p-3 md:p-4 bg-white border-t border-slate-200 flex gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-2xl md:rounded-xl px-4 py-3.5 md:py-3 text-[15px] md:text-sm focus:border-sky-500 outline-none shadow-inner min-h-[48px]" onkeypress="if(event.key === 'Enter') sendChatMessage()">
-              <button onclick="sendChatMessage()" class="bg-sky-600 text-white w-12 h-12 md:w-12 md:h-12 rounded-2xl md:rounded-xl hover:bg-sky-700 transition shadow-md active:scale-95 flex items-center justify-center shrink-0"><i class="fa-solid fa-paper-plane text-sm"></i></button>
+              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-2xl md:rounded-xl px-4 py-3.5 md:py-3 text-[15px] md:text-sm focus:border-slate-400 outline-none shadow-inner min-h-[48px]" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+              <button onclick="sendChatMessage()" class="bg-slate-900 text-white w-12 h-12 md:w-12 md:h-12 rounded-2xl md:rounded-xl hover:bg-slate-800 transition shadow-md active:scale-95 flex items-center justify-center shrink-0"><i class="fa-solid fa-paper-plane text-sm"></i></button>
           </div>
       </div>
   </div>
@@ -866,10 +757,9 @@
             container.appendChild(div);
         });
         updateCarousel();
-        initCarouselSwipe(container); // Add swipe functionality
+        initCarouselSwipe(container); 
     }
 
-    // --- NEW: Mobile Carousel Swipe Logic ---
     function initCarouselSwipe(container) {
         let touchStartX = 0;
         let touchEndX = 0;
@@ -884,14 +774,12 @@
         }, {passive: true});
 
         function handleSwipe() {
-            const threshold = 40; // minimum distance to trigger swipe
+            const threshold = 40; 
             if (touchEndX < touchStartX - threshold) {
-                // Swipe Left -> Next
                 activeIndex = (activeIndex + 1) % videos.length;
                 updateCarousel();
             }
             if (touchEndX > touchStartX + threshold) {
-                // Swipe Right -> Prev
                 activeIndex = (activeIndex - 1 + videos.length) % videos.length;
                 updateCarousel();
             }
@@ -1015,96 +903,10 @@
         setTimeout(typeEffect, typeSpeed);
     }
 
-    function updateDynamicSignups() {
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const istDate = new Date(utc + istOffset);
-         
-        let hour = istDate.getHours();
-        let count = hour * hour;
-        count = count+42;
-        if(count === 0) count = 15; 
-         
-        const badge = document.getElementById('signup-badge-text');
-        if(badge) badge.innerText = `🔥 ${count} signups today`;
-    }
-
-    function startIstMidnightTimer() {
-        const timerEl = document.getElementById('fomo-timer');
-        if(!timerEl) return;
-        function update() {
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const istOffset = 5.5 * 60 * 60 * 1000;
-            const istTime = new Date(utc + istOffset);
-            const nextMidnight = new Date(istTime);
-            nextMidnight.setHours(24, 0, 0, 0);
-            let diff = nextMidnight - istTime;
-            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const m = Math.floor((diff / (1000 * 60)) % 60);
-            const s = Math.floor((diff / 1000) % 60);
-            timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-        update();
-        setInterval(update, 1000);
-    }
-
     function updateSlider(val) {
         document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
     }
 
-    const heroQ = '"Can you explain the difference between a Process and a Thread?"';
-    const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
-    let heroQIdx = 0;
-    let heroAIdx = 0;
-
-    function typeHeroSequence() {
-        const statusEl = document.getElementById('hero-status');
-        const qContainer = document.getElementById('hero-question-container');
-        const qTextEl = document.getElementById('hero-question-text');
-        const aContainer = document.getElementById('hero-answer-container');
-        const aTextEl = document.getElementById('hero-answer-text');
-
-        if(!statusEl) return;
-
-        statusEl.classList.remove('hidden');
-        qContainer.classList.add('hidden');
-        aContainer.classList.add('hidden');
-        qTextEl.textContent = '';
-        aTextEl.textContent = '';
-        heroQIdx = 0;
-        heroAIdx = 0;
-
-        setTimeout(() => {
-             qContainer.classList.remove('hidden');
-             typeHeroQuestion(qTextEl, () => {
-                 setTimeout(() => {
-                     aContainer.classList.remove('hidden');
-                     typeHeroAnswer(aTextEl, () => {
-                         setTimeout(typeHeroSequence, 6000);
-                     });
-                 }, 800);
-             });
-        }, 1500);
-    }
-
-    function typeHeroQuestion(el, callback) {
-        if(heroQIdx < heroQ.length) {
-            el.textContent += heroQ.charAt(heroQIdx);
-            heroQIdx++;
-            setTimeout(() => typeHeroQuestion(el, callback), 30);
-        } else { callback(); }
-    }
-
-    function typeHeroAnswer(el, callback) {
-        if(heroAIdx < heroA.length) {
-            el.textContent += heroA.charAt(heroAIdx);
-            heroAIdx++;
-            setTimeout(() => typeHeroAnswer(el, callback), 20); 
-        } else { callback(); }
-    }
-    
     let sliderAutoPlay = true;
     let sliderTime = 0;
 
@@ -1199,7 +1001,7 @@
                 discounted = (amount * (1 - discount/100)).toFixed(2);
                 displayAmount = displayAmount.toFixed(2);
             }
-            return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-slate-900 bg-slate-200 px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
         
         const finalVal = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
@@ -1231,12 +1033,12 @@
             proPrice = PRICING_CONFIG.pro.monthly;
             elitePrice = PRICING_CONFIG.pro_plus.monthly;
             proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/month</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-300 block font-normal mt-1">/month</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-400 block font-normal mt-1">/month</span>`;
         } else {
             proPrice = PRICING_CONFIG.pro.quarterly;
             elitePrice = PRICING_CONFIG.pro_plus.quarterly;
             proDiv.innerHTML = `${formatPrice(proPrice, proDisc)}<span class="text-[10px] text-slate-500 block font-normal mt-1">/quarter</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-300 block font-normal mt-1">/quarter</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc)}<span class="text-[10px] text-slate-400 block font-normal mt-1">/quarter</span>`;
         }
     }
 
@@ -1251,7 +1053,7 @@
             if(d.active){
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
                 badge.classList.remove('text-slate-500');
-                badge.classList.add('text-accent');
+                badge.classList.add('text-slate-900');
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 if(d.expiry || d.validUntil) {
@@ -1266,7 +1068,7 @@
             } else {
                 badge.innerText = 'FREE';
                 badge.classList.add('text-slate-500');
-                badge.classList.remove('text-accent');
+                badge.classList.remove('text-slate-900');
                 document.getElementById('modalPlanName').innerText = 'Free Tier';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 validityEl.innerText = "Lifetime Free Access";
@@ -1323,7 +1125,6 @@
         paymentModal.classList.remove('hidden'); 
         paymentModal.classList.add('flex');
         
-        // Timeout ensures the slide-up animation isn't blocked by PayPal iframe load
         setTimeout(() => {
             document.getElementById('paypal-button-container').innerHTML = '';
             paypal.Buttons({
@@ -1425,7 +1226,7 @@
                             alert("Network Error during verification.");
                         }
                     },
-                    "theme": { "color": "#0284c7" },
+                    "theme": { "color": "#0f172a" },
                     "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
                 rzp1.open();
@@ -1497,15 +1298,6 @@
             btn.innerHTML = origText; 
             btn.disabled = false;
         }
-    }
-
-    const fomoModal = document.getElementById('fomoModal');
-    const hasApplied = localStorage.getItem('whis_fomo_applied');
-
-    function closeFomoModal() {
-        if(!fomoModal) return;
-        fomoModal.classList.add('hidden');
-        fomoModal.classList.remove('flex');
     }
 
     // ================= LIVE CHAT LOGIC =================
@@ -1611,13 +1403,13 @@
 
         messages.forEach(msg => {
             const div = document.createElement('div');
-            div.className = `max-w-[85%] p-3.5 rounded-2xl text-[14px] md:text-[13px] leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-sky-600 text-white self-end rounded-tr-sm'}`;
+            div.className = `max-w-[85%] p-3.5 rounded-2xl text-[14px] md:text-[13px] leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-slate-900 text-white self-end rounded-tr-sm'}`;
             
             const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
             div.innerHTML = `
                 <div class="message-content">${formatMessage(msg.text)}</div>
-                <span class="text-[10px] md:text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>
+                <span class="text-[10px] md:text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-slate-300'} mt-1.5 block text-right">${timeStr}</span>
             `;
             area.appendChild(div);
         });
@@ -1637,11 +1429,11 @@
         
         const area = document.getElementById('chatMessagesArea');
         const tempDiv = document.createElement('div');
-        tempDiv.className = `max-w-[85%] p-3.5 rounded-2xl text-[14px] md:text-[13px] leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
+        tempDiv.className = `max-w-[85%] p-3.5 rounded-2xl text-[14px] md:text-[13px] leading-relaxed shadow-sm relative bg-slate-800 text-white self-end rounded-tr-sm`;
         
         tempDiv.innerHTML = `
             <div class="message-content">${formatMessage(text)}</div>
-            <span class="text-[10px] md:text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>
+            <span class="text-[10px] md:text-[9px] text-slate-300 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>
         `;
         area.appendChild(tempDiv);
         area.scrollTop = area.scrollHeight;
@@ -1665,63 +1457,6 @@
     function stopChatPolling() {
         if(chatPollInterval) clearInterval(chatPollInterval);
     }
-
-    function submitLeadAndChat() {
-        const email = document.getElementById('leadEmail').value;
-        if(!email || !email.includes('@')) { 
-            alert("Please enter a valid email address to get the discount."); 
-            return; 
-        }
-        
-        chatEmail = email;
-        localStorage.setItem('chatEmail', chatEmail);
-        
-        const message = `Hi Whis-AI! I want to buy the subscription. Can you give me a discount? My email is ${email}`;
-        toggleLiveChat(message);
-        dismissLeadCapture();
-    }
-
-    function dismissLeadCapture() {
-        const modal = document.getElementById('mobileLeadCapture');
-        if(modal) {
-            modal.style.opacity = '0';
-            modal.style.transform = 'translateY(20px)';
-            setTimeout(() => modal.remove(), 400);
-        }
-    }
-
-    // --- SMART MOBILE LEAD CAPTURE ---
-    let exitIntentTriggered = false;
-
-    // Desktop Exit Intent
-    document.addEventListener("mouseleave", (e) => {
-        if (e.clientY < 0 && !exitIntentTriggered && window.innerWidth >= 768) {
-            const leadModal = document.getElementById('mobileLeadCapture');
-            if (leadModal) {
-                leadModal.classList.remove('hidden');
-                leadModal.classList.add('flex');
-                exitIntentTriggered = true; 
-            }
-        }
-    });
-
-    // Mobile Scroll Intent (Replaces hover exit-intent)
-    window.addEventListener('scroll', () => {
-        if (!exitIntentTriggered && window.innerWidth < 768) {
-            const scrolled = window.scrollY;
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            
-            // Trigger if scrolled past 50% of the page
-            if (maxScroll > 0 && (scrolled / maxScroll) > 0.5) {
-                const leadModal = document.getElementById('mobileLeadCapture');
-                if (leadModal) {
-                    leadModal.classList.remove('hidden');
-                    leadModal.classList.add('flex');
-                    exitIntentTriggered = true;
-                }
-            }
-        }
-    }, { passive: true });
         
     document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
@@ -1732,9 +1467,6 @@
         initSliderAutoPlay();
         checkUser();
         fetchPricingConfig();
-        updateDynamicSignups();
-        startIstMidnightTimer();
-        
         setCycle('monthly');
     });
   </script>
