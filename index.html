@@ -28,11 +28,9 @@
           },
           animation: { 
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 8s ease-in-out infinite',
-            'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+            'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
           },
           keyframes: {
-            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
             slideUp: { '0%': { transform: 'translateY(100%)' }, '100%': { transform: 'translateY(0)' } }
           }
         }
@@ -61,9 +59,6 @@
         padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
         -webkit-font-smoothing: antialiased;
     }
-
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    .animate-float { animation: float 6s ease-in-out infinite; }
 
     @keyframes hueCycle {
         0% { filter: hue-rotate(0deg); }
@@ -210,7 +205,7 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-[45] bg-white/95 backdrop-blur-2xl border-t border-slate-200 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-3 shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
+  <div id="mobileBottomNav" class="md:hidden fixed bottom-0 left-0 right-0 z-[45] bg-white/95 backdrop-blur-2xl border-t border-slate-200 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-3 shadow-[0_-15px_40px_rgba(0,0,0,0.08)]">
       <a href="#demo" class="flex-1 py-3.5 rounded-2xl bg-slate-100 text-slate-800 text-[13px] font-bold text-center border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-transform">
           <i class="fa-solid fa-play"></i> Watch Demo
       </a>
@@ -219,7 +214,7 @@
       </button>
   </div>
 
-  <button onclick="toggleLiveChat()" class="fixed bottom-[calc(90px+env(safe-area-inset-bottom))] right-4 z-[99] bg-slate-900 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all md:bottom-8 md:right-8 cursor-pointer pointer-events-auto border border-slate-700">
+  <button onclick="toggleLiveChat()" class="fixed bottom-[90px] right-4 z-[99] bg-slate-900 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all md:bottom-8 md:right-8 cursor-pointer pointer-events-auto border border-slate-700 touch-manipulation">
       <i class="fa-solid fa-comments text-white text-xl"></i>
       <span class="absolute right-16 bg-white text-slate-900 border border-slate-200 shadow-md text-[11px] font-bold py-1.5 px-3 rounded-lg whitespace-nowrap hidden md:block before:content-[''] before:absolute before:right-[-4px] before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:bg-white before:border-r before:border-t before:border-slate-200 before:rotate-45">Need Help?</span>
   </button>
@@ -369,58 +364,6 @@
         </div>
     </div>
 </section>
-
-  <section class="py-16 md:py-12 border-t border-slate-200 bg-white relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-slate-400 transition-colors duration-500 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
-                        <span class="inline-block w-2 h-2 rounded-full bg-slate-500 animate-pulse mr-2"></span>
-                        Running
-                    </span>
-                    <i class="fa-solid fa-clock text-slate-200 text-xl group-hover:text-slate-500 transition"></i>
-                </div>
-                <div>
-                    <div class="text-[9px] md:text-[10px] font-mono text-slate-500 mb-1">> SYSTEM_UPTIME (HOURS)</div>
-                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter" id="uptime-counter">62,402</div>
-                </div>
-            </div>
-
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-slate-400 transition-colors duration-500 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
-                        <i class="fa-solid fa-lock mr-2"></i>Verified
-                    </span>
-                    <i class="fa-solid fa-briefcase text-slate-200 text-xl group-hover:text-slate-500 transition"></i>
-                </div>
-                <div>
-                    <div class="text-[9px] md:text-[10px] font-mono text-slate-500 mb-1">> OFFERS_SECURED_TOTAL</div>
-                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter">6,894</div>
-                </div>
-            </div>
-
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-slate-400 transition-colors duration-500 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-[10px] font-mono text-slate-900 uppercase tracking-widest">
-                        <i class="fa-solid fa-network-wired mr-2"></i>Connected
-                    </span>
-                    <i class="fa-solid fa-building text-slate-200 text-xl group-hover:text-slate-500 transition"></i>
-                </div>
-                <div>
-                    <div class="text-[9px] md:text-[10px] font-mono text-slate-500 mb-1">> TARGET_SYSTEMS</div>
-                    <div class="text-2xl font-mono font-bold text-slate-900 tracking-tighter h-[32px] flex items-center">
-                        <span class="text-slate-900 mr-2">$</span>
-                        <span id="typewriter-text"></span>
-                        <span class="w-2 h-6 bg-slate-900 animate-pulse ml-1"></span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-  </section>
 
   <section id="features" class="py-16 md:py-20 border-t border-slate-200 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
@@ -696,7 +639,7 @@
     </div>
   </div>
 
-  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[110] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
+  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[110] w-full h-full md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
       
       <div class="bg-slate-900 text-white px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] flex justify-between items-center shadow-md z-20 shrink-0">
           <div class="font-bold text-[15px] md:text-sm flex items-center gap-2">
@@ -728,6 +671,12 @@
   </div>
 
   <script>
+    // Robust local default in case API is completely blocked/slow
+    let PRICING_CONFIG = {
+        pro: { monthly: 19.00, quarterly: 39.00, discount: 0 },
+        pro_plus: { monthly: 39.00, quarterly: 89.00, discount: 0 }
+    };
+
     const videos = [
         { src: 'visual.mp4', label: 'READING SCREEN' },
         { src: 'text.mp4', label: 'AUTO CODE WRITING' },
@@ -865,44 +814,6 @@
         }
     }
 
-    function initUptimeCounter() {
-        const counterEl = document.getElementById('uptime-counter');
-        if(!counterEl) return;
-        let currentCount = 62402;
-        setInterval(() => {
-            currentCount += Math.floor(Math.random() * 2);
-            counterEl.innerText = currentCount.toLocaleString();
-        }, 1500);
-    }
-
-    const companyWords = ["Google", "Netflix", "Meta", "Amazon", "Apple", "Uber", "Airbnb"];
-    let wordIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-
-    function typeEffect() {
-        const textEl = document.getElementById('typewriter-text');
-        if(!textEl) return;
-        const currentWord = companyWords[wordIndex];
-        if (isDeleting) {
-            textEl.innerText = currentWord.substring(0, charIndex - 1);
-            charIndex--;
-        } else {
-            textEl.innerText = currentWord.substring(0, charIndex + 1);
-            charIndex++;
-        }
-        let typeSpeed = isDeleting ? 50 : 150;
-        if (!isDeleting && charIndex === currentWord.length) {
-            typeSpeed = 2000; 
-            isDeleting = true;
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            wordIndex = (wordIndex + 1) % companyWords.length;
-            typeSpeed = 500; 
-        }
-        setTimeout(typeEffect, typeSpeed);
-    }
-
     function updateSlider(val) {
         document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
     }
@@ -936,7 +847,7 @@
     let currentCycle = 'monthly'; 
     let currentTier = 'free';
     
-    let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
+    let GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90;
 
     let currentCoupon = "";
@@ -951,15 +862,15 @@
             const res = await fetch(`${BACKEND_URL}/api/config`);
             if(res.ok) {
                 const data = await res.json();
-                PRICING_CONFIG = data.pricing;
-                GOOGLE_CLIENT_ID = data.googleClientId;
+                if(data.pricing) PRICING_CONFIG = data.pricing;
+                if(data.googleClientId) GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
                 updatePricingUI();
                 document.getElementById('btnPro').disabled = false;
                 document.getElementById('btnElite').disabled = false;
             }
-        } catch(e) { console.error("Config Fetch Error", e); }
+        } catch(e) { console.error("Config Fetch Error. Using local defaults."); }
     }
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
@@ -983,7 +894,7 @@
     }
      
     function formatPrice(amount, discount) {
-        if (!amount) return "...";
+        if (amount === undefined || amount === null || isNaN(amount)) return "...";
         
         let displayAmount = amount;
         let currencySymbol = "$";
@@ -1322,10 +1233,14 @@
 
     function toggleLiveChat(prefillMsg = null) {
         const widget = document.getElementById('liveChatWidget');
+        const bottomNav = document.getElementById('mobileBottomNav');
         const isHidden = widget.classList.contains('hidden');
         
         if(isHidden) {
-            if(window.innerWidth < 768) document.body.style.overflow = 'hidden';
+            if(window.innerWidth < 768) {
+                document.body.style.overflow = 'hidden';
+                if(bottomNav) bottomNav.style.display = 'none';
+            }
             
             widget.classList.remove('hidden');
             widget.classList.add('flex');
@@ -1342,7 +1257,10 @@
                 setTimeout(sendChatMessage, 200); 
             }
         } else {
-            if(window.innerWidth < 768) document.body.style.overflow = '';
+            if(window.innerWidth < 768) {
+                document.body.style.overflow = '';
+                if(bottomNav) bottomNav.style.display = 'flex';
+            }
             
             widget.classList.remove('opacity-100', 'translate-y-0', 'md:scale-100');
             widget.classList.add('opacity-0', 'translate-y-10', 'md:scale-95');
@@ -1459,10 +1377,9 @@
     }
         
     document.addEventListener("DOMContentLoaded", () => {
+        updatePricingUI(); 
         initCarousel();
-        initUptimeCounter();
         typeCode();
-        typeEffect();
         typeHeroSequence(); 
         initSliderAutoPlay();
         checkUser();
