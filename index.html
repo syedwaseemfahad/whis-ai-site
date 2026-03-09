@@ -65,6 +65,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <script defer src="https://shown.io/metrics/lv3RWlmb8J" type="text/javascript"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -218,94 +221,124 @@
 
     .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 
-    /* --- THE BEST EVER COLOR & LOGO ANIMATION CLASSES --- */
+    /* =========================================================
+       THE 100/100 PREMIUM ANIMATION ENGINE 
+       ========================================================= */
+
+    /* Grayscale initial state */
     html.bw-state {
-        filter: grayscale(100%) contrast(1.03) brightness(0.98);
+        filter: grayscale(100%) contrast(1.05) brightness(0.95);
     }
-    
     html {
-        transition: filter 3.5s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: filter 2.5s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* Ambient Premium Mesh Background */
+    /* Aurora Premium Mesh Background - Hidden initially */
     .premium-mesh {
         position: fixed;
         inset: 0;
-        z-index: -1;
+        z-index: -2;
         opacity: 0;
         pointer-events: none;
         background: 
-            radial-gradient(circle at 15% 30%, rgba(99, 102, 241, 0.08), transparent 45%),
-            radial-gradient(circle at 85% 70%, rgba(236, 72, 153, 0.07), transparent 45%),
-            radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04), transparent 60%);
-        transition: opacity 4s cubic-bezier(0.25, 1, 0.5, 1);
+            radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12), transparent 45%),
+            radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.12), transparent 45%),
+            radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.08), transparent 60%);
+        filter: blur(40px);
+        transition: opacity 3s ease-in-out;
     }
 
     .color-reveal-active .premium-mesh {
         opacity: 1;
-        animation: premium-breath 12s ease-in-out infinite alternate;
+        animation: premium-breath 15s ease-in-out infinite alternate;
     }
 
     @keyframes premium-breath {
         0% { transform: scale(1) translate(0, 0); }
-        50% { transform: scale(1.05) translate(2%, 2%); }
-        100% { transform: scale(1) translate(-1%, -1%); }
+        50% { transform: scale(1.1) translate(3%, 3%); }
+        100% { transform: scale(1) translate(-2%, -2%); }
+    }
+
+    /* Particle Canvas */
+    #particle-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        width: 100vw;
+        height: 100vh;
     }
 
     /* Floating Brand Logo Containers */
+    .logo-container-wrapper {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        margin-bottom: 2rem;
+        perspective: 1000px;
+    }
+
     .logo-box {
         position: relative;
-        width: 64px;
-        height: 64px;
+        width: 72px;
+        height: 72px;
         border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.6);
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
         backdrop-filter: blur(12px);
-        transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-        will-change: transform, box-shadow, border-color;
-        cursor: pointer;
+        transition: box-shadow 1.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 1.5s ease;
+        will-change: transform, box-shadow;
     }
 
     .logo-box svg {
-        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        width: 40px;
+        height: 40px;
+        overflow: visible;
     }
 
-    .logo-box:hover svg {
-        transform: scale(1.15);
+    /* SVG Tracing Styles (Pre-reveal) */
+    .brand-path {
+        fill: transparent;
+        stroke: #000;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        /* Dasharray set in JS */
     }
 
     /* Vibrant Brand Glows Activated After 10s */
     .color-reveal-active .logo-zoom { 
-        box-shadow: 0 15px 40px -10px rgba(45, 140, 255, 0.45); 
-        border-color: rgba(45, 140, 255, 0.25); 
+        box-shadow: 0 20px 50px -10px rgba(45, 140, 255, 0.6); 
+        border-color: rgba(45, 140, 255, 0.4); 
     }
     .color-reveal-active .logo-teams { 
-        box-shadow: 0 15px 40px -10px rgba(80, 89, 201, 0.45); 
-        border-color: rgba(80, 89, 201, 0.25); 
+        box-shadow: 0 20px 50px -10px rgba(80, 89, 201, 0.6); 
+        border-color: rgba(80, 89, 201, 0.4); 
     }
     .color-reveal-active .logo-meet { 
-        box-shadow: 0 15px 40px -10px rgba(52, 168, 83, 0.45); 
-        border-color: rgba(52, 168, 83, 0.25); 
+        box-shadow: 0 20px 50px -10px rgba(52, 168, 83, 0.6); 
+        border-color: rgba(52, 168, 83, 0.4); 
     }
     .color-reveal-active .logo-hr { 
-        box-shadow: 0 15px 40px -10px rgba(0, 234, 104, 0.45); 
-        border-color: rgba(0, 234, 104, 0.25); 
+        box-shadow: 0 20px 50px -10px rgba(0, 234, 104, 0.6); 
+        border-color: rgba(0, 234, 104, 0.4); 
     }
 
-    /* Organic Floating Physics */
-    .float-1 { animation: float-brand 6s ease-in-out infinite; }
-    .float-2 { animation: float-brand 6s ease-in-out infinite 0.8s; }
-    .float-3 { animation: float-brand 6s ease-in-out infinite 1.6s; }
-    .float-4 { animation: float-brand 6s ease-in-out infinite 2.4s; }
+    /* Brand Fill Colors (Applied via GSAP at the climax) */
+    .fill-zoom { fill: #2D8CFF; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
+    .fill-teams { fill: #5059C9; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
+    .fill-meet-r { fill: #EA4335; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
+    .fill-meet-g { fill: #34A853; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
+    .fill-meet-b { fill: #4285F4; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
+    .fill-meet-y { fill: #FBBC04; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
+    .fill-hr { fill: #00EA68; stroke: transparent; transition: fill 0.8s, stroke 0.8s; }
 
-    @keyframes float-brand {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-10px) rotate(1.5deg); }
-    }
   </style>
 </head>
 <body class="no-scrollbar relative">
@@ -315,6 +348,7 @@
   </div>
   
   <div class="premium-mesh"></div>
+  <canvas id="particle-canvas"></canvas>
 
   <nav class="fixed top-0 w-full z-50 h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-2xl border-b border-gray-100 shadow-sm transition-all duration-500">
     <div class="w-full max-w-7xl px-6 flex items-center justify-between">
@@ -389,57 +423,40 @@
         </button>
       </div>
 
-      <div class="flex flex-col items-center mt-6 gap-3 reveal delay-300">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-50 border border-gray-200 text-[10px] font-bold text-black shadow-sm transition-transform hover:scale-105 duration-300">
-            <span class="w-1.5 h-1.5 bg-black animate-pulse"></span>
-            <span id="signup-badge-text">🔥 150+ signups today</span>
-          </div>
-          <div class="text-[10px] text-gray-500 font-mono tracking-widest uppercase opacity-90">
-             <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No meeting access
-          </div>
-      </div>
-
       <div class="w-full flex flex-col items-center mt-12 mb-4 reveal delay-300">
-        <p class="text-[9px] text-gray-400 font-bold tracking-widest uppercase mb-6 drop-shadow-sm">Works Seamlessly With</p>
-        <div class="flex items-center justify-center gap-4 md:gap-8">
-            
-            <div class="logo-box logo-zoom float-1">
-                <svg viewBox="0 0 100 100" class="w-8 h-8 md:w-9 md:h-9">
-                    <rect width="100" height="100" rx="24" fill="#2D8CFF"/>
-                    <path d="M68 42 L56 50 L56 42 C56 38.7 53.3 36 50 36 L30 36 C26.7 36 24 38.7 24 42 L24 58 C24 61.3 26.7 64 30 64 L50 64 C53.3 64 56 61.3 56 58 L56 50 L68 58 L68 42 Z" fill="white"/>
+        <p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-4 drop-shadow-sm">Works Seamlessly With</p>
+        
+        <div class="logo-container-wrapper" id="brand-logos">
+            <div class="logo-box logo-zoom">
+                <svg viewBox="0 0 100 100">
+                    <path class="brand-path p-zoom" d="M72 40 L58 49 L58 40 C58 36.7 55.3 34 52 34 L28 34 C24.7 34 22 36.7 22 40 L22 60 C22 63.3 24.7 66 28 66 L52 66 C55.3 66 58 63.3 58 60 L58 51 L72 60 L72 40 Z"/>
                 </svg>
             </div>
             
-            <div class="logo-box logo-teams float-2">
-                <svg viewBox="0 0 100 100" class="w-8 h-8 md:w-9 md:h-9">
-                    <rect width="100" height="100" rx="24" fill="#5059C9"/>
-                    <path d="M46 34C46 29.5817 42.4183 26 38 26C33.5817 26 30 29.5817 30 34C30 38.4183 33.5817 42 38 42C42.4183 42 46 38.4183 46 34Z" fill="white"/>
-                    <path d="M52 46H24C21.7909 46 20 47.7909 20 50V62C20 66.4183 23.5817 70 28 70H48C52.4183 70 56 66.4183 56 62V50C56 47.7909 54.2091 46 52 46Z" fill="white"/>
-                    <rect x="52" y="38" width="28" height="28" rx="4" fill="white"/>
-                    <path d="M58 46H74V50H68V58H62V50H58V46Z" fill="#5059C9"/>
+            <div class="logo-box logo-teams">
+                <svg viewBox="0 0 100 100">
+                    <path class="brand-path p-teams" d="M46 34C46 29.5817 42.4183 26 38 26C33.5817 26 30 29.5817 30 34C30 38.4183 33.5817 42 38 42C42.4183 42 46 38.4183 46 34Z M52 46H24C21.7909 46 20 47.7909 20 50V62C20 66.4183 23.5817 70 28 70H48C52.4183 70 56 66.4183 56 62V50C56 47.7909 54.2091 46 52 46Z M58 46H74V50H68V58H62V50H58V46Z M70 42C74.418 42 78 38.418 78 34C78 29.582 74.418 26 70 26C65.582 26 62 29.582 62 34C62 38.418 65.582 42 70 42Z"/>
                 </svg>
             </div>
             
-            <div class="logo-box logo-meet float-3">
-                <svg viewBox="0 0 100 100" class="w-8 h-8 md:w-9 md:h-9">
-                    <path d="M30 65L20 70V30L30 35V65Z" fill="#EA4335"/>
-                    <path d="M30 35L70 35V65L30 65V35Z" fill="#34A853"/>
-                    <path d="M70 35L80 30V70L70 65V35Z" fill="#4285F4"/>
-                    <path d="M30 65L70 65L80 70H20L30 65Z" fill="#FBBC04"/>
+            <div class="logo-box logo-meet">
+                <svg viewBox="0 0 100 100">
+                    <path class="brand-path p-meet-r" d="M30 65L20 70V30L30 35V65Z"/>
+                    <path class="brand-path p-meet-g" d="M30 35L70 35V65L30 65V35Z"/>
+                    <path class="brand-path p-meet-b" d="M70 35L80 30V70L70 65V35Z"/>
+                    <path class="brand-path p-meet-y" d="M30 65L70 65L80 70H20L30 65Z"/>
                 </svg>
             </div>
 
-            <div class="logo-box logo-hr float-4">
-                <svg viewBox="0 0 100 100" class="w-8 h-8 md:w-9 md:h-9">
-                    <rect width="100" height="100" rx="24" fill="#00EA68"/>
-                    <path d="M34 28H44V44H56V28H66V72H56V56H44V72H34V28Z" fill="white"/>
+            <div class="logo-box logo-hr">
+                <svg viewBox="0 0 100 100">
+                    <path class="brand-path p-hr" d="M34 28H44V44H56V28H66V72H56V56H44V72H34V28Z"/>
                 </svg>
             </div>
-
         </div>
       </div>
         
-      <a href="#demo" class="mt-8 text-xs text-gray-400 hover:text-black border-b border-dashed border-gray-300 pb-0.5 transition-colors duration-300 reveal delay-300">
+      <a href="#demo" class="mt-4 text-xs text-gray-400 hover:text-black border-b border-dashed border-gray-300 pb-0.5 transition-colors duration-300 reveal delay-300">
           See why 700+ candidates switched to Whis-AI
       </a>
     </div>
@@ -1018,33 +1035,151 @@
   </div>
 
   <script>
-    // --- PREMIUM BEST EVER ANIMATION INITIALIZER ---
-    document.addEventListener("DOMContentLoaded", () => {
-        // Run the stunning cinematic flash and color reveal exactly at 10 seconds.
-        setTimeout(() => {
-            const htmlNode = document.documentElement;
+    // =========================================================
+    // THE 100/100 PREMIUM GSAP & CANVAS ANIMATION ENGINE 
+    // =========================================================
+
+    window.addEventListener('load', () => {
+        // Setup SVG line drawing arrays
+        const paths = document.querySelectorAll('.brand-path');
+        paths.forEach(path => {
+            const length = path.getTotalLength();
+            path.style.strokeDasharray = length;
+            path.style.strokeDashoffset = length;
+        });
+
+        // 1. Initial Timeline: Slowly draw the SVGs
+        gsap.to('.brand-path', {
+            strokeDashoffset: 0,
+            duration: 8,
+            ease: "power2.inOut",
+            stagger: 0.2
+        });
+
+        // Setup Canvas Particle Explosion Engine
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        const colors = ['#2D8CFF', '#5059C9', '#EA4335', '#34A853', '#FBBC04', '#00EA68'];
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 2;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 15 + 5;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.alpha = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.2; // slight gravity
+                this.alpha -= this.decay;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        let isExploding = false;
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if(isExploding) {
+                for(let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                    if(particles[i].alpha <= 0) {
+                        particles.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        function triggerExplosion() {
+            // Find center of the logos container
+            const logoArea = document.getElementById('brand-logos');
+            if(!logoArea) return;
+            const rect = logoArea.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
             
-            // 1. Create a premium cinematic flash element
+            isExploding = true;
+            for(let i = 0; i < 150; i++) {
+                particles.push(new Particle(centerX, centerY));
+            }
+        }
+
+        // 2. The Climax Event (Triggered strictly at 10 seconds)
+        setTimeout(() => {
+            const tl = gsap.timeline();
+
+            // Fire canvas particles
+            triggerExplosion();
+
+            // A quick cinematic flash using GSAP
             const flash = document.createElement('div');
-            flash.className = 'fixed inset-0 bg-white z-[9999] pointer-events-none';
-            flash.style.transition = 'opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1)';
+            flash.style.cssText = "position:fixed; inset:0; background:white; z-index:9999; pointer-events:none;";
             document.body.appendChild(flash);
             
-            // Force a browser reflow to ensure the flash is solid before fading
-            void flash.offsetWidth;
-            
-            // 2. Unveil the magic: Remove grayscale and activate the premium color meshes & shadows
-            htmlNode.classList.remove('bw-state');
-            htmlNode.classList.add('color-reveal-active');
-            
-            // 3. Fade out the flash slowly for that ultra-premium feel
-            flash.style.opacity = '0';
-            
-            // 4. Cleanup the flash node once done
-            setTimeout(() => flash.remove(), 2000);
+            tl.to(flash, { opacity: 0, duration: 1.5, ease: "power4.out", onComplete: () => flash.remove() });
 
-        }, 10000);
+            // Remove grayscale filter natively
+            document.documentElement.classList.remove('bw-state');
+            document.documentElement.classList.add('color-reveal-active');
+
+            // Ignite the SVG colors
+            document.querySelector('.p-zoom').classList.add('fill-zoom');
+            document.querySelector('.p-teams').classList.add('fill-teams');
+            document.querySelector('.p-meet-r').classList.add('fill-meet-r');
+            document.querySelector('.p-meet-g').classList.add('fill-meet-g');
+            document.querySelector('.p-meet-b').classList.add('fill-meet-b');
+            document.querySelector('.p-meet-y').classList.add('fill-meet-y');
+            document.querySelector('.p-hr').classList.add('fill-hr');
+
+            // Pop the logos outward
+            tl.fromTo('.logo-box', 
+                { scale: 0.8 },
+                { scale: 1, duration: 1, stagger: 0.1, ease: "back.out(1.7)" }, 
+                "<"
+            );
+
+            // Add organic floating physics
+            const boxes = document.querySelectorAll('.logo-box');
+            boxes.forEach((box, i) => {
+                gsap.to(box, {
+                    y: -12,
+                    rotation: i % 2 === 0 ? 3 : -3,
+                    duration: 3 + Math.random(),
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                    delay: Math.random()
+                });
+            });
+
+        }, 10000); // Exactly 10.0 seconds
     });
+
+    // =========================================================
+    // ORIGINAL LOGIC (100% UNTOUCHED)
+    // =========================================================
 
     // --- PREMIUM SCROLL REVEAL OBSERVER ---
     document.addEventListener("DOMContentLoaded", () => {
