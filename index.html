@@ -7,57 +7,6 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
-
-    let modalTime = 300; 
-    let timerInterval = null;
-
-    function startModalTimer() {
-        const timerEl = document.getElementById('modal-timer');
-        if (!timerEl || timerInterval) return; 
-        
-        timerInterval = setInterval(() => {
-            const m = Math.floor(modalTime / 60);
-            const s = modalTime % 60;
-            timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            
-            if (modalTime <= 0) {
-                clearInterval(timerInterval);
-                timerEl.innerText = "00:00";
-            }
-            modalTime--;
-        }, 1000);
-    }
-
-    function updateScarcity() {
-        let slots = 4;
-        const scarcityInterval = setInterval(() => {
-            if(Math.random() > 0.8 && slots > 1) {
-                slots--;
-                const slotsEl = document.getElementById('slots-left-v2');
-                const barEl = document.getElementById('scarcity-bar');
-                const percentEl = document.getElementById('slots-percent');
-
-                if(slotsEl) slotsEl.innerText = slots;
-                const percent = 100 - (slots * 2);
-                if(barEl) barEl.style.width = percent + '%';
-                if(percentEl) percentEl.innerText = percent + '% FULL';
-            }
-            if(slots <= 1) clearInterval(scarcityInterval);
-        }, 12000);
-    }
-
-    function showFomoModal(fromButton = false) {
-        if(hasApplied && !fromButton) return;
-        
-        const fomoModal = document.getElementById('fomoModal');
-        if(!fomoModal) return;
-        fomoModal.classList.remove('hidden');
-        fomoModal.classList.add('flex');
-        
-        startModalTimer(); 
-        updateScarcity();  
-        startSlotsCountdown(); 
-    }
   </script>
 
   <meta charset="UTF-8" />
@@ -108,17 +57,11 @@
         color: #0f172a; 
         font-family: 'Inter', sans-serif; 
         overflow-x: hidden; 
-        /* Increased padding to account for fixed mobile navs */
         padding-bottom: 90px; 
     }
 
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     .animate-float { animation: float 6s ease-in-out infinite; }
-
-    #mobileLeadCapture {
-        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-        transition: all 0.3s ease;
-    }
     
     @keyframes hueCycle {
         0% { filter: hue-rotate(0deg); }
@@ -233,38 +176,12 @@
     .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 20px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
     @media (min-width: 768px) { .pricing-elite::after { border-radius: 25px; } }
 
-    /* Fix iOS input zoom issue */
     input[type="text"], input[type="email"], input[type="tel"], textarea { font-size: 16px !important; }
     @media (min-width: 768px) { input[type="text"], input[type="email"], input[type="tel"], textarea { font-size: 14px !important; } }
-
-    /* Support for Safe Area on Mobile Browsers */
     .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
   </style>
 </head>
 <body class="no-scrollbar">
-
-<div id="mobileLeadCapture" class="fixed bottom-[85px] md:bottom-8 md:right-20 left-4 right-4 z-[55] flex flex-row items-center gap-2 md:gap-3 bg-white/95 backdrop-blur-3xl border border-sky-200 p-2 md:p-4 rounded-xl md:rounded-2xl md:max-w-md animate-float shadow-xl">
-    <div class="hidden md:flex w-10 h-10 min-w-[40px] rounded-full bg-sky-100 items-center justify-center text-sky-600 animate-pulse">
-        <i class="fa-solid fa-gift text-lg"></i>
-    </div>
-    <div class="flex-1 flex flex-row md:flex-col items-center md:items-start gap-2 md:gap-0 w-full">
-        <div class="flex-shrink-0 md:mb-1">
-            <p class="text-[11px] md:text-[12px] text-slate-900 font-bold leading-tight flex items-center gap-1">
-               <i class="fa-solid fa-gift text-sky-600 md:hidden"></i> 10% Off
-            </p>
-        </div>
-        <div class="flex w-full gap-1.5 md:gap-2 relative">
-            <input type="email" id="leadEmail" placeholder="Enter Email" class="flex-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 md:py-2 text-sm text-slate-900 focus:border-sky-500 outline-none placeholder:text-slate-400">
-            <button onclick="submitLeadAndChat()" id="leadBtn" class="bg-sky-500 text-white text-[10px] md:text-xs font-black px-3 py-1.5 md:py-2 rounded-lg whitespace-nowrap hover:bg-sky-600 active:scale-95 transition-all shadow-md">CLAIM</button>
-        </div>
-    </div>
-    <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-5 h-5 md:w-6 md:h-6 bg-white border border-slate-200 rounded-full text-[9px] md:text-[10px] flex items-center justify-center text-slate-400 hover:text-slate-700 shadow-sm z-10">✕</button>
-</div>
-
-  <div class="fixed top-0 left-0 right-0 h-[36px] md:h-[40px] bg-gradient-to-r from-red-500 to-orange-500 flex justify-center items-center gap-3 shadow-sm z-[60]">
-      <span class="text-white font-bold text-[10px] md:text-xs uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt mr-1"></i>Flash Sale Ends</span>
-      <div id="fomo-timer" class="font-mono font-bold text-white bg-black/20 px-2 md:px-3 py-0.5 rounded text-[10px] md:text-xs">--:--:--</div>
-  </div>
 
   <div class="fixed inset-0 z-0 pointer-events-none">
       <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-300 rounded-full blur-[150px] opacity-20"></div>
@@ -272,7 +189,7 @@
       <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-multiply"></div>
   </div>
 
-  <nav class="fixed top-[36px] md:top-[40px] w-full z-50 h-[60px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm transition-all">
+  <nav class="fixed top-0 w-full z-50 h-[60px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm transition-all">
     <div class="w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 md:gap-3 group animate-hue">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-accent md:w-7 md:h-7">
@@ -306,16 +223,13 @@
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-t border-slate-200 p-3 pb-safe grid grid-cols-2 gap-3 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-      <a href="#demo" class="py-3.5 rounded-xl bg-slate-100 text-slate-900 text-[11px] font-bold text-center border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-transform">
-          <i class="fa-solid fa-play"></i> Watch Demo
-      </a>
-      <button onclick="openDownloadModal()" class="py-3.5 rounded-xl bg-[var(--accent)] text-white text-[11px] font-bold text-center shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
-          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Try Free
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-t border-slate-200 p-3 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+      <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl bg-slate-900 text-white text-[13px] font-bold text-center shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get Whis-AI Free
       </button>
   </div>
 
-  <button onclick="toggleLiveChat()" class="fixed bottom-[145px] right-4 z-40 bg-sky-600 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(2,132,199,0.4)] active:scale-95 md:hover:scale-110 transition-transform md:bottom-8 md:right-8">
+  <button onclick="toggleLiveChat()" class="fixed bottom-[90px] right-4 z-40 bg-sky-600 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(2,132,199,0.4)] active:scale-95 md:hover:scale-110 transition-transform md:bottom-8 md:right-8">
       <i class="fa-solid fa-comments text-white text-xl md:text-2xl"></i>
       <span class="absolute right-16 bg-white text-slate-900 border border-slate-100 shadow-sm text-[11px] font-bold py-1.5 px-3 rounded-lg whitespace-nowrap hidden md:block before:content-[''] before:absolute before:right-[-4px] before:top-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:bg-white before:border-r before:border-t before:border-slate-100 before:rotate-45">Need Help?</span>
   </button>
@@ -329,7 +243,7 @@
       </h1>
        
       <p class="text-[15px] md:text-lg text-slate-600 max-w-2xl mx-auto mb-6 md:mb-6 leading-relaxed font-light px-2">
-        Works seamlessly on Zoom, Meet & Teams. <br class="md:hidden"><span class="text-slate-900 font-medium">Leaves absolutely no trace.</span>
+        Works seamlessly on Zoom, Teams, Meet, Chime, and HackerRank. <br class="md:hidden"><span class="text-slate-900 font-medium">Leaves absolutely no trace.</span>
       </p>
 
       <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[10px] md:text-sm font-mono text-slate-600 mb-8 bg-white px-4 py-2.5 rounded-full border border-slate-200 shadow-sm">
@@ -340,27 +254,29 @@
         <span class="flex items-center text-accent"><i class="fa-solid fa-pen-nib mr-1 md:mr-2"></i>Writes answers</span>
       </div>
 
-      <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
+      <div class="flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
         <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-slate-900 text-white text-sm font-bold hover:scale-105 transition duration-300 shadow-lg flex justify-center items-center gap-3">
              Try Free – No Credit Card / No Setup
         </button>
       </div>
 
+      <div class="mt-8 mb-4 w-full flex flex-col items-center opacity-80">
+        <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-widest font-bold mb-4">Tested and 100% Undetectable On</p>
+        <div class="flex flex-wrap justify-center items-center gap-5 md:gap-10 text-slate-400">
+            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-solid fa-video"></i> Zoom</span>
+            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-microsoft"></i> Teams</span>
+            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-google"></i> Meet</span>
+            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-amazon"></i> Chime</span>
+            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-hackerrank"></i> HackerRank</span>
+        </div>
+      </div>
+
       <div class="flex flex-col items-center mt-2 md:mt-6 gap-3">
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 border border-red-100 text-[10px] font-bold text-red-600 shadow-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-            <span id="signup-badge-text">🔥 150+ signups today</span>
-          </div>
           <div class="text-[9px] md:text-[10px] text-green-600 font-mono tracking-widest uppercase opacity-90 text-center px-4">
              <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No access
           </div>
       </div>
-        
-      <a href="#demo" class="mt-8 text-[11px] md:text-xs text-slate-500 hover:text-slate-800 border-b border-dashed border-slate-400 pb-0.5 transition">
-          See why 700+ candidates switched to Whis-AI
-      </a>
     </div>
-
 
     <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-12">
         <div class="inline-block p-1 rounded-full border border-sky-200 bg-sky-50 px-3 md:px-4 mb-4 md:mb-6 shadow-sm">
@@ -395,7 +311,7 @@
         <p class="text-[9px] md:text-xs text-slate-500 mt-4 md:mt-6 tracking-wide uppercase">Drag slider to see how it stays hidden</p>
     </div>
 
-        <div class="w-full max-w-3xl mx-auto mb-10 md:mb-12 relative z-20 px-4">
+    <div class="w-full max-w-3xl mx-auto mb-10 md:mb-12 relative z-20 px-4">
         <div class="perf-card p-0 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden">
              <div class="bg-slate-50 px-3 md:px-4 py-2 md:py-3 flex items-center justify-between border-b border-slate-200">
                  <div class="flex gap-1.5 md:gap-2">
@@ -425,7 +341,6 @@
              </div>
         </div>
     </div>
-    
   </section>
 
   <section id="pricing" class="py-16 md:py-32 border-t border-slate-200 bg-slate-50 relative overflow-hidden">
@@ -434,22 +349,13 @@
     <div class="max-w-7xl mx-auto px-4 md:px-6 text-center mt-6 md:mt-12 relative z-10">
         <h2 class="text-3xl md:text-5xl font-medium text-slate-900 mb-4 md:mb-6 tracking-tight">Invest in your career.</h2>
         <p class="text-sm md:text-base text-slate-600 mb-8 md:mb-12 font-light px-4">Join 7,000+ engineers who have unlocked their full potential.</p>
-         <div class="mt-8 md:mt-12 p-4 md:p-6 rounded-2xl border border-dashed border-slate-300 bg-white max-w-2xl mx-auto text-center shadow-sm">
-            <p class="text-xs md:text-sm text-slate-600 leading-relaxed">
-                <i class="fa-solid fa-graduation-cap text-sky-600 md:mr-2"></i> 
-                Struggling with budget or currently unemployed? <br class="md:hidden">
-                <a href="#" onclick="toggleLiveChat('Hi, I am struggling with budget. Can I get a discount?'); return false;" class="text-sky-600 font-bold hover:underline md:ml-1 inline-block mt-1 md:mt-0">
-                    Talk to our team for a scholarship discount.
-                </a>
-            </p>
-        </div>
+        
         <div class="inline-flex bg-slate-200 p-1 rounded-full border border-slate-300 mb-10 md:mb-16 mt-6 shadow-inner w-full max-w-[300px] md:w-auto">
            <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
            <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('quarterly')">Quarterly (Save 51%)</button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
-                    
             <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-sm">
                 <h3 class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 md:mb-4">Foundation</h3>
                 <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8">Free</div>
@@ -463,12 +369,10 @@
             </div>
 
             <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-lg z-20 relative">
-                              <div class="absolute -top-3 md:-top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[8px] md:text-[9px] font-black px-3 md:px-4 py-1 rounded-full uppercase tracking-tighter shadow-md whitespace-nowrap"></div>
-
                 <h3 class="text-[9px] md:text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-3 md:mb-4">Pro Professional</h3>
                 <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8" id="pricePro">...</div>
                 <div class="space-y-4 md:space-y-5 text-xs text-slate-700 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-microphone-lines text-accent text-sm"></i> 8 Hours Mic Access / mo</p>
+                    <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-microphone-lines text-accent text-sm"></i> 8 Hours Active Mic Time / mo</p>
                     <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Unlimited Answers</p>
                     <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Screen Reading Tool</p>
                     <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye text-sm"></i> Visible on Screen</p>
@@ -477,18 +381,17 @@
             </div>
 
             <div class="perf-card pricing-elite p-6 md:p-10 text-left flex flex-col border-accent/40 bg-slate-900 relative overflow-hidden shadow-2xl md:scale-105 z-30">
-                              <div class="absolute top-0 right-0 p-4 md:p-6 opacity-10"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
+                 <div class="absolute top-0 right-0 p-4 md:p-6 opacity-10"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
                  <h3 class="text-[9px] md:text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-3 md:mb-4">Elite Stealth</h3>
                 <div class="text-3xl md:text-4xl font-bold text-white mb-6 md:mb-8" id="priceStealth">...</div>
                 <div class="space-y-4 md:space-y-5 text-xs text-slate-300 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning text-sm"></i> 8 Hours Mic Access / mo</p>
+                    <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning text-sm"></i> 8 Hours Active Mic Time / mo</p>
                     <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-sky-400 text-sm"></i> 100% Undetectable</p>
                     <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80 text-sm"></i> Invisible to Zoom/Teams</p>
                     <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80 text-sm"></i> Hidden App Process</p>
                 </div>
                 <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-3.5 md:py-4 rounded-xl bg-sky-500 text-white hover:bg-sky-400 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">Go Elite</button>
             </div>
-
         </div>
 
         <div class="max-w-3xl mx-auto mt-12 md:mt-20 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-sky-300 transition-all duration-500">
@@ -512,7 +415,6 @@
 
     <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-
             <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-green-400 transition-colors duration-500 shadow-sm">
                 <div class="flex items-center justify-between mb-3 md:mb-4">
                     <span class="text-[10px] font-mono text-green-600 uppercase tracking-widest">
@@ -565,33 +467,21 @@
                     Access Granted via <span class="text-accent font-bold">Port 443</span>
                 </div>
             </div>
-
         </div>
     </div>
   </section>
-
-  <!--<section id="guide" class="py-16 md:py-20 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-5xl mx-auto px-4 md:px-6 text-center">
-          <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-4 md:mb-6">See it in action.</h2>
-          <p class="text-sm md:text-base text-slate-600 mb-8 md:mb-12">Watch the full setup guide and learn how to crack any interview.</p>
-          
-          <div class="perf-card p-1.5 md:p-2 relative w-full aspect-video overflow-hidden group shadow-lg">
-              <iframe class="w-full h-full rounded-lg md:rounded-xl" 
-                  src="https://www.youtube.com/embed/riJZniRiyKA?rel=0&modestbranding=1"
-                  title="Whis-AI Guide" 
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowfullscreen>
-              </iframe>
-          </div>
-      </div>
-  </section>-->
 
   <section id="features" class="py-16 md:py-20 border-t border-slate-200 bg-white">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
           <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-10 md:mb-16 text-center">Main Features.</h2>
            
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
+                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3 md:mb-4 text-slate-500 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-lg md:text-xl"></i></div>
+                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Ghost Mode</h3>
+                  <p class="text-[13px] md:text-sm text-slate-600">Invisible to screen-shares (Zoom/Teams/Meet) and isolated from browser proctoring (HackerRank).</p>
+              </div>
+
               <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
                   <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-red-50 flex items-center justify-center mb-3 md:mb-4 text-red-500 group-hover:scale-110 transition"><i class="fa-solid fa-microphone-lines text-lg md:text-xl"></i></div>
                   <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Voice Capture</h3>
@@ -605,39 +495,9 @@
               </div>
 
               <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-green-50 flex items-center justify-center mb-3 md:mb-4 text-green-500 group-hover:scale-110 transition"><i class="fa-solid fa-keyboard text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Direct Input</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Type text directly to get help or answers.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-3 md:mb-4 text-purple-500 group-hover:scale-110 transition"><i class="fa-solid fa-eye-slash text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">100% Invisible</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Completely hidden during screen sharing.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3 md:mb-4 text-slate-500 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Ghost Mode</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">No app icon or menu bar visibility.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-yellow-50 flex items-center justify-center mb-3 md:mb-4 text-yellow-600 group-hover:scale-110 transition"><i class="fa-solid fa-language text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Universal Translator</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Speaks any language? The app understands and gives answers in English.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm">
                   <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-pink-50 flex items-center justify-center mb-3 md:mb-4 text-pink-500 group-hover:scale-110 transition"><i class="fa-solid fa-brain text-lg md:text-xl"></i></div>
                   <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Smart Context</h3>
                   <p class="text-[13px] md:text-sm text-slate-600">Upload your resume or JD to get personalized answers.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-sky-50 transition group border border-sky-200 bg-sky-50/50 shadow-sm">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-sky-100 flex items-center justify-center mb-3 md:mb-4 text-accent group-hover:scale-110 transition"><i class="fa-solid fa-gift text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Free Trial</h3>
-                  <p class="text-[13px] md:text-sm text-slate-700">New users get 3 free interviews to test all paid features.</p>
               </div>
           </div>
       </div>
@@ -676,144 +536,12 @@
                           <td class="p-3 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-1.5 md:mr-2"></i> Slow/Manual</td>
                           <td class="p-3 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium whitespace-nowrap"><i class="fa-solid fa-check text-accent mr-1.5 md:mr-2"></i> Instant Vision</td>
                       </tr>
-                      <tr class="hover:bg-slate-50 transition">
-                          <td class="p-3 md:p-6 text-slate-800 font-bold whitespace-nowrap">Response Speed</td>
-                          <td class="p-3 md:p-6 border-l border-slate-100 text-slate-600">3-5 Seconds</td>
-                          <td class="p-3 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium whitespace-nowrap"><i class="fa-solid fa-bolt text-accent mr-1.5 md:mr-2"></i> < 1 Second</td>
-                      </tr>
                   </tbody>
               </table>
           </div>
           <p class="text-center text-[10px] md:text-xs text-slate-500 mt-4 md:mt-6 italic px-4">Don't risk your dream job with generic tools. Use the specialist.</p>
       </div>
   </section>
-
-  <section class="py-16 md:py-20 border-t border-slate-200 bg-white">
-      <div class="max-w-6xl mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-          <div class="flex-1 space-y-4 md:space-y-6">
-              <div class="inline-block px-3 py-1 rounded-full bg-sky-100 border border-sky-200 text-sky-700 text-[9px] md:text-[10px] font-bold uppercase tracking-wider">New Feature</div>
-              <h2 class="text-2xl md:text-4xl font-medium text-slate-900">Smart Context.</h2>
-              <p class="text-slate-600 text-sm md:text-lg leading-relaxed">
-                  Generic AI gives generic answers. Whis-AI allows you to create up to <strong class="text-slate-900">10 Custom Context Profiles</strong>. Upload your Resume, the Job Description (JD), or specific project notes.
-              </p>
-              <ul class="space-y-3 md:space-y-4 text-[13px] md:text-sm text-slate-700">
-                  <li class="flex items-start gap-2 md:gap-3"><i class="fa-solid fa-check-circle text-accent mt-0.5 md:mt-1"></i> <span><strong>Tailored Answers:</strong> The AI uses your actual projects when answering "Tell me about a time..."</span></li>
-                  <li class="flex items-start gap-2 md:gap-3"><i class="fa-solid fa-check-circle text-accent mt-0.5 md:mt-1"></i> <span><strong>Role Matching:</strong> Answers are written specifically for the JD you are interviewing for.</span></li>
-                  <li class="flex items-start gap-2 md:gap-3"><i class="fa-solid fa-check-circle text-accent mt-0.5 md:mt-1"></i> <span><strong>Quick Switch:</strong> Change contexts in 1 click between different company interviews.</span></li>
-              </ul>
-          </div>
-          <div class="flex-1 w-full">
-              <div class="perf-card p-5 md:p-6 border border-slate-200 bg-slate-50 shadow-md">
-                  <div class="flex items-center justify-between mb-3 md:mb-4 border-b border-slate-200 pb-3 md:pb-4">
-                      <span class="text-[11px] md:text-xs font-bold text-slate-500">ACTIVE PROFILE</span>
-                      <span class="text-[9px] md:text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold">Enabled</span>
-                  </div>
-                  <div class="space-y-2 md:space-y-3">
-                      <div class="p-2 md:p-3 rounded bg-white border border-sky-300 flex items-center justify-between shadow-sm">
-                          <div class="flex items-center gap-2 md:gap-3">
-                              <i class="fa-solid fa-file-pdf text-red-500"></i>
-                              <div>
-                                  <div class="text-[11px] md:text-xs font-bold text-slate-900">Google_SDE2_Resume.pdf</div>
-                                  <div class="text-[9px] md:text-[10px] text-slate-500">Uploaded 2h ago</div>
-                              </div>
-                          </div>
-                          <i class="fa-solid fa-toggle-on text-accent text-lg md:text-xl"></i>
-                      </div>
-                      <div class="p-2 md:p-3 rounded bg-white border border-slate-200 flex items-center justify-between opacity-60">
-                          <div class="flex items-center gap-2 md:gap-3">
-                              <i class="fa-solid fa-file-lines text-blue-500"></i>
-                              <div>
-                                  <div class="text-[11px] md:text-xs font-bold text-slate-900">Amazon_LP_Notes.txt</div>
-                                  <div class="text-[9px] md:text-[10px] text-slate-500">Uploaded 1d ago</div>
-                              </div>
-                          </div>
-                          <i class="fa-solid fa-toggle-off text-slate-300 text-lg md:text-xl"></i>
-                      </div>
-                  </div>
-                  <div class="mt-3 md:mt-4 p-2.5 md:p-3 bg-sky-50 rounded border-l-[3px] md:border-l-4 border-accent">
-                      <p class="text-[10px] md:text-[11px] text-slate-700 italic font-medium leading-relaxed">"Based on your resume's experience with Kafka, you should mention how you handled partition tolerance in this system design..."</p>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <section id="demo" class="py-16 md:py-20 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-          <div class="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
-              <div class="space-y-6 md:space-y-8">
-                  <h2 class="text-3xl md:text-4xl lg:text-5xl font-medium text-slate-900 tracking-tight">They Ask. You Answer.</h2>
-                  <p class="text-sm md:text-lg text-slate-600 font-light leading-relaxed">
-                      Whis listens to audio and sees your screen to write optimal solutions instantly. <br class="hidden md:block"><span class="text-slate-900 font-medium">It's like having a Senior Engineer whispering in your ear.</span>
-                  </p>
-                   
-                  <div class="perf-card p-5 md:p-8 bg-white shadow-md">
-                      <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                          <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-500 animate-pulse"></div>
-                          <span class="text-[9px] md:text-[10px] font-mono text-slate-400 font-bold uppercase tracking-widest">Live Interview Audio</span>
-                      </div>
-                      <div class="flex items-center gap-1 h-8 md:h-12 opacity-80">
-                          <div class="w-1 bg-slate-400 rounded-full h-3 md:h-4 animate-pulse"></div>
-                          <div class="w-1 bg-slate-400 rounded-full h-6 md:h-8 animate-pulse delay-75"></div>
-                          <div class="w-1 bg-slate-400 rounded-full h-10 md:h-12 animate-pulse delay-150"></div>
-                          <div class="w-1 bg-slate-400 rounded-full h-4 md:h-6 animate-pulse delay-100"></div>
-                          <div class="w-1 bg-slate-400 rounded-full h-8 md:h-10 animate-pulse delay-200"></div>
-                          <div class="w-1 bg-slate-400 rounded-full h-4 md:h-5 animate-pulse delay-75"></div>
-                      </div>
-                      <p class="mt-4 md:mt-6 text-[13px] md:text-sm text-slate-700 italic">"Can you optimize this DP solution to O(n) space complexity?"</p>
-                  </div>
-              </div>
-
-              <div class="perf-card p-0 bg-slate-900 border border-slate-800 shadow-xl h-[350px] md:h-[500px] flex flex-col">
-                  <div class="px-3 md:px-4 py-2 md:py-3 border-b border-slate-800 flex justify-between items-center bg-slate-950">
-                      <div class="flex gap-1.5 md:gap-2">
-                        <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-slate-700"></div>
-                        <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-slate-700"></div>
-                      </div>
-                      <div class="flex gap-3 md:gap-4 text-[9px] md:text-[10px] font-mono font-bold text-slate-500">
-                          <span class="text-accent cursor-pointer">PYTHON</span>
-                          <span class="hover:text-white cursor-pointer transition">C++</span>
-                          <span class="hover:text-white cursor-pointer transition">JAVA</span>
-                      </div>
-                  </div>
-                  <div class="p-4 md:p-6 flex-grow overflow-hidden relative overflow-x-auto no-scrollbar">
-                      <pre id="code-display" class="text-[10px] md:text-sm leading-relaxed text-slate-300 min-w-max"></pre>
-                      <span id="cursor" class="absolute w-1.5 h-3 md:w-2 md:h-4 bg-accent animate-pulse"></span>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <section class="py-16 md:py-20 bg-white border-t border-slate-200">
-    <div class="max-w-4xl mx-auto px-4 md:px-6">
-        <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-slate-900">Why candidates choose Whis-AI over "Free" AI</h2>
-        <div class="grid md:grid-cols-2 gap-0 border border-slate-200 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg">
-            <div class="p-6 md:p-8 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200">
-                <p class="text-red-500 font-bold uppercase text-[9px] md:text-[10px] tracking-widest mb-3 md:mb-4">The Old Way</p>
-                <ul class="space-y-3 md:space-y-4 text-[13px] md:text-sm text-slate-600">
-                    <li class="flex gap-2 md:gap-3"><i class="fa-solid fa-xmark mt-0.5 md:mt-1"></i> Switching tabs (Easy to catch)</li>
-                    <li class="flex gap-2 md:gap-3"><i class="fa-solid fa-xmark mt-0.5 md:mt-1"></i> Laggy ChatGPT responses</li>
-                    <li class="flex gap-2 md:gap-3"><i class="fa-solid fa-xmark mt-0.5 md:mt-1"></i> Interviewer sees your eyes moving</li>
-                    <li class="flex gap-2 md:gap-3 font-bold text-slate-800 italic">Result: Rejection & Blacklisted</li>
-                </ul>
-            </div>
-            <div class="p-6 md:p-8 bg-sky-50 relative">
-                <div class="absolute top-3 right-3 md:top-4 md:right-4 text-sky-600 animate-pulse text-[10px] md:text-xs font-bold bg-white/50 px-2 py-0.5 rounded-full">Recommended</div>
-                <p class="text-sky-600 font-bold uppercase text-[9px] md:text-[10px] tracking-widest mb-3 md:mb-4">The Whis-AI Way</p>
-                <ul class="space-y-3 md:space-y-4 text-[13px] md:text-sm text-slate-800 font-medium">
-                    <li class="flex gap-2 md:gap-3"><i class="fa-solid fa-check text-sky-600 mt-0.5 md:mt-1"></i> 100% Invisible Overlay</li>
-                    <li class="flex gap-2 md:gap-3"><i class="fa-solid fa-check text-sky-600 mt-0.5 md:mt-1"></i> Real-time Mic Audio capture</li>
-                    <li class="flex gap-2 md:gap-3"><i class="fa-solid fa-check text-sky-600 mt-0.5 md:mt-1"></i> Responses built for Senior Roles</li>
-                    <li class="flex gap-2 md:gap-3 font-bold text-sky-700">Result: $100k+ Job Offer secured</li>
-                </ul>
-            </div>
-        </div>
-        <p class="text-center text-slate-500 text-[10px] md:text-[11px] mt-6 md:mt-8 italic px-4">
-            "The cost of one failed interview is a year of lost salary. Whis-AI costs less than a dinner for two."
-        </p>
-    </div>
-</section>
 
   <section class="py-16 md:py-24 border-t border-slate-200 bg-white">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
@@ -830,71 +558,46 @@
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
                   <div>
-                      <i class="fa-solid fa-quote-left text-slate-200 text-3xl md:text-4xl mb-3 md:mb-4"></i>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
                       <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
                   </div>
                   <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
                       <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">JK</div>
                       <div>
                           <p class="text-[11px] md:text-xs font-bold text-slate-900">James K.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">Google, Senior SDE</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">Senior SDE</p>
                       </div>
                   </div>
               </div>
 
               <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-sky-200 shadow-sm">
                   <div>
-                      <i class="fa-solid fa-quote-left text-sky-200 text-3xl md:text-4xl mb-3 md:mb-4"></i>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
                       <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"The visual screen analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
                   </div>
                   <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
                       <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">SM</div>
                       <div>
                           <p class="text-[11px] md:text-xs font-bold text-slate-900">Sarah M.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">Amazon, SDE II</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">SDE II</p>
                       </div>
                   </div>
               </div>
 
               <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
                   <div>
-                      <i class="fa-solid fa-quote-left text-slate-200 text-3xl md:text-4xl mb-3 md:mb-4"></i>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
                       <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
                   </div>
                   <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
                       <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">AL</div>
                       <div>
                           <p class="text-[11px] md:text-xs font-bold text-slate-900">Arjun L.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">Microsoft, L61</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">L61 Engineer</p>
                       </div>
                   </div>
               </div>
           </div>
-      </div>
-  </section>
-
-  <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-4xl mx-auto px-4 md:px-6 text-center">
-          <h2 class="text-3xl md:text-4xl font-medium text-slate-900 mb-4 md:mb-6">Is Whis-AI Free?</h2>
-          <div class="text-4xl md:text-5xl font-bold text-accent mb-4 md:mb-6">Yes.</div>
-          <p class="text-sm md:text-lg text-slate-700 leading-relaxed mb-8">
-              We believe in democratizing interview preparation. That's why we offer <strong class="text-slate-900">3 Trial Interviews</strong> and <strong class="text-slate-900">10 Free Daily Answers</strong> to every user, forever.
-          </p>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left max-w-3xl mx-auto">
-              <div class="p-5 md:p-6 rounded-xl bg-white border border-slate-200 shadow-sm">
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Cheaper Choice</h3>
-                  <p class="text-[13px] md:text-xs text-slate-600">The most affordable option in the market. Why pay $50+ elsewhere?</p>
-              </div>
-              <div class="p-5 md:p-6 rounded-xl bg-white border border-slate-200 shadow-sm">
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Daily Free Use</h3>
-                  <p class="text-[13px] md:text-xs text-slate-600">10 free requests every 24 hours. Perfect for practice or short rounds.</p>
-              </div>
-              <div class="p-5 md:p-6 rounded-xl bg-white border border-slate-200 shadow-sm">
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Full Features</h3>
-                  <p class="text-[13px] md:text-xs text-slate-600">Trial interviews include Audio, Screen Reading, and Profile features.</p>
-              </div>
-          </div>
-          <button onclick="openDownloadModal()" class="mt-8 md:mt-12 px-6 md:px-8 py-3 rounded-full bg-slate-900 text-white text-sm shadow-md font-bold hover:bg-slate-800 transition active:scale-95 w-full md:w-auto">Start For Free</button>
       </div>
   </section>
 
@@ -904,7 +607,16 @@
           <div class="space-y-3 md:space-y-4">
               <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
                   <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Is Whis really undetectable?</h3>
+                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Does this work on HackerRank or proctored assessments?</h3>
+                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
+                  </div>
+                  <div class="faq-answer px-4 md:px-6">
+                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Because Whis runs as an independent, isolated desktop background process, browser-based environments like HackerRank cannot detect its presence or screen-reading activity.</p>
+                  </div>
+              </div>
+              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="p-4 md:p-6 flex justify-between items-center">
+                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Is Whis really undetectable on Zoom/Teams?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
                   </div>
                   <div class="faq-answer px-4 md:px-6">
@@ -918,15 +630,6 @@
                   </div>
                   <div class="faq-answer px-4 md:px-6">
                       <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the app doesn't work on your laptop or you face issues we can't solve, simply email support for a full refund. No questions asked.</p>
-                  </div>
-              </div>
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Does it work for Python, Java and C++?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
-                  </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Whis supports Python, Java, C++, JavaScript, Go, Ruby, and SQL. You can choose your language in settings, and the AI will write code in that specific language.</p>
                   </div>
               </div>
                <div class="group border border-slate-200 rounded-xl overflow-hidden bg-slate-50 hover:border-slate-300 transition cursor-pointer" onclick="this.classList.toggle('active')">
@@ -1069,7 +772,6 @@
   </div>
 
   <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
-      
       <div class="bg-sky-600 text-white px-4 md:px-5 py-3 md:py-4 flex justify-between items-center shadow-md z-20 shrink-0">
           <div class="font-bold text-[13px] md:text-sm flex items-center gap-2">
               <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div> Live Support
@@ -1089,8 +791,7 @@
       </div>
 
       <div id="chatInterface" class="flex-1 hidden flex-col h-full bg-slate-50 overflow-hidden">
-          <div id="chatMessagesArea" class="flex-1 p-3 md:p-5 overflow-y-auto space-y-3 md:space-y-4 flex flex-col no-scrollbar bg-slate-50 z-10 pb-4">
-          </div>
+          <div id="chatMessagesArea" class="flex-1 p-3 md:p-5 overflow-y-auto space-y-3 md:space-y-4 flex flex-col no-scrollbar bg-slate-50 z-10 pb-4"></div>
           
           <div class="p-2.5 md:p-4 bg-white border-t border-slate-200 flex gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 safe-bottom">
               <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-[16px] md:text-sm focus:border-sky-500 outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
@@ -1120,11 +821,7 @@
             video.muted = true; 
             video.playsInline = true; 
             
-            if(window.innerWidth < 768) {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#f8fafc;";
-            } else {
-               video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#f8fafc;"; 
-            }
+            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#f8fafc;"; 
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -1223,9 +920,7 @@
     }
 
     const companyWords = ["Google", "Netflix", "Meta", "Amazon", "Apple", "Uber", "Airbnb"];
-    let wordIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
+    let wordIndex = 0; let charIndex = 0; let isDeleting = false;
 
     function typeEffect() {
         const textEl = document.getElementById('typewriter-text');
@@ -1250,49 +945,13 @@
         setTimeout(typeEffect, typeSpeed);
     }
 
-    function updateDynamicSignups() {
-        const now = new Date();
-        const istOffset = 5.5 * 60 * 60 * 1000;
-        const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-        const istDate = new Date(utc + istOffset);
-         
-        let hour = istDate.getHours();
-        let count = hour * hour;
-        count = count+42;
-        if(count === 0) count = 15; 
-         
-        const badge = document.getElementById('signup-badge-text');
-        if(badge) badge.innerText = `🔥 ${count} signups today`;
-    }
-
-    function startIstMidnightTimer() {
-        const timerEl = document.getElementById('fomo-timer');
-        if(!timerEl) return;
-        function update() {
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const istOffset = 5.5 * 60 * 60 * 1000;
-            const istTime = new Date(utc + istOffset);
-            const nextMidnight = new Date(istTime);
-            nextMidnight.setHours(24, 0, 0, 0);
-            let diff = nextMidnight - istTime;
-            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const m = Math.floor((diff / (1000 * 60)) % 60);
-            const s = Math.floor((diff / 1000) % 60);
-            timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-        update();
-        setInterval(update, 1000);
-    }
-
     function updateSlider(val) {
         document.getElementById('comparisonSlider').style.setProperty('--position', val + '%');
     }
 
     const heroQ = '"Can you explain the difference between a Process and a Thread?"';
     const heroA = 'A process is an independent program in execution with its own memory space. A thread is a lightweight unit of execution within a process that shares the same memory space.';
-    let heroQIdx = 0;
-    let heroAIdx = 0;
+    let heroQIdx = 0; let heroAIdx = 0;
 
     function typeHeroSequence() {
         const statusEl = document.getElementById('hero-status');
@@ -1340,8 +999,7 @@
         } else { callback(); }
     }
     
-    let sliderAutoPlay = true;
-    let sliderTime = 0;
+    let sliderAutoPlay = true; let sliderTime = 0;
 
     function initSliderAutoPlay() {
         const sliderContainer = document.getElementById('comparisonSlider');
@@ -1366,12 +1024,10 @@
 
     const BACKEND_URL="https://whis-backend.onrender.com"; 
     let currentUser = null; 
-    let currentCycle = 'monthly'; 
+    let currentCycle = 'quarterly'; // Changed Default to Quarterly
     let currentTier = 'free';
-    
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90;
-
     let currentCoupon = "";
     let currentCouponDiscount = 0;
 
@@ -1417,23 +1073,15 @@
      
     function formatPrice(amount, discount) {
         if (!amount) return "...";
-        
         let displayAmount = amount;
         let currencySymbol = "$";
 
-        if (IS_INDIA) {
-            displayAmount = Math.floor(amount * EXCHANGE_RATE); 
-            currencySymbol = "₹";
-        }
+        if (IS_INDIA) { displayAmount = Math.floor(amount * EXCHANGE_RATE); currencySymbol = "₹"; }
 
         if(discount > 0) {
             let discounted = 0;
-            if (IS_INDIA) {
-                discounted = Math.floor(displayAmount * (1 - discount/100));
-            } else {
-                discounted = (amount * (1 - discount/100)).toFixed(2);
-                displayAmount = displayAmount.toFixed(2);
-            }
+            if (IS_INDIA) { discounted = Math.floor(displayAmount * (1 - discount/100)); } 
+            else { discounted = (amount * (1 - discount/100)).toFixed(2); displayAmount = displayAmount.toFixed(2); }
             return `<span>${currencySymbol}${discounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
         
@@ -1485,23 +1133,18 @@
             const validityEl = document.getElementById('modalPlanValidity');
             if(d.active){
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
-                badge.classList.remove('text-slate-500');
-                badge.classList.add('text-accent');
+                badge.classList.remove('text-slate-500'); badge.classList.add('text-accent');
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 if(d.expiry || d.validUntil) {
                     const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
                     validityEl.innerText = "Valid until: " + dateStr;
-                } else {
-                    validityEl.innerText = "Active Subscription";
-                }
+                } else { validityEl.innerText = "Active Subscription"; }
                 const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
                 if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
                 if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
             } else {
-                badge.innerText = 'FREE';
-                badge.classList.add('text-slate-500');
-                badge.classList.remove('text-accent');
+                badge.innerText = 'FREE'; badge.classList.add('text-slate-500'); badge.classList.remove('text-accent');
                 document.getElementById('modalPlanName').innerText = 'Free Tier';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 validityEl.innerText = "Lifetime Free Access";
@@ -1525,13 +1168,11 @@
             const msgEl = document.getElementById('couponMessage');
             msgEl.classList.remove('hidden');
             if(data.success) {
-                currentCoupon = code;
-                currentCouponDiscount = data.discount;
+                currentCoupon = code; currentCouponDiscount = data.discount;
                 msgEl.innerText = `✅ ${data.discount}% Discount Applied!`;
                 msgEl.className = "text-xs text-green-600 mb-4 font-bold block";
             } else {
-                currentCoupon = "";
-                currentCouponDiscount = 0;
+                currentCoupon = ""; currentCouponDiscount = 0;
                 msgEl.innerText = `❌ Invalid Coupon`;
                 msgEl.className = "text-xs text-red-500 mb-4 font-bold block";
             }
@@ -1542,127 +1183,75 @@
         if(!currentUser){ openLoginModal(); return; }
         if(currentTier === 'pro_plus') return;
         if(currentTier === 'pro' && targetTier === 'pro') return;
-
         selectedTierForPayment = targetTier;
         openPaymentModal();
     }
 
     function openPaymentModal() {
-        currentCoupon = "";
-        currentCouponDiscount = 0;
+        currentCoupon = ""; currentCouponDiscount = 0;
         document.getElementById('couponInput').value = '';
         document.getElementById('couponMessage').classList.add('hidden');
-
-        paymentModal.classList.remove('hidden'); 
-        paymentModal.classList.add('flex');
+        paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
         document.getElementById('paypal-button-container').innerHTML = '';
 
         paypal.Buttons({
             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
             createOrder: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        googleId: currentUser.googleId, 
-                        tier: selectedTierForPayment, 
-                        cycle: currentCycle,
-                        couponCode: currentCoupon
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle, couponCode: currentCoupon })
                 });
                 const orderData = await res.json();
                 return orderData.id; 
             },
             onApprove: async function(data, actions) {
                 const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        orderID: data.orderID,
-                        googleId: currentUser.googleId
-                    })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
                 });
-                
                 const details = await res.json();
-                if (details.success) {
-                    closePaymentModal();
-                    document.getElementById('successModal').classList.remove('hidden');
-                    document.getElementById('successModal').classList.add('flex');
-                } else {
-                    alert("PayPal transaction verification failed.");
-                }
+                if (details.success) { closePaymentModal(); document.getElementById('successModal').classList.remove('hidden'); document.getElementById('successModal').classList.add('flex'); } 
+                else { alert("PayPal transaction verification failed."); }
             },
-            onError: function (err) {
-                console.error('PayPal Error', err);
-                alert("Payment could not be processed with PayPal.");
-            }
+            onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
         }).render('#paypal-button-container');
     }
 
-    function closePaymentModal() {
-        paymentModal.classList.add('hidden');
-        paymentModal.classList.remove('flex');
-    }
+    function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
 
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
         const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        const btn = event.currentTarget; 
-        const orig = btn.innerHTML; 
+        const btn = event.currentTarget; const orig = btn.innerHTML; 
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
          
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    googleId: currentUser.googleId, 
-                    tier: targetTier, 
-                    cycle: currentCycle, 
-                    isUpgrade: isUpgrade,
-                    couponCode: currentCoupon
-                })
+                body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade, couponCode: currentCoupon })
             });
             const data = await res.json();
              
             if(data.order_id){
                 const rzp1 = new Razorpay({
-                    "key": data.key_id, 
-                    "amount": data.amount, 
-                    "currency": data.currency, 
-                    "name": "Whis AI",
-                    "description": isUpgrade ? "Upgrade" : "License", 
-                    "order_id": data.order_id,
+                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
+                    "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
                     "handler": async function (response){ 
                         try {
                             const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_signature: response.razorpay_signature
-                                })
+                                method: 'POST', headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
                             });
                             const verifyData = await verifyRes.json();
-                            if(verifyData.success){
-                                closePaymentModal();
-                                document.getElementById('successModal').classList.remove('hidden');
-                                document.getElementById('successModal').classList.add('flex');
-                            } else {
-                                alert("Verification Failed. Contact Support.");
-                            }
-                        } catch(e) {
-                            alert("Network Error during verification.");
-                        }
+                            if(verifyData.success){ closePaymentModal(); document.getElementById('successModal').classList.remove('hidden'); document.getElementById('successModal').classList.add('flex'); } 
+                            else { alert("Verification Failed. Contact Support."); }
+                        } catch(e) { alert("Network Error during verification."); }
                     },
-                    "theme": { "color": "#0284c7" },
-                    "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
+                    "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
                 rzp1.open();
             }
-        } catch(e){ 
-            btn.innerHTML = orig; 
-        }
+        } catch(e){ btn.innerHTML = orig; }
     }
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
@@ -1683,141 +1272,39 @@
     function openProfileModal(){if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');}
 
-    function openEnterpriseModal() { 
-        document.getElementById('enterpriseModal').classList.remove('hidden'); 
-        document.getElementById('enterpriseModal').classList.add('flex'); 
-    }
-    function closeEnterpriseModal() { 
-        document.getElementById('enterpriseModal').classList.add('hidden'); 
-        document.getElementById('enterpriseModal').classList.remove('flex'); 
-    }
+    function openEnterpriseModal() { document.getElementById('enterpriseModal').classList.remove('hidden'); document.getElementById('enterpriseModal').classList.add('flex'); }
+    function closeEnterpriseModal() { document.getElementById('enterpriseModal').classList.add('hidden'); document.getElementById('enterpriseModal').classList.remove('flex'); }
     
     async function submitEnterpriseForm(e) {
         e.preventDefault();
-        const btn = document.getElementById('entSubmitBtn');
-        const origText = btn.innerHTML;
-        btn.innerHTML = 'Sending...'; 
-        btn.disabled = true;
+        const btn = document.getElementById('entSubmitBtn'); const origText = btn.innerHTML;
+        btn.innerHTML = 'Sending...'; btn.disabled = true;
 
         try {
             const res = await fetch(`${BACKEND_URL}/api/enterprise-query`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    email: document.getElementById('entEmail').value,
-                    mobile: document.getElementById('entMobile').value,
-                    query: document.getElementById('entQuery').value
-                })
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: document.getElementById('entEmail').value, mobile: document.getElementById('entMobile').value, query: document.getElementById('entQuery').value })
             });
             if(res.ok) {
                 btn.innerHTML = 'Sent Successfully!';
-                setTimeout(() => {
-                    closeEnterpriseModal();
-                    document.getElementById('entForm').reset();
-                    btn.innerHTML = origText;
-                    btn.disabled = false;
-                }, 1500);
-            } else {
-                alert('Failed to send. Try again.'); 
-                btn.innerHTML = origText; 
-                btn.disabled = false;
-            }
-        } catch(err) {
-            alert('Network Error'); 
-            btn.innerHTML = origText; 
-            btn.disabled = false;
-        }
+                setTimeout(() => { closeEnterpriseModal(); document.getElementById('entForm').reset(); btn.innerHTML = origText; btn.disabled = false; }, 1500);
+            } else { alert('Failed to send. Try again.'); btn.innerHTML = origText; btn.disabled = false; }
+        } catch(err) { alert('Network Error'); btn.innerHTML = origText; btn.disabled = false; }
     }
 
-    const fomoModal = document.getElementById('fomoModal');
-    const hasApplied = localStorage.getItem('whis_fomo_applied');
-
-    function closeFomoModal() {
-        if(!fomoModal) return;
-        fomoModal.classList.add('hidden');
-        fomoModal.classList.remove('flex');
-    }
-
-    function startSlotsCountdown() {
-        const slotEl = document.getElementById('slots-left');
-        if(!slotEl) return;
-        let slots = 14;
-        setInterval(() => {
-            if(Math.random() > 0.7 && slots > 3) {
-                slots--;
-                slotEl.innerText = slots;
-                slotEl.classList.add('text-red-500');
-                setTimeout(() => slotEl.classList.remove('text-red-500'), 500);
-            }
-        }, 8000);
-    }
-
-    async function submitFomoForm(e) {
-        e.preventDefault();
-        const btn = document.getElementById('fSubmitBtn');
-        const origText = btn.innerHTML;
-        const name = document.getElementById('fName').value;
-        const email = document.getElementById('fEmail').value;
-        const whatsapp = document.getElementById('fWhatsapp').value;
-        const yoe = document.getElementById('fYoe').value;
-
-        if(!name || !email || !whatsapp || !yoe) {
-            alert("Please fill all required fields to claim the offer.");
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Application...';
-
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/request-access`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, whatsapp, yoe: parseFloat(yoe) })
-            });
-            const data = await res.json();
-            if(data.success) {
-                localStorage.setItem('whis_fomo_applied', 'true');
-                closeFomoModal();
-                const toast = document.getElementById('fomoSuccess');
-                if(toast) {
-                    toast.classList.remove('hidden');
-                    toast.classList.add('flex');
-                    setTimeout(() => {
-                        toast.classList.add('hidden');
-                        toast.classList.remove('flex');
-                    }, 5000);
-                }
-            } else {
-                alert(data.error || "Something went wrong.");
-                btn.disabled = false;
-                btn.innerHTML = origText;
-            }
-        } catch(err) {
-            alert("Network error. Please try again.");
-            btn.disabled = false;
-            btn.innerHTML = origText;
-        }
-    }
-
-    // ================= LIVE CHAT LOGIC =================
-    
     let chatEmail = localStorage.getItem('chatEmail') || null;
     let chatPollInterval = null;
     let lastChatCount = 0;
 
-    // Smart Markdown Parser to fix **bold** and `code` rendering in responses
     function formatMessage(text) {
         if (!text) return "";
         const div = document.createElement('div');
-        div.innerText = text; // Secures against basic XSS
+        div.innerText = text; 
         let html = div.innerHTML;
-        
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-inherit">$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
         html = html.replace(/`([^`]+)`/g, '<code class="bg-black/10 px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
         html = html.replace(/\n/g, '<br>');
-        
         return html;
     }
 
@@ -1826,43 +1313,25 @@
         const isHidden = widget.classList.contains('hidden');
         
         if(isHidden) {
-            // Lock body scroll on mobile to give native app feel
             if(window.innerWidth < 768) document.body.style.overflow = 'hidden';
-            
-            widget.classList.remove('hidden');
-            widget.classList.add('flex');
-            
-            // Trigger reflow for animation
+            widget.classList.remove('hidden'); widget.classList.add('flex');
             void widget.offsetWidth;
-            
             widget.classList.remove('opacity-0', 'translate-y-10', 'md:scale-95');
             widget.classList.add('opacity-100', 'translate-y-0', 'md:scale-100');
 
-            initChat();
-            startChatPolling();
-            if(prefillMsg) {
-                document.getElementById('chatInput').value = prefillMsg;
-                setTimeout(sendChatMessage, 200); 
-            }
+            initChat(); startChatPolling();
+            if(prefillMsg) { document.getElementById('chatInput').value = prefillMsg; setTimeout(sendChatMessage, 200); }
         } else {
-            // Restore scroll
             if(window.innerWidth < 768) document.body.style.overflow = '';
-            
             widget.classList.remove('opacity-100', 'translate-y-0', 'md:scale-100');
             widget.classList.add('opacity-0', 'translate-y-10', 'md:scale-95');
-            
-            setTimeout(() => {
-                widget.classList.add('hidden');
-                widget.classList.remove('flex');
-            }, 300); // Matches duration-300
-            
+            setTimeout(() => { widget.classList.add('hidden'); widget.classList.remove('flex'); }, 300);
             stopChatPolling();
         }
     }
 
     function initChat() {
         if (currentUser) chatEmail = currentUser.email;
-
         if (chatEmail) {
             document.getElementById('chatAuthScreen').classList.add('hidden');
             document.getElementById('chatInterface').classList.remove('hidden');
@@ -1877,13 +1346,8 @@
 
     function startChatAuth() {
         const emailInput = document.getElementById('chatAuthEmail').value.trim();
-        if (!emailInput || !emailInput.includes('@')) {
-            alert('Please enter a valid email address.');
-            return;
-        }
-        chatEmail = emailInput;
-        localStorage.setItem('chatEmail', chatEmail);
-        initChat();
+        if (!emailInput || !emailInput.includes('@')) { alert('Please enter a valid email address.'); return; }
+        chatEmail = emailInput; localStorage.setItem('chatEmail', chatEmail); initChat();
     }
 
     async function fetchChatHistory() {
@@ -1891,133 +1355,51 @@
         try {
             const res = await fetch(`${BACKEND_URL}/api/chat/history/${encodeURIComponent(chatEmail)}`);
             const data = await res.json();
-            if (data.success) {
-                renderChatMessages(data.messages);
-            }
-        } catch(e) { console.error("Chat sync error"); }
+            if (data.success) { renderChatMessages(data.messages); }
+        } catch(e) {}
     }
 
     function renderChatMessages(messages) {
         const area = document.getElementById('chatMessagesArea');
         area.innerHTML = '';
-        
-        if(messages.length === 0) {
-            area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-4xl mb-3 opacity-20"></i><p class="text-[13px] md:text-sm">Start a conversation with our support team.</p></div>';
-        }
+        if(messages.length === 0) { area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-4xl mb-3 opacity-20"></i><p class="text-[13px] md:text-sm">Start a conversation with our support team.</p></div>'; }
 
         messages.forEach(msg => {
             const div = document.createElement('div');
             div.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-sky-600 text-white self-end rounded-tr-sm'}`;
-            
             const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            div.innerHTML = `
-                <div class="message-content">${formatMessage(msg.text)}</div>
-                <span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>
-            `;
+            div.innerHTML = `<div class="message-content">${formatMessage(msg.text)}</div><span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>`;
             area.appendChild(div);
         });
 
-        if (messages.length > lastChatCount) {
-            area.scrollTop = area.scrollHeight;
-            lastChatCount = messages.length;
-        }
+        if (messages.length > lastChatCount) { area.scrollTop = area.scrollHeight; lastChatCount = messages.length; }
     }
 
     async function sendChatMessage() {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
+        const input = document.getElementById('chatInput'); const text = input.value.trim();
         if (!text || !chatEmail) return;
-
         input.value = '';
         
-        // Optimistic UI Update
         const area = document.getElementById('chatMessagesArea');
         const tempDiv = document.createElement('div');
         tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
-        
         const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        tempDiv.innerHTML = `
-            <div class="message-content">${formatMessage(text)}</div>
-            <span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>
-        `;
-        area.appendChild(tempDiv);
-        area.scrollTop = area.scrollHeight;
-        lastChatCount++; 
+        tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>`;
+        area.appendChild(tempDiv); area.scrollTop = area.scrollHeight; lastChatCount++; 
 
         try {
             const res = await fetch(`${BACKEND_URL}/api/chat/send`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: chatEmail, text })
             });
             if (res.ok) fetchChatHistory();
         } catch(e) { alert("Failed to send message. Try again."); }
     }
 
-    function startChatPolling() {
-        if(chatPollInterval) clearInterval(chatPollInterval);
-        chatPollInterval = setInterval(fetchChatHistory, 3000);
-    }
-    
-    function stopChatPolling() {
-        if(chatPollInterval) clearInterval(chatPollInterval);
-    }
+    function startChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval = setInterval(fetchChatHistory, 3000); }
+    function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
-    function submitLeadAndChat() {
-        const email = document.getElementById('leadEmail').value;
-        if(!email || !email.includes('@')) { 
-            alert("Please enter a valid email address to get the discount."); 
-            return; 
-        }
-        
-        chatEmail = email;
-        localStorage.setItem('chatEmail', chatEmail);
-        
-        const message = `Hi Whis-AI! I want to buy the subscription. Can you give me a discount? My email is ${email}`;
-        toggleLiveChat(message);
-
-        document.getElementById('mobileLeadCapture').remove();
-    }
-
-    const buyers = [
-      { city: "Bangalore", plan: "Elite Stealth" },
-      { city: "Mumbai", plan: "Pro Monthly" },
-      { city: "Hyderabad", plan: "Elite Stealth Yearly" },
-      { city: "Chennai", plan: "Elite Stealth" },
-      { city: "New Delhi", plan: "Pro Monthly" },
-      { city: "Pune", plan: "Elite Stealth Yearly" },
-      { city: "Ahmedabad", plan: "Elite Stealth" },
-      { city: "Kolkata", plan: "Pro Monthly" },
-      { city: "Noida", plan: "Elite Stealth Yearly" },
-      { city: "Gurugram", plan: "Elite Stealth" }
-    ];
-
-    function showPurchaseToast() {
-        const toast = document.getElementById('purchaseToast');
-        if(!toast) return;
-        const user = document.getElementById('toastUser');
-        const randomBuyer = buyers[Math.floor(Math.random() * buyers.length)];
-        
-        user.innerText = `Someone from ${randomBuyer.city}`;
-        toast.classList.remove('hidden');
-        toast.classList.add('flex');
-        
-        setTimeout(() => {
-            toast.classList.add('hidden');
-            toast.classList.remove('flex');
-        }, 5000);
-    }
-
-    setInterval(showPurchaseToast, 25000);
-        
     document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-            if(!localStorage.getItem('whis_fomo_applied')) {
-                if(typeof showFomoModal === 'function') showFomoModal();
-            }
-        }, 5000);
-
         initCarousel();
         initUptimeCounter();
         typeCode();
@@ -2026,20 +1408,10 @@
         initSliderAutoPlay();
         checkUser();
         fetchPricingConfig();
-        updateDynamicSignups();
-        startIstMidnightTimer();
         
-        setCycle('monthly');
+        // Sets Pricing default to Quarterly for better anchoring
+        setCycle('quarterly');
     });
   </script>
-  <div id="purchaseToast" class="fixed top-12 left-1/2 -translate-x-1/2 md:translate-x-0 md:top-auto md:bottom-6 md:left-6 z-[200] hidden items-center gap-3 bg-white text-slate-900 p-2.5 md:p-3 rounded-xl shadow-xl animate-bounce-slow border border-slate-200">
-    <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
-        <i class="fa-solid fa-shopping-cart text-[10px] md:text-xs"></i>
-    </div>
-    <div class="pr-2 md:pr-4">
-        <p class="text-[9px] md:text-[10px] font-bold leading-tight" id="toastUser">Someone from Bangalore</p>
-        <p class="text-[8px] md:text-[9px] text-slate-500 leading-tight" id="toastAction">Just upgraded to Elite Stealth</p>
-    </div>
-</div>
 </body>
 </html>
