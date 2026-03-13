@@ -1162,18 +1162,23 @@
         if(!code) return;
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/validate-coupon`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ coupon: code })
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                // NEW: Now sending the current cycle to the backend!
+                body: JSON.stringify({ coupon: code, cycle: currentCycle })
             });
             const data = await res.json();
             const msgEl = document.getElementById('couponMessage');
             msgEl.classList.remove('hidden');
+            
             if(data.success) {
                 currentCoupon = code; currentCouponDiscount = data.discount;
                 msgEl.innerText = `✅ ${data.discount}% Discount Applied!`;
                 msgEl.className = "text-xs text-green-600 mb-4 font-bold block";
             } else {
                 currentCoupon = ""; currentCouponDiscount = 0;
-                msgEl.innerText = `❌ Invalid Coupon`;
+                // NEW: Prints the actual error message from the backend
+                msgEl.innerText = `❌ ${data.error || "Invalid Coupon"}`;
                 msgEl.className = "text-xs text-red-500 mb-4 font-bold block";
             }
         } catch(e) {}
