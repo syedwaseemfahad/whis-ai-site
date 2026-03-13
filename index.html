@@ -1387,10 +1387,14 @@
         tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>`;
         area.appendChild(tempDiv); area.scrollTop = area.scrollHeight; lastChatCount++; 
 
+        // NEW: Get the user's exact browser timezone offset
+        const tzOffset = new Date().getTimezoneOffset();
+
         try {
             const res = await fetch(`${BACKEND_URL}/api/chat/send`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: chatEmail, text })
+                // NEW: Send the tzOffset to the backend
+                body: JSON.stringify({ email: chatEmail, text, tzOffset })
             });
             if (res.ok) fetchChatHistory();
         } catch(e) { alert("Failed to send message. Try again."); }
