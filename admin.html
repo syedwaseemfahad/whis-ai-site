@@ -43,7 +43,7 @@
                 <button onclick="logoutAdmin()" class="text-xs text-slate-400 hover:text-white transition p-2"><i class="fa-solid fa-sign-out-alt"></i></button>
             </div>
             <div id="userList" class="flex-1 overflow-y-auto no-scrollbar divide-y divide-slate-100">
-                </div>
+            </div>
         </div>
 
         <div id="chatPanel" class="hidden md:flex flex-1 flex-col bg-slate-50 relative w-full h-full absolute md:static inset-0 z-30">
@@ -57,11 +57,11 @@
 
             <div id="activeChat" class="hidden flex-col h-full w-full bg-slate-50 relative z-10">
                 
-                <div class="bg-white border-b border-slate-200 p-3 shrink-0 flex items-center shadow-sm z-10 h-[64px]">
-                    <button onclick="backToList()" class="md:hidden mr-3 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition border border-slate-200 shadow-sm active:scale-95">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </button>
+                <div class="bg-white border-b border-slate-200 p-3 shrink-0 flex items-center justify-between shadow-sm z-10 h-[64px]">
                     <div class="flex items-center gap-3 overflow-hidden">
+                        <button onclick="backToList()" class="md:hidden w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition border border-slate-200 shadow-sm active:scale-95 shrink-0">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                         <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold shrink-0">
                             <i class="fa-solid fa-user"></i>
                         </div>
@@ -72,10 +72,17 @@
                             </p>
                         </div>
                     </div>
+
+                    <div class="flex items-center gap-2 pl-2 shrink-0" title="Toggle AI Auto-Reply">
+                        <span class="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-wider">AI</span>
+                        <button id="aiToggleBtn" onclick="toggleAI()" class="w-10 h-5 md:w-11 md:h-6 bg-green-500 rounded-full relative transition-colors duration-300 focus:outline-none shadow-inner border border-black/5">
+                            <div id="aiToggleKnob" class="w-4 h-4 md:w-5 md:h-5 bg-white rounded-full absolute top-[1px] left-[2px] transition-transform duration-300 transform translate-x-[18px] md:translate-x-5 shadow flex items-center justify-center"></div>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="adminMessagesArea" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar flex flex-col relative z-0">
-                    </div>
+                </div>
 
                 <div class="bg-white border-t border-slate-200 shrink-0 safe-bottom px-3 pt-3">
                     <div class="flex gap-2 relative">
@@ -96,6 +103,7 @@
         let selectedEmail = null;
         let pollInterval = null;
         let activeChatCount = 0;
+        let currentAiPaused = false;
 
         // Auto-login check
         if(adminPassword) {
@@ -115,6 +123,41 @@
             html = html.replace(/\n/g, '<br>');
             
             return html;
+        }
+
+        function updateToggleUI(isPaused) {
+            currentAiPaused = isPaused;
+            const btn = document.getElementById('aiToggleBtn');
+            const knob = document.getElementById('aiToggleKnob');
+            
+            if (isPaused) {
+                btn.classList.remove('bg-green-500');
+                btn.classList.add('bg-slate-300');
+                knob.classList.remove('translate-x-[18px]', 'md:translate-x-5');
+                knob.classList.add('translate-x-0');
+            } else {
+                btn.classList.remove('bg-slate-300');
+                btn.classList.add('bg-green-500');
+                knob.classList.remove('translate-x-0');
+                knob.classList.add('translate-x-[18px]', 'md:translate-x-5');
+            }
+        }
+
+        async function toggleAI() {
+            if (!selectedEmail) return;
+            const newState = !currentAiPaused;
+            updateToggleUI(newState); // Optimistic Update
+
+            try {
+                await fetch(`${BACKEND_URL}/api/admin/toggle-ai`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: selectedEmail, aiPaused: newState, password: adminPassword })
+                });
+            } catch(e) {
+                console.error("Failed to toggle AI", e);
+                updateToggleUI(!newState); // Revert on failure
+            }
         }
 
         async function loginAdmin() {
@@ -173,7 +216,13 @@
                 try {
                     const chatRes = await fetch(`${BACKEND_URL}/api/chat/history/${encodeURIComponent(selectedEmail)}`);
                     const chatData = await chatRes.json();
-                    if(chatData.success) renderChat(chatData.messages);
+                    if(chatData.success) {
+                        renderChat(chatData.messages);
+                        
+                        if (chatData.aiPaused !== undefined && chatData.aiPaused !== currentAiPaused) {
+                            updateToggleUI(chatData.aiPaused);
+                        }
+                    }
                 } catch(e) {}
             }
         }
