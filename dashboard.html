@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whis-AI | System Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0f172a', // Dark Slate
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar for tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .hidden-tab { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased h-screen flex overflow-hidden">
+
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center transition-opacity">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border border-slate-200">
+            <div class="text-center mb-8">
+                <div class="h-12 w-12 bg-brand-900 text-white rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Whis-AI Admin</h2>
+                <p class="text-sm text-slate-500 mt-1">Enter your dashboard credentials</p>
+            </div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                    <input type="password" id="auth-password" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="w-full bg-brand-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <span>Unlock Dashboard</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <p id="login-error" class="text-red-500 text-sm mt-4 text-center hidden">Invalid password or server error.</p>
+            </form>
+        </div>
+    </div>
+
+    <aside class="w-64 bg-brand-900 text-slate-300 flex flex-col shadow-xl z-10 hidden" id="sidebar">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+            <div class="h-8 w-8 bg-brand-500 text-white rounded flex items-center justify-center">
+                <i class="fa-solid fa-bolt text-sm"></i>
+            </div>
+            <h1 class="text-white font-bold text-xl tracking-wide">Whis-AI</h1>
+        </div>
+        
+        <nav class="flex-1 py-6 px-4 space-y-2">
+            <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white transition-colors text-left">
+                <i class="fa-solid fa-chart-pie w-5"></i>
+                <span class="font-medium">Overview</span>
+            </button>
+            <button onclick="switchTab('users')" id="nav-users" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors text-left">
+                <i class="fa-solid fa-users w-5"></i>
+                <span class="font-medium">User Profiles</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800 text-sm flex items-center gap-3">
+            <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+            System Online
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden hidden" id="main-content">
+        <header class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-800" id="header-title">Analytics Overview</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="refreshData()" class="text-slate-500 hover:text-brand-600 transition-colors" title="Refresh Data">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <div class="h-8 w-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold">A</div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-auto p-8 bg-slate-50">
+            
+            <div id="tab-overview" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Total Users</p>
+                            <h3 class="text-2xl font-bold text-slate-900" id="stat-users">--</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Active Subs</p>
+                            <h3 class="text-2xl font-bold text-slate-900" id="stat-subs">--</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Total API Hits</p>
+                            <h3 class="text-2xl font-bold text-slate-900" id="stat-hits">--</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
+                        <div class="h-12 w-12 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 font-medium">Total Revenue</p>
+                            <h3 class="text-2xl font-bold text-slate-900" id="stat-rev">--</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">Traffic Momentum (Last 14 Days)</h3>
+                    <div class="h-80 w-full relative">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-users" class="tab-content hidden-tab">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-white">
+                        <h3 class="text-lg font-bold text-slate-800">User Masterlist</h3>
+                        <div class="relative w-72">
+                            <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
+                            <input type="text" id="user-search" onkeyup="filterUsers()" placeholder="Search email or name..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="usersTable">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                                    <th class="px-6 py-4 font-semibold border-b border-slate-200">User</th>
+                                    <th class="px-6 py-4 font-semibold border-b border-slate-200">Email</th>
+                                    <th class="px-6 py-4 font-semibold border-b border-slate-200">Tier / Plan</th>
+                                    <th class="px-6 py-4 font-semibold border-b border-slate-200">Joined</th>
+                                    <th class="px-6 py-4 font-semibold border-b border-slate-200">Credits Used</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-slate-700" id="users-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let adminPass = '';
+        let myChart = null;
+        let allUsersData = [];
+
+        // 1. Authentication Check
+        async function handleLogin(e) {
+            e.preventDefault();
+            const passInput = document.getElementById('auth-password').value;
+            const errorMsg = document.getElementById('login-error');
+            
+            try {
+                // We test the password by hitting the overview endpoint
+                const res = await fetch('/api/admin/stats-overview', {
+                    headers: { 'x-admin-password': passInput }
+                });
+                
+                if (res.ok) {
+                    adminPass = passInput;
+                    document.getElementById('login-overlay').classList.add('hidden');
+                    document.getElementById('sidebar').classList.remove('hidden');
+                    document.getElementById('main-content').classList.remove('hidden');
+                    refreshData(); // Load everything
+                } else {
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.classList.remove('hidden');
+                errorMsg.innerText = "Network error connecting to server.";
+            }
+        }
+
+        // 2. Navigation
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
+            // Remove active state from nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+
+            // Show selected tab
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden-tab');
+            // Add active state
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.add('bg-slate-800', 'text-white');
+            activeBtn.classList.remove('text-slate-300');
+
+            // Update Header
+            const headers = {
+                'overview': 'Analytics Overview',
+                'users': 'Complete User Database'
+            };
+            document.getElementById('header-title').innerText = headers[tabId];
+        }
+
+        // 3. Fetch & Populate Data
+        async function refreshData() {
+            if(!adminPass) return;
+            fetchOverview();
+            fetchTraffic();
+            fetchUsers();
+        }
+
+        async function fetchOverview() {
+            try {
+                const res = await fetch('/api/admin/stats-overview', { headers: { 'x-admin-password': adminPass } });
+                const data = await res.json();
+                
+                document.getElementById('stat-users').innerText = data.totalUsers.toLocaleString();
+                document.getElementById('stat-subs').innerText = data.activeSubs.toLocaleString();
+                document.getElementById('stat-hits').innerText = data.totalHits.toLocaleString();
+                document.getElementById('stat-rev').innerText = `₹${data.totalRevenue.toLocaleString()}`;
+            } catch (e) { console.error("Error fetching overview:", e); }
+        }
+
+        async function fetchTraffic() {
+            try {
+                const res = await fetch('/api/admin/traffic-data', { headers: { 'x-admin-password': adminPass } });
+                const data = await res.json();
+                
+                // Data comes sorted by date. Prepare Chart data.
+                const labels = data.map(d => d.date);
+                const hits = data.map(d => d.hits);
+
+                renderChart(labels, hits);
+            } catch (e) { console.error("Error fetching traffic:", e); }
+        }
+
+        function renderChart(labels, dataHits) {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'API Hits / Actions',
+                        data: dataHits,
+                        borderColor: '#0284c7', // Brand color
+                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#0284c7',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        async function fetchUsers() {
+            try {
+                const res = await fetch('/api/admin/users-full', { headers: { 'x-admin-password': adminPass } });
+                allUsersData = await res.json();
+                renderUsersTable(allUsersData);
+            } catch (e) { console.error("Error fetching users:", e); }
+        }
+
+        function renderUsersTable(users) {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-100 hover:bg-slate-50 transition-colors';
+                
+                // Formatting
+                const name = user.name || 'Unknown User';
+                const initial = name.charAt(0).toUpperCase();
+                const joined = new Date(user.createdAt).toLocaleDateString();
+                const tierStr = (user.subscription?.tier || 'free').toUpperCase();
+                
+                // Tier Badge Color
+                let badgeClass = 'bg-slate-100 text-slate-600';
+                if (tierStr === 'PRO') badgeClass = 'bg-blue-100 text-blue-700 border border-blue-200';
+                if (tierStr === 'PRO_PLUS') badgeClass = 'bg-purple-100 text-purple-700 border border-purple-200';
+                
+                // Status Badge
+                const subStatus = user.subscription?.status === 'active' 
+                    ? `<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-green-500"></span> Active</span>`
+                    : `<span class="text-slate-400">Inactive</span>`;
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold text-xs">${initial}</div>
+                            <span class="font-medium text-slate-800">${name}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-slate-500">${user.email || 'N/A'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 rounded text-xs font-semibold ${badgeClass}">${tierStr}</span>
+                        <div class="text-xs mt-1 ml-1">${subStatus}</div>
+                    </td>
+                    <td class="px-6 py-4 text-slate-500">${joined}</td>
+                    <td class="px-6 py-4 text-slate-500">
+                        Free: ${user.freeUsage?.count || 0} <br>
+                        Trial: ${user.trialUsage?.count || 0}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterUsers() {
+            const query = document.getElementById('user-search').value.toLowerCase();
+            const filtered = allUsersData.filter(user => {
+                const email = (user.email || '').toLowerCase();
+                const name = (user.name || '').toLowerCase();
+                return email.includes(query) || name.includes(query);
+            });
+            renderUsersTable(filtered);
+        }
+
+    </script>
+</body>
+</html>
