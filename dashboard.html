@@ -66,8 +66,11 @@
             <div id="tab-analytics" class="tab-content flex flex-col gap-6">
                 <div class="grid grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Total Revenue (INR)</p>
-                        <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpi-rev">₹0</h3>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Total Net Revenue</p>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <h3 class="text-3xl font-bold text-slate-900" id="kpi-rev-inr">₹0</h3>
+                            <span class="text-sm font-bold text-slate-400" id="kpi-rev-usd">| $0</span>
+                        </div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                         <p class="text-xs text-slate-500 font-bold uppercase">Estimated MRR</p>
@@ -185,69 +188,142 @@
 
         // --- ANALYTICS PROCESSING ---
         function processAnalytics() {
-            const users = rawData.users;
-            const metrics = rawData.metrics;
+            const users = rawData.users || [];
+            const metrics = rawData.metrics || [];
 
-            // 1. KPIs
-            let totalRev = 0; let mrr = 0; let activeSubs = 0; let loginsToday = 0;
+            // 1. Initialize KPI Counters
+            let totalRevINR = 0; 
+            let totalRevUSD = 0; 
+            let activeSubs = 0; 
+            let loginsToday = 0;
             const todayStr = new Date().toDateString();
 
-            let eliteCount = 0; let proCount = 0; let freeCount = 0;
+            let eliteCount = 0; 
+            let proCount = 0; 
+            let freeCount = 0;
 
+            // 2. Safely Process User Data
             users.forEach(u => {
-                // Revenue
-                if(u.orders) {
+                // --- REVENUE CALCULATION ---
+                if (u.orders && Array.isArray(u.orders)) {
                     u.orders.forEach(o => { 
-                        if(o.status === 'paid') totalRev += o.amount; 
+                        if (o.status === 'paid' && typeof o.amount === 'number') {
+                            if (o.currency === 'USD') {
+                                totalRevUSD += o.amount;
+                            } else {
+                                totalRevINR += o.amount;
+                            }
+                        } 
                     });
                 }
-                // Subs & MRR
-                if(u.subscription?.status === 'active') {
+
+                // --- ACTIVE SUBSCRIPTIONS ---
+                if (u.subscription?.status === 'active') {
                     activeSubs++;
-                    const price = u.subscription.tier === 'pro_plus' ? 3500 : 1500; // Approx INR
-                    mrr += (u.subscription.cycle === 'quarterly' ? price/3 : price);
                 }
-                // Logins
-                if(u.lastLogin && new Date(u.lastLogin).toDateString() === todayStr) loginsToday++;
+
+                // --- DAILY LOGINS ---
+                if (u.lastLogin && new Date(u.lastLogin).toDateString() === todayStr) {
+                    loginsToday++;
+                }
                 
-                // Plans
-                if(u.subscription?.tier === 'pro_plus') eliteCount++;
-                else if(u.subscription?.tier === 'pro') proCount++;
+                // --- PLAN DISTRIBUTION ---
+                const currentTier = u.subscription?.tier || 'free';
+                if (currentTier === 'pro_plus') eliteCount++;
+                else if (currentTier === 'pro') proCount++;
                 else freeCount++;
             });
 
-            document.getElementById('kpi-rev').innerText = `₹${totalRev.toLocaleString()}`;
-            document.getElementById('kpi-mrr').innerText = `₹${Math.round(mrr).toLocaleString()}`;
+            // 3. Update the UI DOM Elements
+            document.getElementById('kpi-rev-inr').innerText = `₹${totalRevINR.toLocaleString('en-IN')}`;
+            document.getElementById('kpi-rev-usd').innerText = `| $${totalRevUSD.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            // Using approximate INR values for MRR estimation
+            const estimatedMrrInr = (eliteCount * 3240) + (proCount * 1800);
+            document.getElementById('kpi-mrr').innerText = `₹${estimatedMrrInr.toLocaleString('en-IN')}`;
+            
             document.getElementById('kpi-subs').innerText = activeSubs;
             document.getElementById('kpi-logins').innerText = loginsToday;
 
-            // 2. Traffic Chart
-            const labels = metrics.map(m => m.date);
-            const chatHits = metrics.map(m => m.stats?.chat || 0);
-            const totalHits = metrics.map(m => m.hits || 0);
+            // 4. Clean Traffic Chart Generation
+            const trafficMap = new Map();
+            metrics.forEach(m => {
+                if (!m.date) return;
+                if (!trafficMap.has(m.date)) {
+                    trafficMap.set(m.date, { total: 0, chat: 0 });
+                }
+                const current = trafficMap.get(m.date);
+                current.total += (m.hits || 0);
+                current.chat += (m.stats?.chat || 0);
+            });
+
+            const labels = Array.from(trafficMap.keys());
+            const totalHits = Array.from(trafficMap.values()).map(v => v.total);
+            const chatHits = Array.from(trafficMap.values()).map(v => v.chat);
 
             if(charts.traffic) charts.traffic.destroy();
             charts.traffic = new Chart(document.getElementById('trafficChart'), {
                 type: 'line',
                 data: {
-                    labels,
+                    labels: labels,
                     datasets: [
-                        { label: 'Total API Hits', data: totalHits, borderColor: '#cbd5e1', backgroundColor: 'transparent', tension: 0.4 },
-                        { label: 'Chat Actions', data: chatHits, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', fill: true, tension: 0.4, borderWidth: 3 }
+                        { 
+                            label: 'Total Platform Traffic', 
+                            data: totalHits, 
+                            borderColor: '#cbd5e1', 
+                            backgroundColor: 'transparent', 
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 2
+                        },
+                        { 
+                            label: 'Core App Usage (Chats)', 
+                            data: chatHits, 
+                            borderColor: '#0ea5e9', 
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)', 
+                            fill: true, 
+                            tension: 0.3, 
+                            borderWidth: 3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#fff'
+                        }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        tooltip: { backgroundColor: '#0f172a', padding: 12, cornerRadius: 8 }
+                    }
+                }
             });
 
-            // 3. Plan Chart
+            // 5. Clean Plan Distribution Chart
             if(charts.plan) charts.plan.destroy();
             charts.plan = new Chart(document.getElementById('planChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Elite', 'Pro', 'Free'],
-                    datasets: [{ data: [eliteCount, proCount, freeCount], backgroundColor: ['#0f172a', '#0ea5e9', '#e2e8f0'], borderWidth: 0 }]
+                    labels: ['Elite (Pro Plus)', 'Pro', 'Free'],
+                    datasets: [{ 
+                        data: [eliteCount, proCount, freeCount], 
+                        backgroundColor: ['#0f172a', '#0ea5e9', '#e2e8f0'], 
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '70%', 
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } 
+                    } 
+                }
             });
         }
 
@@ -310,18 +386,30 @@
             // Generate Orders HTML
             let ordersHtml = '<p class="text-sm text-slate-400">No orders found.</p>';
             if(user.orders && user.orders.length > 0) {
-                ordersHtml = user.orders.map(o => `
+                // Sort orders by newest first
+                const sortedOrders = [...user.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
+                ordersHtml = sortedOrders.map(o => {
+                    const isPaid = o.status === 'paid';
+                    const statusBadge = isPaid 
+                        ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded uppercase">Paid</span>'
+                        : `<span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded uppercase">${o.status}</span>`;
+                        
+                    return `
                     <div class="flex justify-between items-center p-3 bg-white rounded border border-slate-200 mb-2">
                         <div>
-                            <p class="text-sm font-bold">${o.tier.toUpperCase()} (${o.cycle})</p>
-                            <p class="text-xs text-slate-500 font-mono">${o.orderId}</p>
+                            <div class="flex items-center gap-2 mb-1">
+                                <p class="text-sm font-bold">${(o.tier || 'N/A').toUpperCase()} (${o.cycle || 'N/A'})</p>
+                                ${statusBadge}
+                            </div>
+                            <p class="text-xs text-slate-500 font-mono" title="Order ID">${o.orderId || 'Unknown ID'}</p>
+                            ${o.paymentId ? `<p class="text-xs text-slate-400 font-mono" title="Payment ID">${o.paymentId}</p>` : ''}
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-bold text-green-600">${o.amount} ${o.currency}</p>
-                            <p class="text-[10px] text-slate-400 uppercase">${new Date(o.date).toLocaleDateString()}</p>
+                            <p class="text-sm font-bold ${isPaid ? 'text-green-600' : 'text-slate-500'}">${o.amount || 0} ${o.currency || 'INR'}</p>
+                            <p class="text-[10px] text-slate-400 uppercase mt-1">${new Date(o.date).toLocaleDateString()}</p>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
 
             // Generate Contexts HTML
@@ -333,28 +421,28 @@
                             <span>${c.name}</span>
                             ${c.isActive ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 rounded">ACTIVE</span>' : ''}
                         </div>
-                        <p class="text-xs text-slate-500 truncate">${c.content}</p>
+                        <p class="text-xs text-slate-500 break-words whitespace-pre-wrap">${c.content}</p>
                     </div>
                 `).join('');
             }
 
             content.innerHTML = `
                 <div class="flex items-center gap-4 mb-8">
-                    <img src="${user.avatarUrl || 'https://via.placeholder.com/64'}" class="w-16 h-16 rounded-full border border-slate-200">
-                    <div>
-                        <h3 class="text-2xl font-bold text-slate-900">${user.name || 'Unknown'}</h3>
-                        <p class="text-sm text-slate-500">${user.email}</p>
+                    <img src="${user.avatarUrl || 'https://via.placeholder.com/64'}" class="w-16 h-16 rounded-full border border-slate-200 bg-white object-cover">
+                    <div class="overflow-hidden">
+                        <h3 class="text-2xl font-bold text-slate-900 truncate">${user.name || 'Unknown'}</h3>
+                        <p class="text-sm text-slate-500 truncate">${user.email}</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <p class="text-xs text-slate-400 font-bold uppercase mb-1">Google ID</p>
                         <p class="text-sm font-mono truncate" title="${user.googleId}">${user.googleId}</p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <p class="text-xs text-slate-400 font-bold uppercase mb-1">Phone / Auth</p>
-                        <p class="text-sm">${user.phone || 'Not provided'}</p>
+                        <p class="text-sm truncate" title="${user.phone || 'Not provided'}">${user.phone || 'Not provided'}</p>
                     </div>
                 </div>
 
@@ -374,12 +462,16 @@
 
                 <div class="mb-8">
                     <h4 class="font-bold text-slate-800 mb-3">Order History</h4>
-                    ${ordersHtml}
+                    <div class="max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
+                        ${ordersHtml}
+                    </div>
                 </div>
 
                 <div>
                     <h4 class="font-bold text-slate-800 mb-3">AI Contexts</h4>
-                    ${contextsHtml}
+                    <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                        ${contextsHtml}
+                    </div>
                 </div>
             `;
             document.getElementById('userDrawer').classList.remove('translate-x-full');
