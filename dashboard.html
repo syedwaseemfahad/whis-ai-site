@@ -2,219 +2,611 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whis-AI | Optimized Command Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Whis-AI | System Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: { brand: { 50: '#f8fafc', 500: '#0ea5e9', 600: '#0284c7', 900: '#0f172a' } }
+                    colors: {
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                        brand: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+                    }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .hidden-tab { display: none !important; }
+        .fade-in { animation: fadeIn 0.2s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden text-slate-800">
+<body class="h-[100dvh] flex overflow-hidden w-full">
 
-    <div id="loginOverlay" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-900 px-4">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
-            <h2 class="text-xl font-bold mb-4">Whis-AI Core</h2>
-            <input type="password" id="adminPwd" placeholder="Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4" onkeypress="if(event.key === 'Enter') login()">
-            <button onclick="login()" class="w-full bg-brand-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition">Unlock System</button>
-            <p id="loginError" class="text-xs text-red-500 mt-3 hidden">Access Denied.</p>
+    <div id="loginOverlay" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-950 px-4">
+        <div class="glass-panel p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-400 to-brand-600"></div>
+            <div class="w-16 h-16 bg-slate-800 text-brand-400 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-lg border border-slate-700">
+                <i class="fa-solid fa-satellite-dish text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-2">Whis-AI Terminal</h2>
+            <p class="text-xs text-slate-400 mb-6">Authenticate to access system analytics.</p>
+            <input type="password" id="adminPwd" placeholder="Admin Password" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4 transition-colors placeholder-slate-600" onkeypress="if(event.key === 'Enter') loginAdmin()">
+            <button onclick="loginAdmin()" id="loginBtn" class="w-full bg-brand-600 text-white font-bold py-3 rounded-lg hover:bg-brand-500 transition shadow-lg active:scale-95 flex justify-center items-center gap-2">
+                <span>Authorize</span>
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+            <p id="loginError" class="text-xs text-red-400 mt-4 hidden bg-red-900/20 py-2 rounded border border-red-900/50">Access Denied.</p>
         </div>
     </div>
 
-    <aside class="w-64 bg-brand-900 text-slate-300 flex flex-col h-full shrink-0">
-        <div class="p-6 border-b border-slate-800 font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-bolt text-brand-500"></i> Command Center
+    <div id="adminDashboard" class="flex w-full h-full hidden">
+        
+        <div id="sidebarPanel" class="w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full z-20 shrink-0 absolute md:static inset-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+            <div class="p-6 flex justify-between items-center border-b border-slate-800 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 bg-brand-600 rounded flex items-center justify-center shadow-lg shadow-brand-500/20">
+                        <i class="fa-solid fa-bolt text-white text-sm"></i>
+                    </div>
+                    <h1 class="text-white font-bold text-lg tracking-wide">Whis-AI</h1>
+                </div>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <nav class="flex-1 py-6 px-4 space-y-2 overflow-y-auto no-scrollbar">
+                <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white transition-colors text-left border border-slate-700">
+                    <i class="fa-solid fa-chart-line w-5 text-brand-400"></i>
+                    <span class="font-medium text-sm">System Analytics</span>
+                </button>
+                <button onclick="switchTab('users')" id="nav-users" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-left border border-transparent">
+                    <i class="fa-solid fa-users-viewfinder w-5"></i>
+                    <span class="font-medium text-sm">User Directory</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800 text-xs flex justify-between items-center bg-slate-950">
+                <div class="flex items-center gap-2">
+                    <div class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+                    <span class="text-slate-400 font-medium">Nodes Online</span>
+                </div>
+                <button onclick="logoutAdmin()" class="text-slate-500 hover:text-red-400 transition" title="Logout">
+                    <i class="fa-solid fa-power-off text-sm"></i>
+                </button>
+            </div>
         </div>
-        <nav class="flex-1 py-4 px-3 space-y-1">
-            <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800 text-white text-sm font-medium">
-                <i class="fa-solid fa-chart-line w-5"></i> Analytics
-            </button>
-            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white text-sm font-medium">
-                <i class="fa-solid fa-users w-5"></i> Users
-            </button>
-        </nav>
-    </aside>
 
-    <main class="flex-1 flex flex-col h-full overflow-hidden">
-        <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
-            <h2 class="text-xl font-bold" id="header-title">Analytics</h2>
-            <button onclick="syncData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-semibold"><i class="fa-solid fa-rotate"></i> Sync</button>
-        </header>
+        <div class="flex-1 flex flex-col h-full relative z-10 w-full overflow-hidden bg-slate-950">
+            <header class="glass-panel border-b border-slate-800/50 px-6 py-4 flex justify-between items-center shrink-0 z-10 sticky top-0">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white transition">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <h2 class="text-lg md:text-xl font-bold text-white tracking-tight" id="header-title">Analytics Overview</h2>
+                </div>
+                <button onclick="initDashboard()" class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-brand-400 hover:bg-slate-700 transition-colors flex items-center justify-center active:scale-95" title="Refresh Data">
+                    <i class="fa-solid fa-rotate-right text-sm"></i>
+                </button>
+            </header>
 
-        <div class="flex-1 overflow-y-auto p-8">
-            <div id="tab-analytics" class="tab-content flex flex-col gap-6">
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Net Revenue</p>
-                        <div class="flex items-baseline gap-2 mt-1">
-                            <h3 class="text-2xl font-bold" id="kpi-rev-inr">₹0</h3>
-                            <span class="text-xs font-bold text-slate-400" id="kpi-rev-usd">| $0</span>
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar relative">
+                
+                <div id="tab-overview" class="tab-content flex flex-col gap-6 fade-in">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 h-full w-1 bg-blue-500 opacity-50"></div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total Network</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-white" id="stat-users">--</h3>
+                            <i class="fa-solid fa-users absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 h-full w-1 bg-emerald-500 opacity-50"></div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Elite Subs</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-emerald-400" id="stat-subs">--</h3>
+                            <i class="fa-solid fa-crown absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 h-full w-1 bg-purple-500 opacity-50"></div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total Hits (30d)</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-white" id="stat-hits">--</h3>
+                            <i class="fa-solid fa-server absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
+                            <div class="absolute right-0 top-0 h-full w-1 bg-amber-500 opacity-50"></div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Revenue</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-amber-400" id="stat-rev">--</h3>
+                            <i class="fa-solid fa-vault absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
                         </div>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Valid Elite Users</p>
-                        <h3 class="text-2xl font-bold text-brand-600 mt-1" id="kpi-elite">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Total Users</p>
-                        <h3 class="text-2xl font-bold mt-1" id="kpi-total">0</h3>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="glass-panel rounded-xl p-5 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide">Network Traffic (30 Days)</h3>
+                            </div>
+                            <div class="h-[300px] w-full relative">
+                                <canvas id="trafficChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-panel rounded-xl p-5 flex flex-col">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide mb-6">OS Distribution</h3>
+                            <div class="flex-1 relative min-h-[250px] flex items-center justify-center">
+                                <canvas id="osChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px]">
-                    <canvas id="trafficChart"></canvas>
+
+                <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full fade-in">
+                    <div class="glass-panel rounded-xl overflow-hidden flex flex-col border border-slate-800">
+                        <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide">User Directory</h3>
+                            <span class="text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded" id="user-pagination-info">Latest 50</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[800px]">
+                                <thead>
+                                    <tr class="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-wider border-b border-slate-800">
+                                        <th class="px-6 py-4 font-semibold">Identity</th>
+                                        <th class="px-6 py-4 font-semibold">Status / Tier</th>
+                                        <th class="px-6 py-4 font-semibold">Joined / Last Seen</th>
+                                        <th class="px-6 py-4 font-semibold">Usage Limits</th>
+                                        <th class="px-6 py-4 font-semibold text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-800/50" id="users-table-body">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="flex justify-center mt-4 gap-2 pb-8">
+                        <button onclick="changePage(-1)" class="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 text-xs font-medium transition disabled:opacity-50" id="btn-prev">Previous</button>
+                        <button onclick="changePage(1)" class="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 text-xs font-medium transition" id="btn-next">Next 50</button>
+                    </div>
                 </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="fixed inset-0 z-[200] hidden items-center justify-center px-4 fade-in">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="glass-panel w-full max-w-3xl rounded-xl shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden border border-slate-700">
+            
+            <div class="p-6 border-b border-slate-800 bg-slate-900/50 flex justify-between items-start shrink-0">
+                <div class="flex items-center gap-4">
+                    <img id="mod-avatar" src="" alt="Avatar" class="w-14 h-14 rounded-full border-2 border-slate-700 object-cover bg-slate-800">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2" id="mod-name">User Name</h2>
+                        <p class="text-sm text-slate-400" id="mod-email">user@email.com</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-white transition p-2 bg-slate-800 rounded-lg hover:bg-slate-700"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div id="tab-users" class="tab-content hidden-tab h-full">
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm h-full overflow-auto">
-                    <table class="w-full text-left">
-                        <thead class="sticky top-0 bg-white border-b border-slate-200">
-                            <tr class="text-xs text-slate-500 uppercase font-bold">
-                                <th class="px-6 py-4">User</th>
-                                <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4">Joined</th>
-                                <th class="px-6 py-4 text-right">Profile</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTbody" class="text-sm divide-y divide-slate-100"></tbody>
-                    </table>
-                    <div id="loadMore" class="p-4 text-center">
-                        <button onclick="loadUsers(currentPage + 1)" class="text-brand-600 font-bold text-xs uppercase tracking-widest hover:underline">Load More Records</button>
+            <div class="p-6 overflow-y-auto no-scrollbar space-y-6 flex-1">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Subscription</p>
+                        <div id="mod-tier-badge" class="mt-1">--</div>
+                    </div>
+                    <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Google ID / Phone</p>
+                        <p class="text-sm text-white font-mono break-all" id="mod-gid">--</p>
+                        <p class="text-xs text-slate-400 mt-1" id="mod-phone">--</p>
+                    </div>
+                    <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Timeline</p>
+                        <p class="text-xs text-slate-300"><span class="text-slate-500">Joined:</span> <span id="mod-joined">--</span></p>
+                        <p class="text-xs text-slate-300 mt-1"><span class="text-slate-500">Active:</span> <span id="mod-active">--</span></p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-800 pb-2">Usage Metrics</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center">
+                            <p class="text-[10px] text-slate-500 uppercase">Free Hits (Today)</p>
+                            <p class="text-lg font-bold text-white mt-1" id="mod-free">--</p>
+                        </div>
+                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center">
+                            <p class="text-[10px] text-slate-500 uppercase">Trial Sessions</p>
+                            <p class="text-lg font-bold text-white mt-1" id="mod-trial">--</p>
+                        </div>
+                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center">
+                            <p class="text-[10px] text-slate-500 uppercase">Screenshots (Today)</p>
+                            <p class="text-lg font-bold text-white mt-1" id="mod-screen">--</p>
+                        </div>
+                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-brand-500/5 opacity-50"></div>
+                            <p class="text-[10px] text-brand-400 uppercase">Mic Seconds (Month)</p>
+                            <p class="text-lg font-bold text-brand-300 mt-1 relative z-10" id="mod-mic">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-800 pb-2">Financial Ledger</h3>
+                    <div class="overflow-x-auto rounded border border-slate-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900 text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-2">Date</th>
+                                    <th class="px-4 py-2">Order ID</th>
+                                    <th class="px-4 py-2">Plan</th>
+                                    <th class="px-4 py-2">Amount</th>
+                                    <th class="px-4 py-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mod-orders-body" class="divide-y divide-slate-800 text-slate-300 bg-slate-900/30">
+                                </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div id="userDrawer" class="fixed inset-y-0 right-0 w-[500px] bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col border-l">
-            <div class="p-6 bg-slate-900 text-white flex justify-between items-center">
-                <h2 class="font-bold">Detailed User Profile</h2>
-                <button onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div id="drawerContent" class="flex-1 overflow-y-auto p-6 bg-slate-50"></div>
-        </div>
-    </main>
+    </div>
 
     <script>
-        const BACKEND_URL = "https://whis-backend.onrender.com"; 
-        let pwd = sessionStorage.getItem('whisAdmin');
+        // CONFIG
+        const BACKEND_URL = ""; // Empty string for relative if hosted together
+        let adminToken = sessionStorage.getItem('whisDashPwd');
         let currentPage = 0;
-        let trafficChart = null;
+        let trafficChartInstance = null;
+        let osChartInstance = null;
 
-        if(pwd) login(true);
+        // Init Check
+        if (adminToken) {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            initDashboard();
+        }
 
-        async function login(isAuto = false) {
-            if(!isAuto) pwd = document.getElementById('adminPwd').value;
+        // --- AUTH ---
+        async function loginAdmin() {
+            const pwd = document.getElementById('adminPwd').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('loginError');
+            
+            if(!pwd) return;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            err.classList.add('hidden');
+
             try {
+                // Verify by hitting the summary endpoint
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
-                if(res.ok) {
-                    sessionStorage.setItem('whisAdmin', pwd);
+                if (res.ok) {
+                    adminToken = pwd;
+                    sessionStorage.setItem('whisDashPwd', pwd);
                     document.getElementById('loginOverlay').classList.add('hidden');
-                    syncData();
-                } else if(!isAuto) { document.getElementById('loginError').classList.remove('hidden'); }
-            } catch(e) { console.error(e); }
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    initDashboard();
+                } else {
+                    throw new Error("Invalid");
+                }
+            } catch (e) {
+                err.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = '<span>Authorize</span><i class="fa-solid fa-arrow-right text-sm"></i>';
+            }
         }
 
-        async function syncData() {
-            const sumRes = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
-            const data = await sumRes.json();
-            
-            document.getElementById('kpi-elite').innerText = data.eliteCount;
-            document.getElementById('kpi-total').innerText = data.totalUsers;
-            
-            let inr = 0; let usd = 0;
-            data.revenueStats.forEach(r => { if(r._id === 'USD') usd = r.total; else inr = r.total; });
-            document.getElementById('kpi-rev-inr').innerText = `₹${inr.toLocaleString('en-IN')}`;
-            document.getElementById('kpi-rev-usd').innerText = `| $${usd.toFixed(2)}`;
-            
-            renderTrafficChart(data.metrics);
-            loadUsers(0);
+        function logoutAdmin() {
+            sessionStorage.removeItem('whisDashPwd');
+            adminToken = null;
+            window.location.reload();
         }
 
-        async function loadUsers(page) {
-            const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?page=${page}`, { headers: { 'x-dashboard-password': pwd } });
-            const users = await res.json();
-            const tbody = document.getElementById('usersTbody');
-            if(page === 0) tbody.innerHTML = '';
+        // --- UI NAVIGATION ---
+        function toggleMobileSidebar() {
+            const sb = document.getElementById('sidebarPanel');
+            sb.classList.toggle('-translate-x-full');
+        }
+
+        function switchTab(tab) {
+            if(window.innerWidth < 768) toggleMobileSidebar();
             
-            users.forEach(u => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition";
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-semibold text-slate-800">${u.email}</td>
-                    <td class="px-6 py-4 uppercase text-[10px] font-bold">${u.subscription?.tier || 'free'}</td>
-                    <td class="px-6 py-4 text-xs text-slate-500">${new Date(u.createdAt).toLocaleDateString()}</td>
-                    <td class="px-6 py-4 text-right">
-                        <button onclick="openDrawer('${u.googleId}')" class="text-brand-600 hover:text-brand-900"><i class="fa-solid fa-circle-info text-lg"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden-tab');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white', 'border-slate-700');
+                btn.classList.add('text-slate-400', 'border-transparent');
+                btn.querySelector('i').classList.remove('text-brand-400');
             });
-            currentPage = page;
+            
+            const active = document.getElementById(`nav-${tab}`);
+            active.classList.add('bg-slate-800', 'text-white', 'border-slate-700');
+            active.classList.remove('text-slate-400', 'border-transparent');
+            active.querySelector('i').classList.add('text-brand-400');
+            
+            document.getElementById('header-title').innerText = tab === 'overview' ? 'System Analytics' : 'User Directory';
+            if(tab === 'users' && currentPage === 0) fetchUsersList();
         }
 
-        async function openDrawer(gid) {
-            document.getElementById('userDrawer').classList.remove('translate-x-full');
-            document.getElementById('drawerContent').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Profile...';
-            
-            const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${gid}`, { headers: { 'x-dashboard-password': pwd } });
-            const u = await res.json();
-            
-            document.getElementById('drawerContent').innerHTML = `
-                <div class="space-y-6">
-                    <div class="p-4 bg-white rounded-xl border border-slate-200">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-2">Subscription Details</p>
-                        <div class="grid grid-cols-2 text-sm gap-y-2">
-                            <span>Tier:</span><b class="uppercase">${u.subscription.tier}</b>
-                            <span>Valid Until:</span><b>${new Date(u.subscription.validUntil).toLocaleString()}</b>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-white rounded-xl border border-slate-200">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-2">Order History</p>
-                        ${u.orders.filter(o => o.status === 'paid').map(o => `
-                            <div class="text-xs border-b py-2 flex justify-between">
-                                <span>${o.amount} ${o.currency}</span>
-                                <span class="text-slate-400">${new Date(o.date).toLocaleDateString()}</span>
+        // --- DATA FETCHING ---
+        async function initDashboard() {
+            fetchSummary();
+            if(!document.getElementById('tab-users').classList.contains('hidden-tab')) {
+                fetchUsersList();
+            }
+        }
+
+        async function fetchSummary() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': adminToken } });
+                if(!res.ok) { if(res.status === 401) logoutAdmin(); return; }
+                const data = await res.json();
+                
+                // 1. Update KPIs
+                document.getElementById('stat-users').innerText = (data.totalUsers || 0).toLocaleString();
+                document.getElementById('stat-subs').innerText = (data.eliteCount || 0).toLocaleString();
+                
+                // Calculate Revenue String
+                let revString = "$0";
+                if(data.revenueStats && data.revenueStats.length > 0) {
+                    const inr = data.revenueStats.find(r => r._id === 'INR')?.total || 0;
+                    const usd = data.revenueStats.find(r => r._id === 'USD')?.total || 0;
+                    if(inr > 0) revString = `₹${inr.toLocaleString()}`;
+                    if(usd > 0) revString += (inr > 0 ? ` + $${usd.toLocaleString()}` : `$${usd.toLocaleString()}`);
+                }
+                document.getElementById('stat-rev').innerText = revString;
+
+                // 2. Process Metrics for Charts
+                const metrics = data.metrics || [];
+                let totalHits = 0;
+                const dateMap = {};
+                const osMap = {};
+
+                metrics.forEach(m => {
+                    totalHits += (m.hits || 0);
+                    dateMap[m.date] = (dateMap[m.date] || 0) + (m.hits || 0);
+                    
+                    const os = m.os || 'Unknown';
+                    osMap[os] = (osMap[os] || 0) + 1; // Count unique IP/Date rows per OS
+                });
+
+                document.getElementById('stat-hits').innerText = totalHits.toLocaleString();
+
+                // Sort dates for chart
+                const labels = Object.keys(dateMap).sort();
+                const hitsData = labels.map(l => dateMap[l]);
+                
+                renderTrafficChart(labels, hitsData);
+                renderOsChart(osMap);
+
+            } catch(e) { console.error("Summary fetch error", e); }
+        }
+
+        async function fetchUsersList() {
+            try {
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-500"><i class="fa-solid fa-circle-notch fa-spin text-xl mb-2"></i><br>Loading nodes...</td></tr>`;
+                
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?page=${currentPage}`, { headers: { 'x-dashboard-password': adminToken } });
+                const users = await res.json();
+                
+                document.getElementById('btn-prev').disabled = currentPage === 0;
+                document.getElementById('user-pagination-info').innerText = `Page ${currentPage + 1}`;
+
+                if(users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-500">No users found on this page.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                users.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-800/40 transition-colors group';
+                    
+                    const name = u.name || 'Unknown';
+                    const initial = name.charAt(0).toUpperCase();
+                    const email = u.email || 'No email';
+                    const joined = new Date(u.createdAt).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric'});
+                    const seen = u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'Never';
+                    
+                    const tier = u.subscription?.tier || 'free';
+                    const isActive = u.subscription?.status === 'active';
+                    const isTrial = u.subscription?.isTrial;
+                    
+                    let tierHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 uppercase">Free</span>`;
+                    if(tier === 'pro_plus') tierHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800 uppercase">Elite</span>`;
+                    else if(tier === 'pro') tierHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-900/40 text-blue-400 border border-blue-800 uppercase">Pro</span>`;
+                    
+                    let statHtml = isActive 
+                        ? `<span class="text-[10px] text-emerald-400 flex items-center gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Active</span>`
+                        : (isTrial ? `<span class="text-[10px] text-amber-400 flex items-center gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Trial</span>` 
+                                   : `<span class="text-[10px] text-slate-500 flex items-center gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div> Inactive</span>`);
+
+                    const freeUsed = u.freeUsage?.count || 0;
+                    const trialUsed = u.trialUsage?.count || 0;
+                    
+                    // The button relies on u.googleId being present! (See backend tweak note)
+                    const gId = u.googleId ? `'${u.googleId}'` : 'null';
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center text-xs font-bold shrink-0">${initial}</div>
+                                <div class="flex flex-col">
+                                    <span class="text-white font-medium">${name}</span>
+                                    <span class="text-[11px] text-slate-400">${email}</span>
+                                </div>
                             </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="flex flex-col items-start">${tierHtml}${statHtml}</div>
+                        </td>
+                        <td class="px-6 py-3 text-[11px] text-slate-400 flex flex-col gap-0.5 mt-1">
+                            <span>J: ${joined}</span>
+                            <span>S: ${seen}</span>
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="flex flex-col gap-1 text-[10px]">
+                                <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 text-slate-400 w-max">Free: <span class="text-white font-mono">${freeUsed}/10</span></span>
+                                <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 text-slate-400 w-max">Trial: <span class="text-white font-mono">${trialUsed}/3</span></span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-3 text-right">
+                            <button onclick="openProfile(${gId})" class="text-slate-500 hover:text-brand-400 transition p-2 bg-slate-900 rounded border border-slate-800 hover:border-brand-600/50">
+                                <i class="fa-solid fa-folder-open text-xs"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (e) { console.error("User fetch error", e); }
         }
 
-        function closeDrawer() { document.getElementById('userDrawer').classList.add('translate-x-full'); }
+        function changePage(delta) {
+            currentPage += delta;
+            if(currentPage < 0) currentPage = 0;
+            fetchUsersList();
+        }
 
-        function renderTrafficChart(metrics) {
+        // --- DEEP DIVE PROFILE MODAL ---
+        async function openProfile(googleId) {
+            if(!googleId) {
+                alert("Cannot open profile: 'googleId' is missing from the API response. Please update server.js as instructed.");
+                return;
+            }
+            
+            // Show modal with loading state
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('profileModal').classList.add('flex');
+            document.getElementById('mod-name').innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Fetching Core...';
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminToken } });
+                const u = await res.json();
+                
+                document.getElementById('mod-avatar').src = u.avatarUrl || 'https://via.placeholder.com/150/1e293b/FFFFFF?text=W';
+                document.getElementById('mod-name').innerText = u.name || 'Unknown User';
+                document.getElementById('mod-email').innerText = u.email || 'No email provided';
+                
+                document.getElementById('mod-gid').innerText = u.googleId;
+                document.getElementById('mod-phone').innerText = u.phone || 'No phone recorded';
+                
+                document.getElementById('mod-joined').innerText = new Date(u.createdAt).toLocaleString();
+                document.getElementById('mod-active').innerText = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : 'Never';
+                
+                // Tier Logic
+                const tier = u.subscription?.tier || 'free';
+                let tierHtml = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 uppercase inline-block">Free Node</span>`;
+                if(tier === 'pro_plus') tierHtml = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800 uppercase inline-block shadow-[0_0_10px_rgba(16,185,129,0.2)]">Elite Status</span>`;
+                else if(tier === 'pro') tierHtml = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-900/40 text-blue-400 border border-blue-800 uppercase inline-block">Pro Status</span>`;
+                
+                if(u.subscription?.status === 'active') tierHtml += ` <span class="text-xs text-emerald-500 ml-2 font-medium">● Active License</span>`;
+                if(u.subscription?.isTrial) tierHtml += ` <span class="text-xs text-amber-500 ml-2 font-medium">● Active Trial</span>`;
+                
+                document.getElementById('mod-tier-badge').innerHTML = tierHtml;
+                
+                // Usage limits
+                document.getElementById('mod-free').innerText = u.freeUsage?.count || 0;
+                document.getElementById('mod-trial').innerText = u.trialUsage?.count || 0;
+                document.getElementById('mod-screen').innerText = u.screenshotUsage?.count || 0;
+                document.getElementById('mod-mic').innerText = u.micUsage?.secondsUsed || 0;
+                
+                // Financials
+                const tBody = document.getElementById('mod-orders-body');
+                tBody.innerHTML = '';
+                if(u.orders && u.orders.length > 0) {
+                    const sorted = u.orders.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    sorted.forEach(o => {
+                        const amt = o.currency === 'INR' ? `₹${o.amount}` : `$${o.amount}`;
+                        const statClass = o.status === 'paid' ? 'text-emerald-400' : 'text-amber-400';
+                        tBody.innerHTML += `
+                            <tr>
+                                <td class="px-4 py-3">${new Date(o.date).toLocaleDateString()}</td>
+                                <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${o.orderId.substring(0,14)}...</td>
+                                <td class="px-4 py-3 uppercase text-[10px] font-bold text-white">${o.tier} (${o.cycle})</td>
+                                <td class="px-4 py-3 font-bold">${amt}</td>
+                                <td class="px-4 py-3 ${statClass} capitalize text-[11px]">${o.status}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tBody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">No financial records found.</td></tr>`;
+                }
+
+            } catch (e) {
+                document.getElementById('mod-name').innerText = "Error Loading Profile";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
+        }
+
+        // --- CHART JS RENDERERS ---
+        function renderTrafficChart(labels, data) {
             const ctx = document.getElementById('trafficChart').getContext('2d');
-            if(trafficChart) trafficChart.destroy();
-            trafficChart = new Chart(ctx, {
+            if(trafficChartInstance) trafficChartInstance.destroy();
+            
+            trafficChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: metrics.map(m => m.date),
-                    datasets: [{ label: 'Daily API Hits', data: metrics.map(m => m.hits), borderColor: '#0ea5e9', tension: 0.3, fill: true, backgroundColor: 'rgba(14, 165, 233, 0.05)' }]
+                    labels: labels.map(l => l.substring(5)), // Show MM-DD
+                    datasets: [{
+                        label: 'Total Hits',
+                        data: data,
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        borderWidth: 2, fill: true, tension: 0.3,
+                        pointBackgroundColor: '#020617', pointBorderColor: '#38bdf8', pointRadius: 3
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: {size: 10} } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: {size: 10}, maxTicksLimit: 10 } }
+                    }
+                }
             });
         }
 
-        function switchTab(t) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
-            document.getElementById(`tab-${t}`).classList.remove('hidden-tab');
-            document.getElementById('header-title').innerText = t.charAt(0).toUpperCase() + t.slice(1);
+        function renderOsChart(osMap) {
+            const ctx = document.getElementById('osChart').getContext('2d');
+            if(osChartInstance) osChartInstance.destroy();
+
+            const labels = Object.keys(osMap);
+            const data = Object.values(osMap);
+
+            osChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#64748b'],
+                        borderWidth: 0, hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: {size: 11} } } 
+                    }
+                }
+            });
         }
     </script>
 </body>
