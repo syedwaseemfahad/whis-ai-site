@@ -82,33 +82,35 @@
                 
                 <div id="tab-overview" class="tab-content flex flex-col gap-6">
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="glass-panel rounded p-4 border-l-2 border-l-blue-500">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Total Identity Base</p>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-brand-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Identity Base</p>
                             <h3 class="text-2xl data-value text-white" id="stat-users">--</h3>
-                        </div>
-                        <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">New Signups (30D)</p>
-                            <h3 class="text-2xl data-value text-purple-400" id="stat-signups">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-conv">--% Conv</p>
                         </div>
                         <div class="glass-panel rounded p-4 border-l-2 border-l-emerald-500 relative">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Conversion Rate</p>
-                            <h3 class="text-2xl data-value text-emerald-400" id="stat-conv">--%</h3>
-                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-total">-- Paid</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Active Licenses</p>
+                            <h3 class="text-2xl data-value text-emerald-400" id="stat-paid-total">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-split">E:0 | P:0</p>
                         </div>
                         <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Gross Revenue (YTD)</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Global Revenue</p>
                             <h3 class="text-2xl data-value text-amber-400" id="stat-rev">--</h3>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">AI Audio Processed (Month)</p>
+                            <h3 class="text-2xl data-value text-purple-400" id="stat-mic">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Live Audio</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div class="glass-panel rounded p-5 lg:col-span-2">
-                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Traffic Velocity (30D)</h3>
-                            <div class="h-[250px] w-full"><canvas id="trafficChart"></canvas></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="glass-panel rounded p-5">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Acquisition Velocity (30D)</h3>
+                            <div class="h-[250px] w-full"><canvas id="acquisitionChart"></canvas></div>
                         </div>
                         <div class="glass-panel rounded p-5">
-                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Day-of-Week Impact</h3>
-                            <div class="h-[250px] w-full"><canvas id="dowChart"></canvas></div>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">AI System Load (30D)</h3>
+                            <div class="h-[250px] w-full"><canvas id="aiLoadChart"></canvas></div>
                         </div>
                     </div>
                 </div>
@@ -251,17 +253,25 @@
         const BACKEND_URL = "https://whis-backend.onrender.com"; 
         let adminPassword = sessionStorage.getItem('whisAdminPwd');
         let currentPage = 0;
-        let trafficChart = null;
-        let dowChart = null;
+        let acqChart = null;
+        let loadChart = null;
 
-        // --- Core Time Math Helpers ---
+        // --- Formatter ---
+        function formatSeconds(seconds) {
+            if (!seconds) return "0s";
+            if (seconds < 60) return `${seconds}s`;
+            const m = Math.floor(seconds / 60);
+            const h = Math.floor(m / 60);
+            if (h > 0) return `${h}h ${m % 60}m`;
+            return `${m}m ${seconds % 60}s`;
+        }
+
         function parseDateSafely(val) {
             if (!val) return null;
             const d = new Date(val);
             return isNaN(d.getTime()) ? null : d;
         }
 
-        // Calculates exact validity based on strict math, ignoring lazy database status.
         function getLicenseIntegrity(subscription) {
             if (!subscription || (!subscription.tier || subscription.tier === 'free')) {
                 return { isPaid: false, isActive: false, validUntil: null, ttlStr: "Lifetime Free" };
@@ -344,10 +354,12 @@
                 if(res.status === 401) logoutAdmin();
                 const data = await res.json();
                 
+                // KPIs
                 document.getElementById('stat-users').innerText = (data.totalUsers || 0).toLocaleString();
-                document.getElementById('stat-signups').innerText = (data.recentSignups || 0).toLocaleString();
-                document.getElementById('stat-conv').innerText = data.conversionRate + "%";
-                document.getElementById('stat-paid-total').innerText = (data.totalPaid || 0) + " Paid Subscriptions";
+                document.getElementById('stat-paid-total').innerText = (data.totalPaid || 0).toLocaleString();
+                document.getElementById('stat-paid-split').innerText = `E:${data.eliteCount || 0} | P:${data.proCount || 0}`;
+                document.getElementById('stat-conv').innerText = data.totalUsers > 0 ? ((data.totalPaid / data.totalUsers) * 100).toFixed(1) + "% Conv" : "0% Conv";
+                document.getElementById('stat-mic').innerText = formatSeconds(data.totalMicSecondsThisMonth);
                 
                 let revString = "$0";
                 if(data.revenueStats && data.revenueStats.length > 0) {
@@ -358,23 +370,36 @@
                 }
                 document.getElementById('stat-rev').innerText = revString;
 
-                // Chart Data
-                const dateMap = {};
-                const dowMap = { "Mon":0, "Tue":0, "Wed":0, "Thu":0, "Fri":0, "Sat":0, "Sun":0 };
-                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                // Build consistent 30-day timeline array
+                const last30Days = [];
+                for(let i=29; i>=0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    last30Days.push(d.toISOString().slice(0,10));
+                }
 
-                (data.metrics || []).forEach(m => {
-                    dateMap[m.date] = (dateMap[m.date] || 0) + (m.hits || 0);
-                    const d = new Date(m.date);
-                    const dayName = days[d.getDay()];
-                    dowMap[dayName] += (m.hits || 0);
+                // Map data sets
+                const signupsData = last30Days.map(date => {
+                    const found = data.dailySignups.find(x => x._id === date);
+                    return found ? found.count : 0;
+                });
+                const upgradesData = last30Days.map(date => {
+                    const found = data.dailyUpgrades.find(x => x._id === date);
+                    return found ? found.count : 0;
+                });
+                
+                const chatData = last30Days.map(date => {
+                    const found = data.metrics.find(x => x._id === date);
+                    return found ? found.chat : 0;
+                });
+                const transcribeData = last30Days.map(date => {
+                    const found = data.metrics.find(x => x._id === date);
+                    return found ? found.transcribe : 0;
                 });
 
-                renderTrafficChart(Object.keys(dateMap).sort(), Object.keys(dateMap).sort().map(k => dateMap[k]));
-                
-                const dowLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-                const dowData = dowLabels.map(d => dowMap[d]);
-                renderDowChart(dowLabels, dowData);
+                // Render Charts
+                renderAcquisitionChart(last30Days, signupsData, upgradesData);
+                renderLoadChart(last30Days, chatData, transcribeData);
 
             } catch(e) { console.error(e); }
         }
@@ -413,8 +438,7 @@
                     const tierLabel = u.subscription?.tier === 'pro_plus' ? 'ELITE' : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
                     const tierColor = tierLabel === 'ELITE' ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
                     
-                    // True real-time status color based on math, NOT just db status
-                    let statColor = 'bg-slate-600'; // Default free/inactive
+                    let statColor = 'bg-slate-600'; 
                     let statText = 'INACTIVE';
                     
                     if (integrity.isPaid) {
@@ -427,7 +451,6 @@
                         }
                     }
 
-                    // Formatting the Valid Until column
                     let validHtml = `<span class="text-slate-600">--</span>`;
                     if (integrity.isPaid && integrity.validUntil) {
                         const dateStr = integrity.validUntil.toISOString().split('T')[0];
@@ -515,7 +538,7 @@
                 document.getElementById('mod-free').innerHTML = `${u.freeUsage?.count || 0}<span class="text-[10px] text-slate-600">/10</span>`;
                 document.getElementById('mod-trial').innerHTML = `${u.trialUsage?.count || 0}<span class="text-[10px] text-slate-600">/3</span>`;
                 document.getElementById('mod-screen').innerHTML = `${u.screenshotUsage?.count || 0}<span class="text-[10px] text-slate-600"> OCRs</span>`;
-                document.getElementById('mod-mic').innerHTML = `${u.micUsage?.secondsUsed || 0}<span class="text-[10px] text-brand-500/50">/18000</span>`;
+                document.getElementById('mod-mic').innerHTML = `${formatSeconds(u.micUsage?.secondsUsed || 0)}<span class="text-[10px] text-brand-500/50"> / 300m</span>`;
 
                 // Financials
                 const tBody = document.getElementById('mod-orders-body');
@@ -543,27 +566,50 @@
 
         function closeModal() { document.getElementById('profileModal').classList.add('hidden'); document.getElementById('profileModal').classList.remove('flex'); }
 
-        // CHARTS (Chart.js defaults customized for dark mode)
+        // --- CHART JS SETUP ---
         Chart.defaults.color = '#475569';
         Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
-        function renderTrafficChart(labels, data) {
-            const ctx = document.getElementById('trafficChart').getContext('2d');
-            if(trafficChart) trafficChart.destroy();
-            trafficChart = new Chart(ctx, {
+        function renderAcquisitionChart(labels, signups, upgrades) {
+            const ctx = document.getElementById('acquisitionChart').getContext('2d');
+            if(acqChart) acqChart.destroy();
+            acqChart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: labels.map(l => l.substring(5)), datasets: [{ data: data, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', borderWidth: 2, fill: true, tension: 0.1, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#1e293b' } }, x: { grid: { display: false } } } }
+                data: { 
+                    labels: labels.map(l => l.substring(5)), 
+                    datasets: [
+                        { label: 'Free Signups', data: signups, borderColor: '#0ea5e9', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 2 },
+                        { label: 'Paid Upgrades', data: upgrades, borderColor: '#10b981', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 3 }
+                    ] 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'top', labels: { color: '#94a3b8', boxWidth: 10 } } }, 
+                    scales: { y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { precision: 0 } }, x: { grid: { display: false } } } 
+                }
             });
         }
 
-        function renderDowChart(labels, data) {
-            const ctx = document.getElementById('dowChart').getContext('2d');
-            if(dowChart) dowChart.destroy();
-            dowChart = new Chart(ctx, {
+        function renderLoadChart(labels, chats, transcribes) {
+            const ctx = document.getElementById('aiLoadChart').getContext('2d');
+            if(loadChart) loadChart.destroy();
+            loadChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: labels, datasets: [{ data: data, backgroundColor: '#8b5cf6', borderRadius: 2 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+                data: { 
+                    labels: labels.map(l => l.substring(5)), 
+                    datasets: [
+                        { label: 'Chat Queries', data: chats, backgroundColor: '#8b5cf6', borderRadius: 2 },
+                        { label: 'Audio Captured', data: transcribes, backgroundColor: '#c084fc', borderRadius: 2 }
+                    ] 
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'top', labels: { color: '#94a3b8', boxWidth: 10 } } }, 
+                    scales: { 
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, beginAtZero: true, grid: { color: '#1e293b' } }
+                    } 
+                }
             });
         }
     </script>
