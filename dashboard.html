@@ -176,7 +176,8 @@
 
     <script>
         // --- CONFIGURATION ---
-        // Change this URL to match your live Render backend
+        // If you host this on your main domain (whis-ai.com), leave this as "" for relative paths.
+        // If you host this elsewhere (like a separate Vercel app), change it to "https://whis-backend.onrender.com"
         const BACKEND_URL = ""; 
         
         let dashboardPassword = sessionStorage.getItem('whisDashPwd');
@@ -203,9 +204,9 @@
             errorMsg.classList.add('hidden');
 
             try {
-                // Test the password against the stats endpoint
-                const res = await fetch(`${BACKEND_URL}/api/admin/stats-overview`, {
-                    headers: { 'x-admin-password': pwd }
+                // Connect to the newly created DASHBOARD route
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/stats-overview`, {
+                    headers: { 'x-dashboard-password': pwd }
                 });
                 
                 if (res.ok) {
@@ -226,8 +227,8 @@
 
         async function checkLogin() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/stats-overview`, {
-                    headers: { 'x-admin-password': dashboardPassword }
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/stats-overview`, {
+                    headers: { 'x-dashboard-password': dashboardPassword }
                 });
                 if (res.ok) {
                     showDashboard();
@@ -235,7 +236,6 @@
                     logoutAdmin();
                 }
             } catch (e) {
-                // If network fails on load, we show login screen but don't clear session yet
                 document.getElementById('loginOverlay').classList.remove('hidden');
             }
         }
@@ -265,14 +265,11 @@
         }
 
         function switchTab(tabId) {
-            // Mobile: close sidebar on selection
             if(window.innerWidth < 768) toggleMobileSidebar();
 
-            // Handle Tabs
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden-tab');
 
-            // Handle Nav Styling
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-slate-800', 'text-white');
                 btn.classList.add('text-slate-300');
@@ -281,7 +278,6 @@
             activeBtn.classList.add('bg-slate-800', 'text-white');
             activeBtn.classList.remove('text-slate-300');
 
-            // Handle Header
             const headers = {
                 'overview': 'Analytics Overview',
                 'users': 'Complete User Database'
@@ -299,7 +295,7 @@
 
         async function fetchOverview() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/stats-overview`, { headers: { 'x-admin-password': dashboardPassword } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/stats-overview`, { headers: { 'x-dashboard-password': dashboardPassword } });
                 const data = await res.json();
                 
                 document.getElementById('stat-users').innerText = data.totalUsers.toLocaleString();
@@ -311,7 +307,7 @@
 
         async function fetchTraffic() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/traffic-data`, { headers: { 'x-admin-password': dashboardPassword } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/traffic-data`, { headers: { 'x-dashboard-password': dashboardPassword } });
                 const data = await res.json();
                 
                 const labels = data.map(d => d.date);
@@ -324,7 +320,6 @@
             const ctx = document.getElementById('trafficChart').getContext('2d');
             if (myChart) myChart.destroy();
 
-            // Check if mobile for adjustments
             const isMobile = window.innerWidth < 768;
 
             myChart = new Chart(ctx, {
@@ -367,7 +362,7 @@
 
         async function fetchUsers() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/admin/users-full`, { headers: { 'x-admin-password': dashboardPassword } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-full`, { headers: { 'x-dashboard-password': dashboardPassword } });
                 allUsersData = await res.json();
                 renderUsersTable(allUsersData);
             } catch (e) { console.error("Error fetching users:", e); }
