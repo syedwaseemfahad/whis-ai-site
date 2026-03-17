@@ -3,177 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Whis-AI | System Command Center</title>
+    <title>Whis-AI | Executive Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
                     colors: {
-                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
-                        brand: { 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' }
+                        slate: { 850: '#111827', 900: '#0b0f19', 950: '#05080f' },
+                        brand: { 400: '#38bdf8', 500: '#0ea5e9' }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #05080f; color: #e2e8f0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel { background: #0b0f19; border: 1px solid #1e293b; }
         .hidden-tab { display: none !important; }
-        .fade-in { animation: fadeIn 0.2s ease-in-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .data-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+        input, select { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="h-[100dvh] flex overflow-hidden w-full">
 
-    <div id="loginOverlay" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-950 px-4">
-        <div class="glass-panel p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-400 to-brand-600"></div>
-            <div class="w-16 h-16 bg-slate-800 text-brand-400 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-lg border border-slate-700">
-                <i class="fa-solid fa-satellite-dish text-2xl"></i>
-            </div>
-            <h2 class="text-xl font-bold text-white mb-2">Whis-AI Terminal</h2>
-            <p class="text-xs text-slate-400 mb-6">Authenticate to access system analytics.</p>
-            <input type="password" id="adminPwd" placeholder="Admin Password" class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4 transition-colors placeholder-slate-600" onkeypress="if(event.key === 'Enter') loginAdmin()">
-            <button onclick="loginAdmin()" id="loginBtn" class="w-full bg-brand-600 text-white font-bold py-3 rounded-lg hover:bg-brand-500 transition shadow-lg active:scale-95 flex justify-center items-center gap-2">
-                <span>Authorize</span>
-                <i class="fa-solid fa-arrow-right text-sm"></i>
-            </button>
-            <p id="loginError" class="text-xs text-red-400 mt-4 hidden bg-red-900/20 py-2 rounded border border-red-900/50">Access Denied.</p>
+    <div id="loginOverlay" class="absolute inset-0 z-[100] flex items-center justify-center bg-[#05080f] px-4">
+        <div class="glass-panel p-8 rounded border border-[#1e293b] max-w-sm w-full text-center">
+            <h2 class="text-xl font-bold text-white mb-1 uppercase tracking-widest">Global Sec Ops</h2>
+            <p class="text-xs text-slate-500 mb-6 font-mono">Whis-AI Admin Terminal</p>
+            <input type="password" id="adminPwd" placeholder="Passkey" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4 font-mono" onkeypress="if(event.key === 'Enter') loginAdmin()">
+            <button onclick="loginAdmin()" id="loginBtn" class="w-full bg-slate-800 text-white font-mono text-sm py-3 rounded hover:bg-slate-700 transition border border-[#1e293b]">Authenticate</button>
+            <p id="loginError" class="text-xs text-red-500 mt-4 hidden font-mono">ERR: Unauthorized</p>
         </div>
     </div>
 
     <div id="adminDashboard" class="flex w-full h-full hidden">
         
-        <div id="sidebarPanel" class="w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full z-20 shrink-0 absolute md:static inset-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-            <div class="p-6 flex justify-between items-center border-b border-slate-800 shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 bg-brand-600 rounded flex items-center justify-center shadow-lg shadow-brand-500/20">
-                        <i class="fa-solid fa-bolt text-white text-sm"></i>
-                    </div>
-                    <h1 class="text-white font-bold text-lg tracking-wide">Whis-AI</h1>
-                </div>
-                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
+        <div id="sidebarPanel" class="w-full md:w-56 bg-[#0b0f19] border-r border-[#1e293b] flex flex-col h-full z-20 shrink-0 absolute md:static inset-0 transform -translate-x-full md:translate-x-0 transition-transform">
+            <div class="p-5 border-b border-[#1e293b] flex justify-between items-center">
+                <div class="font-bold text-sm tracking-widest text-white">WHIS-AI <span class="text-brand-500">EXEC</span></div>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <nav class="flex-1 py-6 px-4 space-y-2 overflow-y-auto no-scrollbar">
-                <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white transition-colors text-left border border-slate-700">
-                    <i class="fa-solid fa-chart-line w-5 text-brand-400"></i>
-                    <span class="font-medium text-sm">System Analytics</span>
+            <nav class="flex-1 py-4 px-3 space-y-1">
+                <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]">
+                    <i class="fa-solid fa-chart-line text-brand-400 w-4"></i> Overview
                 </button>
-                <button onclick="switchTab('users')" id="nav-users" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors text-left border border-transparent">
-                    <i class="fa-solid fa-users-viewfinder w-5"></i>
-                    <span class="font-medium text-sm">User Directory</span>
+                <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-database w-4"></i> Directory
                 </button>
             </nav>
-
-            <div class="p-4 border-t border-slate-800 text-xs flex justify-between items-center bg-slate-950">
-                <div class="flex items-center gap-2">
-                    <div class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-                    <span class="text-slate-400 font-medium">Nodes Online</span>
-                </div>
-                <button onclick="logoutAdmin()" class="text-slate-500 hover:text-red-400 transition" title="Logout">
-                    <i class="fa-solid fa-power-off text-sm"></i>
-                </button>
+            <div class="p-4 border-t border-[#1e293b] text-[10px] text-slate-500 flex justify-between items-center font-mono uppercase">
+                <span>Sys_Online</span>
+                <button onclick="logoutAdmin()" class="hover:text-white"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col h-full relative z-10 w-full overflow-hidden bg-slate-950">
-            <header class="glass-panel border-b border-slate-800/50 px-6 py-4 flex justify-between items-center shrink-0 z-10 sticky top-0">
+        <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#05080f]">
+            <header class="glass-panel border-b border-[#1e293b] px-6 py-4 flex justify-between items-center sticky top-0 z-10">
                 <div class="flex items-center gap-4">
-                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white transition">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
-                    <h2 class="text-lg md:text-xl font-bold text-white tracking-tight" id="header-title">Analytics Overview</h2>
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400"><i class="fa-solid fa-bars"></i></button>
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-widest" id="header-title">Executive Overview</h2>
                 </div>
-                <button onclick="initDashboard()" class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 hover:text-brand-400 hover:bg-slate-700 transition-colors flex items-center justify-center active:scale-95" title="Refresh Data">
-                    <i class="fa-solid fa-rotate-right text-sm"></i>
-                </button>
+                <button onclick="initDashboard()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-rotate text-sm"></i></button>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar relative">
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar">
                 
-                <div id="tab-overview" class="tab-content flex flex-col gap-6 fade-in">
+                <div id="tab-overview" class="tab-content flex flex-col gap-6">
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 h-full w-1 bg-blue-500 opacity-50"></div>
-                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total Network</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-white" id="stat-users">--</h3>
-                            <i class="fa-solid fa-users absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-blue-500">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Total Identity Base</p>
+                            <h3 class="text-2xl data-value text-white" id="stat-users">--</h3>
                         </div>
-                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 h-full w-1 bg-emerald-500 opacity-50"></div>
-                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Elite Subs</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-emerald-400" id="stat-subs">--</h3>
-                            <i class="fa-solid fa-crown absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">New Signups (30D)</p>
+                            <h3 class="text-2xl data-value text-purple-400" id="stat-signups">--</h3>
                         </div>
-                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 h-full w-1 bg-purple-500 opacity-50"></div>
-                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total Hits (30d)</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-white" id="stat-hits">--</h3>
-                            <i class="fa-solid fa-server absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-emerald-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Conversion Rate</p>
+                            <h3 class="text-2xl data-value text-emerald-400" id="stat-conv">--%</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-total">-- Paid</p>
                         </div>
-                        <div class="glass-panel rounded-xl p-5 flex flex-col justify-center relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 h-full w-1 bg-amber-500 opacity-50"></div>
-                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Revenue</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-amber-400" id="stat-rev">--</h3>
-                            <i class="fa-solid fa-vault absolute -right-4 -bottom-4 text-6xl text-slate-800 group-hover:scale-110 transition-transform"></i>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Gross Revenue (YTD)</p>
+                            <h3 class="text-2xl data-value text-amber-400" id="stat-rev">--</h3>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="glass-panel rounded-xl p-5 lg:col-span-2">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide">Network Traffic (30 Days)</h3>
-                            </div>
-                            <div class="h-[300px] w-full relative">
-                                <canvas id="trafficChart"></canvas>
-                            </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="glass-panel rounded p-5 lg:col-span-2">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Traffic Velocity (30D)</h3>
+                            <div class="h-[250px] w-full"><canvas id="trafficChart"></canvas></div>
                         </div>
-                        <div class="glass-panel rounded-xl p-5 flex flex-col">
-                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide mb-6">OS Distribution</h3>
-                            <div class="flex-1 relative min-h-[250px] flex items-center justify-center">
-                                <canvas id="osChart"></canvas>
-                            </div>
+                        <div class="glass-panel rounded p-5">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Day-of-Week Impact</h3>
+                            <div class="h-[250px] w-full"><canvas id="dowChart"></canvas></div>
                         </div>
                     </div>
                 </div>
 
-                <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full fade-in">
-                    <div class="glass-panel rounded-xl overflow-hidden flex flex-col border border-slate-800">
-                        <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                            <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wide">User Directory</h3>
-                            <span class="text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded" id="user-pagination-info">Latest 50</span>
+                <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full">
+                    
+                    <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="relative w-full md:w-1/3">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="filter-search" placeholder="Search Email, Name, or ID..." class="w-full pl-8 pr-3 py-2 bg-[#05080f] border border-[#1e293b] rounded text-xs text-white focus:border-brand-500 outline-none font-mono" onkeypress="if(event.key === 'Enter') applyFilters()">
                         </div>
+                        <div class="flex gap-3 w-full md:w-auto">
+                            <select id="filter-tier" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="applyFilters()">
+                                <option value="">All Tiers</option>
+                                <option value="free">Free</option>
+                                <option value="pro">Pro</option>
+                                <option value="pro_plus">Elite</option>
+                            </select>
+                            <select id="filter-status" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="applyFilters()">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <button onclick="applyFilters()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition">Apply</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded overflow-hidden flex flex-col">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[800px]">
-                                <thead>
-                                    <tr class="bg-slate-900/80 text-slate-400 text-[10px] uppercase tracking-wider border-b border-slate-800">
-                                        <th class="px-6 py-4 font-semibold">Identity</th>
-                                        <th class="px-6 py-4 font-semibold">Status / Tier</th>
-                                        <th class="px-6 py-4 font-semibold">Joined / Last Seen</th>
-                                        <th class="px-6 py-4 font-semibold">Usage Limits</th>
-                                        <th class="px-6 py-4 font-semibold text-right">Action</th>
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                                    <tr>
+                                        <th class="px-4 py-3">User Identity</th>
+                                        <th class="px-4 py-3">Tier</th>
+                                        <th class="px-4 py-3">Created</th>
+                                        <th class="px-4 py-3 text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-sm divide-y divide-slate-800/50" id="users-table-body">
-                                    </tbody>
+                                <tbody class="divide-y divide-[#1e293b]" id="users-table-body">
+                                </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="flex justify-center mt-4 gap-2 pb-8">
-                        <button onclick="changePage(-1)" class="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 text-xs font-medium transition disabled:opacity-50" id="btn-prev">Previous</button>
-                        <button onclick="changePage(1)" class="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 text-xs font-medium transition" id="btn-next">Next 50</button>
+                    
+                    <div class="flex justify-between items-center mt-4 text-xs font-mono text-slate-500">
+                        <span id="user-count-info">Showing 0 results</span>
+                        <div class="flex gap-2">
+                            <button onclick="changePage(-1)" id="btn-prev" class="px-3 py-1 bg-slate-900 border border-[#1e293b] rounded hover:text-white disabled:opacity-50">Prev</button>
+                            <button onclick="changePage(1)" id="btn-next" class="px-3 py-1 bg-slate-900 border border-[#1e293b] rounded hover:text-white disabled:opacity-50">Next</button>
+                        </div>
                     </div>
                 </div>
 
@@ -181,92 +166,55 @@
         </div>
     </div>
 
-    <div id="profileModal" class="fixed inset-0 z-[200] hidden items-center justify-center px-4 fade-in">
-        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="glass-panel w-full max-w-3xl rounded-xl shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden border border-slate-700">
-            
-            <div class="p-6 border-b border-slate-800 bg-slate-900/50 flex justify-between items-start shrink-0">
+    <div id="profileModal" class="fixed inset-0 z-[200] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-[#05080f]/90 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="glass-panel w-full max-w-3xl rounded shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="p-5 border-b border-[#1e293b] bg-slate-900 flex justify-between items-start">
                 <div class="flex items-center gap-4">
-                    <img id="mod-avatar" src="" alt="Avatar" class="w-14 h-14 rounded-full border-2 border-slate-700 object-cover bg-slate-800">
+                    <img id="mod-avatar" src="" alt="Avatar" class="w-12 h-12 rounded bg-slate-800 border border-[#1e293b] object-cover">
                     <div>
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2" id="mod-name">User Name</h2>
-                        <p class="text-sm text-slate-400" id="mod-email">user@email.com</p>
+                        <h2 class="text-lg font-bold text-white font-mono" id="mod-name">--</h2>
+                        <p class="text-xs text-slate-400 font-mono" id="mod-email">--</p>
                     </div>
                 </div>
-                <button onclick="closeModal()" class="text-slate-500 hover:text-white transition p-2 bg-slate-800 rounded-lg hover:bg-slate-700"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
-            <div class="p-6 overflow-y-auto no-scrollbar space-y-6 flex-1">
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Subscription</p>
+            <div class="p-5 overflow-y-auto space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-slate-900 rounded p-3 border border-[#1e293b]">
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Status</p>
                         <div id="mod-tier-badge" class="mt-1">--</div>
                     </div>
-                    <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Google ID / Phone</p>
-                        <p class="text-sm text-white font-mono break-all" id="mod-gid">--</p>
-                        <p class="text-xs text-slate-400 mt-1" id="mod-phone">--</p>
+                    <div class="bg-slate-900 rounded p-3 border border-[#1e293b]">
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">IDs</p>
+                        <p class="text-xs text-brand-400 font-mono" id="mod-gid">--</p>
+                        <p class="text-[10px] text-slate-500 mt-1 font-mono" id="mod-phone">--</p>
                     </div>
-                    <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Timeline</p>
-                        <p class="text-xs text-slate-300"><span class="text-slate-500">Joined:</span> <span id="mod-joined">--</span></p>
-                        <p class="text-xs text-slate-300 mt-1"><span class="text-slate-500">Active:</span> <span id="mod-active">--</span></p>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-800 pb-2">Usage Metrics</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center">
-                            <p class="text-[10px] text-slate-500 uppercase">Free Hits (Today)</p>
-                            <p class="text-lg font-bold text-white mt-1" id="mod-free">--</p>
-                        </div>
-                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center">
-                            <p class="text-[10px] text-slate-500 uppercase">Trial Sessions</p>
-                            <p class="text-lg font-bold text-white mt-1" id="mod-trial">--</p>
-                        </div>
-                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center">
-                            <p class="text-[10px] text-slate-500 uppercase">Screenshots (Today)</p>
-                            <p class="text-lg font-bold text-white mt-1" id="mod-screen">--</p>
-                        </div>
-                        <div class="bg-slate-800/30 rounded p-3 border border-slate-800/50 text-center relative overflow-hidden">
-                            <div class="absolute inset-0 bg-brand-500/5 opacity-50"></div>
-                            <p class="text-[10px] text-brand-400 uppercase">Mic Seconds (Month)</p>
-                            <p class="text-lg font-bold text-brand-300 mt-1 relative z-10" id="mod-mic">--</p>
-                        </div>
+                    <div class="bg-slate-900 rounded p-3 border border-[#1e293b]">
+                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Timeline</p>
+                        <p class="text-[10px] text-slate-300 font-mono">Join: <span id="mod-joined">--</span></p>
+                        <p class="text-[10px] text-slate-300 font-mono mt-0.5">Seen: <span id="mod-active">--</span></p>
                     </div>
                 </div>
-
                 <div>
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-800 pb-2">Financial Ledger</h3>
-                    <div class="overflow-x-auto rounded border border-slate-800">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-slate-500">
-                                <tr>
-                                    <th class="px-4 py-2">Date</th>
-                                    <th class="px-4 py-2">Order ID</th>
-                                    <th class="px-4 py-2">Plan</th>
-                                    <th class="px-4 py-2">Amount</th>
-                                    <th class="px-4 py-2">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="mod-orders-body" class="divide-y divide-slate-800 text-slate-300 bg-slate-900/30">
-                                </tbody>
-                        </table>
-                    </div>
+                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-[#1e293b] pb-1">Ledger</h3>
+                    <table class="w-full text-left text-[11px] font-mono">
+                        <thead class="text-slate-600 border-b border-[#1e293b]">
+                            <tr><th class="py-2">Date</th><th>ID</th><th>Tier</th><th>Amt</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="mod-orders-body" class="divide-y divide-[#1e293b] text-slate-300"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIG
         const BACKEND_URL = "https://whis-backend.onrender.com"; 
         let adminPassword = sessionStorage.getItem('whisAdminPwd');
         let currentPage = 0;
-        let trafficChartInstance = null;
-        let osChartInstance = null;
+        let trafficChart = null;
+        let dowChart = null;
 
         // Init Check
         if (adminPassword) {
@@ -275,87 +223,56 @@
             initDashboard();
         }
 
-        // --- AUTH ---
         async function loginAdmin() {
             const pwd = document.getElementById('adminPwd').value;
-            const btn = document.getElementById('loginBtn');
-            const err = document.getElementById('loginError');
-            
             if(!pwd) return;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            err.classList.add('hidden');
-
+            document.getElementById('loginBtn').innerText = '...';
             try {
-                // Verify by hitting the summary endpoint
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
                 if (res.ok) {
                     adminPassword = pwd;
                     sessionStorage.setItem('whisAdminPwd', pwd);
-                    document.getElementById('loginOverlay').classList.add('hidden');
-                    document.getElementById('adminDashboard').classList.remove('hidden');
-                    initDashboard();
-                } else {
-                    throw new Error("Invalid");
-                }
+                    location.reload();
+                } else throw new Error();
             } catch (e) {
-                err.classList.remove('hidden');
-            } finally {
-                btn.innerHTML = '<span>Authorize</span><i class="fa-solid fa-arrow-right text-sm"></i>';
+                document.getElementById('loginError').classList.remove('hidden');
+                document.getElementById('loginBtn').innerText = 'Authenticate';
             }
         }
+        function logoutAdmin() { sessionStorage.removeItem('whisAdminPwd'); location.reload(); }
 
-        function logoutAdmin() {
-            sessionStorage.removeItem('whisAdminPwd');
-            adminPassword = null;
-            window.location.reload();
-        }
-
-        // --- UI NAVIGATION ---
-        function toggleMobileSidebar() {
-            const sb = document.getElementById('sidebarPanel');
-            sb.classList.toggle('-translate-x-full');
-        }
+        function toggleMobileSidebar() { document.getElementById('sidebarPanel').classList.toggle('-translate-x-full'); }
 
         function switchTab(tab) {
-            if(window.innerWidth < 768) toggleMobileSidebar();
-            
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
             document.getElementById(`tab-${tab}`).classList.remove('hidden-tab');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-800', 'text-white', 'border-slate-700');
-                btn.classList.add('text-slate-400', 'border-transparent');
-                btn.querySelector('i').classList.remove('text-brand-400');
+            document.querySelectorAll('nav button').forEach(b => {
+                b.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition";
+                b.querySelector('i').classList.remove('text-brand-400');
             });
-            
             const active = document.getElementById(`nav-${tab}`);
-            active.classList.add('bg-slate-800', 'text-white', 'border-slate-700');
-            active.classList.remove('text-slate-400', 'border-transparent');
+            active.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]";
             active.querySelector('i').classList.add('text-brand-400');
-            
-            document.getElementById('header-title').innerText = tab === 'overview' ? 'System Analytics' : 'User Directory';
+            document.getElementById('header-title').innerText = tab === 'overview' ? 'Executive Overview' : 'Database Search';
             if(tab === 'users' && currentPage === 0) fetchUsersList();
         }
 
-        // --- DATA FETCHING ---
         async function initDashboard() {
             fetchSummary();
-            if(!document.getElementById('tab-users').classList.contains('hidden-tab')) {
-                fetchUsersList();
-            }
+            if(!document.getElementById('tab-users').classList.contains('hidden-tab')) fetchUsersList();
         }
 
         async function fetchSummary() {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': adminPassword } });
-                if(!res.ok) { if(res.status === 401) logoutAdmin(); return; }
+                if(res.status === 401) logoutAdmin();
                 const data = await res.json();
                 
-                // 1. Update KPIs
                 document.getElementById('stat-users').innerText = (data.totalUsers || 0).toLocaleString();
-                document.getElementById('stat-subs').innerText = (data.eliteCount || 0).toLocaleString();
+                document.getElementById('stat-signups').innerText = (data.recentSignups || 0).toLocaleString();
+                document.getElementById('stat-conv').innerText = data.conversionRate + "%";
+                document.getElementById('stat-paid-total').innerText = (data.totalPaid || 0) + " Paid Subscriptions";
                 
-                // Calculate Revenue String
                 let revString = "$0";
                 if(data.revenueStats && data.revenueStats.length > 0) {
                     const inr = data.revenueStats.find(r => r._id === 'INR')?.total || 0;
@@ -365,247 +282,137 @@
                 }
                 document.getElementById('stat-rev').innerText = revString;
 
-                // 2. Process Metrics for Charts
-                const metrics = data.metrics || [];
-                let totalHits = 0;
+                // Chart Data
                 const dateMap = {};
-                const osMap = {};
+                const dowMap = { "Mon":0, "Tue":0, "Wed":0, "Thu":0, "Fri":0, "Sat":0, "Sun":0 };
+                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-                metrics.forEach(m => {
-                    totalHits += (m.hits || 0);
+                (data.metrics || []).forEach(m => {
                     dateMap[m.date] = (dateMap[m.date] || 0) + (m.hits || 0);
-                    
-                    const os = m.os || 'Unknown';
-                    osMap[os] = (osMap[os] || 0) + 1; // Count unique IP/Date rows per OS
+                    const d = new Date(m.date);
+                    const dayName = days[d.getDay()];
+                    dowMap[dayName] += (m.hits || 0);
                 });
 
-                document.getElementById('stat-hits').innerText = totalHits.toLocaleString();
-
-                // Sort dates for chart
-                const labels = Object.keys(dateMap).sort();
-                const hitsData = labels.map(l => dateMap[l]);
+                renderTrafficChart(Object.keys(dateMap).sort(), Object.keys(dateMap).sort().map(k => dateMap[k]));
                 
-                renderTrafficChart(labels, hitsData);
-                renderOsChart(osMap);
+                // Sort DoW chart logically
+                const dowLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+                const dowData = dowLabels.map(d => dowMap[d]);
+                renderDowChart(dowLabels, dowData);
 
-            } catch(e) { console.error("Summary fetch error", e); }
+            } catch(e) { console.error(e); }
+        }
+
+        function applyFilters() {
+            currentPage = 0;
+            fetchUsersList();
         }
 
         async function fetchUsersList() {
             try {
+                const search = document.getElementById('filter-search').value;
+                const tier = document.getElementById('filter-tier').value;
+                const status = document.getElementById('filter-status').value;
+                
                 const tbody = document.getElementById('users-table-body');
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-500"><i class="fa-solid fa-circle-notch fa-spin text-xl mb-2"></i><br>Loading nodes...</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-500 font-mono text-xs">Querying database...</td></tr>`;
                 
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?page=${currentPage}`, { headers: { 'x-dashboard-password': adminPassword } });
-                const users = await res.json();
+                const query = new URLSearchParams({ page: currentPage, search, tier, status }).toString();
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?${query}`, { headers: { 'x-dashboard-password': adminPassword } });
+                const data = await res.json();
                 
-                document.getElementById('btn-prev').disabled = currentPage === 0;
-                document.getElementById('user-pagination-info').innerText = `Page ${currentPage + 1}`;
+                document.getElementById('btn-prev').disabled = data.page === 0;
+                document.getElementById('btn-next').disabled = data.page >= data.totalPages - 1;
+                document.getElementById('user-count-info').innerText = `Displaying ${data.users.length} of ${data.total} records (Page ${data.page + 1})`;
 
-                if(users.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-500">No users found on this page.</td></tr>`;
+                if(data.users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-500 font-mono text-xs">0 Records Match Query.</td></tr>`;
                     return;
                 }
 
                 tbody.innerHTML = '';
-                users.forEach(u => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-800/40 transition-colors group';
-                    
-                    const name = u.name || 'Unknown';
-                    const initial = name.charAt(0).toUpperCase();
-                    const email = u.email || 'No email';
-                    const joined = new Date(u.createdAt).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric'});
-                    const seen = u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'Never';
-                    
-                    const tier = u.subscription?.tier || 'free';
-                    const isActive = u.subscription?.status === 'active';
-                    const isTrial = u.subscription?.isTrial;
-                    
-                    let tierHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 uppercase">Free</span>`;
-                    if(tier === 'pro_plus') tierHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800 uppercase">Elite</span>`;
-                    else if(tier === 'pro') tierHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-900/40 text-blue-400 border border-blue-800 uppercase">Pro</span>`;
-                    
-                    let statHtml = isActive 
-                        ? `<span class="text-[10px] text-emerald-400 flex items-center gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Active</span>`
-                        : (isTrial ? `<span class="text-[10px] text-amber-400 flex items-center gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Trial</span>` 
-                                   : `<span class="text-[10px] text-slate-500 flex items-center gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div> Inactive</span>`);
-
-                    const freeUsed = u.freeUsage?.count || 0;
-                    const trialUsed = u.trialUsage?.count || 0;
-                    
-                    // The button relies on u.googleId being present! (See backend tweak note)
+                data.users.forEach(u => {
+                    const joined = new Date(u.createdAt).toISOString().split('T')[0];
+                    const tierLabel = u.subscription?.tier === 'pro_plus' ? 'ELITE' : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
+                    const tierColor = tierLabel === 'ELITE' ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
+                    const statColor = u.subscription?.status === 'active' ? 'bg-emerald-500' : 'bg-slate-600';
                     const gId = u.googleId ? `'${u.googleId}'` : 'null';
 
-                    tr.innerHTML = `
-                        <td class="px-6 py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded bg-slate-800 border border-slate-700 text-slate-300 flex items-center justify-center text-xs font-bold shrink-0">${initial}</div>
-                                <div class="flex flex-col">
-                                    <span class="text-white font-medium">${name}</span>
-                                    <span class="text-[11px] text-slate-400">${email}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-3">
-                            <div class="flex flex-col items-start">${tierHtml}${statHtml}</div>
-                        </td>
-                        <td class="px-6 py-3 text-[11px] text-slate-400 flex flex-col gap-0.5 mt-1">
-                            <span>J: ${joined}</span>
-                            <span>S: ${seen}</span>
-                        </td>
-                        <td class="px-6 py-3">
-                            <div class="flex flex-col gap-1 text-[10px]">
-                                <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 text-slate-400 w-max">Free: <span class="text-white font-mono">${freeUsed}/10</span></span>
-                                <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 text-slate-400 w-max">Trial: <span class="text-white font-mono">${trialUsed}/3</span></span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-3 text-right">
-                            <button onclick="openProfile(${gId})" class="text-slate-500 hover:text-brand-400 transition p-2 bg-slate-900 rounded border border-slate-800 hover:border-brand-600/50">
-                                <i class="fa-solid fa-folder-open text-xs"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-800/20 transition group">
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-white text-[11px]">${u.email || 'N/A'}</div>
+                                <div class="text-[10px] text-slate-500">${u.name || 'Unknown'}</div>
+                            </td>
+                            <td class="px-4 py-3 font-mono text-[10px] font-bold ${tierColor} flex items-center gap-1.5 mt-1">
+                                <div class="w-1.5 h-1.5 rounded-full ${statColor}"></div> ${tierLabel}
+                            </td>
+                            <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${joined}</td>
+                            <td class="px-4 py-3 text-right">
+                                <button onclick="openProfile(${gId})" class="text-slate-500 hover:text-white border border-[#1e293b] px-2 py-1 rounded bg-slate-900"><i class="fa-solid fa-folder-open"></i></button>
+                            </td>
+                        </tr>`;
                 });
-
-            } catch (e) { console.error("User fetch error", e); }
+            } catch (e) { console.error(e); }
         }
 
-        function changePage(delta) {
-            currentPage += delta;
-            if(currentPage < 0) currentPage = 0;
-            fetchUsersList();
-        }
+        function changePage(delta) { currentPage += delta; fetchUsersList(); }
 
-        // --- DEEP DIVE PROFILE MODAL ---
         async function openProfile(googleId) {
-            if(!googleId) {
-                alert("Cannot open profile: 'googleId' is missing from the API response. Please update server.js as instructed.");
-                return;
-            }
-            
-            // Show modal with loading state
+            if(!googleId) return;
             document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('flex');
-            document.getElementById('mod-name').innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Fetching Core...';
             
             try {
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const u = await res.json();
                 
-                document.getElementById('mod-avatar').src = u.avatarUrl || 'https://via.placeholder.com/150/1e293b/FFFFFF?text=W';
                 document.getElementById('mod-name').innerText = u.name || 'Unknown User';
-                document.getElementById('mod-email').innerText = u.email || 'No email provided';
-                
+                document.getElementById('mod-email').innerText = u.email || 'No email';
                 document.getElementById('mod-gid').innerText = u.googleId;
-                document.getElementById('mod-phone').innerText = u.phone || 'No phone recorded';
+                document.getElementById('mod-joined').innerText = new Date(u.createdAt).toISOString().split('T')[0];
                 
-                document.getElementById('mod-joined').innerText = new Date(u.createdAt).toLocaleString();
-                document.getElementById('mod-active').innerText = u.lastLogin ? new Date(u.lastLogin).toLocaleString() : 'Never';
+                const tier = u.subscription?.tier?.toUpperCase() || 'FREE';
+                const status = u.subscription?.status || 'inactive';
+                document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold ${tier === 'PRO_PLUS' ? 'text-emerald-400' : 'text-blue-400'}">${tier} [${status.toUpperCase()}]</span>`;
                 
-                // Tier Logic
-                const tier = u.subscription?.tier || 'free';
-                let tierHtml = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-400 border border-slate-700 uppercase inline-block">Free Node</span>`;
-                if(tier === 'pro_plus') tierHtml = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-900/40 text-emerald-400 border border-emerald-800 uppercase inline-block shadow-[0_0_10px_rgba(16,185,129,0.2)]">Elite Status</span>`;
-                else if(tier === 'pro') tierHtml = `<span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-900/40 text-blue-400 border border-blue-800 uppercase inline-block">Pro Status</span>`;
-                
-                if(u.subscription?.status === 'active') tierHtml += ` <span class="text-xs text-emerald-500 ml-2 font-medium">● Active License</span>`;
-                if(u.subscription?.isTrial) tierHtml += ` <span class="text-xs text-amber-500 ml-2 font-medium">● Active Trial</span>`;
-                
-                document.getElementById('mod-tier-badge').innerHTML = tierHtml;
-                
-                // Usage limits
-                document.getElementById('mod-free').innerText = u.freeUsage?.count || 0;
-                document.getElementById('mod-trial').innerText = u.trialUsage?.count || 0;
-                document.getElementById('mod-screen').innerText = u.screenshotUsage?.count || 0;
-                document.getElementById('mod-mic').innerText = u.micUsage?.secondsUsed || 0;
-                
-                // Financials
                 const tBody = document.getElementById('mod-orders-body');
                 tBody.innerHTML = '';
                 if(u.orders && u.orders.length > 0) {
-                    const sorted = u.orders.sort((a,b) => new Date(b.date) - new Date(a.date));
-                    sorted.forEach(o => {
+                    u.orders.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(o => {
                         const amt = o.currency === 'INR' ? `₹${o.amount}` : `$${o.amount}`;
-                        const statClass = o.status === 'paid' ? 'text-emerald-400' : 'text-amber-400';
-                        tBody.innerHTML += `
-                            <tr>
-                                <td class="px-4 py-3">${new Date(o.date).toLocaleDateString()}</td>
-                                <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${o.orderId.substring(0,14)}...</td>
-                                <td class="px-4 py-3 uppercase text-[10px] font-bold text-white">${o.tier} (${o.cycle})</td>
-                                <td class="px-4 py-3 font-bold">${amt}</td>
-                                <td class="px-4 py-3 ${statClass} capitalize text-[11px]">${o.status}</td>
-                            </tr>
-                        `;
+                        tBody.innerHTML += `<tr><td class="py-2">${new Date(o.date).toISOString().split('T')[0]}</td><td class="text-[9px] text-slate-500">${o.orderId.substring(0,9)}..</td><td class="uppercase text-white">${o.tier}</td><td>${amt}</td><td class="${o.status==='paid'?'text-emerald-400':'text-red-400'} uppercase">${o.status}</td></tr>`;
                     });
                 } else {
-                    tBody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">No financial records found.</td></tr>`;
+                    tBody.innerHTML = `<tr><td colspan="5" class="py-4 text-slate-500">No records.</td></tr>`;
                 }
-
-            } catch (e) {
-                document.getElementById('mod-name').innerText = "Error Loading Profile";
-            }
+            } catch (e) { console.error(e); }
         }
 
-        function closeModal() {
-            document.getElementById('profileModal').classList.add('hidden');
-            document.getElementById('profileModal').classList.remove('flex');
-        }
+        function closeModal() { document.getElementById('profileModal').classList.add('hidden'); document.getElementById('profileModal').classList.remove('flex'); }
 
-        // --- CHART JS RENDERERS ---
+        // CHARTS (Chart.js defaults customized for dark mode)
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
         function renderTrafficChart(labels, data) {
             const ctx = document.getElementById('trafficChart').getContext('2d');
-            if(trafficChartInstance) trafficChartInstance.destroy();
-            
-            trafficChartInstance = new Chart(ctx, {
+            if(trafficChart) trafficChart.destroy();
+            trafficChart = new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: labels.map(l => l.substring(5)), // Show MM-DD
-                    datasets: [{
-                        label: 'Total Hits',
-                        data: data,
-                        borderColor: '#0ea5e9',
-                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
-                        borderWidth: 2, fill: true, tension: 0.3,
-                        pointBackgroundColor: '#020617', pointBorderColor: '#38bdf8', pointRadius: 3
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: {size: 10} } },
-                        x: { grid: { display: false }, ticks: { color: '#64748b', font: {size: 10}, maxTicksLimit: 10 } }
-                    }
-                }
+                data: { labels: labels.map(l => l.substring(5)), datasets: [{ data: data, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', borderWidth: 2, fill: true, tension: 0.1, pointRadius: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#1e293b' } }, x: { grid: { display: false } } } }
             });
         }
 
-        function renderOsChart(osMap) {
-            const ctx = document.getElementById('osChart').getContext('2d');
-            if(osChartInstance) osChartInstance.destroy();
-
-            const labels = Object.keys(osMap);
-            const data = Object.values(osMap);
-
-            osChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#64748b'],
-                        borderWidth: 0, hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    cutout: '75%',
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: {size: 11} } } 
-                    }
-                }
+        function renderDowChart(labels, data) {
+            const ctx = document.getElementById('dowChart').getContext('2d');
+            if(dowChart) dowChart.destroy();
+            dowChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ data: data, backgroundColor: '#8b5cf6', borderRadius: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
             });
         }
     </script>
