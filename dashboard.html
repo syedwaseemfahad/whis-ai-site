@@ -75,7 +75,14 @@
                     <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400"><i class="fa-solid fa-bars"></i></button>
                     <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-widest" id="header-title">Executive Overview</h2>
                 </div>
-                <button onclick="initDashboard()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-rotate text-sm"></i></button>
+                <div class="flex items-center gap-3">
+                    <select id="timeRangeSelect" onchange="initDashboard()" class="bg-[#05080f] border border-[#1e293b] text-brand-400 text-xs font-mono font-bold rounded px-3 py-1.5 outline-none cursor-pointer hidden md:block">
+                        <option value="7">LAST 7 DAYS</option>
+                        <option value="30" selected>LAST 30 DAYS</option>
+                        <option value="90">LAST 90 DAYS</option>
+                    </select>
+                    <button onclick="initDashboard()" class="text-slate-500 hover:text-white bg-slate-900 border border-[#1e293b] p-1.5 rounded"><i class="fa-solid fa-rotate text-sm"></i></button>
+                </div>
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar">
@@ -92,24 +99,27 @@
                             <h3 class="text-2xl data-value text-emerald-400" id="stat-paid-total">--</h3>
                             <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-split">E:0 | P:0</p>
                         </div>
-                        <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Global Revenue</p>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Period Revenue</p>
                             <h3 class="text-2xl data-value text-amber-400" id="stat-rev">--</h3>
+                            <p class="text-[9px] text-amber-500/50 font-mono absolute bottom-4 right-4" id="stat-rev-period">--</p>
                         </div>
                         <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500 relative">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">AI Audio Processed (Month)</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Audio Processed (Month)</p>
                             <h3 class="text-2xl data-value text-purple-400" id="stat-mic">--</h3>
                             <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Live Audio</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <div class="glass-panel rounded p-5">
-                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Acquisition Velocity (30D)</h3>
+                        <div class="glass-panel rounded p-5 relative">
+                            <p class="absolute top-5 right-5 text-[9px] text-slate-600 font-mono italic">Click chart to drill-down</p>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Acquisition Velocity</h3>
                             <div class="h-[250px] w-full"><canvas id="acquisitionChart"></canvas></div>
                         </div>
-                        <div class="glass-panel rounded p-5">
-                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">AI System Load (30D)</h3>
+                        <div class="glass-panel rounded p-5 relative">
+                            <p class="absolute top-5 right-5 text-[9px] text-slate-600 font-mono italic">Click chart to drill-down</p>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">AI System Load</h3>
                             <div class="h-[250px] w-full"><canvas id="aiLoadChart"></canvas></div>
                         </div>
                     </div>
@@ -120,9 +130,9 @@
                     <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
                         <div class="relative w-full md:w-1/3">
                             <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                            <input type="text" id="filter-search" placeholder="Search Email, Name, or ID..." class="w-full pl-8 pr-3 py-2 bg-[#05080f] border border-[#1e293b] rounded text-xs text-white focus:border-brand-500 outline-none font-mono" onkeypress="if(event.key === 'Enter') applyFilters()">
+                            <input type="text" id="filter-search" placeholder="Search Email, Name, or ID/Date..." class="w-full pl-8 pr-3 py-2 bg-[#05080f] border border-[#1e293b] rounded text-xs text-white focus:border-brand-500 outline-none font-mono" onkeypress="if(event.key === 'Enter') applyFilters()">
                         </div>
-                        <div class="flex gap-3 w-full md:w-auto">
+                        <div class="flex flex-wrap gap-3 w-full md:w-auto">
                             <select id="filter-tier" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="applyFilters()">
                                 <option value="">All Tiers</option>
                                 <option value="free">Free</option>
@@ -135,6 +145,10 @@
                                 <option value="inactive">Inactive</option>
                             </select>
                             <button onclick="applyFilters()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition">Apply</button>
+                            
+                            <button onclick="exportToCSV()" class="bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-4 py-2 rounded text-xs font-semibold border border-emerald-900/50 transition flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i> Export CSV
+                            </button>
                         </div>
                     </div>
 
@@ -255,6 +269,9 @@
         let currentPage = 0;
         let acqChart = null;
         let loadChart = null;
+        
+        let loadedDateRangeArray = []; 
+        let loadedUsersForCSV = [];
 
         // --- Formatter ---
         function formatSeconds(seconds) {
@@ -343,6 +360,13 @@
             if(tab === 'users' && currentPage === 0) fetchUsersList();
         }
 
+        // INTERACTIVE DRILL DOWN FUNCTION
+        function drillDownToDate(dateString) {
+            document.getElementById('filter-search').value = dateString; // Plug date into search
+            switchTab('users'); // Jump to tab
+            applyFilters();     // Auto search
+        }
+
         async function initDashboard() {
             fetchSummary();
             if(!document.getElementById('tab-users').classList.contains('hidden-tab')) fetchUsersList();
@@ -350,7 +374,9 @@
 
         async function fetchSummary() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': adminPassword } });
+                const daysToFetch = document.getElementById('timeRangeSelect').value;
+
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary?days=${daysToFetch}`, { headers: { 'x-dashboard-password': adminPassword } });
                 if(res.status === 401) logoutAdmin();
                 const data = await res.json();
                 
@@ -369,37 +395,38 @@
                     if(usd > 0) revString += (inr > 0 ? ` + $${usd.toLocaleString()}` : `$${usd.toLocaleString()}`);
                 }
                 document.getElementById('stat-rev').innerText = revString;
+                document.getElementById('stat-rev-period').innerText = `LAST ${daysToFetch} DAYS`;
 
-                // Build consistent 30-day timeline array
-                const last30Days = [];
-                for(let i=29; i>=0; i--) {
+                // Build consistent timeline array based on dropdown selection
+                loadedDateRangeArray = [];
+                for(let i = daysToFetch - 1; i >= 0; i--) {
                     const d = new Date();
                     d.setDate(d.getDate() - i);
-                    last30Days.push(d.toISOString().slice(0,10));
+                    loadedDateRangeArray.push(d.toISOString().slice(0,10));
                 }
 
                 // Map data sets
-                const signupsData = last30Days.map(date => {
+                const signupsData = loadedDateRangeArray.map(date => {
                     const found = data.dailySignups.find(x => x._id === date);
                     return found ? found.count : 0;
                 });
-                const upgradesData = last30Days.map(date => {
+                const upgradesData = loadedDateRangeArray.map(date => {
                     const found = data.dailyUpgrades.find(x => x._id === date);
                     return found ? found.count : 0;
                 });
                 
-                const chatData = last30Days.map(date => {
+                const chatData = loadedDateRangeArray.map(date => {
                     const found = data.metrics.find(x => x._id === date);
                     return found ? found.chat : 0;
                 });
-                const transcribeData = last30Days.map(date => {
+                const transcribeData = loadedDateRangeArray.map(date => {
                     const found = data.metrics.find(x => x._id === date);
                     return found ? found.transcribe : 0;
                 });
 
                 // Render Charts
-                renderAcquisitionChart(last30Days, signupsData, upgradesData);
-                renderLoadChart(last30Days, chatData, transcribeData);
+                renderAcquisitionChart(loadedDateRangeArray, signupsData, upgradesData);
+                renderLoadChart(loadedDateRangeArray, chatData, transcribeData);
 
             } catch(e) { console.error(e); }
         }
@@ -422,6 +449,9 @@
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?${query}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const data = await res.json();
                 
+                // Store fetched users in memory for CSV export
+                loadedUsersForCSV = data.users || [];
+
                 document.getElementById('btn-prev').disabled = data.page === 0;
                 document.getElementById('btn-next').disabled = data.page >= data.totalPages - 1;
                 document.getElementById('user-count-info').innerText = `Displaying ${data.users.length} of ${data.total} records (Page ${data.page + 1})`;
@@ -482,6 +512,37 @@
                         </tr>`;
                 });
             } catch (e) { console.error(e); }
+        }
+
+        // CSV EXPORT LOGIC
+        function exportToCSV() {
+            if (!loadedUsersForCSV || loadedUsersForCSV.length === 0) {
+                alert("No users to export in current view.");
+                return;
+            }
+
+            const headers = ['Email', 'Name', 'Google ID', 'Tier', 'Status', 'Joined Date', 'Last Login'];
+            
+            const rows = loadedUsersForCSV.map(u => {
+                const tier = u.subscription?.tier || 'free';
+                const status = u.subscription?.status || 'inactive';
+                const joined = u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : 'N/A';
+                const lastLogin = u.lastLogin ? new Date(u.lastLogin).toISOString().split('T')[0] : 'N/A';
+                
+                // Escape commas/quotes in names
+                const safeName = u.name ? `"${u.name.replace(/"/g, '""')}"` : 'Unknown';
+                
+                return `${u.email || 'N/A'},${safeName},${u.googleId},${tier},${status},${joined},${lastLogin}`;
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + rows.join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `whis_users_export_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function changePage(delta) { currentPage += delta; fetchUsersList(); }
@@ -578,12 +639,20 @@
                 data: { 
                     labels: labels.map(l => l.substring(5)), 
                     datasets: [
-                        { label: 'Free Signups', data: signups, borderColor: '#0ea5e9', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 2 },
-                        { label: 'Paid Upgrades', data: upgrades, borderColor: '#10b981', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 3 }
+                        { label: 'Free Signups', data: signups, borderColor: '#0ea5e9', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 4, pointHoverRadius: 6, cursor: 'pointer' },
+                        { label: 'Paid Upgrades', data: upgrades, borderColor: '#10b981', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 5, pointHoverRadius: 7, cursor: 'pointer' }
                     ] 
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false, 
+                    onClick: (e, elements) => {
+                        // DRILL DOWN INTERACTION
+                        if (elements.length > 0) {
+                            const dataIndex = elements[0].index;
+                            const clickedDateRaw = loadedDateRangeArray[dataIndex]; 
+                            drillDownToDate(clickedDateRaw);
+                        }
+                    },
                     plugins: { legend: { position: 'top', labels: { color: '#94a3b8', boxWidth: 10 } } }, 
                     scales: { y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { precision: 0 } }, x: { grid: { display: false } } } 
                 }
@@ -604,6 +673,14 @@
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false, 
+                    onClick: (e, elements) => {
+                        // DRILL DOWN INTERACTION
+                        if (elements.length > 0) {
+                            const dataIndex = elements[0].index;
+                            const clickedDateRaw = loadedDateRangeArray[dataIndex]; 
+                            drillDownToDate(clickedDateRaw);
+                        }
+                    },
                     plugins: { legend: { position: 'top', labels: { color: '#94a3b8', boxWidth: 10 } } }, 
                     scales: { 
                         x: { stacked: true, grid: { display: false } },
