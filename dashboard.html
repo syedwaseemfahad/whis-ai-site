@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whis-AI | Production Command Center</title>
+    <title>Whis-AI | Optimized Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
@@ -21,464 +20,201 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .hidden-tab { display: none !important; }
-        /* Slide Over Animation */
-        .slide-over-enter { transform: translateX(100%); }
-        .slide-over-active { transform: translateX(0); transition: transform 0.3s ease-in-out; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden text-slate-800">
 
     <div id="loginOverlay" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-900 px-4">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
-            <div class="w-16 h-16 bg-brand-900 text-white rounded-xl flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-server text-2xl"></i>
-            </div>
-            <h2 class="text-xl font-bold mb-2">Whis-AI Core</h2>
-            <input type="password" id="adminPwd" placeholder="Enter System Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4" onkeypress="if(event.key === 'Enter') login()">
+            <h2 class="text-xl font-bold mb-4">Whis-AI Core</h2>
+            <input type="password" id="adminPwd" placeholder="Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4" onkeypress="if(event.key === 'Enter') login()">
             <button onclick="login()" class="w-full bg-brand-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition">Unlock System</button>
             <p id="loginError" class="text-xs text-red-500 mt-3 hidden">Access Denied.</p>
         </div>
     </div>
 
     <aside class="w-64 bg-brand-900 text-slate-300 flex flex-col h-full shrink-0">
-        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-            <div class="h-8 w-8 bg-brand-500 text-white rounded flex items-center justify-center"><i class="fa-solid fa-bolt text-sm"></i></div>
-            <h1 class="text-white font-bold tracking-wide">Command Center</h1>
+        <div class="p-6 border-b border-slate-800 font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-bolt text-brand-500"></i> Command Center
         </div>
         <nav class="flex-1 py-4 px-3 space-y-1">
-            <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800 text-white text-sm font-medium transition"><i class="fa-solid fa-chart-line w-5"></i> Deep Analytics</button>
-            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white text-sm font-medium transition"><i class="fa-solid fa-users w-5"></i> User Database</button>
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800 text-white text-sm font-medium">
+                <i class="fa-solid fa-chart-line w-5"></i> Analytics
+            </button>
+            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white text-sm font-medium">
+                <i class="fa-solid fa-users w-5"></i> Users
+            </button>
         </nav>
     </aside>
 
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
         <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
-            <h2 class="text-xl font-bold text-slate-800" id="header-title">Deep Analytics</h2>
-            <button onclick="fetchCoreData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-semibold transition"><i class="fa-solid fa-rotate-right mr-2"></i> Sync Data</button>
+            <h2 class="text-xl font-bold" id="header-title">Analytics</h2>
+            <button onclick="syncData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-semibold"><i class="fa-solid fa-rotate"></i> Sync</button>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 relative">
-            
+        <div class="flex-1 overflow-y-auto p-8">
             <div id="tab-analytics" class="tab-content flex flex-col gap-6">
                 <div class="grid grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Total Net Revenue</p>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Net Revenue</p>
                         <div class="flex items-baseline gap-2 mt-1">
-                            <h3 class="text-3xl font-bold text-slate-900" id="kpi-rev-inr">₹0</h3>
-                            <span class="text-sm font-bold text-slate-400" id="kpi-rev-usd">| $0</span>
+                            <h3 class="text-2xl font-bold" id="kpi-rev-inr">₹0</h3>
+                            <span class="text-xs font-bold text-slate-400" id="kpi-rev-usd">| $0</span>
                         </div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Estimated MRR</p>
-                        <h3 class="text-3xl font-bold text-green-600 mt-1" id="kpi-mrr">₹0</h3>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Valid Elite Users</p>
+                        <h3 class="text-2xl font-bold text-brand-600 mt-1" id="kpi-elite">0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Active Paid Subs</p>
-                        <h3 class="text-3xl font-bold text-brand-600 mt-1" id="kpi-subs">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                        <p class="text-xs text-slate-500 font-bold uppercase">Sign-ins Today</p>
-                        <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpi-logins">0</h3>
+                        <p class="text-xs text-slate-500 font-bold uppercase">Total Users</p>
+                        <h3 class="text-2xl font-bold mt-1" id="kpi-total">0</h3>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-3 gap-6">
-                    <div class="col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <h3 class="font-bold mb-4">API Traffic (Last 30 Days)</h3>
-                        <div class="h-[300px]"><canvas id="trafficChart"></canvas></div>
-                    </div>
-                    <div class="col-span-1 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                        <h3 class="font-bold mb-4">Plan Distribution</h3>
-                        <div class="flex-1 relative"><canvas id="planChart"></canvas></div>
-                    </div>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px]">
+                    <canvas id="trafficChart"></canvas>
                 </div>
             </div>
 
-            <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full">
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden">
-                    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                        <input type="text" id="search" onkeyup="renderUsersTable()" placeholder="Search email, name, or Google ID..." class="w-80 px-4 py-2 rounded-lg border border-slate-300 text-sm focus:border-brand-500 outline-none">
-                        <div class="flex gap-3">
-                            <select id="filterPlan" onchange="renderUsersTable()" class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white outline-none">
-                                <option value="all">All Plans</option>
-                                <option value="pro_plus">Elite Only</option>
-                                <option value="pro">Pro Only</option>
-                                <option value="free">Free Only</option>
-                            </select>
-                            <select id="sortOrder" onchange="renderUsersTable()" class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white outline-none">
-                                <option value="newest">Newest First</option>
-                                <option value="oldest">Oldest First</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="flex-1 overflow-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="sticky top-0 bg-white shadow-sm z-10">
-                                <tr class="text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
-                                    <th class="px-6 py-4">User</th>
-                                    <th class="px-6 py-4">Plan & Status</th>
-                                    <th class="px-6 py-4">Limits Used</th>
-                                    <th class="px-6 py-4">Last Login</th>
-                                    <th class="px-6 py-4 text-right">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-sm divide-y divide-slate-100" id="usersTbody"></tbody>
-                        </table>
+            <div id="tab-users" class="tab-content hidden-tab h-full">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm h-full overflow-auto">
+                    <table class="w-full text-left">
+                        <thead class="sticky top-0 bg-white border-b border-slate-200">
+                            <tr class="text-xs text-slate-500 uppercase font-bold">
+                                <th class="px-6 py-4">User</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Joined</th>
+                                <th class="px-6 py-4 text-right">Profile</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTbody" class="text-sm divide-y divide-slate-100"></tbody>
+                    </table>
+                    <div id="loadMore" class="p-4 text-center">
+                        <button onclick="loadUsers(currentPage + 1)" class="text-brand-600 font-bold text-xs uppercase tracking-widest hover:underline">Load More Records</button>
                     </div>
                 </div>
             </div>
-
         </div>
 
-        <div id="userDrawer" class="fixed inset-y-0 right-0 w-[600px] bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-200">
-            <div class="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
-                <h2 class="font-bold text-lg">Comprehensive User Profile</h2>
-                <button onclick="closeDrawer()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <div id="userDrawer" class="fixed inset-y-0 right-0 w-[500px] bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col border-l">
+            <div class="p-6 bg-slate-900 text-white flex justify-between items-center">
+                <h2 class="font-bold">Detailed User Profile</h2>
+                <button onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="flex-1 overflow-y-auto p-6 bg-slate-50" id="drawerContent">
-                </div>
+            <div id="drawerContent" class="flex-1 overflow-y-auto p-6 bg-slate-50"></div>
         </div>
-
     </main>
 
     <script>
         const BACKEND_URL = "https://whis-backend.onrender.com"; 
         let pwd = sessionStorage.getItem('whisAdmin');
-        let rawData = { users: [], metrics: [] };
-        let charts = {};
+        let currentPage = 0;
+        let trafficChart = null;
 
         if(pwd) login(true);
 
         async function login(isAuto = false) {
             if(!isAuto) pwd = document.getElementById('adminPwd').value;
-            if(!pwd) return;
             try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/core-data`, { headers: { 'x-dashboard-password': pwd } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
                 if(res.ok) {
                     sessionStorage.setItem('whisAdmin', pwd);
                     document.getElementById('loginOverlay').classList.add('hidden');
-                    const data = await res.json();
-                    rawData = data;
-                    processAnalytics();
-                    renderUsersTable();
-                } else {
-                    if(!isAuto) document.getElementById('loginError').classList.remove('hidden');
-                }
+                    syncData();
+                } else if(!isAuto) { document.getElementById('loginError').classList.remove('hidden'); }
             } catch(e) { console.error(e); }
         }
 
-        async function fetchCoreData() {
-            const res = await fetch(`${BACKEND_URL}/api/dashboard/core-data`, { headers: { 'x-dashboard-password': pwd } });
-            rawData = await res.json();
-            processAnalytics();
-            renderUsersTable();
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden-tab');
-            document.getElementById('nav-analytics').className = `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${tabId === 'analytics' ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`;
-            document.getElementById('nav-users').className = `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${tabId === 'users' ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`;
-            document.getElementById('header-title').innerText = tabId === 'analytics' ? 'Deep Analytics' : 'User Database';
-        }
-
-        // --- ANALYTICS PROCESSING ---
-        function processAnalytics() {
-            const users = rawData.users || [];
-            const metrics = rawData.metrics || [];
-
-            // 1. Initialize KPI Counters
-            let totalRevINR = 0; 
-            let totalRevUSD = 0; 
-            let activeSubs = 0; 
-            let loginsToday = 0;
-            const todayStr = new Date().toDateString();
-
-            let eliteCount = 0; 
-            let proCount = 0; 
-            let freeCount = 0;
-
-            // 2. Safely Process User Data
-            users.forEach(u => {
-                // --- REVENUE CALCULATION ---
-                if (u.orders && Array.isArray(u.orders)) {
-                    u.orders.forEach(o => { 
-                        if (o.status === 'paid' && typeof o.amount === 'number') {
-                            if (o.currency === 'USD') {
-                                totalRevUSD += o.amount;
-                            } else {
-                                totalRevINR += o.amount;
-                            }
-                        } 
-                    });
-                }
-
-                // --- ACTIVE SUBSCRIPTIONS ---
-                if (u.subscription?.status === 'active') {
-                    activeSubs++;
-                }
-
-                // --- DAILY LOGINS ---
-                if (u.lastLogin && new Date(u.lastLogin).toDateString() === todayStr) {
-                    loginsToday++;
-                }
-                
-                // --- PLAN DISTRIBUTION ---
-                const currentTier = u.subscription?.tier || 'free';
-                if (currentTier === 'pro_plus') eliteCount++;
-                else if (currentTier === 'pro') proCount++;
-                else freeCount++;
-            });
-
-            // 3. Update the UI DOM Elements
-            document.getElementById('kpi-rev-inr').innerText = `₹${totalRevINR.toLocaleString('en-IN')}`;
-            document.getElementById('kpi-rev-usd').innerText = `| $${totalRevUSD.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        async function syncData() {
+            const sumRes = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
+            const data = await sumRes.json();
             
-            // Using approximate INR values for MRR estimation
-            const estimatedMrrInr = (eliteCount * 3240) + (proCount * 1800);
-            document.getElementById('kpi-mrr').innerText = `₹${estimatedMrrInr.toLocaleString('en-IN')}`;
+            document.getElementById('kpi-elite').innerText = data.eliteCount;
+            document.getElementById('kpi-total').innerText = data.totalUsers;
             
-            document.getElementById('kpi-subs').innerText = activeSubs;
-            document.getElementById('kpi-logins').innerText = loginsToday;
-
-            // 4. Clean Traffic Chart Generation
-            const trafficMap = new Map();
-            metrics.forEach(m => {
-                if (!m.date) return;
-                if (!trafficMap.has(m.date)) {
-                    trafficMap.set(m.date, { total: 0, chat: 0 });
-                }
-                const current = trafficMap.get(m.date);
-                current.total += (m.hits || 0);
-                current.chat += (m.stats?.chat || 0);
-            });
-
-            const labels = Array.from(trafficMap.keys());
-            const totalHits = Array.from(trafficMap.values()).map(v => v.total);
-            const chatHits = Array.from(trafficMap.values()).map(v => v.chat);
-
-            if(charts.traffic) charts.traffic.destroy();
-            charts.traffic = new Chart(document.getElementById('trafficChart'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { 
-                            label: 'Total Platform Traffic', 
-                            data: totalHits, 
-                            borderColor: '#cbd5e1', 
-                            backgroundColor: 'transparent', 
-                            tension: 0.3,
-                            borderWidth: 2,
-                            pointRadius: 2
-                        },
-                        { 
-                            label: 'Core App Usage (Chats)', 
-                            data: chatHits, 
-                            borderColor: '#0ea5e9', 
-                            backgroundColor: 'rgba(14, 165, 233, 0.1)', 
-                            fill: true, 
-                            tension: 0.3, 
-                            borderWidth: 3,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#fff'
-                        }
-                    ]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
-                    },
-                    plugins: {
-                        tooltip: { backgroundColor: '#0f172a', padding: 12, cornerRadius: 8 }
-                    }
-                }
-            });
-
-            // 5. Clean Plan Distribution Chart
-            if(charts.plan) charts.plan.destroy();
-            charts.plan = new Chart(document.getElementById('planChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Elite (Pro Plus)', 'Pro', 'Free'],
-                    datasets: [{ 
-                        data: [eliteCount, proCount, freeCount], 
-                        backgroundColor: ['#0f172a', '#0ea5e9', '#e2e8f0'], 
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    cutout: '70%', 
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } 
-                    } 
-                }
-            });
+            let inr = 0; let usd = 0;
+            data.revenueStats.forEach(r => { if(r._id === 'USD') usd = r.total; else inr = r.total; });
+            document.getElementById('kpi-rev-inr').innerText = `₹${inr.toLocaleString('en-IN')}`;
+            document.getElementById('kpi-rev-usd').innerText = `| $${usd.toFixed(2)}`;
+            
+            renderTrafficChart(data.metrics);
+            loadUsers(0);
         }
 
-        // --- USER TABLE PROCESSING ---
-        function renderUsersTable() {
-            const query = document.getElementById('search').value.toLowerCase();
-            const filter = document.getElementById('filterPlan').value;
-            const sort = document.getElementById('sortOrder').value;
-
-            let filtered = rawData.users.filter(u => {
-                const matchSearch = (u.email||'').toLowerCase().includes(query) || (u.name||'').toLowerCase().includes(query) || (u.googleId||'').includes(query);
-                const matchPlan = filter === 'all' ? true : (u.subscription?.tier || 'free') === filter;
-                return matchSearch && matchPlan;
-            });
-
-            filtered.sort((a, b) => {
-                const dA = new Date(a.createdAt).getTime();
-                const dB = new Date(b.createdAt).getTime();
-                return sort === 'newest' ? dB - dA : dA - dB;
-            });
-
+        async function loadUsers(page) {
+            const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?page=${page}`, { headers: { 'x-dashboard-password': pwd } });
+            const users = await res.json();
             const tbody = document.getElementById('usersTbody');
-            tbody.innerHTML = '';
-
-            filtered.forEach(u => {
+            if(page === 0) tbody.innerHTML = '';
+            
+            users.forEach(u => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 cursor-pointer transition';
-                tr.onclick = () => openDrawer(u.googleId);
-                
-                const tier = (u.subscription?.tier || 'free').toUpperCase();
-                const status = u.subscription?.status === 'active' ? '<span class="text-green-600 font-bold">Active</span>' : 'Inactive';
-                const badge = tier === 'PRO_PLUS' ? 'bg-slate-900 text-white' : (tier === 'PRO' ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-500');
-
+                tr.className = "hover:bg-slate-50 transition";
                 tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-slate-800">${u.name || 'Unknown'}</div>
-                        <div class="text-xs text-slate-500">${u.email || 'No email'}</div>
+                    <td class="px-6 py-4 font-semibold text-slate-800">${u.email}</td>
+                    <td class="px-6 py-4 uppercase text-[10px] font-bold">${u.subscription?.tier || 'free'}</td>
+                    <td class="px-6 py-4 text-xs text-slate-500">${new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="openDrawer('${u.googleId}')" class="text-brand-600 hover:text-brand-900"><i class="fa-solid fa-circle-info text-lg"></i></button>
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 text-[10px] font-bold rounded ${badge}">${tier}</span>
-                        <div class="text-xs mt-1">${status}</div>
-                    </td>
-                    <td class="px-6 py-4 text-xs text-slate-500">
-                        Free: <b>${u.freeUsage?.count||0}</b> | Trial: <b>${u.trialUsage?.count||0}</b>
-                    </td>
-                    <td class="px-6 py-4 text-xs text-slate-500">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'Never'}</td>
-                    <td class="px-6 py-4 text-right"><i class="fa-solid fa-chevron-right text-slate-300"></i></td>
                 `;
                 tbody.appendChild(tr);
             });
+            currentPage = page;
         }
 
-        // --- USER DRAWER ---
-        function openDrawer(googleId) {
-            const user = rawData.users.find(u => u.googleId === googleId);
-            if(!user) return;
-
-            const content = document.getElementById('drawerContent');
+        async function openDrawer(gid) {
+            document.getElementById('userDrawer').classList.remove('translate-x-full');
+            document.getElementById('drawerContent').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading Profile...';
             
-            // Generate Orders HTML
-            let ordersHtml = '<p class="text-sm text-slate-400">No orders found.</p>';
-            if(user.orders && user.orders.length > 0) {
-                // Sort orders by newest first
-                const sortedOrders = [...user.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
-                ordersHtml = sortedOrders.map(o => {
-                    const isPaid = o.status === 'paid';
-                    const statusBadge = isPaid 
-                        ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded uppercase">Paid</span>'
-                        : `<span class="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded uppercase">${o.status}</span>`;
-                        
-                    return `
-                    <div class="flex justify-between items-center p-3 bg-white rounded border border-slate-200 mb-2">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <p class="text-sm font-bold">${(o.tier || 'N/A').toUpperCase()} (${o.cycle || 'N/A'})</p>
-                                ${statusBadge}
+            const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${gid}`, { headers: { 'x-dashboard-password': pwd } });
+            const u = await res.json();
+            
+            document.getElementById('drawerContent').innerHTML = `
+                <div class="space-y-6">
+                    <div class="p-4 bg-white rounded-xl border border-slate-200">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-2">Subscription Details</p>
+                        <div class="grid grid-cols-2 text-sm gap-y-2">
+                            <span>Tier:</span><b class="uppercase">${u.subscription.tier}</b>
+                            <span>Valid Until:</span><b>${new Date(u.subscription.validUntil).toLocaleString()}</b>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white rounded-xl border border-slate-200">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-2">Order History</p>
+                        ${u.orders.filter(o => o.status === 'paid').map(o => `
+                            <div class="text-xs border-b py-2 flex justify-between">
+                                <span>${o.amount} ${o.currency}</span>
+                                <span class="text-slate-400">${new Date(o.date).toLocaleDateString()}</span>
                             </div>
-                            <p class="text-xs text-slate-500 font-mono" title="Order ID">${o.orderId || 'Unknown ID'}</p>
-                            ${o.paymentId ? `<p class="text-xs text-slate-400 font-mono" title="Payment ID">${o.paymentId}</p>` : ''}
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold ${isPaid ? 'text-green-600' : 'text-slate-500'}">${o.amount || 0} ${o.currency || 'INR'}</p>
-                            <p class="text-[10px] text-slate-400 uppercase mt-1">${new Date(o.date).toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                `}).join('');
-            }
-
-            // Generate Contexts HTML
-            let contextsHtml = '<p class="text-sm text-slate-400">No saved contexts.</p>';
-            if(user.contexts && user.contexts.length > 0) {
-                contextsHtml = user.contexts.map(c => `
-                    <div class="p-3 bg-white rounded border border-slate-200 mb-2 text-sm">
-                        <div class="flex justify-between font-bold mb-1">
-                            <span>${c.name}</span>
-                            ${c.isActive ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 rounded">ACTIVE</span>' : ''}
-                        </div>
-                        <p class="text-xs text-slate-500 break-words whitespace-pre-wrap">${c.content}</p>
-                    </div>
-                `).join('');
-            }
-
-            content.innerHTML = `
-                <div class="flex items-center gap-4 mb-8">
-                    <img src="${user.avatarUrl || 'https://via.placeholder.com/64'}" class="w-16 h-16 rounded-full border border-slate-200 bg-white object-cover">
-                    <div class="overflow-hidden">
-                        <h3 class="text-2xl font-bold text-slate-900 truncate">${user.name || 'Unknown'}</h3>
-                        <p class="text-sm text-slate-500 truncate">${user.email}</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Google ID</p>
-                        <p class="text-sm font-mono truncate" title="${user.googleId}">${user.googleId}</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Phone / Auth</p>
-                        <p class="text-sm truncate" title="${user.phone || 'Not provided'}">${user.phone || 'Not provided'}</p>
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8">
-                    <h4 class="font-bold text-blue-900 mb-3 border-b border-blue-200 pb-2">Subscription Info</h4>
-                    <div class="grid grid-cols-2 gap-y-3 text-sm">
-                        <div class="text-slate-500">Current Tier:</div>
-                        <div class="font-bold text-slate-900 uppercase">${user.subscription?.tier || 'FREE'}</div>
-                        <div class="text-slate-500">Status:</div>
-                        <div class="font-bold ${user.subscription?.status === 'active' ? 'text-green-600' : 'text-slate-900'}">${(user.subscription?.status || 'inactive').toUpperCase()}</div>
-                        <div class="text-slate-500">Valid Until:</div>
-                        <div class="font-bold">${user.subscription?.validUntil ? new Date(user.subscription.validUntil).toLocaleString() : 'N/A'}</div>
-                        <div class="text-slate-500">Mic Seconds Used:</div>
-                        <div class="font-bold">${user.micUsage?.secondsUsed || 0} s</div>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <h4 class="font-bold text-slate-800 mb-3">Order History</h4>
-                    <div class="max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
-                        ${ordersHtml}
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-slate-800 mb-3">AI Contexts</h4>
-                    <div class="max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                        ${contextsHtml}
+                        `).join('')}
                     </div>
                 </div>
             `;
-            document.getElementById('userDrawer').classList.remove('translate-x-full');
         }
 
-        function closeDrawer() {
-            document.getElementById('userDrawer').classList.add('translate-x-full');
+        function closeDrawer() { document.getElementById('userDrawer').classList.add('translate-x-full'); }
+
+        function renderTrafficChart(metrics) {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            if(trafficChart) trafficChart.destroy();
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: metrics.map(m => m.date),
+                    datasets: [{ label: 'Daily API Hits', data: metrics.map(m => m.hits), borderColor: '#0ea5e9', tension: 0.3, fill: true, backgroundColor: 'rgba(14, 165, 233, 0.05)' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
+            document.getElementById(`tab-${t}`).classList.remove('hidden-tab');
+            document.getElementById('header-title').innerText = t.charAt(0).toUpperCase() + t.slice(1);
         }
     </script>
 </body>
