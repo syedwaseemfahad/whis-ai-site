@@ -262,14 +262,14 @@
 
     <script>
         // CONFIG
-        const BACKEND_URL = ""; // Empty string for relative if hosted together
-        let adminToken = sessionStorage.getItem('whisDashPwd');
+        const BACKEND_URL = "https://whis-backend.onrender.com"; 
+        let adminPassword = sessionStorage.getItem('whisAdminPwd');
         let currentPage = 0;
         let trafficChartInstance = null;
         let osChartInstance = null;
 
         // Init Check
-        if (adminToken) {
+        if (adminPassword) {
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('adminDashboard').classList.remove('hidden');
             initDashboard();
@@ -289,8 +289,8 @@
                 // Verify by hitting the summary endpoint
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
                 if (res.ok) {
-                    adminToken = pwd;
-                    sessionStorage.setItem('whisDashPwd', pwd);
+                    adminPassword = pwd;
+                    sessionStorage.setItem('whisAdminPwd', pwd);
                     document.getElementById('loginOverlay').classList.add('hidden');
                     document.getElementById('adminDashboard').classList.remove('hidden');
                     initDashboard();
@@ -305,8 +305,8 @@
         }
 
         function logoutAdmin() {
-            sessionStorage.removeItem('whisDashPwd');
-            adminToken = null;
+            sessionStorage.removeItem('whisAdminPwd');
+            adminPassword = null;
             window.location.reload();
         }
 
@@ -347,7 +347,7 @@
 
         async function fetchSummary() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': adminToken } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': adminPassword } });
                 if(!res.ok) { if(res.status === 401) logoutAdmin(); return; }
                 const data = await res.json();
                 
@@ -396,7 +396,7 @@
                 const tbody = document.getElementById('users-table-body');
                 tbody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-slate-500"><i class="fa-solid fa-circle-notch fa-spin text-xl mb-2"></i><br>Loading nodes...</td></tr>`;
                 
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?page=${currentPage}`, { headers: { 'x-dashboard-password': adminToken } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?page=${currentPage}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const users = await res.json();
                 
                 document.getElementById('btn-prev').disabled = currentPage === 0;
@@ -491,7 +491,7 @@
             document.getElementById('mod-name').innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm"></i> Fetching Core...';
             
             try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminToken } });
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const u = await res.json();
                 
                 document.getElementById('mod-avatar').src = u.avatarUrl || 'https://via.placeholder.com/150/1e293b/FFFFFF?text=W';
