@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Whis-AI | System Command Center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whis-AI | Production Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,422 +14,380 @@
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            900: '#0f172a', // Deep Slate
-                        }
-                    }
+                    colors: { brand: { 50: '#f8fafc', 500: '#0ea5e9', 600: '#0284c7', 900: '#0f172a' } }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Smooth transitions */
-        .slide-in { animation: slideIn 0.3s ease forwards; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .hidden-tab { display: none !important; }
+        /* Slide Over Animation */
+        .slide-over-enter { transform: translateX(100%); }
+        .slide-over-active { transform: translateX(0); transition: transform 0.3s ease-in-out; }
     </style>
 </head>
-<body class="h-[100dvh] flex overflow-hidden w-full text-slate-900 bg-slate-50">
+<body class="h-screen flex overflow-hidden text-slate-800">
 
-    <div id="loginOverlay" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-900/90 backdrop-blur-sm px-4">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
-            <div class="w-16 h-16 bg-brand-100 text-brand-600 rounded-xl flex items-center justify-center mx-auto mb-6">
-                <i class="fa-solid fa-chart-line text-2xl"></i>
+    <div id="loginOverlay" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-900 px-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-brand-900 text-white rounded-xl flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-server text-2xl"></i>
             </div>
-            <h2 class="text-xl font-bold text-slate-900 mb-2">Command Center</h2>
-            <p class="text-xs text-slate-500 mb-6">Enter dashboard password to access analytics.</p>
-            <input type="password" id="adminPwd" placeholder="Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4 transition-colors" onkeypress="if(event.key === 'Enter') loginAdmin()">
-            <button onclick="loginAdmin()" id="loginBtn" class="w-full bg-brand-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition shadow-sm active:scale-95 flex justify-center items-center gap-2">
-                <span>Access Dashboard</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <p id="loginError" class="text-xs text-red-500 mt-3 hidden">Incorrect Password or Server Error.</p>
+            <h2 class="text-xl font-bold mb-2">Whis-AI Core</h2>
+            <input type="password" id="adminPwd" placeholder="Enter System Password" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4" onkeypress="if(event.key === 'Enter') login()">
+            <button onclick="login()" class="w-full bg-brand-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition">Unlock System</button>
+            <p id="loginError" class="text-xs text-red-500 mt-3 hidden">Access Denied.</p>
         </div>
     </div>
 
-    <div id="adminDashboard" class="flex w-full h-full hidden relative">
-        
-        <div id="sidebarPanel" class="w-full md:w-64 bg-brand-900 text-slate-300 flex flex-col h-full shadow-xl z-20 shrink-0 absolute md:static inset-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
-            <div class="p-6 flex justify-between items-center border-b border-slate-800 shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 bg-brand-500 text-white rounded flex items-center justify-center">
-                        <i class="fa-solid fa-bolt text-sm"></i>
-                    </div>
-                    <h1 class="text-white font-bold text-lg tracking-wide">Whis-AI</h1>
-                </div>
-                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-            
-            <nav class="flex-1 py-6 px-4 space-y-2 overflow-y-auto no-scrollbar">
-                <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800 text-white transition-colors text-left">
-                    <i class="fa-solid fa-chart-pie w-5"></i>
-                    <span class="font-medium text-sm">Analytics</span>
-                </button>
-                <button onclick="switchTab('users')" id="nav-users" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-colors text-left">
-                    <i class="fa-solid fa-users w-5"></i>
-                    <span class="font-medium text-sm">User Database</span>
-                </button>
-            </nav>
+    <aside class="w-64 bg-brand-900 text-slate-300 flex flex-col h-full shrink-0">
+        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+            <div class="h-8 w-8 bg-brand-500 text-white rounded flex items-center justify-center"><i class="fa-solid fa-bolt text-sm"></i></div>
+            <h1 class="text-white font-bold tracking-wide">Command Center</h1>
+        </div>
+        <nav class="flex-1 py-4 px-3 space-y-1">
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800 text-white text-sm font-medium transition"><i class="fa-solid fa-chart-line w-5"></i> Deep Analytics</button>
+            <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white text-sm font-medium transition"><i class="fa-solid fa-users w-5"></i> User Database</button>
+        </nav>
+    </aside>
 
-            <div class="p-4 border-t border-slate-800 text-xs flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span>System Online</span>
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0">
+            <h2 class="text-xl font-bold text-slate-800" id="header-title">Deep Analytics</h2>
+            <button onclick="fetchCoreData()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-semibold transition"><i class="fa-solid fa-rotate-right mr-2"></i> Sync Data</button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 relative">
+            
+            <div id="tab-analytics" class="tab-content flex flex-col gap-6">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Total Revenue (INR)</p>
+                        <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpi-rev">₹0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Estimated MRR</p>
+                        <h3 class="text-3xl font-bold text-green-600 mt-1" id="kpi-mrr">₹0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Active Paid Subs</p>
+                        <h3 class="text-3xl font-bold text-brand-600 mt-1" id="kpi-subs">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Sign-ins Today</p>
+                        <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpi-logins">0</h3>
+                    </div>
                 </div>
-                <button onclick="logoutAdmin()" class="text-slate-400 hover:text-white transition" title="Logout">
-                    <i class="fa-solid fa-sign-out-alt"></i>
-                </button>
+
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold mb-4">API Traffic (Last 30 Days)</h3>
+                        <div class="h-[300px]"><canvas id="trafficChart"></canvas></div>
+                    </div>
+                    <div class="col-span-1 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <h3 class="font-bold mb-4">Plan Distribution</h3>
+                        <div class="flex-1 relative"><canvas id="planChart"></canvas></div>
+                    </div>
+                </div>
             </div>
+
+            <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                        <input type="text" id="search" onkeyup="renderUsersTable()" placeholder="Search email, name, or Google ID..." class="w-80 px-4 py-2 rounded-lg border border-slate-300 text-sm focus:border-brand-500 outline-none">
+                        <div class="flex gap-3">
+                            <select id="filterPlan" onchange="renderUsersTable()" class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white outline-none">
+                                <option value="all">All Plans</option>
+                                <option value="pro_plus">Elite Only</option>
+                                <option value="pro">Pro Only</option>
+                                <option value="free">Free Only</option>
+                            </select>
+                            <select id="sortOrder" onchange="renderUsersTable()" class="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white outline-none">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 bg-white shadow-sm z-10">
+                                <tr class="text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                                    <th class="px-6 py-4">User</th>
+                                    <th class="px-6 py-4">Plan & Status</th>
+                                    <th class="px-6 py-4">Limits Used</th>
+                                    <th class="px-6 py-4">Last Login</th>
+                                    <th class="px-6 py-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm divide-y divide-slate-100" id="usersTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="flex-1 flex flex-col h-full bg-slate-50 relative z-10 w-full overflow-hidden">
-            
-            <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm shrink-0">
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500 hover:text-brand-600 transition">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
-                    <h2 class="text-xl font-bold text-slate-800" id="header-title">Analytics Overview</h2>
-                </div>
-                <button onclick="pollData()" class="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition-colors flex items-center justify-center active:scale-95 shadow-sm" title="Refresh Data">
-                    <i class="fa-solid fa-rotate-right"></i>
-                </button>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
-                
-                <div id="tab-overview" class="tab-content flex flex-col gap-6">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-users absolute -right-2 -bottom-4 text-6xl text-blue-50 opacity-50"></i>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Total Users</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-slate-900" id="stat-users">--</h3>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-star absolute -right-2 -bottom-4 text-6xl text-green-50 opacity-50"></i>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Active Subs</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-green-600" id="stat-subs">--</h3>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-bolt absolute -right-2 -bottom-4 text-6xl text-purple-50 opacity-50"></i>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Total Hits</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-slate-900" id="stat-hits">--</h3>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-indian-rupee-sign absolute -right-2 -bottom-4 text-6xl text-amber-50 opacity-50"></i>
-                            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Revenue</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-slate-900" id="stat-rev">--</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-base font-bold text-slate-800">Traffic Momentum</h3>
-                            <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">Last 14 Days</span>
-                        </div>
-                        <div class="h-[250px] md:h-[350px] w-full relative">
-                            <canvas id="trafficChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full">
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                        <div class="p-4 md:p-6 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white">
-                            <h3 class="text-base font-bold text-slate-800 shrink-0">User Masterlist</h3>
-                            <div class="relative w-full md:w-72">
-                                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                                <input type="text" id="user-search" onkeyup="filterUsers()" placeholder="Search email or name..." class="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none text-sm transition-shadow">
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[700px]">
-                                <thead>
-                                    <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                                        <th class="px-6 py-3 font-semibold">User Details</th>
-                                        <th class="px-6 py-3 font-semibold">Current Plan</th>
-                                        <th class="px-6 py-3 font-semibold">Joined Date</th>
-                                        <th class="px-6 py-3 font-semibold">Usage Limits</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-sm text-slate-700 divide-y divide-slate-100" id="users-table-body">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
+        <div id="userDrawer" class="fixed inset-y-0 right-0 w-[600px] bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-200">
+            <div class="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                <h2 class="font-bold text-lg">Comprehensive User Profile</h2>
+                <button onclick="closeDrawer()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            <div class="flex-1 overflow-y-auto p-6 bg-slate-50" id="drawerContent">
+                </div>
         </div>
-    </div>
+
+    </main>
 
     <script>
-        // --- CONFIGURATION ---
-        // Changed from "" to your actual Render backend URL
         const BACKEND_URL = "https://whis-backend.onrender.com"; 
-        
-        let dashboardPassword = sessionStorage.getItem('whisDashPwd');
-        let myChart = null;
-        let allUsersData = [];
+        let pwd = sessionStorage.getItem('whisAdmin');
+        let rawData = { users: [], metrics: [] };
+        let charts = {};
 
-        // Initialization
-        if (dashboardPassword) {
-            checkLogin();
-        }
+        if(pwd) login(true);
 
-        // --- AUTHENTICATION ---
-        async function loginAdmin() {
-            const pwdInput = document.getElementById('adminPwd');
-            const btn = document.getElementById('loginBtn');
-            const errorMsg = document.getElementById('loginError');
-            
-            const pwd = pwdInput.value;
+        async function login(isAuto = false) {
+            if(!isAuto) pwd = document.getElementById('adminPwd').value;
             if(!pwd) return;
-
-            // UI Feedback
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-            errorMsg.classList.add('hidden');
-
             try {
-                // Connect to the newly created DASHBOARD route
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/stats-overview`, {
-                    headers: { 'x-dashboard-password': pwd }
-                });
-                
-                if (res.ok) {
-                    dashboardPassword = pwd;
-                    sessionStorage.setItem('whisDashPwd', pwd);
-                    showDashboard();
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/core-data`, { headers: { 'x-dashboard-password': pwd } });
+                if(res.ok) {
+                    sessionStorage.setItem('whisAdmin', pwd);
+                    document.getElementById('loginOverlay').classList.add('hidden');
+                    const data = await res.json();
+                    rawData = data;
+                    processAnalytics();
+                    renderUsersTable();
                 } else {
-                    errorMsg.classList.remove('hidden');
+                    if(!isAuto) document.getElementById('loginError').classList.remove('hidden');
                 }
-            } catch (err) {
-                errorMsg.classList.remove('hidden');
-                errorMsg.innerText = "Network error connecting to backend.";
-            } finally {
-                btn.innerHTML = '<span>Access Dashboard</span><i class="fa-solid fa-arrow-right"></i>';
-                btn.classList.remove('opacity-75', 'cursor-not-allowed');
-            }
+            } catch(e) { console.error(e); }
         }
 
-        async function checkLogin() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/stats-overview`, {
-                    headers: { 'x-dashboard-password': dashboardPassword }
-                });
-                if (res.ok) {
-                    showDashboard();
-                } else {
-                    logoutAdmin();
-                }
-            } catch (e) {
-                document.getElementById('loginOverlay').classList.remove('hidden');
-            }
-        }
-
-        function logoutAdmin() {
-            sessionStorage.removeItem('whisDashPwd');
-            dashboardPassword = null;
-            document.getElementById('adminDashboard').classList.add('hidden');
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            document.getElementById('adminPwd').value = '';
-        }
-
-        function showDashboard() {
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('adminDashboard').classList.remove('hidden');
-            pollData();
-        }
-
-        // --- NAVIGATION & UI ---
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebarPanel');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-            }
+        async function fetchCoreData() {
+            const res = await fetch(`${BACKEND_URL}/api/dashboard/core-data`, { headers: { 'x-dashboard-password': pwd } });
+            rawData = await res.json();
+            processAnalytics();
+            renderUsersTable();
         }
 
         function switchTab(tabId) {
-            if(window.innerWidth < 768) toggleMobileSidebar();
-
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden-tab');
+            document.getElementById('nav-analytics').className = `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${tabId === 'analytics' ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`;
+            document.getElementById('nav-users').className = `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${tabId === 'users' ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`;
+            document.getElementById('header-title').innerText = tabId === 'analytics' ? 'Deep Analytics' : 'User Database';
+        }
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-800', 'text-white');
-                btn.classList.add('text-slate-300');
+        // --- ANALYTICS PROCESSING ---
+        function processAnalytics() {
+            const users = rawData.users;
+            const metrics = rawData.metrics;
+
+            // 1. KPIs
+            let totalRev = 0; let mrr = 0; let activeSubs = 0; let loginsToday = 0;
+            const todayStr = new Date().toDateString();
+
+            let eliteCount = 0; let proCount = 0; let freeCount = 0;
+
+            users.forEach(u => {
+                // Revenue
+                if(u.orders) {
+                    u.orders.forEach(o => { 
+                        if(o.status === 'paid') totalRev += o.amount; 
+                    });
+                }
+                // Subs & MRR
+                if(u.subscription?.status === 'active') {
+                    activeSubs++;
+                    const price = u.subscription.tier === 'pro_plus' ? 3500 : 1500; // Approx INR
+                    mrr += (u.subscription.cycle === 'quarterly' ? price/3 : price);
+                }
+                // Logins
+                if(u.lastLogin && new Date(u.lastLogin).toDateString() === todayStr) loginsToday++;
+                
+                // Plans
+                if(u.subscription?.tier === 'pro_plus') eliteCount++;
+                else if(u.subscription?.tier === 'pro') proCount++;
+                else freeCount++;
             });
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            activeBtn.classList.add('bg-slate-800', 'text-white');
-            activeBtn.classList.remove('text-slate-300');
 
-            const headers = {
-                'overview': 'Analytics Overview',
-                'users': 'Complete User Database'
-            };
-            document.getElementById('header-title').innerText = headers[tabId];
-        }
+            document.getElementById('kpi-rev').innerText = `₹${totalRev.toLocaleString()}`;
+            document.getElementById('kpi-mrr').innerText = `₹${Math.round(mrr).toLocaleString()}`;
+            document.getElementById('kpi-subs').innerText = activeSubs;
+            document.getElementById('kpi-logins').innerText = loginsToday;
 
-        // --- DATA FETCHING ---
-        async function pollData() {
-            if(!dashboardPassword) return;
-            fetchOverview();
-            fetchTraffic();
-            fetchUsers();
-        }
+            // 2. Traffic Chart
+            const labels = metrics.map(m => m.date);
+            const chatHits = metrics.map(m => m.stats?.chat || 0);
+            const totalHits = metrics.map(m => m.hits || 0);
 
-        async function fetchOverview() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/stats-overview`, { headers: { 'x-dashboard-password': dashboardPassword } });
-                const data = await res.json();
-                
-                document.getElementById('stat-users').innerText = data.totalUsers.toLocaleString();
-                document.getElementById('stat-subs').innerText = data.activeSubs.toLocaleString();
-                document.getElementById('stat-hits').innerText = data.totalHits.toLocaleString();
-                document.getElementById('stat-rev').innerText = `₹${data.totalRevenue.toLocaleString()}`;
-            } catch (e) { console.error("Error fetching overview:", e); }
-        }
-
-        async function fetchTraffic() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/traffic-data`, { headers: { 'x-dashboard-password': dashboardPassword } });
-                const data = await res.json();
-                
-                const labels = data.map(d => d.date);
-                const hits = data.map(d => d.hits);
-                renderChart(labels, hits);
-            } catch (e) { console.error("Error fetching traffic:", e); }
-        }
-
-        function renderChart(labels, dataHits) {
-            const ctx = document.getElementById('trafficChart').getContext('2d');
-            if (myChart) myChart.destroy();
-
-            const isMobile = window.innerWidth < 768;
-
-            myChart = new Chart(ctx, {
+            if(charts.traffic) charts.traffic.destroy();
+            charts.traffic = new Chart(document.getElementById('trafficChart'), {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'API Hits',
-                        data: dataHits,
-                        borderColor: '#0284c7', // Brand color
-                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#0284c7',
-                        pointBorderWidth: 2,
-                        pointRadius: isMobile ? 2 : 4,
-                    }]
+                    labels,
+                    datasets: [
+                        { label: 'Total API Hits', data: totalHits, borderColor: '#cbd5e1', backgroundColor: 'transparent', tension: 0.4 },
+                        { label: 'Chat Actions', data: chatHits, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', fill: true, tension: 0.4, borderWidth: 3 }
+                    ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { borderDash: [4, 4], color: '#e2e8f0' },
-                            ticks: { font: { size: 10 } }
-                        },
-                        x: { 
-                            grid: { display: false },
-                            ticks: { font: { size: 10 }, maxTicksLimit: isMobile ? 7 : 14 }
-                        }
-                    },
-                    interaction: { intersect: false, mode: 'index' }
-                }
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false } }
+            });
+
+            // 3. Plan Chart
+            if(charts.plan) charts.plan.destroy();
+            charts.plan = new Chart(document.getElementById('planChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Elite', 'Pro', 'Free'],
+                    datasets: [{ data: [eliteCount, proCount, freeCount], backgroundColor: ['#0f172a', '#0ea5e9', '#e2e8f0'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
             });
         }
 
-        async function fetchUsers() {
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-full`, { headers: { 'x-dashboard-password': dashboardPassword } });
-                allUsersData = await res.json();
-                renderUsersTable(allUsersData);
-            } catch (e) { console.error("Error fetching users:", e); }
-        }
+        // --- USER TABLE PROCESSING ---
+        function renderUsersTable() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const filter = document.getElementById('filterPlan').value;
+            const sort = document.getElementById('sortOrder').value;
 
-        function renderUsersTable(users) {
-            const tbody = document.getElementById('users-table-body');
+            let filtered = rawData.users.filter(u => {
+                const matchSearch = (u.email||'').toLowerCase().includes(query) || (u.name||'').toLowerCase().includes(query) || (u.googleId||'').includes(query);
+                const matchPlan = filter === 'all' ? true : (u.subscription?.tier || 'free') === filter;
+                return matchSearch && matchPlan;
+            });
+
+            filtered.sort((a, b) => {
+                const dA = new Date(a.createdAt).getTime();
+                const dB = new Date(b.createdAt).getTime();
+                return sort === 'newest' ? dB - dA : dA - dB;
+            });
+
+            const tbody = document.getElementById('usersTbody');
             tbody.innerHTML = '';
 
-            if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400">No users found.</td></tr>';
-                return;
-            }
-
-            users.forEach(user => {
+            filtered.forEach(u => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50/80 transition-colors';
+                tr.className = 'hover:bg-slate-50 cursor-pointer transition';
+                tr.onclick = () => openDrawer(u.googleId);
                 
-                const name = user.name || 'Unknown User';
-                const initial = name.charAt(0).toUpperCase();
-                const joined = new Date(user.createdAt).toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
-                const tierStr = (user.subscription?.tier || 'free').toUpperCase();
-                
-                // Styling based on plan
-                let badgeClass = 'bg-slate-100 text-slate-600';
-                if (tierStr === 'PRO') badgeClass = 'bg-blue-100 text-blue-700 border border-blue-200';
-                if (tierStr === 'PRO_PLUS') badgeClass = 'bg-purple-100 text-purple-700 border border-purple-200';
-                
-                const subStatus = user.subscription?.status === 'active' 
-                    ? `<span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span><span class="text-slate-600 font-medium">Active</span></span>`
-                    : `<span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span><span class="text-slate-400">Inactive</span></span>`;
+                const tier = (u.subscription?.tier || 'free').toUpperCase();
+                const status = u.subscription?.status === 'active' ? '<span class="text-green-600 font-bold">Active</span>' : 'Inactive';
+                const badge = tier === 'PRO_PLUS' ? 'bg-slate-900 text-white' : (tier === 'PRO' ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-500');
 
                 tr.innerHTML = `
                     <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="h-9 w-9 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-sm shrink-0 border border-brand-100">${initial}</div>
-                            <div class="flex flex-col">
-                                <span class="font-semibold text-slate-900">${name}</span>
-                                <span class="text-xs text-slate-500">${user.email || 'N/A'}</span>
-                            </div>
-                        </div>
+                        <div class="font-bold text-slate-800">${u.name || 'Unknown'}</div>
+                        <div class="text-xs text-slate-500">${u.email || 'No email'}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wide ${badgeClass}">${tierStr}</span>
-                        <div class="text-[11px] mt-1.5">${subStatus}</div>
+                        <span class="px-2 py-1 text-[10px] font-bold rounded ${badge}">${tier}</span>
+                        <div class="text-xs mt-1">${status}</div>
                     </td>
-                    <td class="px-6 py-4 text-slate-500 text-sm">${joined}</td>
-                    <td class="px-6 py-4">
-                        <div class="flex flex-col gap-1 text-[11px]">
-                            <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded w-fit">Free: <span class="font-bold">${user.freeUsage?.count || 0}</span>/Day</span>
-                            <span class="text-slate-600 bg-slate-100 px-2 py-0.5 rounded w-fit">Trial: <span class="font-bold">${user.trialUsage?.count || 0}</span> Sessions</span>
-                        </div>
+                    <td class="px-6 py-4 text-xs text-slate-500">
+                        Free: <b>${u.freeUsage?.count||0}</b> | Trial: <b>${u.trialUsage?.count||0}</b>
                     </td>
+                    <td class="px-6 py-4 text-xs text-slate-500">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : 'Never'}</td>
+                    <td class="px-6 py-4 text-right"><i class="fa-solid fa-chevron-right text-slate-300"></i></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function filterUsers() {
-            const query = document.getElementById('user-search').value.toLowerCase();
-            const filtered = allUsersData.filter(user => {
-                const email = (user.email || '').toLowerCase();
-                const name = (user.name || '').toLowerCase();
-                return email.includes(query) || name.includes(query);
-            });
-            renderUsersTable(filtered);
+        // --- USER DRAWER ---
+        function openDrawer(googleId) {
+            const user = rawData.users.find(u => u.googleId === googleId);
+            if(!user) return;
+
+            const content = document.getElementById('drawerContent');
+            
+            // Generate Orders HTML
+            let ordersHtml = '<p class="text-sm text-slate-400">No orders found.</p>';
+            if(user.orders && user.orders.length > 0) {
+                ordersHtml = user.orders.map(o => `
+                    <div class="flex justify-between items-center p-3 bg-white rounded border border-slate-200 mb-2">
+                        <div>
+                            <p class="text-sm font-bold">${o.tier.toUpperCase()} (${o.cycle})</p>
+                            <p class="text-xs text-slate-500 font-mono">${o.orderId}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-green-600">${o.amount} ${o.currency}</p>
+                            <p class="text-[10px] text-slate-400 uppercase">${new Date(o.date).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Generate Contexts HTML
+            let contextsHtml = '<p class="text-sm text-slate-400">No saved contexts.</p>';
+            if(user.contexts && user.contexts.length > 0) {
+                contextsHtml = user.contexts.map(c => `
+                    <div class="p-3 bg-white rounded border border-slate-200 mb-2 text-sm">
+                        <div class="flex justify-between font-bold mb-1">
+                            <span>${c.name}</span>
+                            ${c.isActive ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 rounded">ACTIVE</span>' : ''}
+                        </div>
+                        <p class="text-xs text-slate-500 truncate">${c.content}</p>
+                    </div>
+                `).join('');
+            }
+
+            content.innerHTML = `
+                <div class="flex items-center gap-4 mb-8">
+                    <img src="${user.avatarUrl || 'https://via.placeholder.com/64'}" class="w-16 h-16 rounded-full border border-slate-200">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-900">${user.name || 'Unknown'}</h3>
+                        <p class="text-sm text-slate-500">${user.email}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Google ID</p>
+                        <p class="text-sm font-mono truncate" title="${user.googleId}">${user.googleId}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-400 font-bold uppercase mb-1">Phone / Auth</p>
+                        <p class="text-sm">${user.phone || 'Not provided'}</p>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8">
+                    <h4 class="font-bold text-blue-900 mb-3 border-b border-blue-200 pb-2">Subscription Info</h4>
+                    <div class="grid grid-cols-2 gap-y-3 text-sm">
+                        <div class="text-slate-500">Current Tier:</div>
+                        <div class="font-bold text-slate-900 uppercase">${user.subscription?.tier || 'FREE'}</div>
+                        <div class="text-slate-500">Status:</div>
+                        <div class="font-bold ${user.subscription?.status === 'active' ? 'text-green-600' : 'text-slate-900'}">${(user.subscription?.status || 'inactive').toUpperCase()}</div>
+                        <div class="text-slate-500">Valid Until:</div>
+                        <div class="font-bold">${user.subscription?.validUntil ? new Date(user.subscription.validUntil).toLocaleString() : 'N/A'}</div>
+                        <div class="text-slate-500">Mic Seconds Used:</div>
+                        <div class="font-bold">${user.micUsage?.secondsUsed || 0} s</div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="font-bold text-slate-800 mb-3">Order History</h4>
+                    ${ordersHtml}
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3">AI Contexts</h4>
+                    ${contextsHtml}
+                </div>
+            `;
+            document.getElementById('userDrawer').classList.remove('translate-x-full');
         }
 
+        function closeDrawer() {
+            document.getElementById('userDrawer').classList.add('translate-x-full');
+        }
     </script>
 </body>
 </html>
