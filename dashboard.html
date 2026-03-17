@@ -142,8 +142,8 @@
                                 <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
                                     <tr>
                                         <th class="px-4 py-3">User Identity</th>
-                                        <th class="px-4 py-3">Tier</th>
-                                        <th class="px-4 py-3">Created</th>
+                                        <th class="px-4 py-3">Plan / Status</th>
+                                        <th class="px-4 py-3">Valid Until (TTL)</th>
                                         <th class="px-4 py-3 text-right">Action</th>
                                     </tr>
                                 </thead>
@@ -168,7 +168,8 @@
 
     <div id="profileModal" class="fixed inset-0 z-[200] hidden items-center justify-center px-4">
         <div class="absolute inset-0 bg-[#05080f]/90 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="glass-panel w-full max-w-3xl rounded shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
+        <div class="glass-panel w-full max-w-4xl rounded shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
+            
             <div class="p-5 border-b border-[#1e293b] bg-slate-900 flex justify-between items-start">
                 <div class="flex items-center gap-4">
                     <img id="mod-avatar" src="" alt="Avatar" class="w-12 h-12 rounded bg-slate-800 border border-[#1e293b] object-cover">
@@ -179,30 +180,67 @@
                 </div>
                 <button onclick="closeModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div class="bg-slate-900 rounded p-3 border border-[#1e293b]">
-                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Status</p>
-                        <div id="mod-tier-badge" class="mt-1">--</div>
+            
+            <div class="p-5 overflow-y-auto space-y-6">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <div class="bg-slate-900 rounded p-4 border border-[#1e293b] md:col-span-2 relative overflow-hidden">
+                        <div class="absolute right-0 top-0 h-full w-1" id="mod-integrity-bar"></div>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-bold">License Integrity & TTL</p>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <div id="mod-tier-badge" class="mb-1">--</div>
+                                <p class="text-[11px] text-slate-400 font-mono mt-2" id="mod-valid-until-text">Valid Until: --</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-500 uppercase">Time To Live</p>
+                                <p class="text-lg font-bold data-value" id="mod-ttl-countdown">--</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-slate-900 rounded p-3 border border-[#1e293b]">
-                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">IDs</p>
-                        <p class="text-xs text-brand-400 font-mono" id="mod-gid">--</p>
-                        <p class="text-[10px] text-slate-500 mt-1 font-mono" id="mod-phone">--</p>
-                    </div>
-                    <div class="bg-slate-900 rounded p-3 border border-[#1e293b]">
-                        <p class="text-[9px] text-slate-500 uppercase tracking-widest mb-1">Timeline</p>
-                        <p class="text-[10px] text-slate-300 font-mono">Join: <span id="mod-joined">--</span></p>
-                        <p class="text-[10px] text-slate-300 font-mono mt-0.5">Seen: <span id="mod-active">--</span></p>
+
+                    <div class="bg-slate-900 rounded p-4 border border-[#1e293b]">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-bold">Identity & Sync</p>
+                        <p class="text-[10px] text-brand-400 font-mono truncate" id="mod-gid" title="">--</p>
+                        <p class="text-[10px] text-slate-400 font-mono mt-1" id="mod-phone">--</p>
+                        <div class="mt-3 pt-3 border-t border-[#1e293b]">
+                            <p class="text-[9px] text-slate-500 font-mono">Join: <span id="mod-joined" class="text-slate-300">--</span></p>
+                            <p class="text-[9px] text-slate-500 font-mono mt-1">Seen: <span id="mod-active" class="text-slate-300">--</span></p>
+                        </div>
                     </div>
                 </div>
+
                 <div>
-                    <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 border-b border-[#1e293b] pb-1">Ledger</h3>
+                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-[#1e293b] pb-2">Core System Constraints</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-slate-900/50 rounded p-3 border border-[#1e293b] text-center">
+                            <p class="text-[9px] text-slate-500 uppercase">Free Payload Hits</p>
+                            <p class="text-lg font-bold text-white mt-1 font-mono" id="mod-free">0<span class="text-[10px] text-slate-600">/10</span></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded p-3 border border-[#1e293b] text-center">
+                            <p class="text-[9px] text-slate-500 uppercase">Stealth Trials Used</p>
+                            <p class="text-lg font-bold text-white mt-1 font-mono" id="mod-trial">0<span class="text-[10px] text-slate-600">/3</span></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded p-3 border border-[#1e293b] text-center">
+                            <p class="text-[9px] text-slate-500 uppercase">Vision Processing</p>
+                            <p class="text-lg font-bold text-white mt-1 font-mono" id="mod-screen">0<span class="text-[10px] text-slate-600"> OCRs</span></p>
+                        </div>
+                        <div class="bg-[#05080f] rounded p-3 border border-brand-500/30 text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-brand-500/5 opacity-50"></div>
+                            <p class="text-[9px] text-brand-400 uppercase">Audio Capture Secs</p>
+                            <p class="text-lg font-bold text-brand-300 mt-1 font-mono relative z-10" id="mod-mic">0<span class="text-[10px] text-brand-500/50">/18000</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-[#1e293b] pb-2">Financial Ledger</h3>
                     <table class="w-full text-left text-[11px] font-mono">
-                        <thead class="text-slate-600 border-b border-[#1e293b]">
-                            <tr><th class="py-2">Date</th><th>ID</th><th>Tier</th><th>Amt</th><th>Status</th></tr>
+                        <thead class="text-slate-500 border-b border-[#1e293b] bg-slate-900">
+                            <tr><th class="py-2 px-3">Date</th><th class="px-3">Order ID</th><th class="px-3">Plan/Cycle</th><th class="px-3">Amount</th><th class="px-3">Status</th></tr>
                         </thead>
-                        <tbody id="mod-orders-body" class="divide-y divide-[#1e293b] text-slate-300"></tbody>
+                        <tbody id="mod-orders-body" class="divide-y divide-[#1e293b] text-slate-300 bg-slate-900/30"></tbody>
                     </table>
                 </div>
             </div>
@@ -215,6 +253,44 @@
         let currentPage = 0;
         let trafficChart = null;
         let dowChart = null;
+
+        // --- Core Time Math Helpers ---
+        function parseDateSafely(val) {
+            if (!val) return null;
+            const d = new Date(val);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        // Calculates exact validity based on strict math, ignoring lazy database status.
+        function getLicenseIntegrity(subscription) {
+            if (!subscription || (!subscription.tier || subscription.tier === 'free')) {
+                return { isPaid: false, isActive: false, validUntil: null, ttlStr: "Lifetime Free" };
+            }
+            
+            const vDate = parseDateSafely(subscription.validUntil);
+            if (!vDate) {
+                return { isPaid: true, isActive: false, validUntil: null, ttlStr: "No Expiry Found" };
+            }
+
+            const now = new Date();
+            const msDiff = vDate.getTime() - now.getTime();
+            const isFuture = msDiff > 0;
+
+            let ttlStr = "";
+            const absDiff = Math.abs(msDiff);
+            const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            if (isFuture) {
+                if (days > 0) ttlStr = `${days}d ${hours}h remaining`;
+                else ttlStr = `${hours}h remaining`;
+            } else {
+                if (days > 0) ttlStr = `Expired ${days}d ago`;
+                else ttlStr = `Expired ${hours}h ago`;
+            }
+
+            return { isPaid: true, isActive: isFuture, validUntil: vDate, ttlStr, isTrial: !!subscription.isTrial };
+        }
 
         // Init Check
         if (adminPassword) {
@@ -296,7 +372,6 @@
 
                 renderTrafficChart(Object.keys(dateMap).sort(), Object.keys(dateMap).sort().map(k => dateMap[k]));
                 
-                // Sort DoW chart logically
                 const dowLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
                 const dowData = dowLabels.map(d => dowMap[d]);
                 renderDowChart(dowLabels, dowData);
@@ -333,24 +408,53 @@
 
                 tbody.innerHTML = '';
                 data.users.forEach(u => {
-                    const joined = new Date(u.createdAt).toISOString().split('T')[0];
+                    const integrity = getLicenseIntegrity(u.subscription);
+                    
                     const tierLabel = u.subscription?.tier === 'pro_plus' ? 'ELITE' : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
                     const tierColor = tierLabel === 'ELITE' ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
-                    const statColor = u.subscription?.status === 'active' ? 'bg-emerald-500' : 'bg-slate-600';
+                    
+                    // True real-time status color based on math, NOT just db status
+                    let statColor = 'bg-slate-600'; // Default free/inactive
+                    let statText = 'INACTIVE';
+                    
+                    if (integrity.isPaid) {
+                        if (integrity.isActive) {
+                            statColor = integrity.isTrial ? 'bg-amber-500' : 'bg-emerald-500';
+                            statText = integrity.isTrial ? 'TRIAL (ACTIVE)' : 'PAID (ACTIVE)';
+                        } else {
+                            statColor = 'bg-red-500';
+                            statText = 'EXPIRED';
+                        }
+                    }
+
+                    // Formatting the Valid Until column
+                    let validHtml = `<span class="text-slate-600">--</span>`;
+                    if (integrity.isPaid && integrity.validUntil) {
+                        const dateStr = integrity.validUntil.toISOString().split('T')[0];
+                        const timeStr = integrity.validUntil.toISOString().split('T')[1].substring(0,5);
+                        validHtml = `
+                            <div class="${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}">${dateStr} ${timeStr}</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">${integrity.ttlStr}</div>
+                        `;
+                    }
+
                     const gId = u.googleId ? `'${u.googleId}'` : 'null';
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-800/20 transition group">
                             <td class="px-4 py-3">
                                 <div class="font-mono text-white text-[11px]">${u.email || 'N/A'}</div>
-                                <div class="text-[10px] text-slate-500">${u.name || 'Unknown'}</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5">${u.name || 'Unknown'}</div>
                             </td>
-                            <td class="px-4 py-3 font-mono text-[10px] font-bold ${tierColor} flex items-center gap-1.5 mt-1">
-                                <div class="w-1.5 h-1.5 rounded-full ${statColor}"></div> ${tierLabel}
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[10px] font-bold ${tierColor}">${tierLabel}</div>
+                                <div class="font-mono text-[9px] text-slate-400 flex items-center gap-1.5 mt-1">
+                                    <div class="w-1.5 h-1.5 rounded-full ${statColor}"></div> ${statText}
+                                </div>
                             </td>
-                            <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${joined}</td>
+                            <td class="px-4 py-3 font-mono text-[10px]">${validHtml}</td>
                             <td class="px-4 py-3 text-right">
-                                <button onclick="openProfile(${gId})" class="text-slate-500 hover:text-white border border-[#1e293b] px-2 py-1 rounded bg-slate-900"><i class="fa-solid fa-folder-open"></i></button>
+                                <button onclick="openProfile(${gId})" class="text-slate-500 hover:text-brand-400 border border-[#1e293b] px-2 py-1 rounded bg-slate-900 transition"><i class="fa-solid fa-folder-open"></i></button>
                             </td>
                         </tr>`;
                 });
@@ -363,37 +467,84 @@
             if(!googleId) return;
             document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('flex');
+            document.getElementById('mod-name').innerHTML = 'Querying Node...';
             
             try {
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const u = await res.json();
                 
+                document.getElementById('mod-avatar').src = u.avatarUrl || 'https://via.placeholder.com/150/0f172a/38bdf8?text=USR';
                 document.getElementById('mod-name').innerText = u.name || 'Unknown User';
                 document.getElementById('mod-email').innerText = u.email || 'No email';
                 document.getElementById('mod-gid').innerText = u.googleId;
-                document.getElementById('mod-joined').innerText = new Date(u.createdAt).toISOString().split('T')[0];
+                document.getElementById('mod-phone').innerText = u.phone || 'No phone';
                 
-                const tier = u.subscription?.tier?.toUpperCase() || 'FREE';
-                const status = u.subscription?.status || 'inactive';
-                document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold ${tier === 'PRO_PLUS' ? 'text-emerald-400' : 'text-blue-400'}">${tier} [${status.toUpperCase()}]</span>`;
+                document.getElementById('mod-joined').innerText = u.createdAt ? new Date(u.createdAt).toISOString().replace('T', ' ').substring(0,16) : '--';
+                document.getElementById('mod-active').innerText = u.lastLogin ? new Date(u.lastLogin).toISOString().replace('T', ' ').substring(0,16) : '--';
                 
+                // Integrity & TTL Math
+                const integrity = getLicenseIntegrity(u.subscription);
+                
+                let tierHtml = `<span class="font-mono text-xs font-bold text-slate-500 uppercase">FREE TIER</span>`;
+                let barColor = 'bg-slate-700';
+                
+                if (integrity.isPaid) {
+                    const tName = u.subscription.tier === 'pro_plus' ? 'ELITE' : 'PRO';
+                    const tColor = u.subscription.tier === 'pro_plus' ? 'text-emerald-400' : 'text-blue-400';
+                    const sColor = integrity.isActive ? (integrity.isTrial ? 'text-amber-400' : 'text-emerald-400') : 'text-red-500';
+                    const sText = integrity.isActive ? (integrity.isTrial ? '[ACTIVE TRIAL]' : '[ACTIVE LICENSE]') : '[EXPIRED OVERRIDE]';
+                    
+                    barColor = integrity.isActive ? 'bg-emerald-500' : 'bg-red-500';
+                    tierHtml = `<span class="font-mono text-xs font-bold ${tColor}">${tName}</span> <span class="font-mono text-[10px] ${sColor} ml-2">${sText}</span>`;
+                }
+                
+                document.getElementById('mod-integrity-bar').className = `absolute right-0 top-0 h-full w-1 ${barColor}`;
+                document.getElementById('mod-tier-badge').innerHTML = tierHtml;
+                
+                if (integrity.validUntil) {
+                    document.getElementById('mod-valid-until-text').innerHTML = `Valid Until: <span class="text-white">${integrity.validUntil.toISOString().replace('T', ' ').substring(0,16)} UTC</span>`;
+                    document.getElementById('mod-ttl-countdown').innerText = integrity.ttlStr;
+                    document.getElementById('mod-ttl-countdown').className = `text-lg font-bold data-value ${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}`;
+                } else {
+                    document.getElementById('mod-valid-until-text').innerHTML = `Valid Until: <span class="text-slate-600">N/A</span>`;
+                    document.getElementById('mod-ttl-countdown').innerText = "N/A";
+                    document.getElementById('mod-ttl-countdown').className = `text-lg font-bold data-value text-slate-600`;
+                }
+
+                // Core System Limits Mapping
+                document.getElementById('mod-free').innerHTML = `${u.freeUsage?.count || 0}<span class="text-[10px] text-slate-600">/10</span>`;
+                document.getElementById('mod-trial').innerHTML = `${u.trialUsage?.count || 0}<span class="text-[10px] text-slate-600">/3</span>`;
+                document.getElementById('mod-screen').innerHTML = `${u.screenshotUsage?.count || 0}<span class="text-[10px] text-slate-600"> OCRs</span>`;
+                document.getElementById('mod-mic').innerHTML = `${u.micUsage?.secondsUsed || 0}<span class="text-[10px] text-brand-500/50">/18000</span>`;
+
+                // Financials
                 const tBody = document.getElementById('mod-orders-body');
                 tBody.innerHTML = '';
                 if(u.orders && u.orders.length > 0) {
                     u.orders.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(o => {
                         const amt = o.currency === 'INR' ? `₹${o.amount}` : `$${o.amount}`;
-                        tBody.innerHTML += `<tr><td class="py-2">${new Date(o.date).toISOString().split('T')[0]}</td><td class="text-[9px] text-slate-500">${o.orderId.substring(0,9)}..</td><td class="uppercase text-white">${o.tier}</td><td>${amt}</td><td class="${o.status==='paid'?'text-emerald-400':'text-red-400'} uppercase">${o.status}</td></tr>`;
+                        const statColor = o.status === 'paid' ? 'text-emerald-400' : 'text-red-400';
+                        tBody.innerHTML += `<tr>
+                            <td class="py-2 px-3">${new Date(o.date).toISOString().split('T')[0]}</td>
+                            <td class="px-3 text-[9px] text-slate-500">${o.orderId.substring(0,12)}..</td>
+                            <td class="px-3 uppercase text-white">${o.tier} <span class="text-[9px] text-slate-500">(${o.cycle})</span></td>
+                            <td class="px-3 text-white">${amt}</td>
+                            <td class="px-3 ${statColor} uppercase font-bold text-[9px]">${o.status}</td>
+                        </tr>`;
                     });
                 } else {
-                    tBody.innerHTML = `<tr><td colspan="5" class="py-4 text-slate-500">No records.</td></tr>`;
+                    tBody.innerHTML = `<tr><td colspan="5" class="py-6 px-3 text-center text-slate-600 italic">No financial ledger entries.</td></tr>`;
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e);
+                document.getElementById('mod-name').innerText = "Decryption Failed"; 
+            }
         }
 
         function closeModal() { document.getElementById('profileModal').classList.add('hidden'); document.getElementById('profileModal').classList.remove('flex'); }
 
         // CHARTS (Chart.js defaults customized for dark mode)
-        Chart.defaults.color = '#64748b';
+        Chart.defaults.color = '#475569';
         Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
         function renderTrafficChart(labels, data) {
