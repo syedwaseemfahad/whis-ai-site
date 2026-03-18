@@ -1272,38 +1272,11 @@
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
      
-    // HELPER FUNCTION: DETECT IN-APP BROWSER
-    function isInAppBrowser() {
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        return (ua.indexOf("Instagram") > -1 || ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1);
-    }
-
-    // UPDATED FUNCTION: Uses Redirect in Instagram, Popup in normal browsers
     function openLoginModal(){
-        loginModal.classList.remove('hidden'); 
-        loginModal.classList.add('flex');
-        
-        const btnContainer = document.getElementById("googleBtnContainer");
-        btnContainer.innerHTML = ''; 
-
+        loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         if(window.google && GOOGLE_CLIENT_ID){
-            const authConfig = {
-                client_id: GOOGLE_CLIENT_ID,
-            };
-            
-            if (isInAppBrowser()) {
-                authConfig.ux_mode = 'redirect';
-                authConfig.login_uri = `${BACKEND_URL}/api/auth/google/redirect`; 
-            } else {
-                authConfig.ux_mode = 'popup';
-                authConfig.callback = handleGoogleRes;
-            }
-
-            google.accounts.id.initialize(authConfig);
-            google.accounts.id.renderButton(
-                btnContainer,
-                {theme:"filled_black", size:"large", shape:"pill", width: "250"}
-            );
+            google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
+            google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
         }
     }
      
@@ -1443,23 +1416,6 @@
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
     document.addEventListener("DOMContentLoaded", () => {
-        // --- 1. CATCH THE REDIRECT WHEN GOOGLE SENDS THEM BACK ---
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('auth_success') === 'true') {
-            const userStr = urlParams.get('user');
-            if(userStr) {
-                try {
-                    const userObj = JSON.parse(decodeURIComponent(userStr));
-                    localStorage.setItem('whisUser', JSON.stringify(userObj));
-                    currentUser = userObj;
-                    updateNavUI(currentUser);
-                    fetchUserStatus();
-                    // Clean the URL so it looks normal again
-                    window.history.replaceState({}, document.title, "/"); 
-                } catch(e) { console.error("Redirect Auth Error", e); }
-            }
-        }
-
         initCarousel();
         initUptimeCounter();
         typeCode();
