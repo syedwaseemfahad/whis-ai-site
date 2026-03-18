@@ -1278,30 +1278,28 @@
         return (ua.indexOf("Instagram") > -1 || ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1);
     }
 
-    // UPDATED FUNCTION
+    // UPDATED FUNCTION: Uses Redirect in Instagram, Popup in normal browsers
     function openLoginModal(){
         loginModal.classList.remove('hidden'); 
         loginModal.classList.add('flex');
         
         const btnContainer = document.getElementById("googleBtnContainer");
         btnContainer.innerHTML = ''; 
-        
-        if(isInAppBrowser()) {
-            btnContainer.classList.remove('h-[50px]', 'overflow-hidden');
-            btnContainer.innerHTML = `
-                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-sm text-left">
-                    <p class="font-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> In-App Browser Detected</p>
-                    <p>Google Sign-In is blocked by Instagram. Please tap the <strong>3 dots</strong> in the top corner and select <strong>"Open in system browser"</strong> (Chrome/Safari) to sign in.</p>
-                </div>
-            `;
-            return;
-        }
 
         if(window.google && GOOGLE_CLIENT_ID){
-            google.accounts.id.initialize({
+            const authConfig = {
                 client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleRes
-            });
+            };
+            
+            if (isInAppBrowser()) {
+                authConfig.ux_mode = 'redirect';
+                authConfig.login_uri = `${BACKEND_URL}/api/auth/google/redirect`; 
+            } else {
+                authConfig.ux_mode = 'popup';
+                authConfig.callback = handleGoogleRes;
+            }
+
+            google.accounts.id.initialize(authConfig);
             google.accounts.id.renderButton(
                 btnContainer,
                 {theme:"filled_black", size:"large", shape:"pill", width: "250"}
@@ -1445,6 +1443,23 @@
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // --- 1. CATCH THE REDIRECT WHEN GOOGLE SENDS THEM BACK ---
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('auth_success') === 'true') {
+            const userStr = urlParams.get('user');
+            if(userStr) {
+                try {
+                    const userObj = JSON.parse(decodeURIComponent(userStr));
+                    localStorage.setItem('whisUser', JSON.stringify(userObj));
+                    currentUser = userObj;
+                    updateNavUI(currentUser);
+                    fetchUserStatus();
+                    // Clean the URL so it looks normal again
+                    window.history.replaceState({}, document.title, "/"); 
+                } catch(e) { console.error("Redirect Auth Error", e); }
+            }
+        }
+
         initCarousel();
         initUptimeCounter();
         typeCode();
