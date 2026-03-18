@@ -1272,15 +1272,51 @@
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
      
-    function openLoginModal(){
+function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
-        if(window.google && GOOGLE_CLIENT_ID){
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                ux_mode: "redirect",
-                login_uri: `${BACKEND_URL}/api/auth/google/redirect`
-            });
-            google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
+        
+        const container = document.getElementById("googleBtnContainer");
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isInAppBrowser = (ua.indexOf('Instagram') > -1) || (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1);
+
+        if (isInAppBrowser) {
+            // 1. If inside Instagram, remove the height restriction so the message fits
+            container.classList.remove('h-[50px]');
+            
+            // 2. Show the "Escape Instagram" instructions
+            container.innerHTML = `
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-left shadow-inner">
+                    <div class="flex items-center gap-2 text-red-500 font-bold mb-3 text-sm">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Instagram Browser Detected
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                        Instagram blocks secure Google logins. To sign in and access Whis-AI, please switch to your main browser:
+                    </p>
+                    <ol class="text-xs text-slate-800 font-medium space-y-2 pl-1">
+                        <li class="flex items-start gap-2">
+                            <span class="bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            Tap the <strong>three dots (...)</strong> at the top right corner of your screen.
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            Select <strong>"Open in system browser"</strong> or <strong>"Open in Chrome/Safari"</strong>.
+                        </li>
+                    </ol>
+                </div>
+            `;
+        } else {
+            // 3. Normal Desktop / Native Browser flow
+            container.innerHTML = ''; 
+            container.classList.add('h-[50px]'); 
+            
+            if(window.google && GOOGLE_CLIENT_ID){
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    ux_mode: "redirect",
+                    login_uri: `${BACKEND_URL}/api/auth/google/redirect`
+                });
+                google.accounts.id.renderButton(container, {theme:"filled_black", size:"large", shape:"pill", width: "250"});
+            }
         }
     }
      
