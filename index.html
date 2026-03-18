@@ -1275,7 +1275,11 @@
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         if(window.google && GOOGLE_CLIENT_ID){
-            google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                ux_mode: "redirect",
+                login_uri: `${BACKEND_URL}/api/auth/google/redirect`
+            });
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
         }
     }
@@ -1416,13 +1420,33 @@
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
     document.addEventListener("DOMContentLoaded", () => {
+        // Catch redirect URL parameters from the backend Google Auth success
+        const urlParams = new URLSearchParams(window.location.search);
+        const authSuccess = urlParams.get('auth_success');
+        const authError = urlParams.get('auth_error');
+        const userStr = urlParams.get('user');
+
+        if (authSuccess === 'true' && userStr) {
+            try {
+                const decodedUserStr = decodeURIComponent(userStr);
+                localStorage.setItem('whisUser', decodedUserStr);
+                // Clean the URL out so the user doesn't see a giant string of text in the search bar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } catch (e) {
+                console.error("Failed to parse user from URL", e);
+            }
+        } else if (authError) {
+            console.error("Auth failed:", authError);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         initCarousel();
         initUptimeCounter();
         typeCode();
         typeEffect();
         typeHeroSequence(); 
         initSliderAutoPlay();
-        checkUser();
+        checkUser(); // This automatically pulls the newly saved user from localStorage
         fetchPricingConfig();
         
         setCycle('monthly');
