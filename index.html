@@ -1,45 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-
-  <script>
-    (function checkAndEscapeInstagram() {
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isInstagram = (ua.indexOf('Instagram') > -1) || (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1);
-        
-        if (!isInstagram) return; // User is in a normal browser, let them proceed normally
-
-        const isAndroid = /android/i.test(ua);
-        // Get your website's URL without the https:// part
-        const currentUrl = window.location.href.replace(/^https?:\/\//, '');
-
-        if (isAndroid) {
-            // 🪄 MAGIC TRICK FOR ANDROID: Force open native Google Chrome
-            window.location.href = `intent://${currentUrl}#Intent;scheme=https;package=com.android.chrome;end`;
-        } else {
-            // 🛑 HARD BLOCK FOR iOS: Hide the website and force them to click the 3 dots
-            document.addEventListener("DOMContentLoaded", () => {
-                document.body.innerHTML = `
-                    <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0f172a;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;padding:20px;font-family:sans-serif;">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:20px;">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                            <line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
-                        </svg>
-                        <h1 style="font-size:24px;font-weight:bold;margin-bottom:10px;">Action Required</h1>
-                        <p style="font-size:16px;color:#cbd5e1;margin-bottom:30px;line-height:1.5;">Instagram blocks secure Google logins. You must open this page in Safari to access Whis-AI.</p>
-                        <div style="background:#1e293b;padding:20px;border-radius:12px;text-align:left;width:100%;max-width:350px;box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                            <p style="margin:0 0 15px 0;font-weight:bold;color:#38bdf8;">How to fix this instantly:</p>
-                            <ol style="margin:0;padding-left:20px;color:#94a3b8;line-height:1.8;">
-                                <li>Tap the <strong>three dots (...)</strong> at the very top right of your screen.</li>
-                                <li>Select <strong style="color:white;">"Open in system browser"</strong> or <strong style="color:white;">"Open in Safari"</strong>.</li>
-                            </ol>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-    })();
-</script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -1311,14 +1272,10 @@
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
      
-function openLoginModal(){
+    function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         if(window.google && GOOGLE_CLIENT_ID){
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                ux_mode: "redirect", // This is the magic word that fixes Instagram
-                login_uri: `${BACKEND_URL}/api/auth/google/redirect` // Sends them to your backend
-            });
+            google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleRes});
             google.accounts.id.renderButton(document.getElementById("googleBtnContainer"),{theme:"filled_black",size:"large",shape:"pill", width: "250"});
         }
     }
@@ -1458,36 +1415,16 @@ function openLoginModal(){
     function startChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval = setInterval(fetchChatHistory, 3000); }
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
-document.addEventListener("DOMContentLoaded", () => {
-        // --- NEW: Catch Google Auth Redirect from backend ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const authSuccess = urlParams.get('auth_success');
-        const userStr = urlParams.get('user');
-
-        if (authSuccess === 'true' && userStr) {
-            try {
-                // Decode the user data from the URL and save it
-                const decodedUserStr = decodeURIComponent(userStr);
-                localStorage.setItem('whisUser', decodedUserStr);
-                
-                // Clean the URL bar so it looks nice and neat
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } catch (e) {
-                console.error("Failed to parse user from URL", e);
-            }
-        }
-        // -----------------------------------------------------
-
+    document.addEventListener("DOMContentLoaded", () => {
         initCarousel();
         initUptimeCounter();
         typeCode();
         typeEffect();
         typeHeroSequence(); 
         initSliderAutoPlay();
-        
-        checkUser(); // This will now automatically log the user in if they just returned!
-        
+        checkUser();
         fetchPricingConfig();
+        
         setCycle('monthly');
     });
   </script>
