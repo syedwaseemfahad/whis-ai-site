@@ -1458,26 +1458,25 @@ function openLoginModal(){
     function startChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval = setInterval(fetchChatHistory, 3000); }
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        // Catch redirect URL parameters from the backend Google Auth success
+document.addEventListener("DOMContentLoaded", () => {
+        // --- NEW: Catch Google Auth Redirect from backend ---
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth_success');
-        const authError = urlParams.get('auth_error');
         const userStr = urlParams.get('user');
 
         if (authSuccess === 'true' && userStr) {
             try {
+                // Decode the user data from the URL and save it
                 const decodedUserStr = decodeURIComponent(userStr);
                 localStorage.setItem('whisUser', decodedUserStr);
-                // Clean the URL out so the user doesn't see a giant string of text in the search bar
+                
+                // Clean the URL bar so it looks nice and neat
                 window.history.replaceState({}, document.title, window.location.pathname);
             } catch (e) {
                 console.error("Failed to parse user from URL", e);
             }
-        } else if (authError) {
-            console.error("Auth failed:", authError);
-            window.history.replaceState({}, document.title, window.location.pathname);
         }
+        // -----------------------------------------------------
 
         initCarousel();
         initUptimeCounter();
@@ -1485,9 +1484,10 @@ function openLoginModal(){
         typeEffect();
         typeHeroSequence(); 
         initSliderAutoPlay();
-        checkUser(); // This automatically pulls the newly saved user from localStorage
-        fetchPricingConfig();
         
+        checkUser(); // This will now automatically log the user in if they just returned!
+        
+        fetchPricingConfig();
         setCycle('monthly');
     });
   </script>
