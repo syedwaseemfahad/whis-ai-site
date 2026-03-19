@@ -33,6 +33,7 @@
         .hidden-tab { display: none !important; }
         .data-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
         input, select { font-family: 'Inter', sans-serif; }
+        .grid-dots { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 20px 20px; }
     </style>
 </head>
 <body class="h-[100dvh] flex overflow-hidden w-full">
@@ -62,6 +63,9 @@
                 <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition">
                     <i class="fa-solid fa-database w-4"></i> Directory
                 </button>
+                <button onclick="switchTab('ops')" id="nav-ops" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-headset w-4"></i> Operations
+                </button>
             </nav>
             <div class="p-4 border-t border-[#1e293b] text-[10px] text-slate-500 flex justify-between items-center font-mono uppercase">
                 <span>Sys_Online</span>
@@ -90,24 +94,50 @@
                 <div id="tab-overview" class="tab-content flex flex-col gap-6">
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="glass-panel rounded p-4 border-l-2 border-l-brand-500 relative">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Identity Base</p>
-                            <h3 class="text-2xl data-value text-white" id="stat-users">--</h3>
-                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-conv">--% Conv</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                <span>Live MRR</span>
+                                <i class="fa-solid fa-money-bill-trend-up text-brand-400"></i>
+                            </p>
+                            <h3 class="text-2xl data-value text-white" id="stat-mrr">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-arpu">ARPU: --</p>
                         </div>
                         <div class="glass-panel rounded p-4 border-l-2 border-l-emerald-500 relative">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Active Licenses</p>
-                            <h3 class="text-2xl data-value text-emerald-400" id="stat-paid-total">--</h3>
-                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-split">E:0 | P:0</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Realized Rev (Period)</p>
+                            <h3 class="text-2xl data-value text-emerald-400" id="stat-realized-rev">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Normalized to USD</p>
                         </div>
-                        <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500 relative">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Period Revenue</p>
-                            <h3 class="text-2xl data-value text-amber-400" id="stat-rev">--</h3>
-                            <p class="text-[9px] text-amber-500/50 font-mono absolute bottom-4 right-4" id="stat-rev-period">--</p>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-red-500 relative grid-dots">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Estimated AI COGS</p>
+                            <h3 class="text-2xl data-value text-red-400" id="stat-ai-cost">--</h3>
+                            <p class="text-[9px] text-red-500/50 font-mono absolute bottom-4 right-4" id="stat-ai-period">--</p>
                         </div>
                         <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500 relative">
-                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Audio Processed (Month)</p>
-                            <h3 class="text-2xl data-value text-purple-400" id="stat-mic">--</h3>
-                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Live Audio</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Gross Margin</p>
+                            <h3 class="text-2xl data-value text-purple-400" id="stat-margin">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4 italic">Target > 85%</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Identity Base</p>
+                            <h3 class="text-xl data-value text-white" id="stat-users">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-conv">--% Conv</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Active Licenses</p>
+                            <h3 class="text-xl data-value text-slate-300" id="stat-paid-total">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-split">E:0 | P:0</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Audio Minutes</p>
+                            <h3 class="text-xl data-value text-slate-300" id="stat-mic">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Live Capture</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Daily Signups (Avg)</p>
+                            <h3 class="text-xl data-value text-slate-300" id="stat-avg-signups">--</h3>
+                            <p class="text-[9px] text-brand-500 font-mono absolute bottom-4 right-4">Velocity</p>
                         </div>
                     </div>
 
@@ -126,7 +156,6 @@
                 </div>
 
                 <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full">
-                    
                     <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
                         <div class="relative w-full md:w-1/3">
                             <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
@@ -145,7 +174,6 @@
                                 <option value="inactive">Inactive</option>
                             </select>
                             <button onclick="applyFilters()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition">Apply</button>
-                            
                             <button onclick="exportToCSV()" class="bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-4 py-2 rounded text-xs font-semibold border border-emerald-900/50 transition flex items-center gap-2">
                                 <i class="fa-solid fa-download"></i> Export CSV
                             </button>
@@ -163,8 +191,7 @@
                                         <th class="px-4 py-3 text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-[#1e293b]" id="users-table-body">
-                                </tbody>
+                                <tbody class="divide-y divide-[#1e293b]" id="users-table-body"></tbody>
                             </table>
                         </div>
                     </div>
@@ -175,6 +202,36 @@
                             <button onclick="changePage(-1)" id="btn-prev" class="px-3 py-1 bg-slate-900 border border-[#1e293b] rounded hover:text-white disabled:opacity-50">Prev</button>
                             <button onclick="changePage(1)" id="btn-next" class="px-3 py-1 bg-slate-900 border border-[#1e293b] rounded hover:text-white disabled:opacity-50">Next</button>
                         </div>
+                    </div>
+                </div>
+
+                <div id="tab-ops" class="tab-content hidden-tab flex flex-col gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-panel rounded flex flex-col h-[400px]">
+                            <div class="p-4 border-b border-[#1e293b] flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Active Incident Reports</h3>
+                                <span class="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-[9px] font-mono">LIVE FEED</span>
+                            </div>
+                            <div class="overflow-y-auto no-scrollbar flex-1" id="ops-reports-feed">
+                                <div class="p-8 text-center text-slate-600 italic text-xs">Awaiting telemetry...</div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded flex flex-col h-[400px]">
+                            <div class="p-4 border-b border-[#1e293b] flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Opportunities</h3>
+                                <i class="fa-solid fa-building text-slate-600"></i>
+                            </div>
+                            <div class="overflow-y-auto no-scrollbar flex-1" id="ops-enterprise-feed">
+                                <div class="p-8 text-center text-slate-600 italic text-xs">No pending outreach.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded p-5">
+                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Marketing Campaign Performance</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="ops-coupon-stats">
+                            </div>
                     </div>
                 </div>
 
@@ -198,9 +255,7 @@
             </div>
             
             <div class="p-5 overflow-y-auto space-y-6">
-                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    
                     <div class="bg-slate-900 rounded p-4 border border-[#1e293b] md:col-span-2 relative overflow-hidden">
                         <div class="absolute right-0 top-0 h-full w-1" id="mod-integrity-bar"></div>
                         <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-bold">License Integrity & TTL</p>
@@ -273,7 +328,7 @@
         let loadedDateRangeArray = []; 
         let loadedUsersForCSV = [];
 
-        // --- Formatter ---
+        // --- Formatters ---
         function formatSeconds(seconds) {
             if (!seconds) return "0s";
             if (seconds < 60) return `${seconds}s`;
@@ -293,33 +348,21 @@
             if (!subscription || (!subscription.tier || subscription.tier === 'free')) {
                 return { isPaid: false, isActive: false, validUntil: null, ttlStr: "Lifetime Free" };
             }
-            
             const vDate = parseDateSafely(subscription.validUntil);
-            if (!vDate) {
-                return { isPaid: true, isActive: false, validUntil: null, ttlStr: "No Expiry Found" };
-            }
-
+            if (!vDate) return { isPaid: true, isActive: false, validUntil: null, ttlStr: "No Expiry Found" };
             const now = new Date();
             const msDiff = vDate.getTime() - now.getTime();
             const isFuture = msDiff > 0;
-
             let ttlStr = "";
             const absDiff = Math.abs(msDiff);
             const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-            if (isFuture) {
-                if (days > 0) ttlStr = `${days}d ${hours}h remaining`;
-                else ttlStr = `${hours}h remaining`;
-            } else {
-                if (days > 0) ttlStr = `Expired ${days}d ago`;
-                else ttlStr = `Expired ${hours}h ago`;
-            }
-
+            if (isFuture) ttlStr = days > 0 ? `${days}d ${hours}h remaining` : `${hours}h remaining`;
+            else ttlStr = days > 0 ? `Expired ${days}d ago` : `Expired ${hours}h ago`;
             return { isPaid: true, isActive: isFuture, validUntil: vDate, ttlStr, isTrial: !!subscription.isTrial };
         }
 
-        // Init Check
+        // --- Authentication ---
         if (adminPassword) {
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('adminDashboard').classList.remove('hidden');
@@ -344,6 +387,7 @@
         }
         function logoutAdmin() { sessionStorage.removeItem('whisAdminPwd'); location.reload(); }
 
+        // --- Navigation ---
         function toggleMobileSidebar() { document.getElementById('sidebarPanel').classList.toggle('-translate-x-full'); }
 
         function switchTab(tab) {
@@ -356,48 +400,64 @@
             const active = document.getElementById(`nav-${tab}`);
             active.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]";
             active.querySelector('i').classList.add('text-brand-400');
-            document.getElementById('header-title').innerText = tab === 'overview' ? 'Executive Overview' : 'Database Search';
+            
+            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)' };
+            document.getElementById('header-title').innerText = titles[tab] || 'Dashboard';
+            
             if(tab === 'users' && currentPage === 0) fetchUsersList();
+            if(tab === 'ops') fetchOpsTelemetry();
         }
 
-        // INTERACTIVE DRILL DOWN FUNCTION
         function drillDownToDate(dateString) {
-            document.getElementById('filter-search').value = dateString; // Plug date into search
-            switchTab('users'); // Jump to tab
-            applyFilters();     // Auto search
+            document.getElementById('filter-search').value = dateString;
+            switchTab('users');
+            applyFilters();
         }
 
+        // --- Data Fetching ---
         async function initDashboard() {
-            fetchSummary();
+            const daysToFetch = document.getElementById('timeRangeSelect').value;
+            fetchSummary(daysToFetch);
+            fetchFinancialIntelligence(daysToFetch);
             if(!document.getElementById('tab-users').classList.contains('hidden-tab')) fetchUsersList();
+            if(!document.getElementById('tab-ops').classList.contains('hidden-tab')) fetchOpsTelemetry();
         }
 
-        async function fetchSummary() {
+        async function fetchFinancialIntelligence(daysToFetch) {
             try {
-                const daysToFetch = document.getElementById('timeRangeSelect').value;
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/financial-intelligence?days=${daysToFetch}`, { 
+                    headers: { 'x-dashboard-password': adminPassword } 
+                });
+                const data = await res.json();
+                const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+                
+                document.getElementById('stat-mrr').innerText = formatter.format(data.liveMRR);
+                document.getElementById('stat-arpu').innerText = `ARPU: ${formatter.format(data.arpu)}`;
+                document.getElementById('stat-realized-rev').innerText = formatter.format(data.periodRealizedRevenueUSD);
+                document.getElementById('stat-ai-cost').innerText = formatter.format(data.estimatedAiCogsUSD);
+                document.getElementById('stat-ai-period').innerText = `LAST ${daysToFetch} DAYS`;
+                
+                const marginEl = document.getElementById('stat-margin');
+                marginEl.innerText = `${data.grossMarginPercent.toFixed(1)}%`;
+                if(data.grossMarginPercent < 60) marginEl.className = "text-2xl data-value text-red-500";
+                else if(data.grossMarginPercent < 80) marginEl.className = "text-2xl data-value text-amber-500";
+                else marginEl.className = "text-2xl data-value text-purple-400";
+            } catch(e) { console.error("Fin Intel Error:", e); }
+        }
 
+        async function fetchSummary(daysToFetch) {
+            try {
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/summary?days=${daysToFetch}`, { headers: { 'x-dashboard-password': adminPassword } });
                 if(res.status === 401) logoutAdmin();
                 const data = await res.json();
                 
-                // KPIs
                 document.getElementById('stat-users').innerText = (data.totalUsers || 0).toLocaleString();
                 document.getElementById('stat-paid-total').innerText = (data.totalPaid || 0).toLocaleString();
                 document.getElementById('stat-paid-split').innerText = `E:${data.eliteCount || 0} | P:${data.proCount || 0}`;
                 document.getElementById('stat-conv').innerText = data.totalUsers > 0 ? ((data.totalPaid / data.totalUsers) * 100).toFixed(1) + "% Conv" : "0% Conv";
                 document.getElementById('stat-mic').innerText = formatSeconds(data.totalMicSecondsThisMonth);
-                
-                let revString = "$0";
-                if(data.revenueStats && data.revenueStats.length > 0) {
-                    const inr = data.revenueStats.find(r => r._id === 'INR')?.total || 0;
-                    const usd = data.revenueStats.find(r => r._id === 'USD')?.total || 0;
-                    if(inr > 0) revString = `₹${inr.toLocaleString()}`;
-                    if(usd > 0) revString += (inr > 0 ? ` + $${usd.toLocaleString()}` : `$${usd.toLocaleString()}`);
-                }
-                document.getElementById('stat-rev').innerText = revString;
-                document.getElementById('stat-rev-period').innerText = `LAST ${daysToFetch} DAYS`;
+                document.getElementById('stat-avg-signups').innerText = (data.dailySignups.length > 0 ? (data.dailySignups.reduce((a,b)=>a+b.count,0)/data.dailySignups.length).toFixed(1) : 0);
 
-                // Build consistent timeline array based on dropdown selection
                 loadedDateRangeArray = [];
                 for(let i = daysToFetch - 1; i >= 0; i--) {
                     const d = new Date();
@@ -405,43 +465,58 @@
                     loadedDateRangeArray.push(d.toISOString().slice(0,10));
                 }
 
-                // Map data sets
-                const signupsData = loadedDateRangeArray.map(date => {
-                    const found = data.dailySignups.find(x => x._id === date);
-                    return found ? found.count : 0;
-                });
-                const upgradesData = loadedDateRangeArray.map(date => {
-                    const found = data.dailyUpgrades.find(x => x._id === date);
-                    return found ? found.count : 0;
-                });
-                
-                const chatData = loadedDateRangeArray.map(date => {
-                    const found = data.metrics.find(x => x._id === date);
-                    return found ? found.chat : 0;
-                });
-                const transcribeData = loadedDateRangeArray.map(date => {
-                    const found = data.metrics.find(x => x._id === date);
-                    return found ? found.transcribe : 0;
-                });
+                const signupsData = loadedDateRangeArray.map(date => (data.dailySignups.find(x => x._id === date)?.count || 0));
+                const upgradesData = loadedDateRangeArray.map(date => (data.dailyUpgrades.find(x => x._id === date)?.count || 0));
+                const chatData = loadedDateRangeArray.map(date => (data.metrics.find(x => x._id === date)?.chat || 0));
+                const transcribeData = loadedDateRangeArray.map(date => (data.metrics.find(x => x._id === date)?.transcribe || 0));
 
-                // Render Charts
                 renderAcquisitionChart(loadedDateRangeArray, signupsData, upgradesData);
                 renderLoadChart(loadedDateRangeArray, chatData, transcribeData);
-
             } catch(e) { console.error(e); }
         }
 
-        function applyFilters() {
-            currentPage = 0;
-            fetchUsersList();
+        async function fetchOpsTelemetry() {
+            try {
+                // Fetch Reports
+                const repRes = await fetch(`${BACKEND_URL}/api/report`, { headers: { 'x-dashboard-password': adminPassword } });
+                const reports = await repRes.json();
+                const feed = document.getElementById('ops-reports-feed');
+                feed.innerHTML = reports.length ? '' : '<div class="p-8 text-center text-slate-600 italic text-xs">Awaiting telemetry...</div>';
+                reports.slice(0, 10).forEach(r => {
+                    feed.innerHTML += `
+                        <div class="p-4 border-b border-[#1e293b] hover:bg-slate-800/20">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] text-brand-400 font-mono">${r.userEmail || 'Anon'}</span>
+                                <span class="text-[9px] text-slate-600 font-mono">${new Date(r.createdAt).toLocaleTimeString()}</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed">${r.message}</p>
+                        </div>`;
+                });
+
+                // Fetch Enterprise Queries
+                const entRes = await fetch(`${BACKEND_URL}/api/enterprise-query`, { headers: { 'x-dashboard-password': adminPassword } });
+                const queries = await entRes.json();
+                const entFeed = document.getElementById('ops-enterprise-feed');
+                entFeed.innerHTML = queries.length ? '' : '<div class="p-8 text-center text-slate-600 italic text-xs">No pending outreach.</div>';
+                queries.forEach(q => {
+                    entFeed.innerHTML += `
+                        <div class="p-4 border-b border-[#1e293b] hover:bg-slate-800/20">
+                            <div class="font-bold text-white text-xs">${q.companyName}</div>
+                            <div class="text-[10px] text-slate-400">${q.email} • ${q.expectedUsers} users</div>
+                        </div>`;
+                });
+            } catch(e) { console.error("Ops Fetch Error", e); }
         }
+
+        // --- Directory Functions ---
+        function applyFilters() { currentPage = 0; fetchUsersList(); }
+        function changePage(delta) { currentPage += delta; fetchUsersList(); }
 
         async function fetchUsersList() {
             try {
                 const search = document.getElementById('filter-search').value;
                 const tier = document.getElementById('filter-tier').value;
                 const status = document.getElementById('filter-status').value;
-                
                 const tbody = document.getElementById('users-table-body');
                 tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-500 font-mono text-xs">Querying database...</td></tr>`;
                 
@@ -449,9 +524,7 @@
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?${query}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const data = await res.json();
                 
-                // Store fetched users in memory for CSV export
                 loadedUsersForCSV = data.users || [];
-
                 document.getElementById('btn-prev').disabled = data.page === 0;
                 document.getElementById('btn-next').disabled = data.page >= data.totalPages - 1;
                 document.getElementById('user-count-info').innerText = `Displaying ${data.users.length} of ${data.total} records (Page ${data.page + 1})`;
@@ -464,10 +537,8 @@
                 tbody.innerHTML = '';
                 data.users.forEach(u => {
                     const integrity = getLicenseIntegrity(u.subscription);
-                    
                     const tierLabel = u.subscription?.tier === 'pro_plus' ? 'ELITE' : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
                     const tierColor = tierLabel === 'ELITE' ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
-                    
                     let statColor = 'bg-slate-600'; 
                     let statText = 'INACTIVE';
                     
@@ -476,22 +547,16 @@
                             statColor = integrity.isTrial ? 'bg-amber-500' : 'bg-emerald-500';
                             statText = integrity.isTrial ? 'TRIAL (ACTIVE)' : 'PAID (ACTIVE)';
                         } else {
-                            statColor = 'bg-red-500';
-                            statText = 'EXPIRED';
+                            statColor = 'bg-red-500'; statText = 'EXPIRED';
                         }
                     }
 
                     let validHtml = `<span class="text-slate-600">--</span>`;
                     if (integrity.isPaid && integrity.validUntil) {
-                        const dateStr = integrity.validUntil.toISOString().split('T')[0];
-                        const timeStr = integrity.validUntil.toISOString().split('T')[1].substring(0,5);
                         validHtml = `
-                            <div class="${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}">${dateStr} ${timeStr}</div>
-                            <div class="text-[9px] text-slate-500 mt-0.5">${integrity.ttlStr}</div>
-                        `;
+                            <div class="${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}">${integrity.validUntil.toISOString().split('T')[0]}</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">${integrity.ttlStr}</div>`;
                     }
-
-                    const gId = u.googleId ? `'${u.googleId}'` : 'null';
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-800/20 transition group">
@@ -507,127 +572,61 @@
                             </td>
                             <td class="px-4 py-3 font-mono text-[10px]">${validHtml}</td>
                             <td class="px-4 py-3 text-right">
-                                <button onclick="openProfile(${gId})" class="text-slate-500 hover:text-brand-400 border border-[#1e293b] px-2 py-1 rounded bg-slate-900 transition"><i class="fa-solid fa-folder-open"></i></button>
+                                <button onclick="openProfile('${u.googleId}')" class="text-slate-500 hover:text-brand-400 border border-[#1e293b] px-2 py-1 rounded bg-slate-900 transition"><i class="fa-solid fa-folder-open"></i></button>
                             </td>
                         </tr>`;
                 });
             } catch (e) { console.error(e); }
         }
 
-        // CSV EXPORT LOGIC
-        function exportToCSV() {
-            if (!loadedUsersForCSV || loadedUsersForCSV.length === 0) {
-                alert("No users to export in current view.");
-                return;
-            }
-
-            const headers = ['Email', 'Name', 'Google ID', 'Tier', 'Status', 'Joined Date', 'Last Login'];
-            
-            const rows = loadedUsersForCSV.map(u => {
-                const tier = u.subscription?.tier || 'free';
-                const status = u.subscription?.status || 'inactive';
-                const joined = u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : 'N/A';
-                const lastLogin = u.lastLogin ? new Date(u.lastLogin).toISOString().split('T')[0] : 'N/A';
-                
-                // Escape commas/quotes in names
-                const safeName = u.name ? `"${u.name.replace(/"/g, '""')}"` : 'Unknown';
-                
-                return `${u.email || 'N/A'},${safeName},${u.googleId},${tier},${status},${joined},${lastLogin}`;
-            });
-
-            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + rows.join('\n');
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `whis_users_export_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function changePage(delta) { currentPage += delta; fetchUsersList(); }
-
         async function openProfile(googleId) {
-            if(!googleId) return;
+            if(!googleId || googleId === 'null') return;
             document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('flex');
-            document.getElementById('mod-name').innerHTML = 'Querying Node...';
-            
             try {
                 const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminPassword } });
                 const u = await res.json();
-                
                 document.getElementById('mod-avatar').src = u.avatarUrl || 'https://via.placeholder.com/150/0f172a/38bdf8?text=USR';
                 document.getElementById('mod-name').innerText = u.name || 'Unknown User';
                 document.getElementById('mod-email').innerText = u.email || 'No email';
                 document.getElementById('mod-gid').innerText = u.googleId;
                 document.getElementById('mod-phone').innerText = u.phone || 'No phone';
+                document.getElementById('mod-joined').innerText = u.createdAt ? u.createdAt.substring(0,10) : '--';
+                document.getElementById('mod-active').innerText = u.lastLogin ? u.lastLogin.substring(0,10) : '--';
                 
-                document.getElementById('mod-joined').innerText = u.createdAt ? new Date(u.createdAt).toISOString().replace('T', ' ').substring(0,16) : '--';
-                document.getElementById('mod-active').innerText = u.lastLogin ? new Date(u.lastLogin).toISOString().replace('T', ' ').substring(0,16) : '--';
-                
-                // Integrity & TTL Math
                 const integrity = getLicenseIntegrity(u.subscription);
-                
-                let tierHtml = `<span class="font-mono text-xs font-bold text-slate-500 uppercase">FREE TIER</span>`;
-                let barColor = 'bg-slate-700';
-                
-                if (integrity.isPaid) {
-                    const tName = u.subscription.tier === 'pro_plus' ? 'ELITE' : 'PRO';
-                    const tColor = u.subscription.tier === 'pro_plus' ? 'text-emerald-400' : 'text-blue-400';
-                    const sColor = integrity.isActive ? (integrity.isTrial ? 'text-amber-400' : 'text-emerald-400') : 'text-red-500';
-                    const sText = integrity.isActive ? (integrity.isTrial ? '[ACTIVE TRIAL]' : '[ACTIVE LICENSE]') : '[EXPIRED OVERRIDE]';
-                    
-                    barColor = integrity.isActive ? 'bg-emerald-500' : 'bg-red-500';
-                    tierHtml = `<span class="font-mono text-xs font-bold ${tColor}">${tName}</span> <span class="font-mono text-[10px] ${sColor} ml-2">${sText}</span>`;
-                }
-                
+                let barColor = integrity.isActive ? 'bg-emerald-500' : 'bg-red-500';
                 document.getElementById('mod-integrity-bar').className = `absolute right-0 top-0 h-full w-1 ${barColor}`;
-                document.getElementById('mod-tier-badge').innerHTML = tierHtml;
-                
-                if (integrity.validUntil) {
-                    document.getElementById('mod-valid-until-text').innerHTML = `Valid Until: <span class="text-white">${integrity.validUntil.toISOString().replace('T', ' ').substring(0,16)} UTC</span>`;
-                    document.getElementById('mod-ttl-countdown').innerText = integrity.ttlStr;
-                    document.getElementById('mod-ttl-countdown').className = `text-lg font-bold data-value ${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}`;
-                } else {
-                    document.getElementById('mod-valid-until-text').innerHTML = `Valid Until: <span class="text-slate-600">N/A</span>`;
-                    document.getElementById('mod-ttl-countdown').innerText = "N/A";
-                    document.getElementById('mod-ttl-countdown').className = `text-lg font-bold data-value text-slate-600`;
-                }
+                document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold text-white uppercase">${u.subscription?.tier || 'FREE'}</span>`;
+                document.getElementById('mod-ttl-countdown').innerText = integrity.ttlStr;
 
-                // Core System Limits Mapping
                 document.getElementById('mod-free').innerHTML = `${u.freeUsage?.count || 0}<span class="text-[10px] text-slate-600">/10</span>`;
                 document.getElementById('mod-trial').innerHTML = `${u.trialUsage?.count || 0}<span class="text-[10px] text-slate-600">/3</span>`;
-                document.getElementById('mod-screen').innerHTML = `${u.screenshotUsage?.count || 0}<span class="text-[10px] text-slate-600"> OCRs</span>`;
-                document.getElementById('mod-mic').innerHTML = `${formatSeconds(u.micUsage?.secondsUsed || 0)}<span class="text-[10px] text-brand-500/50"> / 300m</span>`;
+                document.getElementById('mod-mic').innerHTML = `${formatSeconds(u.micUsage?.secondsUsed || 0)}`;
 
-                // Financials
                 const tBody = document.getElementById('mod-orders-body');
-                tBody.innerHTML = '';
-                if(u.orders && u.orders.length > 0) {
-                    u.orders.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(o => {
-                        const amt = o.currency === 'INR' ? `₹${o.amount}` : `$${o.amount}`;
-                        const statColor = o.status === 'paid' ? 'text-emerald-400' : 'text-red-400';
-                        tBody.innerHTML += `<tr>
-                            <td class="py-2 px-3">${new Date(o.date).toISOString().split('T')[0]}</td>
-                            <td class="px-3 text-[9px] text-slate-500">${o.orderId.substring(0,12)}..</td>
-                            <td class="px-3 uppercase text-white">${o.tier} <span class="text-[9px] text-slate-500">(${o.cycle})</span></td>
-                            <td class="px-3 text-white">${amt}</td>
-                            <td class="px-3 ${statColor} uppercase font-bold text-[9px]">${o.status}</td>
-                        </tr>`;
-                    });
-                } else {
-                    tBody.innerHTML = `<tr><td colspan="5" class="py-6 px-3 text-center text-slate-600 italic">No financial ledger entries.</td></tr>`;
-                }
-            } catch (e) { 
-                console.error(e);
-                document.getElementById('mod-name').innerText = "Decryption Failed"; 
-            }
+                tBody.innerHTML = u.orders?.length ? '' : '<tr><td colspan="5" class="py-6 text-center text-slate-600 italic">No ledger entries.</td></tr>';
+                u.orders?.forEach(o => {
+                    tBody.innerHTML += `<tr><td class="py-2 px-3">${o.date.substring(0,10)}</td><td class="px-3">${o.orderId.substring(0,8)}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
+                });
+            } catch (e) { console.error(e); }
         }
 
         function closeModal() { document.getElementById('profileModal').classList.add('hidden'); document.getElementById('profileModal').classList.remove('flex'); }
 
-        // --- CHART JS SETUP ---
+        // --- CSV Export ---
+        function exportToCSV() {
+            if (!loadedUsersForCSV.length) return alert("No users to export.");
+            const headers = ['Email', 'Name', 'Tier', 'Status', 'Joined'];
+            const rows = loadedUsersForCSV.map(u => `${u.email},"${u.name}",${u.subscription?.tier},${u.subscription?.status},${u.createdAt}`);
+            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + rows.join('\n');
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `whis_export_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); link.click();
+        }
+
+        // --- Charts ---
         Chart.defaults.color = '#475569';
         Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
@@ -636,26 +635,11 @@
             if(acqChart) acqChart.destroy();
             acqChart = new Chart(ctx, {
                 type: 'line',
-                data: { 
-                    labels: labels.map(l => l.substring(5)), 
-                    datasets: [
-                        { label: 'Free Signups', data: signups, borderColor: '#0ea5e9', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 4, pointHoverRadius: 6, cursor: 'pointer' },
-                        { label: 'Paid Upgrades', data: upgrades, borderColor: '#10b981', backgroundColor: 'transparent', borderWidth: 2, tension: 0.2, pointRadius: 5, pointHoverRadius: 7, cursor: 'pointer' }
-                    ] 
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    onClick: (e, elements) => {
-                        // DRILL DOWN INTERACTION
-                        if (elements.length > 0) {
-                            const dataIndex = elements[0].index;
-                            const clickedDateRaw = loadedDateRangeArray[dataIndex]; 
-                            drillDownToDate(clickedDateRaw);
-                        }
-                    },
-                    plugins: { legend: { position: 'top', labels: { color: '#94a3b8', boxWidth: 10 } } }, 
-                    scales: { y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { precision: 0 } }, x: { grid: { display: false } } } 
-                }
+                data: { labels: labels.map(l => l.substring(5)), datasets: [
+                    { label: 'Signups', data: signups, borderColor: '#0ea5e9', tension: 0.2, pointRadius: 4 },
+                    { label: 'Upgrades', data: upgrades, borderColor: '#10b981', tension: 0.2, pointRadius: 4 }
+                ]},
+                options: { responsive: true, maintainAspectRatio: false, onClick: (e, el) => el[0] && drillDownToDate(loadedDateRangeArray[el[0].index]), plugins: { legend: { labels: { boxWidth: 10 } } } }
             });
         }
 
@@ -664,29 +648,11 @@
             if(loadChart) loadChart.destroy();
             loadChart = new Chart(ctx, {
                 type: 'bar',
-                data: { 
-                    labels: labels.map(l => l.substring(5)), 
-                    datasets: [
-                        { label: 'Chat Queries', data: chats, backgroundColor: '#8b5cf6', borderRadius: 2 },
-                        { label: 'Audio Captured', data: transcribes, backgroundColor: '#c084fc', borderRadius: 2 }
-                    ] 
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    onClick: (e, elements) => {
-                        // DRILL DOWN INTERACTION
-                        if (elements.length > 0) {
-                            const dataIndex = elements[0].index;
-                            const clickedDateRaw = loadedDateRangeArray[dataIndex]; 
-                            drillDownToDate(clickedDateRaw);
-                        }
-                    },
-                    plugins: { legend: { position: 'top', labels: { color: '#94a3b8', boxWidth: 10 } } }, 
-                    scales: { 
-                        x: { stacked: true, grid: { display: false } },
-                        y: { stacked: true, beginAtZero: true, grid: { color: '#1e293b' } }
-                    } 
-                }
+                data: { labels: labels.map(l => l.substring(5)), datasets: [
+                    { label: 'Chats', data: chats, backgroundColor: '#8b5cf6' },
+                    { label: 'Audio', data: transcribes, backgroundColor: '#c084fc' }
+                ]},
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
             });
         }
     </script>
