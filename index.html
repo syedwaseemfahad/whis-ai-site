@@ -1414,6 +1414,31 @@ btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-
         if (messages.length > lastChatCount) { area.scrollTop = area.scrollHeight; lastChatCount = messages.length; }
     }
 
+
+
+    // --- NEW IMAGE CHAT FUNCTIONS ---
+let currentChatImageFile = null;
+
+function previewChatImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    currentChatImageFile = file;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('chatImagePreview').src = e.target.result;
+        document.getElementById('chatImagePreviewContainer').classList.remove('hidden');
+    }
+    reader.readAsDataURL(file);
+}
+
+function clearChatImage() {
+    currentChatImageFile = null;
+    document.getElementById('chatImageInput').value = '';
+    document.getElementById('chatImagePreviewContainer').classList.add('hidden');
+    document.getElementById('chatImagePreview').src = '';
+}
+    
     async function sendChatMessage() {
         const input = document.getElementById('chatInput'); const text = input.value.trim();
         if (!text || !chatEmail) return;
