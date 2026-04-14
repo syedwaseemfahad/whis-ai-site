@@ -1398,7 +1398,7 @@ btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-
         } catch(e) {}
     }
 
-    function renderChatMessages(messages) {
+function renderChatMessages(messages) {
         const area = document.getElementById('chatMessagesArea');
         area.innerHTML = '';
         if(messages.length === 0) { area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-4xl mb-3 opacity-20"></i><p class="text-[13px] md:text-sm">Start a conversation with our support team.</p></div>'; }
@@ -1406,8 +1406,13 @@ btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-
         messages.forEach(msg => {
             const div = document.createElement('div');
             div.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-sky-600 text-white self-end rounded-tr-sm'}`;
+            
             const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            div.innerHTML = `<div class="message-content">${formatMessage(msg.text)}</div><span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>`;
+            
+            // NEW: Check if the message has an image, and create an <img> tag for it
+            const imageHtml = msg.imageUrl ? `<img src="${msg.imageUrl}" class="w-full rounded-lg mb-2 border border-black/10 cursor-pointer" onclick="window.open('${msg.imageUrl}', '_blank')">` : '';
+            
+            div.innerHTML = `<div class="message-content">${imageHtml}${formatMessage(msg.text)}</div><span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>`;
             area.appendChild(div);
         });
 
