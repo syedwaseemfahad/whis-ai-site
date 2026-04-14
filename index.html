@@ -804,10 +804,26 @@
       <div id="chatInterface" class="flex-1 hidden flex-col h-full bg-slate-50 overflow-hidden">
           <div id="chatMessagesArea" class="flex-1 p-3 md:p-5 overflow-y-auto space-y-3 md:space-y-4 flex flex-col no-scrollbar bg-slate-50 z-10 pb-4"></div>
           
-          <div class="p-2.5 md:p-4 bg-white border-t border-slate-200 flex gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 safe-bottom">
-              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-[16px] md:text-sm focus:border-sky-500 outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
-              <button onclick="sendChatMessage()" class="bg-sky-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl hover:bg-sky-700 transition shadow-md active:scale-95 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-[11px] md:text-sm"></i></button>
-          </div>
+<div class="p-2.5 md:p-4 bg-white border-t border-slate-200 flex flex-col gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 safe-bottom">
+    <div id="chatImagePreviewContainer" class="hidden relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
+        <img id="chatImagePreview" class="w-full h-full object-cover" />
+        <button onclick="clearChatImage()" class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-black transition"><i class="fa-solid fa-times"></i></button>
+    </div>
+    
+    <div class="flex gap-2">
+        <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="previewChatImage(event)">
+        
+        <button onclick="document.getElementById('chatImageInput').click()" class="bg-slate-100 text-slate-500 w-10 h-10 md:w-12 md:h-12 rounded-xl border border-slate-200 hover:bg-slate-200 transition shadow-inner active:scale-95 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-paperclip text-[13px] md:text-base"></i>
+        </button>
+
+        <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-[16px] md:text-sm focus:border-sky-500 outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+        
+        <button onclick="sendChatMessage()" class="bg-sky-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl hover:bg-sky-700 transition shadow-md active:scale-95 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-paper-plane text-[11px] md:text-sm"></i>
+        </button>
+    </div>
+</div>
       </div>
   </div>
 
