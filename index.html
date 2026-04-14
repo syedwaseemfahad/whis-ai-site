@@ -1444,28 +1444,88 @@ function clearChatImage() {
     document.getElementById('chatImagePreview').src = '';
 }
     
-    async function sendChatMessage() {
-        const input = document.getElementById('chatInput'); const text = input.value.trim();
-        if (!text || !chatEmail) return;
-        input.value = '';
-        
-        const area = document.getElementById('chatMessagesArea');
-        const tempDiv = document.createElement('div');
-        tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
-        const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>`;
-        area.appendChild(tempDiv); area.scrollTop = area.scrollHeight; lastChatCount++; 
+// --- NEW IMAGE CHAT FUNCTIONS ---
+let currentChatImageFile = null;
 
+function previewChatImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    currentChatImageFile = file;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('chatImagePreview').src = e.target.result;
+        document.getElementById('chatImagePreviewContainer').classList.remove('hidden');
+    }
+    reader.readAsDataURL(file);
+}
+
+function clearChatImage() {
+    currentChatImageFile = null;
+    document.getElementById('chatImageInput').value = '';
+    document.getElementById('chatImagePreviewContainer').classList.add('hidden');
+    document.getElementById('chatImagePreview').src = '';
+}
+
+// --- UPGRADED SEND FUNCTION ---
+async function sendChatMessage() {
+    const input = document.getElementById('chatInput'); 
+    const text = input.value.trim();
+    
+    // Require either text OR an image
+    if (!text && !currentChatImageFile) return;
+    if (!chatEmail) return;
+
+    input.value = '';
+    
+    const area = document.getElementById('chatMessagesArea');
+    const tempDiv = document.createElement('div');
+    tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
+    
+    // Add image preview to the chat bubble if an image was sent
+    let imageHtml = '';
+    if (currentChatImageFile) {
+        imageHtml = `<img src="${document.getElementById('chatImagePreview').src}" class="w-full rounded-lg mb-2 border border-white/20">`;
+    }
+    
+    tempDiv.innerHTML = `<div class="message-content">${imageHtml}${formatMessage(text)}</div><span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>`;
+    area.appendChild(tempDiv); 
+    area.scrollTop = area.scrollHeight; 
+    lastChatCount++; 
+
+    // Store the file locally before clearing the UI
+    const fileToSend = currentChatImageFile;
+    clearChatImage(); // Instantly clear UI for the next message
+
+    try {
         const tzOffset = new Date().getTimezoneOffset();
+        
+        // If we have an image, we MUST use FormData to send it to the new endpoint
+        if (fileToSend) {
+            const formData = new FormData();
+            formData.append('email', chatEmail);
+            formData.append('text', text);
+            formData.append('tzOffset', tzOffset);
+            formData.append('image', fileToSend);
 
-        try {
+            const res = await fetch(`${BACKEND_URL}/api/chat/send-image`, {
+                method: 'POST',
+                body: formData // No Content-Type header; browser sets it automatically with boundary
+            });
+            if (res.ok) fetchChatHistory();
+        } else {
+            // Standard text-only fallback
             const res = await fetch(`${BACKEND_URL}/api/chat/send`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: chatEmail, text, tzOffset })
             });
             if (res.ok) fetchChatHistory();
-        } catch(e) { alert("Failed to send message. Try again."); }
+        }
+    } catch(e) { 
+        alert("Failed to send message. Try again."); 
     }
+}
 
     function startChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval = setInterval(fetchChatHistory, 3000); }
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
