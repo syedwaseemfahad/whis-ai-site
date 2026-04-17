@@ -177,6 +177,9 @@
                             <button onclick="exportToCSV()" class="bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-4 py-2 rounded text-xs font-semibold border border-emerald-900/50 transition flex items-center gap-2">
                                 <i class="fa-solid fa-download"></i> Export CSV
                             </button>
+                            <button onclick="openManageUserModal()" class="bg-brand-500/20 hover:bg-brand-500/40 text-brand-400 px-4 py-2 rounded text-xs font-semibold border border-brand-500/50 transition flex items-center gap-2">
+                                <i class="fa-solid fa-user-shield"></i> Manage Identity
+                            </button>
                         </div>
                     </div>
 
@@ -251,7 +254,12 @@
                         <p class="text-xs text-slate-400 font-mono" id="mod-email">--</p>
                     </div>
                 </div>
-                <button onclick="closeModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                <div class="flex items-center gap-4">
+                    <button onclick="openManageUserModal(document.getElementById('mod-email').innerText); closeModal();" class="text-brand-500 hover:text-white text-xs border border-brand-500/30 px-3 py-1 rounded bg-brand-500/10 transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit User
+                    </button>
+                    <button onclick="closeModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
             
             <div class="p-5 overflow-y-auto space-y-6">
@@ -314,6 +322,63 @@
                         <tbody id="mod-orders-body" class="divide-y divide-[#1e293b] text-slate-300 bg-slate-900/30"></tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageUserModal" class="fixed inset-0 z-[250] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-[#05080f]/90 backdrop-blur-sm" onclick="closeManageUserModal()"></div>
+        <div class="glass-panel w-full max-w-md rounded shadow-2xl relative z-10 p-6 border border-[#1e293b]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-sm font-bold text-slate-200 uppercase tracking-widest">Provision / Modify User</h3>
+                <button onclick="closeManageUserModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Target Email Identity</label>
+                    <input type="email" id="manage-email" placeholder="user@domain.com" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none font-mono">
+                    <p class="text-[9px] text-slate-500 mt-1 italic">If email does not exist, a new identity will be provisioned.</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Target Tier</label>
+                        <select id="manage-tier" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none">
+                            <option value="pro_plus">Elite (Pro Plus)</option>
+                            <option value="pro">Pro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Duration (Months)</label>
+                        <input type="number" id="manage-months" value="1" min="1" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none font-mono">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-8 pt-4 border-t border-[#1e293b]">
+                <button onclick="prepareAction('revoke')" class="text-red-500 hover:text-white hover:bg-red-500/20 px-3 py-1.5 rounded text-xs font-semibold transition border border-transparent hover:border-red-500/50">
+                    <i class="fa-solid fa-skull mr-1"></i> Revoke Access
+                </button>
+                <button onclick="prepareAction('upgrade')" class="bg-slate-800 hover:bg-slate-700 text-brand-400 px-4 py-2 rounded text-xs font-semibold transition border border-[#1e293b]">
+                    Preview Upgrade <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dangerConfirmModal" class="fixed inset-0 z-[300] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-red-900/20 backdrop-blur-sm" onclick="closeDangerModal()"></div>
+        <div class="glass-panel w-full max-w-sm rounded shadow-2xl relative z-10 p-6 border-2 border-red-500/50 bg-[#0b0f19]">
+            <div class="flex items-center gap-3 mb-4 text-red-500">
+                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                <h3 class="text-sm font-bold uppercase tracking-widest text-white">Execute Action?</h3>
+            </div>
+            <div id="danger-msg" class="text-xs text-slate-300 font-mono mb-6 bg-[#05080f] p-3 rounded border border-[#1e293b]">
+                </div>
+            <div class="flex gap-3 justify-end">
+                <button onclick="closeDangerModal()" class="px-4 py-2 bg-slate-800 text-white rounded text-xs font-semibold hover:bg-slate-700 border border-[#1e293b]">Abort</button>
+                <button id="danger-execute-btn" class="px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)]">Execute</button>
             </div>
         </div>
     </div>
@@ -613,6 +678,97 @@
         }
 
         function closeModal() { document.getElementById('profileModal').classList.add('hidden'); document.getElementById('profileModal').classList.remove('flex'); }
+
+        // --- Security & Action Management Functions ---
+
+        let pendingAdminAction = null;
+
+        function openManageUserModal(prefillEmail = "") {
+            document.getElementById('manage-email').value = prefillEmail;
+            document.getElementById('manageUserModal').classList.remove('hidden');
+            document.getElementById('manageUserModal').classList.add('flex');
+        }
+
+        function closeManageUserModal() {
+            document.getElementById('manageUserModal').classList.add('hidden');
+            document.getElementById('manageUserModal').classList.remove('flex');
+        }
+
+        function closeDangerModal() {
+            document.getElementById('dangerConfirmModal').classList.add('hidden');
+            document.getElementById('dangerConfirmModal').classList.remove('flex');
+            pendingAdminAction = null;
+        }
+
+        function prepareAction(actionType) {
+            const email = document.getElementById('manage-email').value.trim();
+            if (!email) return alert("Target email is required.");
+
+            const tier = document.getElementById('manage-tier').value;
+            const months = document.getElementById('manage-months').value;
+
+            pendingAdminAction = { action: actionType, email, tier, months };
+
+            const msgContainer = document.getElementById('danger-msg');
+            
+            if (actionType === 'upgrade') {
+                msgContainer.innerHTML = `You are about to provision or upgrade:<br><br>
+                    <span class="text-brand-400 font-bold">${email}</span><br>
+                    Tier: <span class="text-emerald-400 font-bold uppercase">${tier}</span><br>
+                    Duration: <span class="text-white font-bold">${months} Months</span>`;
+                document.getElementById('danger-execute-btn').innerText = "Execute Upgrade";
+                document.getElementById('danger-execute-btn').className = "px-4 py-2 bg-emerald-600 text-white rounded text-xs font-semibold hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
+            } else {
+                msgContainer.innerHTML = `You are about to <span class="text-red-500 font-bold uppercase">REVOKE</span> all access for:<br><br>
+                    <span class="text-brand-400 font-bold">${email}</span><br><br>
+                    This will immediately downgrade the user to the free tier and wipe their time-to-live.`;
+                document.getElementById('danger-execute-btn').innerText = "Execute Revoke";
+                document.getElementById('danger-execute-btn').className = "px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)]";
+            }
+
+            // Open strict confirmation modal
+            document.getElementById('manageUserModal').classList.add('hidden');
+            document.getElementById('dangerConfirmModal').classList.remove('hidden');
+            document.getElementById('dangerConfirmModal').classList.add('flex');
+        }
+
+        // Bind the execute button
+        document.getElementById('danger-execute-btn').addEventListener('click', async () => {
+            if (!pendingAdminAction) return;
+            
+            const btn = document.getElementById('danger-execute-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/user-action`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-dashboard-password': adminPassword 
+                    },
+                    body: JSON.stringify(pendingAdminAction)
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    alert(`SUCCESS: ${data.message}`);
+                    closeDangerModal();
+                    // Refresh data
+                    initDashboard(); 
+                } else {
+                    alert(`ERROR: ${data.error || 'Failed to execute action'}`);
+                }
+            } catch (e) {
+                console.error("Action Error:", e);
+                alert("CRITICAL ERROR: Failed to communicate with the server.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
 
         // --- CSV Export ---
         function exportToCSV() {
