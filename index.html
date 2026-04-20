@@ -1283,35 +1283,49 @@
         openPaymentModal();
     }
 
-    function openPaymentModal() {
-        currentCoupon = ""; currentCouponDiscount = 0;
-        document.getElementById('couponInput').value = '';
-        document.getElementById('couponMessage').classList.add('hidden');
-        paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
-        document.getElementById('paypal-button-container').innerHTML = '';
+function openPaymentModal() {
+    currentCoupon = ""; currentCouponDiscount = 0;
+    document.getElementById('couponInput').value = '';
+    document.getElementById('couponMessage').classList.add('hidden');
+    paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
+    document.getElementById('paypal-button-container').innerHTML = '';
 
-        paypal.Buttons({
-            style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-            createOrder: async function(data, actions) {
-                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle, couponCode: currentCoupon })
-                });
-                const orderData = await res.json();
-                return orderData.id; 
-            },
-            onApprove: async function(data, actions) {
-                const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
-                });
-                const details = await res.json();
-                if (details.success) { closePaymentModal(); document.getElementById('successModal').classList.remove('hidden'); document.getElementById('successModal').classList.add('flex'); } 
-                else { alert("PayPal transaction verification failed."); }
-            },
-            onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
-        }).render('#paypal-button-container');
-    }
+    paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+        createOrder: async function(data, actions) {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle, couponCode: currentCoupon })
+            });
+            const orderData = await res.json();
+            return orderData.id; 
+        },
+        onApprove: async function(data, actions) {
+            const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
+            });
+            const details = await res.json();
+            if (details.success) { 
+                // --- GOOGLE ADS CONVERSION PING ---
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'conversion', {
+                        'send_to': 'AW-XXXXXXXXX/YOUR_CONVERSION_LABEL', // <-- PASTE YOUR SAVED EVENT SNIPPET ID HERE
+                        'value': details.revenue,
+                        'currency': details.currency,
+                        'transaction_id': details.transaction_id
+                    });
+                }
+                // ----------------------------------
+                closePaymentModal(); 
+                document.getElementById('successModal').classList.remove('hidden'); 
+                document.getElementById('successModal').classList.add('flex'); 
+            } 
+            else { alert("PayPal transaction verification failed."); }
+        },
+        onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
+    }).render('#paypal-button-container');
+}
 
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
 
