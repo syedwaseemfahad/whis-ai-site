@@ -1315,39 +1315,53 @@
 
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
 
-    async function triggerRazorpayFlow(event) {
-        const targetTier = selectedTierForPayment;
-        const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        const btn = event.currentTarget; const orig = btn.innerHTML; 
-btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade, couponCode: currentCoupon })
+async function triggerRazorpayFlow(event) {
+    const targetTier = selectedTierForPayment;
+    const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
+    const btn = event.currentTarget; const orig = btn.innerHTML; 
+    btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
+    try {
+        const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade, couponCode: currentCoupon })
+        });
+        const data = await res.json();
+         
+        if(data.order_id){
+            const rzp1 = new Razorpay({
+                "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
+                "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
+                "handler": async function (response){ 
+                    try {
+                        const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+                            method: 'POST', headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
+                        });
+                        const verifyData = await verifyRes.json();
+                        if(verifyData.success){ 
+                            // --- GOOGLE ADS CONVERSION PING ---
+                            if (typeof gtag !== 'undefined') {
+                                gtag('event', 'conversion', {
+                                    'send_to': 'AW-XXXXXXXXX/YOUR_CONVERSION_LABEL', // <-- PASTE YOUR SAVED EVENT SNIPPET ID HERE
+                                    'value': verifyData.revenue,
+                                    'currency': verifyData.currency,
+                                    'transaction_id': verifyData.transaction_id
+                                });
+                            }
+                            // ----------------------------------
+                            closePaymentModal(); 
+                            document.getElementById('successModal').classList.remove('hidden'); 
+                            document.getElementById('successModal').classList.add('flex'); 
+                        } 
+                        else { alert("Verification Failed. Contact Support."); }
+                    } catch(e) { alert("Network Error during verification."); }
+                },
+                "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
             });
-            const data = await res.json();
-             
-            if(data.order_id){
-                const rzp1 = new Razorpay({
-                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
-                    "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
-                    "handler": async function (response){ 
-                        try {
-                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-                                method: 'POST', headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
-                            });
-                            const verifyData = await verifyRes.json();
-                            if(verifyData.success){ closePaymentModal(); document.getElementById('successModal').classList.remove('hidden'); document.getElementById('successModal').classList.add('flex'); } 
-                            else { alert("Verification Failed. Contact Support."); }
-                        } catch(e) { alert("Network Error during verification."); }
-                    },
-                    "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
-                });
-                rzp1.open();
-            }
-        } catch(e){ btn.innerHTML = orig; }
-    }
+            rzp1.open();
+        }
+    } catch(e){ btn.innerHTML = orig; }
+}
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
