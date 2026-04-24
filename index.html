@@ -1307,7 +1307,7 @@ function openPaymentModal() {
                     tier: selectedTierForPayment, 
                     cycle: currentCycle, 
                     couponCode: currentCoupon,
-                    refCode: localStorage.getItem('whisRef') // --- ADDED AFFILIATE CODE ---
+                    refCode: localStorage.getItem('whisRef') // <-- FIX: Sends code to backend
                 })
             });
             const orderData = await res.json();
@@ -1320,7 +1320,6 @@ function openPaymentModal() {
             });
             const details = await res.json();
             if (details.success) { 
-                // --- GOOGLE ADS CONVERSION PING ---
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'conversion', {
                         'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
@@ -1329,7 +1328,6 @@ function openPaymentModal() {
                         'transaction_id': details.transaction_id
                     });
                 }
-                // ----------------------------------
                 closePaymentModal(); 
                 document.getElementById('successModal').classList.remove('hidden'); 
                 document.getElementById('successModal').classList.add('flex'); 
@@ -1356,7 +1354,7 @@ async function triggerRazorpayFlow(event) {
                 cycle: currentCycle, 
                 isUpgrade: isUpgrade, 
                 couponCode: currentCoupon,
-                refCode: localStorage.getItem('whisRef') // --- ADDED AFFILIATE CODE ---
+                refCode: localStorage.getItem('whisRef') // <-- FIX: Sends code to backend
             })
         });
         const data = await res.json();
@@ -1373,7 +1371,6 @@ async function triggerRazorpayFlow(event) {
                         });
                         const verifyData = await verifyRes.json();
                         if(verifyData.success){ 
-                            // --- GOOGLE ADS CONVERSION PING ---
                             if (typeof gtag !== 'undefined') {
                                 gtag('event', 'conversion', {
                                     'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
@@ -1382,7 +1379,6 @@ async function triggerRazorpayFlow(event) {
                                     'transaction_id': verifyData.transaction_id
                                 });
                             }
-                            // ----------------------------------
                             closePaymentModal(); 
                             document.getElementById('successModal').classList.remove('hidden'); 
                             document.getElementById('successModal').classList.add('flex'); 
