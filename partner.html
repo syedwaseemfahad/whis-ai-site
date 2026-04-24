@@ -4,95 +4,107 @@
   <meta charset="UTF-8" />
   <title>Whis-AI Partner Program</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-      body { background-color: #050814; color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-      .glass-card { background: rgba(15, 20, 35, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
-      .social-icon { transition: all 0.2s ease; cursor: pointer; }
-      .social-icon:hover { transform: translateY(-2px) scale(1.1); }
-      .social-icon.insta:hover { color: #E1306C; }
-      .social-icon.yt:hover { color: #FF0000; }
-      .social-icon.x:hover { color: #1DA1F2; }
-      .social-icon.fb:hover { color: #1877F2; }
-      input { transition: border-color 0.2s ease; }
-  </style>
-</head>
-<body class="flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
-    
-    <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
-    <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-emerald-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
+<script>
+        let storedEmail = "";
+        const BACKEND_URL = "https://api.whis-ai.com"; // <-- Added this to point to your Node.js server
 
-    <div class="max-w-md w-full glass-card rounded-2xl p-8 shadow-2xl relative z-10 overflow-hidden">
-        
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 mb-4">
-                <i class="fa-solid fa-handshake text-xl"></i>
-            </div>
-            <h1 class="text-2xl font-bold mb-2 tracking-tight">Partner Program</h1>
-            <p class="text-slate-400 text-sm leading-relaxed">Give your audience 10% off. Get 20% instantly sent to your UPI for every sale.</p>
-        </div>
-
-        <div class="flex justify-center gap-5 text-slate-500 text-xl mb-8">
-            <i class="fa-brands fa-instagram social-icon insta"></i>
-            <i class="fa-brands fa-youtube social-icon yt"></i>
-            <i class="fa-brands fa-twitter social-icon x"></i>
-            <i class="fa-brands fa-facebook social-icon fb"></i>
-        </div>
-
-        <form id="step1Form" class="space-y-4" onsubmit="requestOTP(event)">
-            <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Email Address</label>
-                <div class="relative">
-                    <i class="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                    <input type="email" id="pEmail" required class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="creator@email.com">
-                </div>
-            </div>
-            <button type="submit" id="otpBtn" class="w-full py-3.5 mt-2 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-200 transition shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm">
-                Send OTP
-            </button>
-            <p id="step1Error" class="text-xs text-red-400 text-center mt-2 hidden"></p>
-        </form>
-
-        <form id="step2Form" class="space-y-4 hidden" onsubmit="verifyAndRegister(event)">
-            <div>
-                <label class="block text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1.5">Enter OTP</label>
-                <input type="text" id="pOtp" required class="w-full bg-sky-500/10 border border-sky-500/30 text-sky-300 rounded-xl px-4 py-3 text-center text-xl tracking-[0.5em] font-bold focus:border-sky-400 outline-none" placeholder="••••••" maxlength="6">
-            </div>
+        async function requestOTP(e) {
+            e.preventDefault();
+            const btn = document.getElementById('otpBtn');
+            const errorText = document.getElementById('step1Error');
+            const emailInput = document.getElementById('pEmail').value;
             
-            <div class="grid grid-cols-2 gap-4 mt-4">
-                <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Name / Brand</label>
-                    <input type="text" id="pName" required class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="e.g., Code with John">
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Main Social Link</label>
-                    <input type="url" id="pSocial" class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="https://youtube.com/...">
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Payout UPI ID</label>
-                    <input type="text" id="pUpi" required class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="name@okhdfc">
-                </div>
-            </div>
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+            btn.disabled = true;
+            errorText.classList.add('hidden');
 
-            <button type="submit" id="submitBtn" class="w-full py-3.5 mt-4 rounded-xl bg-sky-500 text-white font-bold hover:bg-sky-400 transition shadow-[0_0_20px_rgba(2,132,199,0.4)] text-sm flex items-center justify-center gap-2">
-                Generate Secure Link <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <p id="step2Error" class="text-xs text-red-400 text-center mt-2 hidden"></p>
-        </form>
+            try {
+                // <-- Updated fetch URL here
+                const res = await fetch(`${BACKEND_URL}/api/influencer/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput })
+                });
+                
+                const data = await res.json();
+                
+                if(data.success) {
+                    storedEmail = emailInput;
+                    document.getElementById('step1Form').classList.add('hidden');
+                    document.getElementById('step2Form').classList.remove('hidden');
+                } else {
+                    errorText.innerText = data.error || 'Failed to send OTP.';
+                    errorText.classList.remove('hidden');
+                    btn.innerHTML = 'Send OTP';
+                    btn.disabled = false;
+                }
+            } catch(err) {
+                errorText.innerText = 'Network error. Please try again.';
+                errorText.classList.remove('hidden');
+                btn.innerHTML = 'Send OTP';
+                btn.disabled = false;
+            }
+        }
 
-        <div id="resultBox" class="hidden mt-4 p-5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center">
-            <div class="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 mx-auto mb-3">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-2">Your Unique Link</p>
-            <input type="text" id="linkOutput" readonly class="w-full bg-black/50 border border-emerald-500/30 text-emerald-300 rounded-lg px-3 py-3 text-center text-sm mb-3 outline-none font-mono">
-            <button onclick="copyLink()" class="text-sm font-bold bg-emerald-500 text-slate-900 w-full py-3 rounded-xl hover:bg-emerald-400 transition shadow-lg active:scale-95">Copy to Clipboard</button>
-        </div>
+        async function verifyAndRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const errorText = document.getElementById('step2Error');
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
+            btn.disabled = true;
+            errorText.classList.add('hidden');
 
-    </div>
+            const payload = {
+                email: storedEmail,
+                otp: document.getElementById('pOtp').value,
+                name: document.getElementById('pName').value,
+                socialLink: document.getElementById('pSocial').value,
+                upiId: document.getElementById('pUpi').value
+            };
 
-    <script>
+            try {
+                // <-- Updated fetch URL here
+                const res = await fetch(`${BACKEND_URL}/api/influencer/verify-register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                
+                if(data.success) {
+                    document.getElementById('step2Form').classList.add('hidden');
+                    document.querySelector('.text-center.mb-8').classList.add('hidden');
+                    document.querySelector('.flex.justify-center.gap-5').classList.add('hidden');
+                    
+                    document.getElementById('resultBox').classList.remove('hidden');
+                    document.getElementById('linkOutput').value = data.link;
+                } else {
+                    errorText.innerText = data.error || 'Registration failed.';
+                    errorText.classList.remove('hidden');
+                    btn.innerHTML = 'Generate Secure Link <i class="fa-solid fa-arrow-right"></i>';
+                    btn.disabled = false;
+                }
+            } catch(err) {
+                errorText.innerText = 'Network error. Please try again.';
+                errorText.classList.remove('hidden');
+                btn.innerHTML = 'Generate Secure Link <i class="fa-solid fa-arrow-right"></i>';
+                btn.disabled = false;
+            }
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("linkOutput");
+            copyText.select();
+            document.execCommand("copy");
+            
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+            setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+        }
+    </script>
         let storedEmail = "";
 
         async function requestOTP(e) {
