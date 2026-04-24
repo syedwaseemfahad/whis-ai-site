@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18106016519"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -1145,6 +1144,13 @@
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
+                // --- NEW: AFFILIATE DISCOUNT OVERRIDE ---
+                if (localStorage.getItem('whisRef')) {
+                    PRICING_CONFIG.pro.discount = Math.max(PRICING_CONFIG.pro.discount || 0, 10);
+                    PRICING_CONFIG.pro_plus.discount = Math.max(PRICING_CONFIG.pro_plus.discount || 0, 10);
+                }
+                // ----------------------------------------
+
                 updatePricingUI();
                 document.getElementById('btnPro').disabled = false;
                 document.getElementById('btnElite').disabled = false;
@@ -1296,7 +1302,13 @@ function openPaymentModal() {
         createOrder: async function(data, actions) {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ googleId: currentUser.googleId, tier: selectedTierForPayment, cycle: currentCycle, couponCode: currentCoupon })
+                body: JSON.stringify({ 
+                    googleId: currentUser.googleId, 
+                    tier: selectedTierForPayment, 
+                    cycle: currentCycle, 
+                    couponCode: currentCoupon,
+                    refCode: localStorage.getItem('whisRef') // --- ADDED AFFILIATE CODE ---
+                })
             });
             const orderData = await res.json();
             return orderData.id; 
@@ -1311,7 +1323,7 @@ function openPaymentModal() {
                 // --- GOOGLE ADS CONVERSION PING ---
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'conversion', {
-                        'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD', // <-- PASTE YOUR SAVED EVENT SNIPPET ID HERE
+                        'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
                         'value': details.revenue,
                         'currency': details.currency,
                         'transaction_id': details.transaction_id
@@ -1338,7 +1350,14 @@ async function triggerRazorpayFlow(event) {
     try {
         const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
             method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({ googleId: currentUser.googleId, tier: targetTier, cycle: currentCycle, isUpgrade: isUpgrade, couponCode: currentCoupon })
+            body:JSON.stringify({ 
+                googleId: currentUser.googleId, 
+                tier: targetTier, 
+                cycle: currentCycle, 
+                isUpgrade: isUpgrade, 
+                couponCode: currentCoupon,
+                refCode: localStorage.getItem('whisRef') // --- ADDED AFFILIATE CODE ---
+            })
         });
         const data = await res.json();
          
@@ -1357,7 +1376,7 @@ async function triggerRazorpayFlow(event) {
                             // --- GOOGLE ADS CONVERSION PING ---
                             if (typeof gtag !== 'undefined') {
                                 gtag('event', 'conversion', {
-                                    'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD', // <-- PASTE YOUR SAVED EVENT SNIPPET ID HERE
+                                    'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
                                     'value': verifyData.revenue,
                                     'currency': verifyData.currency,
                                     'transaction_id': verifyData.transaction_id
@@ -1548,6 +1567,13 @@ async function triggerRazorpayFlow(event) {
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth_success');
         const userStr = urlParams.get('user');
+
+        // --- NEW: AFFILIATE LINK CAPTURE ---
+        const refCode = urlParams.get('ref');
+        if (refCode) {
+            localStorage.setItem('whisRef', refCode);
+        }
+        // -----------------------------------
 
         if (authSuccess === 'true' && userStr) {
             try {
