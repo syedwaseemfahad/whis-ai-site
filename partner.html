@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Whis-AI Partner Program</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-[#050814] text-white flex items-center justify-center min-h-screen p-4">
+    <div class="max-w-md w-full bg-[#0f1423] border border-white/10 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+        
+        <div class="text-center mb-8 relative z-10">
+            <h1 class="text-2xl font-bold mb-2">Partner Program</h1>
+            <p class="text-slate-400 text-sm">Give your audience 10% off. Get 20% instantly sent to your UPI for every sale.</p>
+        </div>
+
+        <form id="partnerForm" class="space-y-4 relative z-10" onsubmit="generateLink(event)">
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Social Handle / Name</label>
+                <input type="text" id="pName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 focus:border-sky-500 outline-none transition" placeholder="@username">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Email Address</label>
+                <input type="email" id="pEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 focus:border-sky-500 outline-none transition" placeholder="creator@email.com">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Payout UPI ID</label>
+                <input type="text" id="pUpi" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 focus:border-sky-500 outline-none transition" placeholder="name@okhdfc">
+            </div>
+            <button type="submit" id="submitBtn" class="w-full py-3.5 mt-4 rounded-xl bg-sky-500 text-white font-bold hover:bg-sky-400 transition shadow-[0_0_20px_rgba(2,132,199,0.4)]">
+                Generate My Link
+            </button>
+        </form>
+
+        <div id="resultBox" class="hidden mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl relative z-10 text-center">
+            <p class="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-2">Your Unique Link</p>
+            <input type="text" id="linkOutput" readonly class="w-full bg-black/50 border border-emerald-500/30 text-emerald-300 rounded-lg px-3 py-2 text-center text-sm mb-3 outline-none">
+            <button onclick="copyLink()" class="text-sm font-bold bg-emerald-500 text-slate-900 px-6 py-2 rounded-lg hover:bg-emerald-400 transition">Copy Link</button>
+        </div>
+    </div>
+
+    <script>
+        async function generateLink(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('pName').value,
+                email: document.getElementById('pEmail').value,
+                upiId: document.getElementById('pUpi').value
+            };
+
+            try {
+                const res = await fetch('/api/influencer/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    document.getElementById('partnerForm').classList.add('hidden');
+                    document.getElementById('resultBox').classList.remove('hidden');
+                    document.getElementById('linkOutput').value = data.link;
+                }
+            } catch(err) {
+                alert('Error generating link.');
+                btn.innerHTML = 'Generate My Link';
+                btn.disabled = false;
+            }
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("linkOutput");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
