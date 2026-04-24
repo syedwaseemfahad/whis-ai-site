@@ -34,6 +34,8 @@
         .data-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
         input, select { font-family: 'Inter', sans-serif; }
         .grid-dots { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 20px 20px; }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="h-[100dvh] flex overflow-hidden w-full">
@@ -65,6 +67,9 @@
                 </button>
                 <button onclick="switchTab('ops')" id="nav-ops" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition">
                     <i class="fa-solid fa-headset w-4"></i> Operations
+                </button>
+                <button onclick="switchTab('payouts')" id="nav-payouts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-emerald-400/70 hover:text-emerald-400 text-xs font-semibold tracking-wide border border-transparent transition mt-4">
+                    <i class="fa-solid fa-hand-holding-dollar w-4"></i> Partner Payouts
                 </button>
             </nav>
             <div class="p-4 border-t border-[#1e293b] text-[10px] text-slate-500 flex justify-between items-center font-mono uppercase">
@@ -230,15 +235,45 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="glass-panel rounded p-5">
-                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Marketing Campaign Performance</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="ops-coupon-stats">
-                            </div>
-                    </div>
                 </div>
 
-            </div>
+                <div id="tab-payouts" class="tab-content hidden-tab flex flex-col h-full">
+                    <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-widest mb-1">Affiliate Settlements</h2>
+                            <p class="text-xs text-slate-500 font-mono">Manage and clear pending manual UPI transfers.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                            <select id="filter-payout-status" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="fetchPayoutsList()">
+                                <option value="pending">Pending (Unpaid)</option>
+                                <option value="paid">Cleared (Paid)</option>
+                                <option value="all">All Records</option>
+                            </select>
+                            <button onclick="fetchPayoutsList()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition flex items-center gap-2">
+                                <i class="fa-solid fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded overflow-hidden flex flex-col flex-1">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                                    <tr>
+                                        <th class="px-4 py-3">Date</th>
+                                        <th class="px-4 py-3">Order Ref</th>
+                                        <th class="px-4 py-3">Partner ID</th>
+                                        <th class="px-4 py-3">UPI Destination</th>
+                                        <th class="px-4 py-3">Amount Owed</th>
+                                        <th class="px-4 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-[#1e293b]" id="payouts-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div>
         </div>
     </div>
 
@@ -384,7 +419,7 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://api.whis-ai.com" 
+        const BACKEND_URL = "https://api.whis-ai.com"; // Use your actual URL if different
         let adminPassword = sessionStorage.getItem('whisAdminPwd');
         let currentPage = 0;
         let acqChart = null;
@@ -460,17 +495,19 @@
             document.getElementById(`tab-${tab}`).classList.remove('hidden-tab');
             document.querySelectorAll('nav button').forEach(b => {
                 b.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition";
-                b.querySelector('i').classList.remove('text-brand-400');
+                b.querySelector('i').classList.remove('text-brand-400', 'text-emerald-400');
             });
             const active = document.getElementById(`nav-${tab}`);
             active.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]";
-            active.querySelector('i').classList.add('text-brand-400');
+            if(tab !== 'payouts') active.querySelector('i').classList.add('text-brand-400');
+            else active.querySelector('i').classList.add('text-emerald-400');
             
-            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)' };
+            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)', 'payouts': 'Partner Payouts' };
             document.getElementById('header-title').innerText = titles[tab] || 'Dashboard';
             
             if(tab === 'users' && currentPage === 0) fetchUsersList();
             if(tab === 'ops') fetchOpsTelemetry();
+            if(tab === 'payouts') fetchPayoutsList();
         }
 
         function drillDownToDate(dateString) {
@@ -486,6 +523,7 @@
             fetchFinancialIntelligence(daysToFetch);
             if(!document.getElementById('tab-users').classList.contains('hidden-tab')) fetchUsersList();
             if(!document.getElementById('tab-ops').classList.contains('hidden-tab')) fetchOpsTelemetry();
+            if(!document.getElementById('tab-payouts').classList.contains('hidden-tab')) fetchPayoutsList();
         }
 
         async function fetchFinancialIntelligence(daysToFetch) {
@@ -780,6 +818,84 @@
             link.setAttribute("href", encodeURI(csvContent));
             link.setAttribute("download", `whis_export_${new Date().toISOString().split('T')[0]}.csv`);
             document.body.appendChild(link); link.click();
+        }
+
+        // --- Payout Ledger Functions ---
+        async function fetchPayoutsList() {
+            try {
+                const status = document.getElementById('filter-payout-status').value;
+                const tbody = document.getElementById('payouts-table-body');
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500 font-mono text-xs"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching ledger...</td></tr>`;
+                
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/payouts?status=${status}`, { headers: { 'x-dashboard-password': adminPassword } });
+                const data = await res.json();
+                
+                if(!data.payouts || data.payouts.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500 font-mono text-xs">No records match the current filter.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.payouts.forEach(p => {
+                    const isPaid = p.status === 'paid';
+                    const dateStr = new Date(p.createdAt).toLocaleDateString() + ' ' + new Date(p.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    let actionHtml = '';
+                    if (!isPaid) {
+                        actionHtml = `<button onclick="markPayoutPaid('${p._id}', this)" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded transition font-bold text-[10px] uppercase tracking-wider"><i class="fa-solid fa-check mr-1"></i> Mark Paid</button>`;
+                    } else {
+                        actionHtml = `<span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"><i class="fa-solid fa-check-double mr-1"></i> Cleared</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-800/20 transition group">
+                            <td class="px-4 py-3 text-slate-400 font-mono text-[10px]">${dateStr}</td>
+                            <td class="px-4 py-3 text-slate-300 font-mono text-[11px]">${p.orderId}</td>
+                            <td class="px-4 py-3 text-sky-400 font-bold font-mono text-[11px]">${p.influencerId}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-white font-mono text-xs">${p.upiId}</span>
+                                    <button onclick="navigator.clipboard.writeText('${p.upiId}'); alert('Copied UPI ID!')" class="text-slate-500 hover:text-white transition"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-emerald-400 font-bold text-sm">₹${p.commissionAmount}</td>
+                            <td class="px-4 py-3 text-right">${actionHtml}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { 
+                console.error(e); 
+                document.getElementById('payouts-table-body').innerHTML = `<tr><td colspan="6" class="text-center py-6 text-red-400 font-mono text-xs">Error fetching ledger.</td></tr>`;
+            }
+        }
+
+        async function markPayoutPaid(ledgerId, btnElement) {
+            if(!confirm("Are you sure you have manually sent the money to this UPI ID? This action cannot be undone.")) return;
+            
+            const origHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/payouts/mark-paid`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-dashboard-password': adminPassword },
+                    body: JSON.stringify({ ledgerId })
+                });
+                
+                const data = await res.json();
+                if(data.success) {
+                    btnElement.outerHTML = `<span class="text-[10px] text-emerald-500 uppercase tracking-widest font-bold fade-in"><i class="fa-solid fa-check-double mr-1"></i> Cleared</span>`;
+                } else {
+                    alert("Error: " + (data.error || "Failed to update"));
+                    btnElement.innerHTML = origHtml;
+                    btnElement.disabled = false;
+                }
+            } catch(e) {
+                alert("Network error.");
+                btnElement.innerHTML = origHtml;
+                btnElement.disabled = false;
+            }
         }
 
         // --- Charts ---
