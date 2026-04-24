@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Whis-AI Partner Program</title>
+  <title>Whis-AI Partner Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -16,6 +16,8 @@
       .social-icon.x:hover { color: #1DA1F2; }
       .social-icon.fb:hover { color: #1877F2; }
       input { transition: border-color 0.2s ease; }
+      .fade-in { animation: fadeIn 0.4s ease forwards; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
@@ -23,17 +25,17 @@
     <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
     <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-emerald-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
 
-    <div class="max-w-md w-full glass-card rounded-2xl p-8 shadow-2xl relative z-10 overflow-hidden">
+    <div id="mainContainer" class="max-w-md w-full glass-card rounded-2xl p-8 shadow-2xl relative z-10 transition-all duration-500">
         
-        <div class="text-center mb-8">
+        <div id="authHeader" class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 mb-4">
-                <i class="fa-solid fa-handshake text-xl"></i>
+                <i class="fa-solid fa-chart-line text-xl"></i>
             </div>
-            <h1 class="text-2xl font-bold mb-2 tracking-tight">Partner Program</h1>
-            <p class="text-slate-400 text-sm leading-relaxed">Give your audience 10% off. Get 20% instantly sent to your UPI for every sale.</p>
+            <h1 class="text-2xl font-bold mb-2 tracking-tight">Partner Portal</h1>
+            <p class="text-slate-400 text-sm leading-relaxed">Sign in or register to access your links and track payouts.</p>
         </div>
 
-        <div class="flex justify-center gap-5 text-slate-500 text-xl mb-8">
+        <div id="socialIcons" class="flex justify-center gap-5 text-slate-500 text-xl mb-8">
             <i class="fa-brands fa-instagram social-icon insta"></i>
             <i class="fa-brands fa-youtube social-icon yt"></i>
             <i class="fa-brands fa-twitter social-icon x"></i>
@@ -49,21 +51,25 @@
                 </div>
             </div>
             <button type="submit" id="otpBtn" class="w-full py-3.5 mt-2 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-200 transition shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm">
-                Send OTP
+                Continue <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
             <p id="step1Error" class="text-xs text-red-400 text-center mt-2 hidden"></p>
         </form>
 
-        <form id="step2Form" class="space-y-4 hidden" onsubmit="verifyAndRegister(event)">
+        <form id="step2Form" class="space-y-4 hidden fade-in" onsubmit="verifyAndRegister(event)">
+            <div class="text-center mb-4">
+                <p class="text-sm text-slate-400">OTP sent to <span id="displayEmail" class="text-sky-400 font-medium"></span></p>
+            </div>
+
             <div>
-                <label class="block text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1.5">Enter OTP</label>
+                <label class="block text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1.5">Enter 6-Digit OTP</label>
                 <input type="text" id="pOtp" required class="w-full bg-sky-500/10 border border-sky-500/30 text-sky-300 rounded-xl px-4 py-3 text-center text-xl tracking-[0.5em] font-bold focus:border-sky-400 outline-none" placeholder="••••••" maxlength="6">
             </div>
             
-            <div class="grid grid-cols-2 gap-4 mt-4">
+            <div id="registrationFields" class="grid grid-cols-2 gap-4 mt-4 hidden">
                 <div class="col-span-2">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Name / Brand</label>
-                    <input type="text" id="pName" required class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="e.g., Code with John">
+                    <input type="text" id="pName" class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="e.g., Code with John">
                 </div>
                 <div class="col-span-2">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Main Social Link</label>
@@ -71,38 +77,61 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Payout UPI ID</label>
-                    <input type="text" id="pUpi" required class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="name@okhdfc">
+                    <input type="text" id="pUpi" class="w-full bg-[#0a0d16] border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-sky-500 outline-none" placeholder="name@okhdfc">
                 </div>
             </div>
 
             <button type="submit" id="submitBtn" class="w-full py-3.5 mt-4 rounded-xl bg-sky-500 text-white font-bold hover:bg-sky-400 transition shadow-[0_0_20px_rgba(2,132,199,0.4)] text-sm flex items-center justify-center gap-2">
-                Generate Secure Link <i class="fa-solid fa-arrow-right"></i>
+                Verify & Access Dashboard
             </button>
             <p id="step2Error" class="text-xs text-red-400 text-center mt-2 hidden"></p>
         </form>
 
-        <div id="resultBox" class="hidden mt-4 p-5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center">
-            <div class="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 mx-auto mb-3">
-                <i class="fa-solid fa-check"></i>
+        <div id="dashboardView" class="hidden fade-in">
+            <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white mb-1">Welcome, <span id="dashName" class="text-sky-400">Partner</span></h2>
+                    <p class="text-xs text-slate-400">Payouts routed to: <span id="dashUpi" class="font-mono text-slate-300"></span></p>
+                </div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> Active
+                </div>
             </div>
-            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-2">Your Unique Link</p>
-            <input type="text" id="linkOutput" readonly class="w-full bg-black/50 border border-emerald-500/30 text-emerald-300 rounded-lg px-3 py-3 text-center text-sm mb-3 outline-none font-mono">
-            <button onclick="copyLink()" class="text-sm font-bold bg-emerald-500 text-slate-900 w-full py-3 rounded-xl hover:bg-emerald-400 transition shadow-lg active:scale-95">Copy to Clipboard</button>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-[#0a0d16] border border-slate-800 rounded-xl p-4 shadow-inner">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Sales</p>
+                    <p id="dashSales" class="text-3xl font-bold text-white">0</p>
+                </div>
+                <div class="bg-sky-500/5 border border-sky-500/20 rounded-xl p-4 shadow-inner">
+                    <p class="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-1">Total Earnings</p>
+                    <p class="text-3xl font-bold text-white">₹<span id="dashEarnings">0</span></p>
+                </div>
+            </div>
+
+            <div class="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5 text-center">
+                <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mb-2"><i class="fa-solid fa-link"></i> Your Unique Referral Link</p>
+                <input type="text" id="linkOutput" readonly class="w-full bg-[#0a0d16] border border-emerald-500/30 text-emerald-300 rounded-lg px-3 py-3 text-center text-sm mb-3 outline-none font-mono cursor-pointer" onclick="this.select()">
+                <button onclick="copyLink()" class="text-sm font-bold bg-emerald-500 text-slate-900 w-full py-3 rounded-xl hover:bg-emerald-400 transition shadow-[0_0_15px_rgba(16,185,129,0.3)] active:scale-95">Copy to Clipboard</button>
+            </div>
+            
+            <button onclick="location.reload()" class="w-full text-center mt-6 text-xs text-slate-500 hover:text-slate-300 transition">Sign Out</button>
         </div>
 
     </div>
 
     <script>
         let storedEmail = "";
-        const BACKEND_URL = "https://api.whis-ai.com"; // Routing directly to your Node server
+        let isNewPartner = false;
+        const BACKEND_URL = "https://api.whis-ai.com"; 
 
         async function requestOTP(e) {
             e.preventDefault();
             const btn = document.getElementById('otpBtn');
             const errorText = document.getElementById('step1Error');
-            const emailInput = document.getElementById('pEmail').value;
+            const emailInput = document.getElementById('pEmail').value.toLowerCase().trim();
             
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
             btn.disabled = true;
             errorText.classList.add('hidden');
 
@@ -117,18 +146,30 @@
                 
                 if(data.success) {
                     storedEmail = emailInput;
+                    isNewPartner = data.isNewUser;
+                    
+                    document.getElementById('displayEmail').innerText = storedEmail;
                     document.getElementById('step1Form').classList.add('hidden');
+                    
+                    // Show registration fields ONLY if it's a new user
+                    if (isNewPartner) {
+                        document.getElementById('registrationFields').classList.remove('hidden');
+                        document.getElementById('pName').required = true;
+                        document.getElementById('pUpi').required = true;
+                        document.getElementById('submitBtn').innerText = "Create Account & Access Dashboard";
+                    }
+
                     document.getElementById('step2Form').classList.remove('hidden');
                 } else {
                     errorText.innerText = data.error || 'Failed to send OTP.';
                     errorText.classList.remove('hidden');
-                    btn.innerHTML = 'Send OTP';
+                    btn.innerHTML = 'Continue <i class="fa-solid fa-arrow-right ml-1"></i>';
                     btn.disabled = false;
                 }
             } catch(err) {
                 errorText.innerText = 'Network error. Please try again.';
                 errorText.classList.remove('hidden');
-                btn.innerHTML = 'Send OTP';
+                btn.innerHTML = 'Continue <i class="fa-solid fa-arrow-right ml-1"></i>';
                 btn.disabled = false;
             }
         }
@@ -160,22 +201,34 @@
                 const data = await res.json();
                 
                 if(data.success) {
+                    // Hide auth elements
                     document.getElementById('step2Form').classList.add('hidden');
-                    document.querySelector('.text-center.mb-8').classList.add('hidden');
-                    document.querySelector('.flex.justify-center.gap-5').classList.add('hidden');
+                    document.getElementById('authHeader').classList.add('hidden');
+                    document.getElementById('socialIcons').classList.add('hidden');
                     
-                    document.getElementById('resultBox').classList.remove('hidden');
-                    document.getElementById('linkOutput').value = data.link;
+                    // Expand container slightly for the dashboard
+                    document.getElementById('mainContainer').classList.remove('max-w-md');
+                    document.getElementById('mainContainer').classList.add('max-w-lg');
+                    
+                    // Populate Dashboard Data
+                    document.getElementById('dashName').innerText = data.influencer.name;
+                    document.getElementById('dashUpi').innerText = data.influencer.upiId;
+                    document.getElementById('dashSales').innerText = data.influencer.sales;
+                    document.getElementById('dashEarnings').innerText = data.influencer.earnings.toLocaleString();
+                    document.getElementById('linkOutput').value = data.influencer.link;
+                    
+                    // Show Dashboard
+                    document.getElementById('dashboardView').classList.remove('hidden');
                 } else {
-                    errorText.innerText = data.error || 'Registration failed.';
+                    errorText.innerText = data.error || 'Verification failed.';
                     errorText.classList.remove('hidden');
-                    btn.innerHTML = 'Generate Secure Link <i class="fa-solid fa-arrow-right"></i>';
+                    btn.innerHTML = isNewPartner ? "Create Account & Access Dashboard" : "Verify & Access Dashboard";
                     btn.disabled = false;
                 }
             } catch(err) {
                 errorText.innerText = 'Network error. Please try again.';
                 errorText.classList.remove('hidden');
-                btn.innerHTML = 'Generate Secure Link <i class="fa-solid fa-arrow-right"></i>';
+                btn.innerHTML = isNewPartner ? "Create Account & Access Dashboard" : "Verify & Access Dashboard";
                 btn.disabled = false;
             }
         }
