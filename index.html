@@ -1135,7 +1135,7 @@
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
 
-    async function fetchPricingConfig() {
+async function fetchPricingConfig() {
         try {
             const res = await fetch(`${BACKEND_URL}/api/config`);
             if(res.ok) {
@@ -1144,12 +1144,12 @@
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
-                // --- NEW: AFFILIATE DISCOUNT OVERRIDE ---
+                // --- VISUAL UI DISCOUNT FOR AFFILIATES ---
                 if (localStorage.getItem('whisRef')) {
                     PRICING_CONFIG.pro.discount = Math.max(PRICING_CONFIG.pro.discount || 0, 10);
                     PRICING_CONFIG.pro_plus.discount = Math.max(PRICING_CONFIG.pro_plus.discount || 0, 10);
                 }
-                // ----------------------------------------
+                // -----------------------------------------
 
                 updatePricingUI();
                 document.getElementById('btnPro').disabled = false;
@@ -1289,115 +1289,113 @@
         openPaymentModal();
     }
 
-    
-function openPaymentModal() {
-    currentCoupon = ""; currentCouponDiscount = 0;
-    document.getElementById('couponInput').value = '';
-    document.getElementById('couponMessage').classList.add('hidden');
-    paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
-    document.getElementById('paypal-button-container').innerHTML = '';
+    function openPaymentModal() {
+        currentCoupon = ""; currentCouponDiscount = 0;
+        document.getElementById('couponInput').value = '';
+        document.getElementById('couponMessage').classList.add('hidden');
+        paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
+        document.getElementById('paypal-button-container').innerHTML = '';
 
-    paypal.Buttons({
-        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-        createOrder: async function(data, actions) {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    googleId: currentUser.googleId, 
-                    tier: selectedTierForPayment, 
-                    cycle: currentCycle, 
-                    couponCode: currentCoupon,
-                    refCode: localStorage.getItem('whisRef') // <-- FIX: Sends code to backend
-                })
-            });
-            const orderData = await res.json();
-            return orderData.id; 
-        },
-        onApprove: async function(data, actions) {
-            const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
-            });
-            const details = await res.json();
-            if (details.success) { 
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'conversion', {
-                        'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
-                        'value': details.revenue,
-                        'currency': details.currency,
-                        'transaction_id': details.transaction_id
-                    });
-                }
-                closePaymentModal(); 
-                document.getElementById('successModal').classList.remove('hidden'); 
-                document.getElementById('successModal').classList.add('flex'); 
-            } 
-            else { alert("PayPal transaction verification failed."); }
-        },
-        onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
-    }).render('#paypal-button-container');
-}
+        paypal.Buttons({
+            style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+            createOrder: async function(data, actions) {
+                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        googleId: currentUser.googleId, 
+                        tier: selectedTierForPayment, 
+                        cycle: currentCycle, 
+                        couponCode: currentCoupon,
+                        refCode: localStorage.getItem('whisRef') 
+                    })
+                });
+                const orderData = await res.json();
+                return orderData.id; 
+            },
+            onApprove: async function(data, actions) {
+                const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
+                });
+                const details = await res.json();
+                if (details.success) { 
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'conversion', {
+                            'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
+                            'value': details.revenue,
+                            'currency': details.currency,
+                            'transaction_id': details.transaction_id
+                        });
+                    }
+                    closePaymentModal(); 
+                    document.getElementById('successModal').classList.remove('hidden'); 
+                    document.getElementById('successModal').classList.add('flex'); 
+                } 
+                else { alert("PayPal transaction verification failed."); }
+            },
+            onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
+        }).render('#paypal-button-container');
+    }
 
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
 
-async function triggerRazorpayFlow(event) {
-    const targetTier = selectedTierForPayment;
-    const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-    const btn = event.currentTarget; const orig = btn.innerHTML; 
-    btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
-    try {
-        const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({ 
-                googleId: currentUser.googleId, 
-                tier: targetTier, 
-                cycle: currentCycle, 
-                isUpgrade: isUpgrade, 
-                couponCode: currentCoupon,
-                refCode: localStorage.getItem('whisRef') // <-- FIX: Sends code to backend
-            })
-        });
-        const data = await res.json();
-         
-        if(data.order_id){
-            const rzp1 = new Razorpay({
-                "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
-                "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
-                "handler": async function (response){ 
-                    try {
-                        const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-                            method: 'POST', headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
-                        });
-                        const verifyData = await verifyRes.json();
-                        if(verifyData.success){ 
-                            if (typeof gtag !== 'undefined') {
-                                gtag('event', 'conversion', {
-                                    'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
-                                    'value': verifyData.revenue,
-                                    'currency': verifyData.currency,
-                                    'transaction_id': verifyData.transaction_id
-                                });
-                            }
-                            closePaymentModal(); 
-                            document.getElementById('successModal').classList.remove('hidden'); 
-                            document.getElementById('successModal').classList.add('flex'); 
-                        } 
-                        else { alert("Verification Failed. Contact Support."); }
-                    } catch(e) { alert("Network Error during verification."); }
-                },
-                "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
+    async function triggerRazorpayFlow(event) {
+        const targetTier = selectedTierForPayment;
+        const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
+        const btn = event.currentTarget; const orig = btn.innerHTML; 
+        btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({ 
+                    googleId: currentUser.googleId, 
+                    tier: targetTier, 
+                    cycle: currentCycle, 
+                    isUpgrade: isUpgrade, 
+                    couponCode: currentCoupon,
+                    refCode: localStorage.getItem('whisRef') 
+                })
             });
-            rzp1.open();
-        }
-    } catch(e){ btn.innerHTML = orig; }
-}
+            const data = await res.json();
+             
+            if(data.order_id){
+                const rzp1 = new Razorpay({
+                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
+                    "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
+                    "handler": async function (response){ 
+                        try {
+                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+                                method: 'POST', headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
+                            });
+                            const verifyData = await verifyRes.json();
+                            if(verifyData.success){ 
+                                if (typeof gtag !== 'undefined') {
+                                    gtag('event', 'conversion', {
+                                        'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
+                                        'value': verifyData.revenue,
+                                        'currency': verifyData.currency,
+                                        'transaction_id': verifyData.transaction_id
+                                    });
+                                }
+                                closePaymentModal(); 
+                                document.getElementById('successModal').classList.remove('hidden'); 
+                                document.getElementById('successModal').classList.add('flex'); 
+                            } 
+                            else { alert("Verification Failed. Contact Support."); }
+                        } catch(e) { alert("Network Error during verification."); }
+                    },
+                    "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
+                });
+                rzp1.open();
+            }
+        } catch(e){ btn.innerHTML = orig; }
+    }
 
     function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
     const loginModal=document.getElementById('loginModal'); const downloadModal=document.getElementById('downloadModal'); const profileModal=document.getElementById('profileModal');
      
-    // --- THIS IS THE NEW SEAMLESS OAUTH FUNCTION ---
     function openLoginModal(){
         loginModal.classList.remove('hidden'); loginModal.classList.add('flex');
         
@@ -1558,7 +1556,8 @@ async function triggerRazorpayFlow(event) {
     function startChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval = setInterval(fetchChatHistory, 3000); }
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
+        
         // --- THIS CATCHES THE OAUTH SUCCESS FROM BACKEND ---
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth_success');
@@ -1574,13 +1573,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- VISUAL BANNER FOR AFFILIATE USERS ---
         const activeRef = localStorage.getItem('whisRef');
         if (activeRef) {
-            // Create a sticky banner at the very top of the page
             const banner = document.createElement('div');
             banner.className = "bg-emerald-500 text-slate-900 text-[11px] md:text-xs font-bold text-center py-2 px-4 fixed top-0 w-full z-[100] shadow-md flex justify-center items-center gap-2";
             banner.innerHTML = `<i class="fa-solid fa-gift text-sm"></i> Partner Link Active! You've unlocked an exclusive 10% discount.`;
             document.body.prepend(banner);
             
-            // Push the main navigation bar down slightly so it doesn't overlap the banner
             const nav = document.querySelector('nav');
             if (nav) {
                 nav.style.top = '32px'; 
@@ -1596,7 +1593,19 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (e) {
                 console.error("Failed to parse user from URL", e);
             }
-        });
+        }
+
+        initCarousel();
+        initUptimeCounter();
+        typeCode();
+        typeEffect();
+        typeHeroSequence(); 
+        initSliderAutoPlay();
+        checkUser();
+        fetchPricingConfig();
+        
+        setCycle('monthly');
+    });
   </script>
 </body>
 </html>
