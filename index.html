@@ -1558,7 +1558,7 @@ async function triggerRazorpayFlow(event) {
     function startChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); chatPollInterval = setInterval(fetchChatHistory, 3000); }
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
         // --- THIS CATCHES THE OAUTH SUCCESS FROM BACKEND ---
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth_success');
@@ -1571,6 +1571,23 @@ async function triggerRazorpayFlow(event) {
         }
         // -----------------------------------
 
+        // --- VISUAL BANNER FOR AFFILIATE USERS ---
+        const activeRef = localStorage.getItem('whisRef');
+        if (activeRef) {
+            // Create a sticky banner at the very top of the page
+            const banner = document.createElement('div');
+            banner.className = "bg-emerald-500 text-slate-900 text-[11px] md:text-xs font-bold text-center py-2 px-4 fixed top-0 w-full z-[100] shadow-md flex justify-center items-center gap-2";
+            banner.innerHTML = `<i class="fa-solid fa-gift text-sm"></i> Partner Link Active! You've unlocked an exclusive 10% discount.`;
+            document.body.prepend(banner);
+            
+            // Push the main navigation bar down slightly so it doesn't overlap the banner
+            const nav = document.querySelector('nav');
+            if (nav) {
+                nav.style.top = '32px'; 
+            }
+        }
+        // ------------------------------------------
+
         if (authSuccess === 'true' && userStr) {
             try {
                 const decodedUserStr = decodeURIComponent(userStr);
@@ -1579,19 +1596,7 @@ async function triggerRazorpayFlow(event) {
             } catch (e) {
                 console.error("Failed to parse user from URL", e);
             }
-        }
-
-        initCarousel();
-        initUptimeCounter();
-        typeCode();
-        typeEffect();
-        typeHeroSequence(); 
-        initSliderAutoPlay();
-        checkUser();
-        fetchPricingConfig();
-        
-        setCycle('monthly');
-    });
+        });
   </script>
 </body>
 </html>
