@@ -25,7 +25,7 @@
     <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
     <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-emerald-500 rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
 
-    <div id="mainContainer" class="max-w-md w-full glass-card rounded-2xl p-8 shadow-2xl relative z-10 transition-all duration-500">
+    <div id="mainContainer" class="max-w-md w-full glass-card rounded-2xl p-8 shadow-2xl relative z-10 transition-all duration-500 hidden">
         
         <div id="authHeader" class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 mb-4">
@@ -115,15 +115,48 @@
                 <button onclick="copyLink()" class="text-sm font-bold bg-emerald-500 text-slate-900 w-full py-3 rounded-xl hover:bg-emerald-400 transition shadow-[0_0_15px_rgba(16,185,129,0.3)] active:scale-95">Copy to Clipboard</button>
             </div>
             
-            <button onclick="location.reload()" class="w-full text-center mt-6 text-xs text-slate-500 hover:text-slate-300 transition">Sign Out</button>
+            <button onclick="signOutPartner()" class="w-full text-center mt-6 text-xs text-slate-500 hover:text-slate-300 transition">Sign Out</button>
         </div>
 
+    </div>
+
+    <div id="loadingState" class="flex flex-col items-center justify-center relative z-20">
+        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-sky-500 mb-4"></i>
+        <p class="text-slate-400 text-sm">Authenticating...</p>
     </div>
 
     <script>
         let storedEmail = "";
         let isNewPartner = false;
         const BACKEND_URL = "https://api.whis-ai.com"; 
+
+        // AUTO-LOGIN CHECK ON LOAD
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = localStorage.getItem('whisPartnerToken');
+            const expiry = localStorage.getItem('whisPartnerExpiry');
+
+            if (token && expiry && Date.now() < parseInt(expiry)) {
+                try {
+                    const res = await fetch(`${BACKEND_URL}/api/influencer/me`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+                    const data = await res.json();
+                    
+                    if(data.success) {
+                        showDashboard(data.influencer);
+                        return;
+                    }
+                } catch(e) {
+                    console.log("Auto-login failed", e);
+                }
+            }
+            
+            // If no token or failed, show login screen
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('mainContainer').classList.remove('hidden');
+        });
 
         async function requestOTP(e) {
             e.preventDefault();
@@ -201,24 +234,11 @@
                 const data = await res.json();
                 
                 if(data.success) {
-                    // Hide auth elements
-                    document.getElementById('step2Form').classList.add('hidden');
-                    document.getElementById('authHeader').classList.add('hidden');
-                    document.getElementById('socialIcons').classList.add('hidden');
+                    // CACHE THE LOGIN FOR 24 HOURS
+                    localStorage.setItem('whisPartnerToken', data.influencer.influencerId);
+                    localStorage.setItem('whisPartnerExpiry', Date.now() + (24 * 60 * 60 * 1000));
                     
-                    // Expand container slightly for the dashboard
-                    document.getElementById('mainContainer').classList.remove('max-w-md');
-                    document.getElementById('mainContainer').classList.add('max-w-lg');
-                    
-                    // Populate Dashboard Data
-                    document.getElementById('dashName').innerText = data.influencer.name;
-                    document.getElementById('dashUpi').innerText = data.influencer.upiId;
-                    document.getElementById('dashSales').innerText = data.influencer.sales;
-                    document.getElementById('dashEarnings').innerText = data.influencer.earnings.toLocaleString();
-                    document.getElementById('linkOutput').value = data.influencer.link;
-                    
-                    // Show Dashboard
-                    document.getElementById('dashboardView').classList.remove('hidden');
+                    showDashboard(data.influencer);
                 } else {
                     errorText.innerText = data.error || 'Verification failed.';
                     errorText.classList.remove('hidden');
@@ -231,6 +251,38 @@
                 btn.innerHTML = isNewPartner ? "Create Account & Access Dashboard" : "Verify & Access Dashboard";
                 btn.disabled = false;
             }
+        }
+
+        function showDashboard(influencer) {
+            // Hide loading state if it was there
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('mainContainer').classList.remove('hidden');
+            
+            // Hide auth elements
+            document.getElementById('step1Form').classList.add('hidden');
+            document.getElementById('step2Form').classList.add('hidden');
+            document.getElementById('authHeader').classList.add('hidden');
+            document.getElementById('socialIcons').classList.add('hidden');
+            
+            // Expand container slightly for the dashboard
+            document.getElementById('mainContainer').classList.remove('max-w-md');
+            document.getElementById('mainContainer').classList.add('max-w-lg');
+            
+            // Populate Dashboard Data
+            document.getElementById('dashName').innerText = influencer.name;
+            document.getElementById('dashUpi').innerText = influencer.upiId;
+            document.getElementById('dashSales').innerText = influencer.sales;
+            document.getElementById('dashEarnings').innerText = influencer.earnings.toLocaleString();
+            document.getElementById('linkOutput').value = influencer.link;
+            
+            // Show Dashboard
+            document.getElementById('dashboardView').classList.remove('hidden');
+        }
+
+        function signOutPartner() {
+            localStorage.removeItem('whisPartnerToken');
+            localStorage.removeItem('whisPartnerExpiry');
+            location.reload();
         }
 
         function copyLink() {
