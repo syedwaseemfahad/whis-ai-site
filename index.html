@@ -794,6 +794,11 @@
         </div>
         <div id="couponMessage" class="text-xs font-bold mb-4 hidden"></div>
 
+        <div id="influencerDiscountMsg" class="hidden bg-emerald-50/80 border border-emerald-200 text-emerald-800 text-[11px] md:text-xs p-3 rounded-xl mb-4 text-left shadow-sm">
+            <span class="font-bold flex items-center gap-1.5 mb-1 text-emerald-600"><i class="fa-solid fa-tags"></i> Influencer Link Active</span>
+            Your 10% discount will be automatically applied at checkout when you select Razorpay or Global Payments below.
+        </div>
+
         <div class="space-y-3 md:space-y-4">
             <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-3.5 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl hover:border-accent hover:bg-sky-50 transition-all duration-300">
                 <div class="flex items-center gap-3 md:gap-4">
@@ -1295,6 +1300,16 @@ async function fetchPricingConfig() {
         document.getElementById('couponMessage').classList.add('hidden');
         paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
         document.getElementById('paypal-button-container').innerHTML = '';
+
+        // --- INFLUENCER NOTIFICATION CHECK ---
+        const infMsg = document.getElementById('influencerDiscountMsg');
+        if (infMsg) {
+            if (localStorage.getItem('whisRef')) {
+                infMsg.classList.remove('hidden');
+            } else {
+                infMsg.classList.add('hidden');
+            }
+        }
 
         paypal.Buttons({
             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
