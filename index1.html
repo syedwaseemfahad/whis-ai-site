@@ -1,29 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResolveNode | Operations Dashboard</title>
+    <meta charset="UTF-8" />
+    <title>ResolveNode | The Enterprise Reply Layer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="theme-color" content="#0B1120">
     
-    <!-- Fonts: Inter (UI) & JetBrains Mono (Data) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        mono: ['JetBrains Mono', 'monospace'] 
                     },
-                    colors: {
+                    colors: { 
                         obsidian: '#0B1120',
                         cobalt: '#0369A1',
                         emerald: '#059669',
@@ -34,257 +29,283 @@
     </script>
     
     <style>
-        /* Enterprise Styling Constraints */
-        body { background-color: #F8FAFC; }
+        body { background-color: #F8FAFC; color: #0F172A; overflow-x: hidden; }
         
-        /* Razor-thin scrollbar for data density */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        .b2b-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px; /* Strict, professional radius */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+        .b2b-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
 
-        /* The Geometric Owl Frame */
-        .owl-frame {
-            width: 36px; height: 36px;
+        .logo-frame {
+            width: 40px; height: 40px;
             border-radius: 50%;
-            border: 2px solid #E2E8F0;
+            border: 2px solid #0F172A;
             display: flex; align-items: center; justify-content: center;
             background: #FFFFFF;
         }
-        .sidebar-owl-frame {
-            border-color: #334155;
-            background: #0F172A;
-            color: #F8FAFC;
+        
+        /* Grid background pattern for architectural feel */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
         }
     </style>
 </head>
-<body class="font-sans text-slate-900 h-screen flex overflow-hidden antialiased">
+<body class="antialiased">
 
-    <!-- SIDEBAR (The Obsidian Core) -->
-    <aside class="w-64 bg-obsidian text-slate-400 flex flex-col border-r border-slate-800 shrink-0">
-        <!-- Brand Header -->
-        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
-            <div class="owl-frame sidebar-owl-frame mr-3">
-                <i class="fa-solid fa-owl text-sm"></i>
-            </div>
-            <span class="text-white font-bold tracking-wide">ResolveNode</span>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-            <p class="px-3 text-xs font-semibold text-slate-600 uppercase tracking-widest mb-2">Infrastructure</p>
-            
-            <a href="#" class="flex items-center gap-3 px-3 py-2 bg-slate-800/50 text-white rounded-md border border-slate-700/50 transition">
-                <i class="fa-solid fa-chart-line w-4 text-center text-cobalt"></i>
-                <span class="text-sm font-medium">Ops Overview</span>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 transition-all h-[72px] flex items-center">
+        <div class="w-full max-w-7xl mx-auto px-6 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 group">
+                <div class="logo-frame group-hover:scale-105 transition-transform border-slate-900 text-slate-900">
+                    <i class="fa-solid fa-owl text-lg"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-slate-900">ResolveNode</span>
             </a>
             
-            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
-                <i class="fa-solid fa-database w-4 text-center"></i>
-                <span class="text-sm font-medium">Knowledge Base</span>
-            </a>
-            
-            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
-                <i class="fa-solid fa-users w-4 text-center"></i>
-                <span class="text-sm font-medium">Seat Management</span>
-                <span class="ml-auto bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-700">12</span>
-            </a>
-
-            <div class="pt-6 pb-2">
-                <p class="px-3 text-xs font-semibold text-slate-600 uppercase tracking-widest mb-2">Integrations</p>
+            <div class="hidden md:flex items-center gap-8 text-[13px] font-semibold text-slate-600">
+                <a href="#platform" class="hover:text-cobalt transition">Platform</a>
+                <a href="#integrations" class="hover:text-cobalt transition">Integrations</a>
+                <a href="#security" class="hover:text-cobalt transition">Security</a>
+                <a href="#pricing" class="hover:text-cobalt transition">Pricing</a>
             </div>
 
-            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
-                <i class="fa-solid fa-code-merge w-4 text-center"></i>
-                <span class="text-sm font-medium">API Webhooks</span>
-            </a>
-            
-            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
-                <i class="fa-solid fa-gear w-4 text-center"></i>
-                <span class="text-sm font-medium">Settings</span>
-            </a>
-        </nav>
-
-        <!-- System Status -->
-        <div class="p-4 border-t border-slate-800 shrink-0">
-            <div class="flex items-center gap-3 px-3 py-2 rounded-md bg-emerald-900/10 border border-emerald-900/30">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span class="text-xs text-emerald-400 font-mono">System Active: All Nodes</span>
-            </div>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col min-w-0 bg-slate-50">
-        
-        <!-- Top Header -->
-        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-            <div class="flex items-center text-sm font-medium text-slate-500">
-                <span>Acme Corp</span>
-                <i class="fa-solid fa-chevron-right text-[10px] mx-3 text-slate-300"></i>
-                <span class="text-slate-900">Ops Overview</span>
-            </div>
-            
             <div class="flex items-center gap-4">
-                <button class="text-slate-400 hover:text-slate-600 transition"><i class="fa-regular fa-bell"></i></button>
-                <div class="h-6 w-px bg-slate-200"></div>
-                <div class="flex items-center gap-2 cursor-pointer">
-                    <div class="w-8 h-8 rounded-md bg-cobalt text-white flex items-center justify-center text-xs font-bold">DM</div>
-                    <span class="text-sm font-medium text-slate-700">Director</span>
-                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
-                </div>
+                <a href="/login" class="hidden md:block text-[13px] font-semibold text-slate-600 hover:text-slate-900 transition">Log in</a>
+                <button class="bg-obsidian text-white px-5 py-2 rounded-md text-[13px] font-bold shadow-sm hover:bg-slate-800 transition active:scale-95">
+                    Start Free Trial
+                </button>
             </div>
-        </header>
+        </div>
+    </nav>
 
-        <!-- Dashboard Scrollable Area -->
-        <main class="flex-1 overflow-y-auto p-8">
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6 relative overflow-hidden bg-grid">
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-widest mb-8">
+                <i class="fa-solid fa-shield-check text-emerald-600"></i> SOC2 Type II Certified
+            </div>
             
-            <div class="flex items-end justify-between mb-8">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Support Operations</h1>
-                    <p class="text-sm text-slate-500 mt-1">Real-time metrics for current billing cycle (May 1 - May 31).</p>
-                </div>
-                <button class="bg-cobalt hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2 rounded-md shadow-sm border border-transparent transition flex items-center gap-2">
-                    <i class="fa-solid fa-download"></i> Export CSV
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
+                Scale Your Support Ops.<br>
+                <span class="text-cobalt">Without the Headcount.</span>
+            </h1>
+            
+            <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-medium">
+                ResolveNode is the enterprise middleware that reads your past tickets and internal wikis to instantly draft hyper-accurate replies. It plugs directly into Zendesk and Salesforce so your reps never leave their inbox.
+            </p>
+            
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-12">
+                <button class="w-full md:w-auto px-8 py-4 rounded-md bg-cobalt text-white font-bold text-sm shadow-md hover:bg-sky-700 transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-chrome"></i> Install Extension
+                </button>
+                <button class="w-full md:w-auto px-8 py-4 rounded-md bg-white border border-slate-300 text-slate-700 font-bold text-sm shadow-sm hover:bg-slate-50 transition active:scale-95">
+                    Book Enterprise Demo
                 </button>
             </div>
 
-            <!-- ROI Metrics Grid (Strict Geometric Cards) -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                
-                <!-- Metric 1 -->
-                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Resolutions</span>
-                        <i class="fa-solid fa-check-double text-slate-400"></i>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-slate-900 font-mono">14,204</div>
-                        <div class="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
-                            <i class="fa-solid fa-arrow-trend-up"></i> +12% from last week
+            <!-- Social Proof Bar -->
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Native Integrations For High-Volume Floors</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                <span class="text-sm md:text-base font-bold flex items-center gap-2"><i class="fa-brands fa-salesforce text-2xl text-blue-500"></i> Salesforce</span>
+                <span class="text-sm md:text-base font-bold flex items-center gap-2"><i class="fa-solid fa-headset text-2xl text-emerald-500"></i> Zendesk</span>
+                <span class="text-sm md:text-base font-bold flex items-center gap-2"><i class="fa-brands fa-intercom text-2xl text-blue-400"></i> Intercom</span>
+                <span class="text-sm md:text-base font-bold flex items-center gap-2"><i class="fa-solid fa-envelope text-2xl text-red-500"></i> Outlook / Gmail</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Problem / Solution (Architectural Breakdown) -->
+    <section id="platform" class="py-24 bg-obsidian text-slate-300 border-y border-slate-800">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-16 text-center tracking-tight">The Resolution Architecture</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Step 1 -->
+                <div class="bg-slate-900/50 border border-slate-700/50 p-8 rounded-lg relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><i class="fa-solid fa-database text-6xl text-white"></i></div>
+                    <div class="w-10 h-10 bg-slate-800 text-white border border-slate-700 rounded flex items-center justify-center font-mono text-sm font-bold mb-6">01</div>
+                    <h3 class="text-xl font-bold text-white mb-3">Context Ingestion</h3>
+                    <p class="text-sm leading-relaxed text-slate-400">Upload your PDF policies, link your Help Center, and upload CSVs of past successful tickets. Our secure RAG pipeline absorbs your company's specific knowledge and tone.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-slate-900/50 border border-slate-700/50 p-8 rounded-lg relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><i class="fa-solid fa-layer-group text-6xl text-white"></i></div>
+                    <div class="w-10 h-10 bg-cobalt text-white border border-sky-600 rounded flex items-center justify-center font-mono text-sm font-bold mb-6">02</div>
+                    <h3 class="text-xl font-bold text-white mb-3">The Middleware Layer</h3>
+                    <p class="text-sm leading-relaxed text-slate-400">Deploy our lightweight Chrome extension or macOS native client. It acts as an invisible layer directly on top of your existing CRM. No massive IT migrations required.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-slate-900/50 border border-slate-700/50 p-8 rounded-lg relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity"><i class="fa-solid fa-bolt text-6xl text-white"></i></div>
+                    <div class="w-10 h-10 bg-emerald-600 text-white border border-emerald-500 rounded flex items-center justify-center font-mono text-sm font-bold mb-6">03</div>
+                    <h3 class="text-xl font-bold text-white mb-3">One-Click Resolution</h3>
+                    <p class="text-sm leading-relaxed text-slate-400">When an inbound ticket arrives, the AI cross-references your rules and drafts a compliant reply instantly. The rep reviews, clicks "Send," and moves on. 10 minutes reduced to 5 seconds.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison / Feature Depth -->
+    <section class="py-24 bg-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-slate-900 mb-12 text-center tracking-tight">Why standard AI fails in B2B.</h2>
+            
+            <div class="b2b-card overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200">
+                            <th class="p-4 text-xs text-slate-500 uppercase tracking-widest font-semibold w-1/3">Requirement</th>
+                            <th class="p-4 text-xs text-slate-500 uppercase tracking-widest font-semibold w-1/3 border-l border-slate-200">ChatGPT / Generic AI</th>
+                            <th class="p-4 text-xs text-cobalt uppercase tracking-widest font-bold w-1/3 bg-sky-50 border-l border-sky-200">ResolveNode</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-slate-100">
+                            <td class="p-4 font-bold text-slate-800">Workflow Integration</td>
+                            <td class="p-4 border-l border-slate-100 text-slate-500"><i class="fa-solid fa-xmark text-red-400 mr-2"></i> Tab switching required</td>
+                            <td class="p-4 bg-sky-50/30 border-l border-sky-100 font-medium text-slate-900"><i class="fa-solid fa-check text-cobalt mr-2"></i> Native CRM injection</td>
+                        </tr>
+                        <tr class="border-b border-slate-100">
+                            <td class="p-4 font-bold text-slate-800">Knowledge Accuracy</td>
+                            <td class="p-4 border-l border-slate-100 text-slate-500"><i class="fa-solid fa-xmark text-red-400 mr-2"></i> Hallucinates policies</td>
+                            <td class="p-4 bg-sky-50/30 border-l border-sky-100 font-medium text-slate-900"><i class="fa-solid fa-check text-cobalt mr-2"></i> Vector-grounded truth</td>
+                        </tr>
+                        <tr class="border-b border-slate-100">
+                            <td class="p-4 font-bold text-slate-800">Data Isolation</td>
+                            <td class="p-4 border-l border-slate-100 text-slate-500"><i class="fa-solid fa-xmark text-red-400 mr-2"></i> Trains on your data</td>
+                            <td class="p-4 bg-sky-50/30 border-l border-sky-100 font-medium text-slate-900"><i class="fa-solid fa-check text-cobalt mr-2"></i> Zero-retention architecture</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 font-bold text-slate-800">Tone of Voice</td>
+                            <td class="p-4 border-l border-slate-100 text-slate-500"><i class="fa-solid fa-xmark text-red-400 mr-2"></i> Sounds robotic</td>
+                            <td class="p-4 bg-sky-50/30 border-l border-sky-100 font-medium text-slate-900"><i class="fa-solid fa-check text-cobalt mr-2"></i> Learns historical style</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof / Testimonials -->
+    <section class="py-24 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-slate-900 mb-12 text-center tracking-tight">Trusted by Operations Leaders.</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="b2b-card p-8 flex flex-col justify-between">
+                    <p class="text-slate-700 text-sm leading-relaxed mb-6">"Our reps were spending 70% of their day digging through Confluence to find refund policies. ResolveNode acts as an instant brain trust. Our Mean Time to Resolution dropped by 65% in the first two weeks."</p>
+                    <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                        <div class="w-10 h-10 rounded bg-slate-200 flex items-center justify-center font-bold text-slate-500 text-xs">JM</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Jessica Miller</p>
+                            <p class="text-[11px] text-slate-500 uppercase tracking-wide">Director of Support Ops</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Metric 2 -->
-                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Human Hours Saved</span>
-                        <i class="fa-solid fa-stopwatch text-slate-400"></i>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-slate-900 font-mono">1,183</div>
-                        <div class="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
-                            <i class="fa-solid fa-arrow-trend-up"></i> $29,575 estimated ROI
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Metric 3 -->
-                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Mean Time To Resolve</span>
-                        <i class="fa-solid fa-bolt text-slate-400"></i>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-slate-900 font-mono">14s</div>
-                        <div class="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
-                            <i class="fa-solid fa-arrow-trend-down"></i> Down from 4m 12s
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Metric 4 -->
-                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <div class="flex justify-between items-start mb-4">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Extension Seats</span>
-                        <i class="fa-solid fa-users text-slate-400"></i>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold text-slate-900 font-mono">12 / 15</div>
-                        <div class="text-xs text-slate-500 mt-2 font-medium">
-                            $600 / mo current spend
+                <div class="b2b-card p-8 flex flex-col justify-between">
+                    <p class="text-slate-700 text-sm leading-relaxed mb-6">"We didn't want to rip out Salesforce just to get AI features. ResolveNode is the perfect middleware. It installed in seconds, read our entire product catalog, and paid for itself on day three."</p>
+                    <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                        <div class="w-10 h-10 rounded bg-slate-200 flex items-center justify-center font-bold text-slate-500 text-xs">DK</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">David Kim</p>
+                            <p class="text-[11px] text-slate-500 uppercase tracking-wide">VP of Sales Operations</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- Lower Section Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <!-- Knowledge Ingestion Status (2/3 width) -->
-                <div class="col-span-2 bg-white rounded-md border border-slate-200 shadow-sm flex flex-col">
-                    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
-                        <h2 class="text-sm font-bold text-slate-800">Vector Knowledge Base</h2>
-                        <button class="text-xs font-semibold text-cobalt hover:text-sky-700">Manage Data <i class="fa-solid fa-arrow-right ml-1"></i></button>
-                    </div>
-                    <div class="p-0 flex-1">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50/50">
-                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Source Name</th>
-                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Type</th>
-                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Last Synced</th>
-                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-sm">
-                                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                                    <td class="px-5 py-4 font-medium text-slate-800"><i class="fa-solid fa-file-pdf text-red-400 mr-2"></i> Q2_Refund_Policy.pdf</td>
-                                    <td class="px-5 py-4 text-slate-500">Static File</td>
-                                    <td class="px-5 py-4 text-slate-500 font-mono text-xs">Today, 08:14 AM</td>
-                                    <td class="px-5 py-4"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Vectorized</span></td>
-                                </tr>
-                                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                                    <td class="px-5 py-4 font-medium text-slate-800"><i class="fa-solid fa-globe text-cobalt mr-2"></i> help.acmecorp.com/faq</td>
-                                    <td class="px-5 py-4 text-slate-500">Live Scraper</td>
-                                    <td class="px-5 py-4 text-slate-500 font-mono text-xs">Today, 09:00 AM</td>
-                                    <td class="px-5 py-4"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">In Sync</span></td>
-                                </tr>
-                                <tr class="hover:bg-slate-50">
-                                    <td class="px-5 py-4 font-medium text-slate-800"><i class="fa-solid fa-file-csv text-green-500 mr-2"></i> 2025_resolved_tickets.csv</td>
-                                    <td class="px-5 py-4 text-slate-500">Tone Training</td>
-                                    <td class="px-5 py-4 text-slate-500 font-mono text-xs">May 1, 14:22 PM</td>
-                                    <td class="px-5 py-4"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Active</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Live System Log (1/3 width, Engineered feel) -->
-                <div class="bg-[#1E293B] rounded-md border border-slate-700 shadow-sm flex flex-col overflow-hidden">
-                    <div class="p-4 border-b border-slate-700/50 flex justify-between items-center bg-[#0F172A]">
-                        <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-terminal text-[10px]"></i> AI Request Log</h2>
-                        <span class="text-[10px] text-slate-400 font-mono">Live</span>
-                    </div>
-                    <div class="p-4 flex-1 overflow-y-auto bg-[#1E293B] font-mono text-xs text-slate-400 space-y-3">
-                        <div class="flex gap-3">
-                            <span class="text-slate-500">10:42:01</span>
-                            <div><span class="text-emerald-400">SUCCESS</span> [Zendesk] Ticket #8842 resolved by Seat_04.</div>
-                        </div>
-                        <div class="flex gap-3">
-                            <span class="text-slate-500">10:41:15</span>
-                            <div><span class="text-cobalt text-sky-400">INFO</span> Context query executed against VectorDB_A. Time: 12ms.</div>
-                        </div>
-                        <div class="flex gap-3">
-                            <span class="text-slate-500">10:40:55</span>
-                            <div><span class="text-emerald-400">SUCCESS</span> [Salesforce] Lead reply generated by Seat_12.</div>
-                        </div>
-                        <div class="flex gap-3">
-                            <span class="text-slate-500">10:38:22</span>
-                            <div><span class="text-emerald-400">SUCCESS</span> [Zendesk] Ticket #8841 resolved by Seat_01.</div>
-                        </div>
-                         <div class="flex gap-3">
-                            <span class="text-slate-500">10:35:10</span>
-                            <div><span class="text-yellow-400">WARN</span> Tone matching confidence 82% on Ticket #8840. Proceeded.</div>
-                        </div>
-                    </div>
-                </div>
-
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-24 bg-white border-t border-slate-200">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4 tracking-tight">Clear, Predictable ROI.</h2>
+                <p class="text-slate-600 text-sm">Deploy instantly. Prove the value. Scale when ready.</p>
             </div>
-        </main>
-    </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto items-stretch">
+                <!-- Self-Serve / Rep Tier -->
+                <div class="b2b-card p-8 flex flex-col relative">
+                    <div class="absolute top-4 right-4 bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded uppercase">PLG Tier</div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-1">Ops Seat</h3>
+                    <p class="text-xs text-slate-500 mb-6 border-b border-slate-100 pb-4">For individual reps and small teams.</p>
+                    
+                    <div class="text-4xl font-bold text-slate-900 mb-1">$50</div>
+                    <div class="text-xs text-slate-500 mb-8 font-medium">per user / month</div>
+                    
+                    <ul class="space-y-4 mb-8 text-sm text-slate-700 flex-1">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-cobalt mt-0.5"></i> <span><strong>Unlimited</strong> AI Drafted Resolutions</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-cobalt mt-0.5"></i> <span>50MB Vector Knowledge Uploads</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-cobalt mt-0.5"></i> <span>Chrome & Edge Extensions</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-cobalt mt-0.5"></i> <span>Standard Email Support</span></li>
+                    </ul>
+                    
+                    <button class="w-full py-3 rounded-md bg-white border border-slate-300 text-slate-800 font-bold text-sm hover:bg-slate-50 shadow-sm transition active:scale-95">
+                        Start 14-Day Free Trial
+                    </button>
+                </div>
+
+                <!-- Enterprise Tier -->
+                <div class="b2b-card p-8 flex flex-col bg-obsidian text-white border-obsidian relative shadow-xl transform md:scale-105 z-10">
+                    <div class="absolute top-4 right-4 bg-cobalt text-white text-[10px] font-bold px-2 py-1 rounded uppercase shadow-sm">Scale</div>
+                    <h3 class="text-xl font-bold text-white mb-1">Enterprise Fleet</h3>
+                    <p class="text-xs text-slate-400 mb-6 border-b border-slate-700 pb-4">For departments with 20+ support agents.</p>
+                    
+                    <div class="text-4xl font-bold text-white mb-1">Custom</div>
+                    <div class="text-xs text-slate-400 mb-8 font-medium">volume pricing & annual billing</div>
+                    
+                    <ul class="space-y-4 mb-8 text-sm text-slate-300 flex-1">
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-sky-400 mt-0.5"></i> <span>Everything in Ops Seat</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-sky-400 mt-0.5"></i> <span><strong>Unlimited</strong> Vector Knowledge Storage</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-sky-400 mt-0.5"></i> <span>Native macOS & Windows Clients</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-sky-400 mt-0.5"></i> <span>Dedicated Manager Analytics Dashboard</span></li>
+                        <li class="flex items-start gap-3"><i class="fa-solid fa-check text-sky-400 mt-0.5"></i> <span>Custom Security & Compliance Review</span></li>
+                    </ul>
+                    
+                    <button class="w-full py-3 rounded-md bg-cobalt text-white font-bold text-sm hover:bg-sky-700 shadow-md transition active:scale-95">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-obsidian border-t border-slate-800 text-slate-400">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="logo-frame border-slate-700 bg-slate-900 text-white w-8 h-8">
+                    <i class="fa-solid fa-owl text-xs"></i>
+                </div>
+                <span class="font-bold text-sm tracking-tight text-white">ResolveNode</span>
+            </div>
+            
+            <div class="flex gap-6 text-[11px] font-semibold uppercase tracking-wider">
+                <a href="#" class="hover:text-white transition">Documentation</a>
+                <a href="#" class="hover:text-white transition">Security (SOC2)</a>
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+            </div>
+            
+            <div class="text-[11px]">
+                &copy; 2026 ResolveNode. Built for Ops.
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>
