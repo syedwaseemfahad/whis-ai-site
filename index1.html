@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResolveNode | Operations Dashboard</title>
+    
+    <!-- Fonts: Inter (UI) & JetBrains Mono (Data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: '#0B1120',
+                        cobalt: '#0369A1',
+                        emerald: '#059669',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Enterprise Styling Constraints */
+        body { background-color: #F8FAFC; }
+        
+        /* Razor-thin scrollbar for data density */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* The Geometric Owl Frame */
+        .owl-frame {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 2px solid #E2E8F0;
+            display: flex; align-items: center; justify-content: center;
+            background: #FFFFFF;
+        }
+        .sidebar-owl-frame {
+            border-color: #334155;
+            background: #0F172A;
+            color: #F8FAFC;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-900 h-screen flex overflow-hidden antialiased">
+
+    <!-- SIDEBAR (The Obsidian Core) -->
+    <aside class="w-64 bg-obsidian text-slate-400 flex flex-col border-r border-slate-800 shrink-0">
+        <!-- Brand Header -->
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 shrink-0">
+            <div class="owl-frame sidebar-owl-frame mr-3">
+                <i class="fa-solid fa-owl text-sm"></i>
+            </div>
+            <span class="text-white font-bold tracking-wide">ResolveNode</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <p class="px-3 text-xs font-semibold text-slate-600 uppercase tracking-widest mb-2">Infrastructure</p>
+            
+            <a href="#" class="flex items-center gap-3 px-3 py-2 bg-slate-800/50 text-white rounded-md border border-slate-700/50 transition">
+                <i class="fa-solid fa-chart-line w-4 text-center text-cobalt"></i>
+                <span class="text-sm font-medium">Ops Overview</span>
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
+                <i class="fa-solid fa-database w-4 text-center"></i>
+                <span class="text-sm font-medium">Knowledge Base</span>
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
+                <i class="fa-solid fa-users w-4 text-center"></i>
+                <span class="text-sm font-medium">Seat Management</span>
+                <span class="ml-auto bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-700">12</span>
+            </a>
+
+            <div class="pt-6 pb-2">
+                <p class="px-3 text-xs font-semibold text-slate-600 uppercase tracking-widest mb-2">Integrations</p>
+            </div>
+
+            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
+                <i class="fa-solid fa-code-merge w-4 text-center"></i>
+                <span class="text-sm font-medium">API Webhooks</span>
+            </a>
+            
+            <a href="#" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-800/30 hover:text-white rounded-md transition">
+                <i class="fa-solid fa-gear w-4 text-center"></i>
+                <span class="text-sm font-medium">Settings</span>
+            </a>
+        </nav>
+
+        <!-- System Status -->
+        <div class="p-4 border-t border-slate-800 shrink-0">
+            <div class="flex items-center gap-3 px-3 py-2 rounded-md bg-emerald-900/10 border border-emerald-900/30">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-xs text-emerald-400 font-mono">System Active: All Nodes</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0 bg-slate-50">
+        
+        <!-- Top Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+            <div class="flex items-center text-sm font-medium text-slate-500">
+                <span>Acme Corp</span>
+                <i class="fa-solid fa-chevron-right text-[10px] mx-3 text-slate-300"></i>
+                <span class="text-slate-900">Ops Overview</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button class="text-slate-400 hover:text-slate-600 transition"><i class="fa-regular fa-bell"></i></button>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="w-8 h-8 rounded-md bg-cobalt text-white flex items-center justify-center text-xs font-bold">DM</div>
+                    <span class="text-sm font-medium text-slate-700">Director</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Scrollable Area -->
+        <main class="flex-1 overflow-y-auto p-8">
+            
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Support Operations</h1>
+                    <p class="text-sm text-slate-500 mt-1">Real-time metrics for current billing cycle (May 1 - May 31).</p>
+                </div>
+                <button class="bg-cobalt hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2 rounded-md shadow-sm border border-transparent transition flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i> Export CSV
+                </button>
+            </div>
+
+            <!-- ROI Metrics Grid (Strict Geometric Cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                
+                <!-- Metric 1 -->
+                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Resolutions</span>
+                        <i class="fa-solid fa-check-double text-slate-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-slate-900 font-mono">14,204</div>
+                        <div class="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +12% from last week
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 2 -->
+                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Human Hours Saved</span>
+                        <i class="fa-solid fa-stopwatch text-slate-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-slate-900 font-mono">1,183</div>
+                        <div class="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
+                            <i class="fa-solid fa-arrow-trend-up"></i> $29,575 estimated ROI
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 3 -->
+                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Mean Time To Resolve</span>
+                        <i class="fa-solid fa-bolt text-slate-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-slate-900 font-mono">14s</div>
+                        <div class="text-xs text-emerald-600 mt-2 flex items-center gap-1 font-medium">
+                            <i class="fa-solid fa-arrow-trend-down"></i> Down from 4m 12s
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 4 -->
+                <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Active Extension Seats</span>
+                        <i class="fa-solid fa-users text-slate-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-3xl font-bold text-slate-900 font-mono">12 / 15</div>
+                        <div class="text-xs text-slate-500 mt-2 font-medium">
+                            $600 / mo current spend
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lower Section Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Knowledge Ingestion Status (2/3 width) -->
+                <div class="col-span-2 bg-white rounded-md border border-slate-200 shadow-sm flex flex-col">
+                    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                        <h2 class="text-sm font-bold text-slate-800">Vector Knowledge Base</h2>
+                        <button class="text-xs font-semibold text-cobalt hover:text-sky-700">Manage Data <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    </div>
+                    <div class="p-0 flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50">
+                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Source Name</th>
+                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Type</th>
+                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Last Synced</th>
+                                    <th class="px-5 py-3 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="px-5 py-4 font-medium text-slate-800"><i class="fa-solid fa-file-pdf text-red-400 mr-2"></i> Q2_Refund_Policy.pdf</td>
+                                    <td class="px-5 py-4 text-slate-500">Static File</td>
+                                    <td class="px-5 py-4 text-slate-500 font-mono text-xs">Today, 08:14 AM</td>
+                                    <td class="px-5 py-4"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Vectorized</span></td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="px-5 py-4 font-medium text-slate-800"><i class="fa-solid fa-globe text-cobalt mr-2"></i> help.acmecorp.com/faq</td>
+                                    <td class="px-5 py-4 text-slate-500">Live Scraper</td>
+                                    <td class="px-5 py-4 text-slate-500 font-mono text-xs">Today, 09:00 AM</td>
+                                    <td class="px-5 py-4"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">In Sync</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-5 py-4 font-medium text-slate-800"><i class="fa-solid fa-file-csv text-green-500 mr-2"></i> 2025_resolved_tickets.csv</td>
+                                    <td class="px-5 py-4 text-slate-500">Tone Training</td>
+                                    <td class="px-5 py-4 text-slate-500 font-mono text-xs">May 1, 14:22 PM</td>
+                                    <td class="px-5 py-4"><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wide">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Live System Log (1/3 width, Engineered feel) -->
+                <div class="bg-[#1E293B] rounded-md border border-slate-700 shadow-sm flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-slate-700/50 flex justify-between items-center bg-[#0F172A]">
+                        <h2 class="text-sm font-bold text-slate-200 flex items-center gap-2"><i class="fa-solid fa-terminal text-[10px]"></i> AI Request Log</h2>
+                        <span class="text-[10px] text-slate-400 font-mono">Live</span>
+                    </div>
+                    <div class="p-4 flex-1 overflow-y-auto bg-[#1E293B] font-mono text-xs text-slate-400 space-y-3">
+                        <div class="flex gap-3">
+                            <span class="text-slate-500">10:42:01</span>
+                            <div><span class="text-emerald-400">SUCCESS</span> [Zendesk] Ticket #8842 resolved by Seat_04.</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="text-slate-500">10:41:15</span>
+                            <div><span class="text-cobalt text-sky-400">INFO</span> Context query executed against VectorDB_A. Time: 12ms.</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="text-slate-500">10:40:55</span>
+                            <div><span class="text-emerald-400">SUCCESS</span> [Salesforce] Lead reply generated by Seat_12.</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <span class="text-slate-500">10:38:22</span>
+                            <div><span class="text-emerald-400">SUCCESS</span> [Zendesk] Ticket #8841 resolved by Seat_01.</div>
+                        </div>
+                         <div class="flex gap-3">
+                            <span class="text-slate-500">10:35:10</span>
+                            <div><span class="text-yellow-400">WARN</span> Tone matching confidence 82% on Ticket #8840. Proceeded.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
