@@ -1363,7 +1363,8 @@
                             tier: selectedTierForPayment, 
                             cycle: currentCycle, 
                             couponCode: currentCoupon,
-                            refCode: localStorage.getItem('whisRef') 
+                            refCode: localStorage.getItem('whisRef'),
+                            utmSource: localStorage.getItem('whisSource')
                         })
                     });
                     const orderData = await res.json();
@@ -1424,7 +1425,8 @@
                     cycle: currentCycle, 
                     isUpgrade: isUpgrade, 
                     couponCode: currentCoupon,
-                    refCode: localStorage.getItem('whisRef') 
+                    refCode: localStorage.getItem('whisRef'),
+                    utmSource: localStorage.getItem('whisSource')
                 })
             });
             const data = await res.json();
@@ -1638,6 +1640,12 @@
         const refCode = urlParams.get('ref');
         if (refCode) {
             localStorage.setItem('whisRef', refCode);
+        }
+        
+        // --- NEW: MARKETING SOURCE CAPTURE ---
+        const utmSource = urlParams.get('source') || urlParams.get('utm_source');
+        if (utmSource) {
+            localStorage.setItem('whisSource', utmSource);
         }
         // -----------------------------------
 
