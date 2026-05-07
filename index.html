@@ -1478,7 +1478,11 @@
         
         if(GOOGLE_CLIENT_ID) {
             const redirectUri = encodeURIComponent(`${BACKEND_URL}/api/auth/google/callback`);
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
+            // --- NEW: FETCH SOURCE FOR SIGNUP ---
+            const currentSource = localStorage.getItem('whisSource') || 'organic';
+            
+            // --- NEW: APPEND STATE TO OAUTH URL ---
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=${currentSource}`;
 
             container.innerHTML = `
                 <a href="${authUrl}" style="text-decoration:none;" class="flex items-center justify-center gap-3 bg-[#0f172a] text-white w-full max-w-[280px] mx-auto py-3.5 px-4 rounded-full shadow-md hover:bg-slate-800 transition active:scale-95 font-semibold text-[15px]">
@@ -1636,18 +1640,25 @@
         const authSuccess = urlParams.get('auth_success');
         const userStr = urlParams.get('user');
 
-        // --- NEW: AFFILIATE LINK CAPTURE ---
+        // --- AFFILIATE LINK CAPTURE ---
         const refCode = urlParams.get('ref');
         if (refCode) {
             localStorage.setItem('whisRef', refCode);
         }
         
-        // --- NEW: MARKETING SOURCE CAPTURE ---
+        // --- NEW: MARKETING SOURCE CAPTURE AND HIT TRACKING ---
         const utmSource = urlParams.get('source') || urlParams.get('utm_source');
         if (utmSource) {
             localStorage.setItem('whisSource', utmSource);
+            
+            // Fire the hit ping to the backend immediately
+            fetch(`${BACKEND_URL}/api/marketing/hit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source: utmSource })
+            }).catch(e => console.log('Hit tracking failed', e));
         }
-        // -----------------------------------
+        // ------------------------------------------------------
 
         // --- VISUAL BANNER FOR AFFILIATE USERS ONLY ---
         const activeRef = localStorage.getItem('whisRef');
