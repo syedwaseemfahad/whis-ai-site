@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Whis-AI Ultimate Ad - Dream CTC</title>
+  <title>Whis-AI Ad - God Mode</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,9 +17,9 @@
             mono: ['JetBrains Mono', 'monospace'] 
           },
           colors: {
-            brand: '#00e5ff',
-            brandDark: '#007a88',
-            surface: '#0a0a0c',
+            brand: '#00f0ff',
+            brandAlt: '#8b5cf6', /* Vivid Violet */
+            surface: '#05050a',
           }
         }
       }
@@ -28,7 +28,7 @@
   
   <style>
     body {
-      background-color: #111;
+      background-color: #0a0a12;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -40,7 +40,7 @@
     .ig-post {
       width: 1080px;
       height: 1080px;
-      background-color: #000000;
+      background-color: #030305;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -48,16 +48,28 @@
       z-index: 0;
     }
 
-    /* Cinematic Lighting / Spotlight */
-    .spotlight {
+    /* Violet/Cyan Gradient Mesh */
+    .mesh-bg {
       position: absolute;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(0, 229, 255, 0.25) 0%, rgba(0, 229, 255, 0) 70%);
-      filter: blur(60px);
+      inset: -20%;
+      background: 
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(0, 240, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(67, 56, 202, 0.2) 0%, transparent 70%);
+      filter: blur(70px);
+      z-index: 0;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    /* Digital Grid Overlay */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
       z-index: 1;
       pointer-events: none;
     }
@@ -66,124 +78,106 @@
     .noise-overlay {
       position: absolute;
       inset: 0;
-      background: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-      opacity: 0.08;
-      mix-blend-mode: screen;
+      background: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+      opacity: 0.06;
+      mix-blend-mode: overlay;
       z-index: 2;
       pointer-events: none;
     }
 
     /* Floating Glass Interface */
     .glass-panel {
-      background: linear-gradient(145deg, rgba(20, 20, 25, 0.9) 0%, rgba(10, 10, 12, 0.95) 100%);
-      backdrop-filter: blur(20px);
+      background: linear-gradient(135deg, rgba(20, 20, 30, 0.8) 0%, rgba(5, 5, 10, 0.9) 100%);
+      backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       border-left: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 
-        0 40px 100px -20px rgba(0, 0, 0, 1),
-        0 0 40px -10px rgba(0, 229, 255, 0.3),
-        inset 0 1px 20px rgba(255, 255, 255, 0.03);
-      border-radius: 24px;
+        0 40px 80px -20px rgba(0, 0, 0, 0.8),
+        inset 0 0 20px rgba(139, 92, 246, 0.1);
+      border-radius: 32px;
       z-index: 10;
       position: relative;
     }
 
-    /* Holographic Reflection on Glass */
-    .glass-panel::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border-radius: 24px;
-      background: linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.03) 25%, transparent 30%);
-      pointer-events: none;
-    }
-
-    /* Massive Gradient Typography */
+    /* Headline Typography */
     .hero-text {
-      background: linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.04em;
+      color: #ffffff;
+      letter-spacing: -0.05em;
     }
 
     .accent-text {
-      background: linear-gradient(90deg, #00e5ff 0%, #007a88 100%);
+      background: linear-gradient(90deg, #c084fc 0%, #00f0ff 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 0 40px rgba(0, 229, 255, 0.4);
+      text-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
     }
 
     /* Code Syntax */
-    .c-keyword { color: #ff2a7a; font-weight: bold; }
-    .c-func { color: #00e5ff; }
+    .c-keyword { color: #c084fc; font-weight: bold; } /* Purple keyword */
+    .c-func { color: #00f0ff; } /* Cyan function */
     .c-string { color: #34d399; }
-    .c-comment { color: #6b7280; font-style: italic; }
+    .c-comment { color: #64748b; font-style: italic; }
   </style>
 </head>
 <body>
 
   <div class="ig-post p-12">
-    <div class="spotlight"></div>
+    <div class="mesh-bg"></div>
+    <div class="grid-bg"></div>
     <div class="noise-overlay"></div>
 
-    <div class="relative z-10 flex justify-between items-center mb-8">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center text-2xl font-black">W</div>
-        <span class="text-white font-bold text-xl tracking-wide">Whis-AI</span>
+    <div class="relative z-10 flex justify-between items-center mb-10">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brandAlt to-brand text-white flex items-center justify-center text-2xl font-black shadow-lg">W</div>
+        <span class="text-white font-bold text-2xl tracking-wide">Whis-AI</span>
       </div>
       
-      <div class="flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-2.5 rounded-full backdrop-blur-md">
-        <div class="relative flex h-3 w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-        </div>
-        <span class="text-white text-sm font-bold uppercase tracking-widest">System Invisible</span>
+      <div class="flex items-center gap-3 bg-black/50 border border-white/10 px-6 py-3 rounded-full backdrop-blur-md">
+        <i class="fa-solid fa-ghost text-brandAlt animate-pulse text-lg"></i>
+        <span class="text-white/90 text-sm font-bold uppercase tracking-widest">Stealth Mode Active</span>
       </div>
     </div>
 
-    <div class="relative z-10 text-center mt-12 mb-16">
-      <h1 class="text-[6.5rem] leading-[0.95] font-black hero-text drop-shadow-2xl">
-        LAND YOUR <br>
-        <span class="accent-text text-[7.5rem]">DREAM CTC.</span>
+    <div class="relative z-10 text-center mt-6 mb-12">
+      <h1 class="text-[7.5rem] leading-[0.95] font-black hero-text drop-shadow-2xl">
+        INTERVIEW <br>
+        <span class="accent-text text-[8rem]">GOD MODE.</span>
       </h1>
-      <p class="text-2xl text-white/60 font-medium tracking-wide mt-6 max-w-2xl mx-auto">
-        The undetectable silent partner that solves live technical rounds in real-time.
+      <p class="text-2xl text-white/70 font-medium tracking-wide mt-6 max-w-3xl mx-auto">
+        Breeze through live technical rounds with 100% undetectable AI assistance.
       </p>
     </div>
 
-    <div class="relative z-10 w-full px-6">
-      <div class="glass-panel w-full p-8 relative">
-        
+    <div class="relative z-10 w-full px-4">
+      <div class="absolute inset-0 bg-brandAlt/20 blur-[80px] rounded-full scale-90"></div>
+      
+      <div class="glass-panel w-full p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brandAlt to-transparent opacity-50"></div>
+
         <div class="flex gap-2 mb-6">
-          <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f57]"></div>
-          <div class="w-3.5 h-3.5 rounded-full bg-[#febc2e]"></div>
-          <div class="w-3.5 h-3.5 rounded-full bg-[#28c840]"></div>
+          <div class="w-3.5 h-3.5 rounded-full bg-white/20"></div>
+          <div class="w-3.5 h-3.5 rounded-full bg-white/20"></div>
+          <div class="w-3.5 h-3.5 rounded-full bg-white/20"></div>
         </div>
 
         <div class="font-mono text-[1.4rem] leading-relaxed tracking-tight">
-          <div class="mb-6 flex items-start gap-4 p-5 rounded-xl bg-brand/10 border border-brand/20">
-            <i class="fa-solid fa-ear-listen text-brand text-2xl mt-1 animate-pulse"></i>
-            <div>
-              <div class="text-brand text-sm font-bold uppercase tracking-widest mb-1">Interviewer Asking:</div>
-              <div class="text-white font-medium">"Can you implement an LRU Cache with O(1) operations?"</div>
-            </div>
+          
+          <div class="mb-5 flex items-center gap-3">
+            <span class="px-3 py-1 bg-brandAlt/20 text-brandAlt rounded text-xs font-bold uppercase tracking-widest border border-brandAlt/30">Dynamic Programming Detected</span>
           </div>
 
-          <div class="pl-4 border-l-2 border-white/10">
-            <div class="c-comment mb-2">// Whis-AI Auto-Generated Solution:</div>
-            <div><span class="c-keyword">class</span> <span class="c-func">LRUCache</span>:</div>
-            <div class="ml-8 text-white/90"><span class="c-keyword">def</span> __init__(self, capacity: <span class="c-func">int</span>):</div>
-            <div class="ml-16 text-white/80">self.cache = OrderedDict()</div>
-            <div class="ml-16 text-white/80">self.capacity = capacity</div>
+          <div class="pl-4 border-l-2 border-brandAlt/40">
+            <div class="c-comment mb-2"># Whis-AI Instant Optimal Solution: O(n*m)</div>
+            <div><span class="c-keyword">def</span> <span class="c-func">minDistance</span>(word1: <span class="c-func">str</span>, word2: <span class="c-func">str</span>) -> <span class="c-func">int</span>:</div>
+            <div class="ml-8 text-white/90">m, n = <span class="c-func">len</span>(word1), <span class="c-func">len</span>(word2)</div>
+            <div class="ml-8 text-white/90">dp = [[0] * (n + 1) <span class="c-keyword">for</span> _ <span class="c-keyword">in</span> <span class="c-func">range</span>(m + 1)]</div>
             <br>
-            <div class="ml-8 text-white/90"><span class="c-keyword">def</span> get(self, key: <span class="c-func">int</span>) -> <span class="c-func">int</span>:</div>
-            <div class="ml-16"><span class="c-keyword">if</span> key <span class="c-keyword">not in</span> self.cache:</div>
-            <div class="ml-24 text-white/80"><span class="c-keyword">return</span> -1</div>
+            <div class="ml-8"><span class="c-keyword">for</span> i <span class="c-keyword">in</span> <span class="c-func">range</span>(1, m + 1):</div>
+            <div class="ml-16 text-white/80">dp[i][0] = i</div>
             
-            <span class="ml-24 inline-block w-3.5 h-6 bg-brand animate-pulse align-middle mt-1"></span>
+            <span class="ml-16 inline-block w-3.5 h-6 bg-brand animate-pulse align-middle mt-1"></span>
           </div>
         </div>
       </div>
@@ -191,16 +185,16 @@
 
     <div class="relative z-10 mt-auto flex justify-between items-end">
       <div class="flex flex-col gap-3">
-        <span class="text-white/40 text-xs font-bold uppercase tracking-widest font-mono">100% Undetectable On</span>
+        <span class="text-white/40 text-xs font-bold uppercase tracking-widest font-mono">Bypasses Proctoring On</span>
         <div class="flex gap-5 text-white/70">
-          <i class="fa-solid fa-video text-3xl hover:text-white transition-colors"></i>
-          <i class="fa-brands fa-microsoft text-3xl hover:text-white transition-colors"></i>
-          <i class="fa-brands fa-google text-3xl hover:text-white transition-colors"></i>
+          <i class="fa-solid fa-video text-3xl"></i>
+          <i class="fa-brands fa-microsoft text-3xl"></i>
+          <i class="fa-brands fa-hackerrank text-3xl"></i>
         </div>
       </div>
 
-      <div class="bg-white text-black px-10 py-5 rounded-full text-xl font-bold flex items-center gap-3 shadow-[0_0_40px_rgba(255,255,255,0.2)]">
-        Get Started Free <i class="fa-solid fa-arrow-right"></i>
+      <div class="bg-white text-black px-12 py-5 rounded-full text-xl font-bold flex items-center gap-3 shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:scale-105 transition-transform">
+        Download Now <i class="fa-solid fa-download"></i>
       </div>
     </div>
 
