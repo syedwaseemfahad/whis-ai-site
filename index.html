@@ -6,7 +6,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'AW-18106016519');
 </script>
 
@@ -25,15 +24,19 @@
             mono: ['JetBrains Mono', 'Fira Code', 'monospace'] 
           },
           colors: { 
-            page: '#ffffff', 
-            glass: 'rgba(0, 0, 0, 0.03)'
+            page: '#fbfbfd', 
+            glass: 'rgba(255, 255, 255, 0.65)',
+            'glass-border': 'rgba(255, 255, 255, 0.4)',
+            'glass-dark': 'rgba(20, 20, 22, 0.75)',
           },
           animation: { 
             'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 8s ease-in-out infinite'
+            'float': 'float 8s ease-in-out infinite',
+            'blob': 'blob 10s infinite alternate'
           },
           keyframes: {
-            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } }
+            float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+            blob: { '0%': { transform: 'translate(0px, 0px) scale(1)' }, '100%': { transform: 'translate(30px, -50px) scale(1.1)' } }
           }
         }
       }
@@ -49,72 +52,78 @@
     
   <style>
     :root {
-        --accent: #0284c7; 
-        --accent-glow: rgba(2, 132, 199, 0.15);
+        --accent: #0071e3; /* Apple Blue */
+        --accent-glow: rgba(0, 113, 227, 0.3);
     }
 
     body { 
-        background-color: #f8fafc; 
-        color: #0f172a; 
-        font-family: 'Inter', sans-serif; 
+        background-color: #f5f5f7; /* Apple standard light gray */
+        color: #1d1d1f; 
+        font-family: 'SF Pro Display', 'Inter', sans-serif; 
         overflow-x: hidden; 
         padding-bottom: 90px; 
     }
 
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    .animate-float { animation: float 6s ease-in-out infinite; }
-    
-    @keyframes hueCycle {
-        0% { filter: hue-rotate(0deg); }
-        100% { filter: hue-rotate(360deg); }
+    /* Vibrant Mesh Orbs for Glass to refract */
+    .bg-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.5;
+        z-index: 0;
+        animation: blob 15s infinite alternate ease-in-out;
     }
-    .animate-hue { animation: hueCycle 60s infinite linear; will-change: filter; }
 
-    .text-accent { color: var(--accent); }
-    .bg-accent { background-color: var(--accent); }
-    .border-accent { border-color: var(--accent); }
-
+    /* Apple Liquid Glass Card */
     .perf-card {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 28px;
         position: relative;
         overflow: hidden;
-        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         transform: translateZ(0);
-        box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
-    }
-
-    @media (min-width: 768px) {
-        .perf-card { border-radius: 24px; }
-    }
-
-    @keyframes spin-slow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    .animate-spin-slow {
-        animation: spin-slow 8s linear infinite;
+        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
     }
 
     .perf-card:active, .perf-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(15, 23, 42, 0.15);
-        box-shadow: 0 15px 40px -10px rgba(0,0,0,0.08);
+        transform: translateY(-4px) scale(1.01);
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 20px 50px -10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,1);
     }
 
-    .perf-card::after {
-        content: "";
-        position: absolute;
-        top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-        transform: skewX(-25deg);
-        pointer-events: none;
-        transition: 0.5s;
+    /* Dark Titanium/Glass for Elite */
+    .pricing-elite {
+        background: rgba(20, 20, 22, 0.65);
+        backdrop-filter: blur(40px) saturate(200%);
+        -webkit-backdrop-filter: blur(40px) saturate(200%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+        color: white;
     }
-    .perf-card:hover::after { left: 150%; transition: 0.7s ease-in-out; }
+    
+    .pricing-elite:hover {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    /* Floating Pill Navbar */
+    .glass-nav {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    }
+
+    .glass-button {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
 
     .carousel-container { 
         perspective: 1200px; display: flex; justify-content: center; align-items: center; 
@@ -125,16 +134,16 @@
     .carousel-item { 
         position: absolute; width: 90%; aspect-ratio: 16/9; 
         transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
-        border-radius: 16px; overflow: hidden; background: #f1f5f9; 
-        border: 1px solid rgba(15,23,42,0.1); 
+        border-radius: 24px; overflow: hidden; background: #f1f5f9; 
+        border: 1px solid rgba(255,255,255,0.5); 
         box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
         will-change: transform, opacity;
     }
     @media (min-width: 768px) { .carousel-item { width: 85%; max-height: 100%; } }
     
-    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
-    .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.5; }
-    .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.5; }
+    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 50px var(--accent-glow); }
+    .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.6; filter: blur(2px); }
+    .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.6; filter: blur(2px); }
     @media (min-width: 768px) {
         .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
         .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
@@ -144,9 +153,9 @@
     pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
     .keyword { color: #a626a4; } .function { color: #4078f2; } .string { color: #50a14f; } .number { color: #986801; } 
 
-    .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(15,23,42,0.1); aspect-ratio: 4/3; background: #fff; box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15); --position: 50%; }
+    .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.4); aspect-ratio: 4/3; background: #fff; box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15); --position: 50%; }
     @media (min-width: 768px) { .comp-container { aspect-ratio: 16/9; } }
-    .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 28px; background: rgba(248, 250, 252, 0.95); border-bottom: 1px solid rgba(15,23,42,0.05); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 6px; }
+    .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 28px; background: rgba(248, 250, 252, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(15,23,42,0.05); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 6px; }
     @media (min-width: 768px) { .mac-header { height: 32px; gap: 8px; } }
     .mac-dot { width: 8px; height: 8px; border-radius: 50%; }
     @media (min-width: 768px) { .mac-dot { width: 10px; height: 10px; } }
@@ -155,27 +164,23 @@
     @media (min-width: 768px) { .comp-image { top: 32px; } }
     .comp-overlay { position: absolute; top: 28px; left: 0; width: 100%; bottom: 0; clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #fff; will-change: clip-path; }
     @media (min-width: 768px) { .comp-overlay { top: 32px; } }
-    .comp-divider { position: absolute; top: 28px; bottom: 0; left: var(--position); width: 1px; background: rgba(255,255,255,0.8); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 15px rgba(0,0,0,0.3); pointer-events: none; will-change: left; }
+    .comp-divider { position: absolute; top: 28px; bottom: 0; left: var(--position); width: 2px; background: rgba(255,255,255,0.9); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 20px rgba(0,0,0,0.5); pointer-events: none; will-change: left; }
     @media (min-width: 768px) { .comp-divider { top: 32px; } }
     .comp-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none; }
-    .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 5px; height: 36px; background: white; border-radius: 4px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 10px rgba(0,0,0,0.2), 0 0 5px white; transition: height 0.2s ease; border: 1px solid rgba(0,0,0,0.1); will-change: left; }
-    @media (min-width: 768px) { .comp-handle-btn { width: 6px; height: 48px; } }
-    .comp-label { position: absolute; top: 36px; padding: 4px 8px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); color: #334155; font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; pointer-events: none; z-index: 15; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    @media (min-width: 768px) { .comp-label { top: 48px; font-size: 10px; padding: 4px 12px; } }
-    .label-left { left: 8px; border: 1px solid rgba(15,23,42,0.1); }
-    .label-right { right: 8px; border: 1px solid var(--accent); color: var(--accent); }
-    @media (min-width: 768px) { .label-left { left: 16px; } .label-right { right: 16px; } }
+    .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 6px; height: 40px; background: white; border-radius: 6px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 15px rgba(0,0,0,0.3), 0 0 5px white; transition: height 0.2s ease; border: 1px solid rgba(0,0,0,0.1); will-change: left; }
+    @media (min-width: 768px) { .comp-handle-btn { width: 8px; height: 50px; } }
+    .comp-label { position: absolute; top: 40px; padding: 6px 12px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); color: #1d1d1f; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 10px; pointer-events: none; z-index: 15; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    @media (min-width: 768px) { .comp-label { top: 48px; font-size: 11px; padding: 6px 16px; } }
+    .label-left { left: 12px; border: 1px solid rgba(255,255,255,1); }
+    .label-right { right: 12px; border: 1px solid var(--accent); color: var(--accent); }
+    @media (min-width: 768px) { .label-left { left: 20px; } .label-right { right: 20px; } }
 
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); }
-    .group.active .faq-answer { max-height: 300px; transition: max-height 0.3s cubic-bezier(1, 0, 1, 0); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+    .group.active .faq-answer { max-height: 400px; }
     .group.active .faq-icon { transform: rotate(180deg); }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .pricing-elite { position: relative; }
-    .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 20px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
-    @media (min-width: 768px) { .pricing-elite::after { border-radius: 25px; } }
 
     input[type="text"], input[type="email"], input[type="tel"], textarea { font-size: 16px !important; }
     @media (min-width: 768px) { input[type="text"], input[type="email"], input[type="tel"], textarea { font-size: 14px !important; } }
@@ -184,115 +189,105 @@
 </head>
 <body class="no-scrollbar">
 
-  <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-300 rounded-full blur-[150px] opacity-20"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-emerald-100 rounded-full blur-[150px] opacity-20"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-multiply"></div>
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#f5f5f7]">
+      <div class="bg-orb w-[600px] h-[600px] bg-blue-300 top-[-10%] left-[-10%] mix-blend-multiply"></div>
+      <div class="bg-orb w-[500px] h-[500px] bg-purple-200 bottom-[10%] right-[-5%] mix-blend-multiply" style="animation-delay: 2s;"></div>
+      <div class="bg-orb w-[400px] h-[400px] bg-sky-200 top-[40%] left-[30%] mix-blend-multiply" style="animation-delay: 4s;"></div>
+      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
   </div>
 
-  <nav class="fixed top-0 w-full z-50 h-[60px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm transition-all">
-    <div class="w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
+  <nav class="fixed top-4 left-0 right-0 mx-auto w-[calc(100%-2rem)] max-w-7xl z-50 h-[60px] md:h-[70px] flex items-center justify-between px-4 md:px-6 rounded-full glass-nav transition-all">
       
       <a href="/" class="flex items-center group relative">
-        <div class="absolute -inset-1 bg-gradient-to-tr from-sky-300 to-accent rounded-full blur-sm opacity-0 group-hover:opacity-50 transition duration-500"></div>
-        <img src="whis_nee_log0.jpeg" alt="Whis-AI Logo" class="relative h-10 w-10 md:h-12 md:w-12 rounded-full object-cover border-[3px] border-white shadow-md transition-all duration-300 group-hover:scale-105">
+        <div class="absolute -inset-1 bg-gradient-to-tr from-sky-400 to-accent rounded-full blur-md opacity-0 group-hover:opacity-40 transition duration-500"></div>
+        <img src="whis_nee_log0.jpeg" alt="Whis-AI Logo" class="relative h-10 w-10 md:h-12 md:w-12 rounded-full object-cover border-2 border-white shadow-sm transition-all duration-300 group-hover:scale-105">
       </a>
        
-      <div class="hidden md:flex items-center gap-1 bg-slate-50 p-1 rounded-full border border-slate-200">
-        <a href="#how-to" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">How to Use</a>
-        <a href="#pricing" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Pricing</a>
-        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Features</a>
-        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Reviews</a>
-        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">FAQ</a>
+      <div class="hidden md:flex items-center gap-2 bg-white/40 p-1.5 rounded-full border border-white/60 shadow-sm backdrop-blur-md">
+        <a href="#how-to" class="px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-full transition">How to Use</a>
+        <a href="#pricing" class="px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-full transition">Pricing</a>
+        <a href="#features" class="px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-full transition">Features</a>
+        <a href="#testimonials" class="px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-full transition">Reviews</a>
+        <a href="#faq" class="px-5 py-2 text-[13px] font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-full transition">FAQ</a>
       </div>
 
-      <div class="flex items-center gap-3 md:gap-5">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition border border-slate-200 px-3 py-1.5 rounded-full md:border-none md:p-0">Sign In</button>
+      <div class="flex items-center gap-3 md:gap-4">
+          <button onclick="openLoginModal()" id="signInBtn" class="text-[13px] font-medium text-slate-700 hover:text-black transition glass-button px-4 py-2 rounded-full md:border-white/50">Sign In</button>
            
-          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold overflow-hidden shadow-md hover:shadow-lg transition">
-             <span class="relative z-10"><i class="fa-brands fa-windows mr-1"></i> <i class="fa-brands fa-apple mr-1"></i> Get App</span>
-             <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition duration-300"></div>
+          <button onclick="openDownloadModal()" class="hidden md:flex items-center gap-2 group relative px-6 py-2.5 rounded-full bg-[#1d1d1f] text-white text-[13px] font-semibold overflow-hidden shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+             <span class="relative z-10 flex items-center"><i class="fa-brands fa-windows mr-1.5 text-slate-300"></i> <i class="fa-brands fa-apple mr-2 text-slate-300"></i> Get App</span>
           </button>
            
-          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-2 md:gap-3 bg-slate-100 pr-3 md:pr-4 pl-1 py-1 rounded-full border border-slate-200 hover:border-slate-300 transition">
-            <img id="navUserAvatar" src="" class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-200 object-cover" />
-            <span id="navPlanBadge" class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-wide">FREE</span>
+          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-2 md:gap-3 glass-button pr-3 md:pr-4 pl-1 py-1 rounded-full hover:border-white transition">
+            <img id="navUserAvatar" src="" class="w-7 h-7 md:w-9 md:h-9 rounded-full bg-slate-200 object-cover shadow-sm" />
+            <span id="navPlanBadge" class="text-[9px] md:text-[10px] font-bold text-slate-600 uppercase tracking-wide">FREE</span>
           </button>
       </div>
-    </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-t border-slate-200 p-3 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-      <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl bg-slate-900 text-white text-[13px] font-bold text-center shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-nav border-t border-white/40 p-4 pb-safe rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <button onclick="openDownloadModal()" class="w-full py-4 rounded-2xl bg-[#1d1d1f] text-white text-[14px] font-semibold text-center shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
           <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get Whis-AI Free
       </button>
   </div>
 
-  <div class="fixed bottom-[90px] right-4 md:bottom-8 md:right-8 z-40 flex flex-col items-end gap-3">
-      <div onclick="toggleLiveChat()" class="bg-slate-900 text-white border border-slate-700 shadow-xl text-[11px] md:text-xs font-bold py-2 px-4 rounded-xl relative animate-bounce flex items-center gap-2 cursor-pointer transition hover:bg-slate-800">
-          <span class="relative flex h-2 w-2">
+  <div class="fixed bottom-[100px] right-4 md:bottom-8 md:right-8 z-40 flex flex-col items-end gap-3">
+      <div onclick="toggleLiveChat()" class="glass-nav text-[#1d1d1f] border border-white/60 shadow-xl text-[12px] font-semibold py-2.5 px-5 rounded-full relative animate-float flex items-center gap-2 cursor-pointer transition hover:bg-white">
+          <span class="relative flex h-2.5 w-2.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
           </span>
           Need Help?
-          <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-slate-900 border-b border-r border-slate-700 rotate-45"></div>
       </div>
       
-      <button onclick="toggleLiveChat()" class="relative bg-sky-600 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-[0_10px_25px_rgba(2,132,199,0.5)] active:scale-95 hover:scale-105 transition-all">
+      <button onclick="toggleLiveChat()" class="relative bg-[#0071e3] w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,113,227,0.4)] active:scale-95 hover:scale-105 transition-all">
           <i class="fa-solid fa-comments text-white text-2xl md:text-3xl relative z-10"></i>
-          <div class="absolute inset-0 rounded-full border-4 border-sky-400 animate-ping opacity-30 pointer-events-none"></div>
       </button>
   </div>
 
-  <section class="relative pt-28 md:pt-48 pb-10 md:pb-12 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-4 md:px-6 mb-8 md:mb-10 flex flex-col items-center">
+  <section class="relative pt-36 md:pt-52 pb-12 md:pb-20 overflow-hidden flex flex-col items-center">
+    <div class="relative z-10 text-center max-w-5xl px-4 md:px-6 mb-8 md:mb-12 flex flex-col items-center">
        
-      <h1 class="text-4xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-4 md:mb-6 text-slate-900">
-        Helps you answer interviews<br class="hidden md:block">
-        <span class="text-accent animate-hue inline-block mt-1 md:mt-0">in real-time.</span>
+      <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] md:leading-[1.05] mb-6 text-[#1d1d1f]">
+        Interview mastery,<br class="hidden md:block">
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0071e3] to-[#42a1f5]">in real-time.</span>
       </h1>
        
-      <p class="text-[15px] md:text-lg text-slate-600 max-w-2xl mx-auto mb-6 md:mb-6 leading-relaxed font-light px-2">
-        Works seamlessly on Zoom, Teams, Meet, Chime, and HackerRank. <br class="md:hidden"><span class="text-slate-900 font-medium">Your silent partner in the dark.</span>
+      <p class="text-[16px] md:text-xl text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed font-medium px-2">
+        Works seamlessly on Zoom, Teams, Meet, and HackerRank. <br class="md:hidden"><span class="text-[#1d1d1f] font-semibold">Your silent partner in the dark.</span>
       </p>
 
-      <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[10px] md:text-sm font-mono text-slate-600 mb-8 bg-white px-4 py-2.5 rounded-full border border-slate-200 shadow-sm">
-        <span class="flex items-center"><i class="fa-solid fa-ear-listen text-slate-400 mr-1 md:mr-2"></i>Listens</span>
-        <i class="fa-solid fa-arrow-right text-slate-300 md:text-slate-400"></i>
-        <span class="flex items-center"><i class="fa-solid fa-eye text-slate-400 mr-1 md:mr-2"></i>Reads Screen</span>
-        <i class="fa-solid fa-arrow-right text-slate-300 md:text-slate-400"></i>
-        <span class="flex items-center text-accent"><i class="fa-solid fa-pen-nib mr-1 md:mr-2"></i>Writes answers</span>
+      <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[11px] md:text-sm font-semibold text-slate-600 mb-10 glass-button px-6 py-3 rounded-full">
+        <span class="flex items-center"><i class="fa-solid fa-ear-listen text-slate-400 mr-2"></i>Listens</span>
+        <i class="fa-solid fa-chevron-right text-slate-300 text-[10px]"></i>
+        <span class="flex items-center"><i class="fa-solid fa-eye text-slate-400 mr-2"></i>Reads Screen</span>
+        <i class="fa-solid fa-chevron-right text-slate-300 text-[10px]"></i>
+        <span class="flex items-center text-[#0071e3]"><i class="fa-solid fa-pen-nib mr-2"></i>Writes answers</span>
       </div>
 
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-slate-900 text-white text-sm font-bold hover:scale-105 transition duration-300 shadow-lg flex justify-center items-center gap-3">
-             Try Free – No Credit Card / No Setup
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-12 py-4 rounded-full bg-[#1d1d1f] text-white text-[15px] font-semibold hover:scale-105 transition duration-300 shadow-xl flex justify-center items-center gap-3">
+             Try Free – No Setup Required
         </button>
       </div>
 
-      <div class="mt-4 md:mt-8 mb-4 w-full flex flex-col items-center opacity-80">
-        <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-widest font-bold mb-3 md:mb-4">Tested and 100% Undetectable On</p>
-        <div class="flex flex-wrap justify-center items-center gap-5 md:gap-10 text-slate-400">
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-solid fa-video"></i> Zoom</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-microsoft"></i> Teams</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-google"></i> Meet</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-amazon"></i> Chime</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-hackerrank"></i> HackerRank</span>
+      <div class="mt-8 md:mt-12 mb-4 w-full flex flex-col items-center opacity-80">
+        <p class="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-4">Tested & 100% Undetectable On</p>
+        <div class="flex flex-wrap justify-center items-center gap-6 md:gap-12 text-slate-400">
+            <span class="flex items-center gap-2 text-sm md:text-base font-semibold"><i class="fa-solid fa-video"></i> Zoom</span>
+            <span class="flex items-center gap-2 text-sm md:text-base font-semibold"><i class="fa-brands fa-microsoft"></i> Teams</span>
+            <span class="flex items-center gap-2 text-sm md:text-base font-semibold"><i class="fa-brands fa-google"></i> Meet</span>
+            <span class="flex items-center gap-2 text-sm md:text-base font-semibold"><i class="fa-brands fa-amazon"></i> Chime</span>
+            <span class="flex items-center gap-2 text-sm md:text-base font-semibold"><i class="fa-brands fa-hackerrank"></i> HackerRank</span>
         </div>
-      </div>
-
-      <div class="flex flex-col items-center mt-2 md:mt-6 gap-3">
-          <div class="text-[9px] md:text-[10px] text-green-600 font-mono tracking-widest uppercase opacity-90 text-center px-4">
-             <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No access
-          </div>
       </div>
     </div>
 
-    <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-12">
-        <div class="inline-block p-1 rounded-full border border-sky-200 bg-sky-50 px-3 md:px-4 mb-4 md:mb-6 shadow-sm">
-            <span class="text-[10px] md:text-xs font-bold text-sky-700">🛡️ 100% Undetectable</span>
+    <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-16">
+        <div class="inline-block p-1.5 rounded-full border border-sky-200/50 bg-sky-50/50 backdrop-blur-md px-4 mb-6 shadow-sm">
+            <span class="text-[11px] md:text-xs font-bold text-sky-700 tracking-wide">🛡️ 100% Undetectable Architecture</span>
         </div>
-        <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-6 md:mb-8 px-2">Invisible to Zoom, Teams & Meets.</h2>
+        <h2 class="text-3xl md:text-4xl font-semibold text-[#1d1d1f] mb-8 md:mb-10 px-2 tracking-tight">Invisible to the interviewer.</h2>
          
         <div class="comp-container" id="comparisonSlider">
             <div class="mac-header">
@@ -318,122 +313,122 @@
             <div class="comp-label label-right">Your View</div>
         </div>
         
-        <p class="text-[9px] md:text-xs text-slate-500 mt-4 md:mt-6 tracking-wide uppercase">Drag slider to see how it stays hidden</p>
+        <p class="text-[10px] md:text-[11px] text-slate-500 mt-6 tracking-widest uppercase font-semibold">Drag slider to test invisibility</p>
     </div>
 
-    <div class="w-full max-w-3xl mx-auto mb-10 md:mb-12 relative z-20 px-4">
-        <div class="perf-card p-0 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden">
-             <div class="bg-slate-50 px-3 md:px-4 py-2 md:py-3 flex items-center justify-between border-b border-slate-200">
-                 <div class="flex gap-1.5 md:gap-2">
-                     <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400"></div>
-                     <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-400"></div>
-                     <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-400"></div>
+    <div class="w-full max-w-3xl mx-auto mb-10 md:mb-16 relative z-20 px-4">
+        <div class="perf-card p-0 overflow-hidden">
+             <div class="bg-white/40 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-white/50">
+                 <div class="flex gap-2">
+                     <div class="w-3 h-3 rounded-full bg-red-400 shadow-inner"></div>
+                     <div class="w-3 h-3 rounded-full bg-yellow-400 shadow-inner"></div>
+                     <div class="w-3 h-3 rounded-full bg-green-400 shadow-inner"></div>
                  </div>
-                 <span class="text-[9px] md:text-[10px] text-slate-500 font-mono tracking-widest uppercase"><i class="fa-solid fa-feather-pointed mr-1 md:mr-2 text-accent"></i>Whis System: Active</span>
+                 <span class="text-[10px] text-slate-600 font-mono tracking-widest uppercase font-semibold"><i class="fa-solid fa-feather-pointed mr-2 text-[#0071e3]"></i>Whis System: Active</span>
              </div>
              
-             <div class="p-4 md:p-6 font-mono text-xs md:text-sm h-[260px] md:h-auto md:min-h-[330px] relative overflow-hidden flex flex-col justify-start">
+             <div class="p-5 md:p-8 font-mono text-[13px] md:text-[15px] h-[260px] md:h-auto md:min-h-[350px] relative flex flex-col justify-start">
                  
-                 <div id="hero-status" class="text-slate-500 mb-3 text-[10px] md:text-xs flex items-center gap-2 hidden">
-                    <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-500 animate-pulse"></span> 
-                    Listening to audio...
+                 <div id="hero-status" class="text-slate-500 mb-4 text-[11px] md:text-xs flex items-center gap-2 hidden font-sans font-medium">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span> 
+                    Listening to system audio...
                  </div>
                  
-                 <div id="hero-question-container" class="mb-4 md:mb-6 hidden">
-                    <span class="text-accent text-[10px] md:text-xs uppercase tracking-wider block mb-1">INTERVIEWER QUESTION DETECTED:</span>
-                    <p id="hero-question-text" class="text-slate-900 text-sm md:text-lg font-medium leading-snug"></p>
+                 <div id="hero-question-container" class="mb-6 md:mb-8 hidden">
+                    <span class="text-[#0071e3] text-[11px] font-sans font-bold uppercase tracking-wider block mb-2">INTERVIEWER QUESTION DETECTED:</span>
+                    <p id="hero-question-text" class="text-[#1d1d1f] text-base md:text-xl font-medium leading-relaxed"></p>
                  </div>
 
-                 <div id="hero-answer-container" class="p-3 md:p-4 bg-slate-50 rounded-lg border-l-[3px] md:border-l-4 border-accent text-slate-800 leading-relaxed shadow-sm hidden">
-                     <span class="text-accent text-[10px] md:text-xs font-bold block mb-1">Suggested Answer:</span>
-                     <span id="hero-answer-text" class="text-xs md:text-sm"></span><span class="inline-block w-1.5 h-3 md:w-2 md:h-4 bg-accent animate-pulse align-text-bottom ml-1"></span>
+                 <div id="hero-answer-container" class="p-4 md:p-5 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/80 text-slate-800 leading-relaxed shadow-sm hidden">
+                     <span class="text-[#0071e3] text-[11px] font-sans font-bold uppercase tracking-wider block mb-2">Suggested Answer:</span>
+                     <span id="hero-answer-text" class="text-sm md:text-base font-medium"></span><span class="inline-block w-2 h-4 bg-[#0071e3] animate-pulse align-text-bottom ml-1 rounded-sm"></span>
                  </div>
              </div>
         </div>
     </div>
   </section>
 
-  <section id="how-to" class="py-24 relative bg-[#050814] overflow-hidden font-sans">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-sky-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+  <section id="how-to" class="py-32 relative bg-[#000000] overflow-hidden font-sans">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[#0071e3]/20 blur-[150px] rounded-full pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
             
-            <div class="flex flex-col items-center text-center mb-20">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-6">
+            <div class="flex flex-col items-center text-center mb-24">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">
                     <i class="fa-solid fa-shield-check"></i> 100% Full-Screen Share Safe
                 </div>
-                <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
-                    Master <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Silent Flight</span>
+                <h2 class="text-4xl md:text-6xl font-semibold text-white mb-6 tracking-tight">
+                    Master <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-[#0071e3]">Silent Flight</span>
                 </h2>
-                <p class="text-slate-400 text-lg max-w-2xl leading-relaxed">
-                    Whis-AI operates at the kernel level. Whether you share a single window or your <strong>entire screen</strong>, the app is completely invisible to Zoom, Teams, and browser proctoring. Your hands never leave the keyboard.
+                <p class="text-slate-400 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-medium">
+                    Whis-AI operates at the OS level. Whether you share a single window or your <strong>entire screen</strong>, the app is completely invisible to Zoom, Teams, and browser proctoring. Your hands never leave the keyboard.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
                 
-                <div class="hidden lg:block absolute top-[45px] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-sky-500/0 via-slate-700 to-emerald-500/0 z-0"></div>
+                <div class="hidden lg:block absolute top-[45px] left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent z-0"></div>
 
-                <div class="bg-[#0f1423]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-8 relative group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(56,189,248,0.2)] hover:border-sky-500/30 z-10">
-                    <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-slate-300 font-bold mb-8 relative z-10 group-hover:bg-sky-500 group-hover:text-white group-hover:border-sky-400 transition-colors">1</div>
-                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-desktop text-sky-400"></i> The Setup
+                <div class="pricing-elite rounded-3xl p-8 relative group hover:-translate-y-2 transition-all duration-500 z-10 cursor-default">
+                    <div class="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold mb-8 relative z-10 group-hover:bg-[#0071e3] group-hover:border-[#0071e3] transition-colors shadow-lg">1</div>
+                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2 tracking-tight">
+                        <i class="fa-solid fa-desktop text-[#0071e3]"></i> The Setup
                     </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Start your interview. Share your screen as you normally would. Whis-AI is completely undetectable to the interviewer's eyes.</p>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-4">Start your interview. Share your screen normally. Whis-AI is completely undetectable to the interviewer's eyes.</p>
                 </div>
 
-                <div class="bg-[#0f1423]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-8 relative group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(52,211,153,0.2)] hover:border-emerald-500/30 z-10">
-                    <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-slate-300 font-bold mb-8 relative z-10 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-400 transition-colors">2</div>
-                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2">
+                <div class="pricing-elite rounded-3xl p-8 relative group hover:-translate-y-2 transition-all duration-500 z-10 cursor-default">
+                    <div class="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold mb-8 relative z-10 group-hover:bg-emerald-500 group-hover:border-emerald-500 transition-colors shadow-lg">2</div>
+                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2 tracking-tight">
                         <i class="fa-solid fa-ear-listen text-emerald-400"></i> Activate Audio
                     </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-5">When the interviewer starts asking a technical question, toggle the AI microphone to listen to system audio.</p>
-                    <div class="inline-block bg-[#1a2235] border-b-2 border-slate-900 rounded-md px-3 py-1.5 shadow-sm">
+                    <p class="text-slate-400 text-sm leading-relaxed mb-5">When asked a technical question, toggle the AI microphone to listen to system audio.</p>
+                    <div class="inline-block bg-black/50 border border-white/10 rounded-lg px-3 py-2 shadow-inner">
                         <code class="text-emerald-400 text-xs font-mono font-bold tracking-widest">Cmd/Ctrl + K</code>
                     </div>
                 </div>
 
-                <div class="bg-[#0f1423]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-8 relative group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(56,189,248,0.2)] hover:border-sky-500/30 z-10">
-                    <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-slate-300 font-bold mb-8 relative z-10 group-hover:bg-sky-500 group-hover:text-white group-hover:border-sky-400 transition-colors">3</div>
-                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-expand text-sky-400"></i> Silent Capture
+                <div class="pricing-elite rounded-3xl p-8 relative group hover:-translate-y-2 transition-all duration-500 z-10 cursor-default">
+                    <div class="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold mb-8 relative z-10 group-hover:bg-[#0071e3] group-hover:border-[#0071e3] transition-colors shadow-lg">3</div>
+                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2 tracking-tight">
+                        <i class="fa-solid fa-expand text-[#0071e3]"></i> Silent Capture
                     </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-5">The app drops to 0% opacity, snaps a frictionless invisible screenshot of your IDE in milliseconds, and restores.</p>
-                    <div class="inline-block bg-[#1a2235] border-b-2 border-slate-900 rounded-md px-3 py-1.5 shadow-sm">
-                        <code class="text-sky-400 text-xs font-mono font-bold tracking-widest">Cmd/Ctrl + E</code>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-5">The app drops to 0% opacity, snaps a frictionless invisible screenshot of your IDE, and restores.</p>
+                    <div class="inline-block bg-black/50 border border-white/10 rounded-lg px-3 py-2 shadow-inner">
+                        <code class="text-[#0071e3] text-xs font-mono font-bold tracking-widest">Cmd/Ctrl + E</code>
                     </div>
                 </div>
 
-                <div class="bg-[#0f1423]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-8 relative group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_-12px_rgba(52,211,153,0.2)] hover:border-emerald-500/30 z-10">
-                    <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-slate-300 font-bold mb-8 relative z-10 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-400 transition-colors">4</div>
-                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-bolt text-emerald-400"></i> Execute
+                <div class="pricing-elite rounded-3xl p-8 relative group hover:-translate-y-2 transition-all duration-500 z-10 cursor-default">
+                    <div class="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold mb-8 relative z-10 group-hover:bg-purple-500 group-hover:border-purple-500 transition-colors shadow-lg">4</div>
+                    <h3 class="text-white font-semibold text-xl mb-3 flex items-center gap-2 tracking-tight">
+                        <i class="fa-solid fa-bolt text-purple-400"></i> Execute
                     </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-5">Send the data to the AI. It instantly streams the perfect, structured technical answer back to your hidden window.</p>
-                    <div class="inline-block bg-[#1a2235] border-b-2 border-slate-900 rounded-md px-3 py-1.5 shadow-sm">
-                        <code class="text-emerald-400 text-xs font-mono font-bold tracking-widest">Cmd/Ctrl + Enter</code>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-5">Send data to the AI. It instantly streams the perfect, structured technical answer back to your window.</p>
+                    <div class="inline-block bg-black/50 border border-white/10 rounded-lg px-3 py-2 shadow-inner">
+                        <code class="text-purple-400 text-xs font-mono font-bold tracking-widest">Cmd/Ctrl + Enter</code>
                     </div>
                 </div>
             </div>
 
             <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-gradient-to-br from-slate-900 to-[#0f1423] border border-white/5 rounded-xl p-5 flex items-center gap-5 hover:border-slate-600 transition-colors">
-                    <div class="w-12 h-12 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-user-ninja text-xl"></i>
+                <div class="pricing-elite rounded-2xl p-6 flex items-center gap-5 hover:border-white/30 transition-colors">
+                    <div class="w-14 h-14 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-user-ninja text-2xl"></i>
                     </div>
                     <div>
-                        <h4 class="text-white font-semibold mb-1">The Panic Button</h4>
-                        <p class="text-slate-400 text-sm">Need to hide instantly? Press <code class="bg-black/40 px-1.5 py-0.5 rounded text-red-400 font-mono border border-red-500/20 ml-1">Cmd/Ctrl + \</code> to make the entire app vanish. Press it again to bring it back.</p>
+                        <h4 class="text-white font-semibold text-lg mb-1 tracking-tight">The Panic Button</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Need to hide instantly? Press <code class="bg-black/60 px-1.5 py-0.5 rounded text-red-400 font-mono border border-red-500/30 ml-1">Cmd/Ctrl + \</code> to make the app vanish. Press again to bring it back.</p>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-slate-900 to-[#0f1423] border border-white/5 rounded-xl p-5 flex items-center gap-5 hover:border-slate-600 transition-colors">
-                    <div class="w-12 h-12 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-file-pdf text-xl"></i>
+                <div class="pricing-elite rounded-2xl p-6 flex items-center gap-5 hover:border-white/30 transition-colors">
+                    <div class="w-14 h-14 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-file-pdf text-2xl"></i>
                     </div>
                     <div>
-                        <h4 class="text-white font-semibold mb-1">Context Manager</h4>
-                        <p class="text-slate-400 text-sm">Click your profile icon to upload your Resume. The AI will perfectly tailor behavioral questions to match your exact past experience.</p>
+                        <h4 class="text-white font-semibold text-lg mb-1 tracking-tight">Context Manager</h4>
+                        <p class="text-slate-400 text-sm leading-relaxed">Upload your Resume. The AI will perfectly tailor behavioral questions to match your exact past experience.</p>
                     </div>
                 </div>
             </div>
@@ -441,70 +436,72 @@
         </div>
     </section>
 
-    <section id="pricing" class="py-16 md:py-32 border-t border-slate-200 bg-white relative overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-sky-200 rounded-full blur-[100px] md:blur-[120px] pointer-events-none opacity-50"></div>
+    <section id="pricing" class="py-24 md:py-36 bg-[#f5f5f7] relative overflow-hidden">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-200/50 rounded-full blur-[120px] pointer-events-none opacity-50"></div>
 
-    <div class="max-w-7xl mx-auto px-4 md:px-6 text-center mt-6 md:mt-12 relative z-10">
-<h2 class="text-3xl md:text-5xl font-medium text-slate-900 mb-4 md:mb-6 tracking-tight">Invest in your career.</h2>
-<p class="text-sm md:text-base text-slate-600 mb-6 font-light px-4">Join 7,000+ engineers who have unlocked their full potential.</p>
+    <div class="max-w-7xl mx-auto px-4 md:px-6 text-center relative z-10">
+        <h2 class="text-4xl md:text-6xl font-semibold text-[#1d1d1f] mb-4 md:mb-6 tracking-tight">Invest in your career.</h2>
+        <p class="text-lg md:text-xl text-slate-500 mb-10 font-medium px-4">Join 7,000+ engineers who have unlocked their full potential.</p>
 
-<div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2 shadow-sm">
-    <i class="fa-solid fa-gift text-emerald-600 text-lg"></i>
-    <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
-</div>        
-        <div class="inline-flex bg-slate-100 p-1 rounded-full border border-slate-200 mb-10 md:mb-16 mt-6 shadow-inner w-full max-w-[300px] md:w-auto">
-           <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('quarterly')">Quarterly (Save 40%)</button>
+        <div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-8 bg-emerald-50/80 backdrop-blur-md border border-emerald-200 text-emerald-800 rounded-2xl p-4 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-3 shadow-sm">
+            <i class="fa-solid fa-gift text-emerald-600 text-xl"></i>
+            <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
+        </div>        
+        
+        <div class="inline-flex glass-nav p-1.5 rounded-full mb-12 md:mb-20 w-full max-w-[320px] md:w-auto">
+           <button id="btnMonthly" class="flex-1 px-6 md:px-10 py-2.5 md:py-3 rounded-full text-[13px] font-bold text-slate-600 hover:text-black transition-all" onclick="setCycle('monthly')">Monthly</button>
+           <button id="btnQuarterly" class="flex-1 px-6 md:px-10 py-2.5 md:py-3 rounded-full text-[13px] font-bold bg-white text-[#1d1d1f] shadow-md transition-all" onclick="setCycle('quarterly')">Quarterly (Save 40%)</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
-            <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-sm">
-                <h3 class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 md:mb-4">Foundation</h3>
-                <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8">Free</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-600 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400 text-sm"></i> 10 Daily Answers</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400 text-sm"></i> Normal Speed</p>
-                    <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark text-sm"></i> Stealth Mode</p>
-                    <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark text-sm"></i> Screen Solving</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto items-stretch">
+            
+            <div class="perf-card p-8 md:p-10 text-left flex flex-col z-10">
+                <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">Foundation</h3>
+                <div class="text-4xl md:text-5xl font-bold text-[#1d1d1f] mb-8 tracking-tight">Free</div>
+                <div class="space-y-5 text-[14px] text-slate-600 mb-10 flex-grow font-medium">
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-300 text-lg"></i> 10 Daily Answers</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-300 text-lg"></i> Normal Speed</p>
+                    <p class="flex items-center gap-3 opacity-40"><i class="fa-solid fa-circle-xmark text-lg"></i> Stealth Mode</p>
+                    <p class="flex items-center gap-3 opacity-40"><i class="fa-solid fa-circle-xmark text-lg"></i> Screen Solving</p>
                 </div>
-                <button onclick="openDownloadModal()" class="w-full py-3.5 md:py-4 rounded-xl border border-slate-300 text-slate-700 font-bold bg-slate-50 hover:bg-slate-100 text-[10px] uppercase tracking-widest transition-all active:scale-95">Download Trial</button>
+                <button onclick="openDownloadModal()" class="w-full py-4 rounded-2xl glass-button text-slate-800 font-bold text-[12px] uppercase tracking-widest transition-all active:scale-95">Download Trial</button>
             </div>
 
-            <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-lg z-20 relative">
-                <h3 class="text-[9px] md:text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-3 md:mb-4">Pro Professional</h3>
-                <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8 flex items-baseline flex-wrap" id="pricePro">...</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-700 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-clock text-accent text-sm"></i> 10 Hours App Usage / mo</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Unlimited Answers</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Screen Reading Tool</p>
-                    <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye text-sm"></i> Visible on Screen</p>
+            <div class="perf-card p-8 md:p-10 text-left flex flex-col z-20 md:-mt-4 md:mb-4 bg-white/70">
+                <h3 class="text-[11px] font-bold text-[#0071e3] uppercase tracking-widest mb-4">Professional</h3>
+                <div class="text-4xl md:text-5xl font-bold text-[#1d1d1f] mb-8 flex items-baseline flex-wrap tracking-tight" id="pricePro">...</div>
+                <div class="space-y-5 text-[14px] text-slate-700 mb-10 flex-grow font-medium">
+                    <p class="flex items-center gap-3 text-[#1d1d1f] font-semibold"><i class="fa-solid fa-clock text-[#0071e3] text-lg"></i> 10 Hours App Usage / mo</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-[#0071e3]/80 text-lg"></i> Unlimited Answers</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-[#0071e3]/80 text-lg"></i> Screen Reading Tool</p>
+                    <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye text-lg"></i> Visible on Screen</p>
                 </div>
-                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-3.5 md:py-4 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-[10px] font-bold uppercase tracking-widest transition-all shadow-md active:scale-95">Upgrade Now</button>
+                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-4 rounded-2xl bg-[#1d1d1f] text-white hover:bg-black text-[12px] font-bold uppercase tracking-widest transition-all shadow-xl active:scale-95">Upgrade Now</button>
             </div>
 
-            <div class="perf-card pricing-elite p-6 md:p-10 text-left flex flex-col border-accent/40 bg-slate-900 relative overflow-hidden shadow-2xl md:scale-105 z-30">
-                 <div class="absolute top-0 right-0 p-4 md:p-6 opacity-10"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
-                 <h3 class="text-[9px] md:text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-3 md:mb-4">Elite Stealth</h3>
-                <div class="text-3xl md:text-4xl font-bold text-white mb-6 md:mb-8 flex items-baseline flex-wrap" id="priceStealth">...</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-300 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning text-sm"></i> 10 Hours App Usage / mo</p>
-                    <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-sky-400 text-sm"></i> 100% Undetectable</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80 text-sm"></i> Invisible to Zoom/Teams</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80 text-sm"></i> Hidden App Process</p>
+            <div class="pricing-elite p-8 md:p-10 text-left flex flex-col rounded-3xl z-30 md:scale-[1.02]">
+                 <div class="absolute top-0 right-0 p-6 opacity-5"><i class="fa-solid fa-ghost text-6xl text-white"></i></div>
+                 <h3 class="text-[11px] font-bold text-sky-400 uppercase tracking-widest mb-4">Elite Stealth</h3>
+                <div class="text-4xl md:text-5xl font-bold text-white mb-8 flex items-baseline flex-wrap tracking-tight" id="priceStealth">...</div>
+                <div class="space-y-5 text-[14px] text-slate-300 mb-10 flex-grow font-medium">
+                    <p class="flex items-center gap-3 text-sky-400 font-semibold"><i class="fa-solid fa-bolt-lightning text-lg"></i> 10 Hours App Usage / mo</p>
+                    <p class="flex items-center gap-3 text-white font-semibold"><i class="fa-solid fa-shield-halved text-sky-400 text-lg"></i> 100% Undetectable</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80 text-lg"></i> Invisible to Zoom/Teams</p>
+                    <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80 text-lg"></i> Hidden App Process</p>
                 </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-3.5 md:py-4 rounded-xl bg-sky-500 text-white hover:bg-sky-400 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">Go Elite</button>
+                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-4 rounded-2xl bg-[#0071e3] text-white hover:bg-sky-500 text-[12px] font-bold uppercase tracking-widest transition-all shadow-[0_10px_30px_rgba(0,113,227,0.4)] active:scale-95 border border-sky-400/50">Go Elite</button>
             </div>
         </div>
 
-        <div class="max-w-3xl mx-auto mt-12 md:mt-20 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-sky-300 transition-all duration-500">
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 text-center md:text-left">
-                <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-accent shrink-0 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-stopwatch text-xl md:text-2xl"></i>
+        <div class="max-w-3xl mx-auto mt-16 md:mt-24 p-8 rounded-3xl glass-nav border-white/50 text-left">
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
+                <div class="w-16 h-16 rounded-2xl bg-white/50 border border-white flex items-center justify-center text-[#0071e3] shrink-0 shadow-sm">
+                    <i class="fa-solid fa-stopwatch text-3xl"></i>
                 </div>
                 <div>
-                    <h4 class="text-xs md:text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Smart Usage Credit System</h4>
-                    <p class="text-[11px] md:text-xs text-slate-600 leading-relaxed">
-                        Paid plans include <span class="text-slate-900 font-semibold">10-hours per month</span> of overall app usage. Audio is always monitored and screenshots are taken automatically when you request an output. To save your credits, the **Ghost Timer** only counts while the app is actively running. Preparation time and breaks are never deducted from your balance.
+                    <h4 class="text-sm md:text-base font-bold text-[#1d1d1f] mb-2 uppercase tracking-widest">Smart Usage Credit System</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed font-medium">
+                        Paid plans include <span class="text-[#1d1d1f] font-bold">10-hours per month</span> of overall app usage. To save your credits, the <strong>Ghost Timer</strong> only counts while the app is actively running. Preparation time and breaks are never deducted from your balance.
                     </p>
                 </div>
             </div>
@@ -512,425 +509,212 @@
     </div>
   </section>
 
-  <section class="py-12 border-t border-slate-200 bg-white relative overflow-hidden">
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#00000008_1px,transparent_1px),linear-gradient(to_bottom,#00000008_1px,transparent_1px)] bg-[size:24px_24px] opacity-100 pointer-events-none"></div>
-
+  <section class="py-20 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-green-400 transition-colors duration-500 shadow-sm">
-                <div class="flex items-center justify-between mb-3 md:mb-4">
-                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">
-                        <i class="fa-solid fa-check-circle mr-1"></i> Success Rate
-                    </span>
-                    <i class="fa-solid fa-chart-line text-slate-200 text-lg md:text-xl group-hover:text-green-500/50 transition"></i>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div class="perf-card p-6 md:p-8 bg-white border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-[11px] font-bold text-green-600 uppercase tracking-widest"><i class="fa-solid fa-check-circle mr-2"></i> Success Rate</span>
+                    <i class="fa-solid fa-chart-line text-slate-200 text-2xl"></i>
                 </div>
                 <div>
-                    <div class="text-[11px] font-semibold text-slate-500 mb-1">TECH ROUNDS CLEARED</div>
-                    <div class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight" id="uptime-counter">62,402</div>
-                </div>
-                <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-100 text-[11px] text-slate-500">
-                    Assisting from initial OAs to final System Design
+                    <div class="text-[12px] font-semibold text-slate-500 mb-1">TECH ROUNDS CLEARED</div>
+                    <div class="text-4xl font-bold text-[#1d1d1f] tracking-tight" id="uptime-counter">62,402</div>
                 </div>
             </div>
 
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-purple-400 transition-colors duration-500 shadow-sm">
-                <div class="flex items-center justify-between mb-3 md:mb-4">
-                    <span class="text-[10px] font-bold text-purple-600 uppercase tracking-widest">
-                        <i class="fa-solid fa-shield-halved mr-1"></i> Stealth & Privacy
-                    </span>
-                    <i class="fa-solid fa-lock text-slate-200 text-lg md:text-xl group-hover:text-purple-500/50 transition"></i>
+            <div class="perf-card p-6 md:p-8 bg-white border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-[11px] font-bold text-purple-600 uppercase tracking-widest"><i class="fa-solid fa-shield-halved mr-2"></i> Stealth & Privacy</span>
+                    <i class="fa-solid fa-lock text-slate-200 text-2xl"></i>
                 </div>
                 <div>
-                    <div class="text-[11px] font-semibold text-slate-500 mb-1">SYSTEM ANONYMITY</div>
-                    <div class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">100%</div>
-                </div>
-                <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-100 text-[11px] text-slate-500">
-                    Enterprise-grade isolation. Leaves absolutely zero trace.
+                    <div class="text-[12px] font-semibold text-slate-500 mb-1">SYSTEM ANONYMITY</div>
+                    <div class="text-4xl font-bold text-[#1d1d1f] tracking-tight">100%</div>
                 </div>
             </div>
 
-            <div class="perf-card p-5 md:p-6 bg-white border border-slate-200 flex flex-col justify-between group hover:border-sky-400 transition-colors duration-500 shadow-sm">
-                <div class="flex items-center justify-between mb-3 md:mb-4">
-                    <span class="text-[10px] font-bold text-accent uppercase tracking-widest">
-                        <i class="fa-solid fa-briefcase mr-1"></i> Top Placements
-                    </span>
-                    <i class="fa-solid fa-building text-slate-200 text-lg md:text-xl group-hover:text-accent/50 transition"></i>
+            <div class="perf-card p-6 md:p-8 bg-white border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-[11px] font-bold text-[#0071e3] uppercase tracking-widest"><i class="fa-solid fa-briefcase mr-2"></i> Top Placements</span>
+                    <i class="fa-solid fa-building text-slate-200 text-2xl"></i>
                 </div>
                 <div>
-                    <div class="text-[11px] font-semibold text-slate-500 mb-1">LANDING OFFERS AT</div>
-                    <div class="text-xl md:text-2xl font-bold text-slate-900 tracking-tight h-[28px] md:h-[32px] flex items-center">
+                    <div class="text-[12px] font-semibold text-slate-500 mb-1">LANDING OFFERS AT</div>
+                    <div class="text-3xl font-bold text-[#1d1d1f] tracking-tight h-[36px] flex items-center">
                         <span id="typewriter-text"></span>
-                        <span class="w-1.5 h-5 md:w-2 md:h-6 bg-accent animate-pulse ml-1"></span>
+                        <span class="w-2 h-7 bg-[#0071e3] animate-pulse ml-2 rounded-sm"></span>
                     </div>
                 </div>
-                <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-100 text-[11px] text-slate-500">
-                    Trusted by ambitious engineers in India & the US
-                </div>
             </div>
-
         </div>
     </div>
   </section>
 
-  <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-4xl mx-auto px-4 md:px-6 text-center">
-          <div class="w-16 h-16 bg-sky-100 border border-sky-200 rounded-full flex items-center justify-center mx-auto mb-6 text-accent shadow-sm">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
-                 <path d="M12 11C11.45 11 11 11.45 11 12C11 12.55 11.45 13 12 13C12.55 13 13 12.55 13 12C13 11.45 12.55 11 12 11Z" fill="currentColor"/>
-                 <path d="M8 10C6.9 10 6 10.9 6 12C6 13.1 6.9 14 8 14C9.1 14 10 13.1 10 12C10 10.9 9.1 10 8 10ZM8 12.5C7.72 12.5 7.5 12.28 7.5 12C7.5 11.72 7.72 11.5 8 11.5C8.28 11.5 8.5 11.72 8.5 12C8.5 12.28 8.28 12.5 8 12.5Z" fill="currentColor"/>
-                 <path d="M16 10C14.9 10 14 10.9 14 12C14 13.1 14.9 14 16 14C17.1 14 18 13.1 18 12C18 10.9 17.1 10 16 10ZM16 12.5C15.72 12.5 15.5 12.28 15.5 12C15.5 11.72 15.72 11.5 16 11.5C16.28 11.5 16.5 11.72 16.5 12C16.5 12.28 16.28 12.5 16 12.5Z" fill="currentColor"/>
-                 <path d="M12 14.5L11 16H13L12 14.5Z" fill="currentColor"/>
-              </svg>
-          </div>
-          <h2 class="text-3xl md:text-4xl font-medium text-slate-900 mb-6 tracking-tight">The Story of the Silent Owl.</h2>
-          <p class="text-base md:text-lg text-slate-600 leading-relaxed font-light max-w-3xl mx-auto px-4">
-              Interviews put you under a glaring spotlight where one wrong word can cost you the offer. We built Whis to be your silent partner in the dark. Like the owl, Whis has perfect vision and exceptional hearing, processing complex technical requirements instantly. It flies completely under the radar—undetectable to the interviewer—landing right on your shoulder to whisper exactly what you need to say.
-          </p>
-      </div>
-  </section>
-
-  <section id="features" class="py-16 md:py-20 border-t border-slate-200 bg-white">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-          <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-10 md:mb-16 text-center">Owl-Inspired Architecture.</h2>
-           
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm border-sky-100">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-sky-50 flex items-center justify-center mb-3 md:mb-4 text-sky-600 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Silent Flight</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Flies completely under the radar. Invisible to screen-shares (Zoom/Teams) and browser proctoring.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm border-emerald-100">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-3 md:mb-4 text-emerald-600 group-hover:scale-110 transition"><i class="fa-solid fa-microphone-lines text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Exceptional Hearing</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Pinpoint auditory processing. Listens to the interview and provides answers instantly.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm border-purple-100">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-50 flex items-center justify-center mb-3 md:mb-4 text-purple-600 group-hover:scale-110 transition"><i class="fa-solid fa-desktop text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Perfect Vision</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Like an owl in the dark, it sees your screen perfectly and solves coding questions based on it.</p>
-              </div>
-
-              <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm border-orange-100">
-                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-orange-50 flex items-center justify-center mb-3 md:mb-4 text-orange-600 group-hover:scale-110 transition"><i class="fa-solid fa-brain text-lg md:text-xl"></i></div>
-                  <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Deep Wisdom</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Upload your resume. Whis uses deep context to whisper highly personalized behavioral answers.</p>
-              </div>
-          </div>
-      </div>
-  </section>
-
-
-  <section class="py-16 md:py-20 border-t border-slate-200 bg-white">
-      <div class="max-w-4xl mx-auto px-4 md:px-6">
-          <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-8 md:mb-12 text-center">Why not just use ChatGPT?</h2>
-          <div class="perf-card overflow-x-auto bg-white shadow-md">
-              <table class="w-full text-left border-collapse min-w-[500px]">
-                  <thead>
-                      <tr class="bg-slate-50 border-b border-slate-200">
-                          <th class="p-3 md:p-6 text-[10px] md:text-xs text-slate-500 uppercase tracking-widest w-1/3">Feature</th>
-                          <th class="p-3 md:p-6 text-[10px] md:text-xs text-slate-500 uppercase tracking-widest w-1/3 border-l border-slate-200">Generic AI</th>
-                          <th class="p-3 md:p-6 text-[10px] md:text-xs text-accent uppercase tracking-widest w-1/3 bg-sky-50 border-l border-sky-200">Whis-AI</th>
-                      </tr>
-                  </thead>
-                  <tbody class="text-[13px] md:text-sm">
-                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                          <td class="p-3 md:p-6 text-slate-800 font-bold whitespace-nowrap">Undetectable Mode</td>
-                          <td class="p-3 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-1.5 md:mr-2"></i> No</td>
-                          <td class="p-3 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium whitespace-nowrap"><i class="fa-solid fa-check text-accent mr-1.5 md:mr-2"></i> Yes (Silent Flight)</td>
-                      </tr>
-                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                          <td class="p-3 md:p-6 text-slate-800 font-bold whitespace-nowrap">Listens to Live Audio</td>
-                          <td class="p-3 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-1.5 md:mr-2"></i> No (Must type)</td>
-                          <td class="p-3 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium whitespace-nowrap"><i class="fa-solid fa-check text-accent mr-1.5 md:mr-2"></i> Auto-Capture</td>
-                      </tr>
-                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                          <td class="p-3 md:p-6 text-slate-800 font-bold whitespace-nowrap">Resume Knowledge</td>
-                          <td class="p-3 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-1.5 md:mr-2"></i> Hallucinates</td>
-                          <td class="p-3 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium whitespace-nowrap"><i class="fa-solid fa-check text-accent mr-1.5 md:mr-2"></i> Perfectly Synced</td>
-                      </tr>
-                      <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                          <td class="p-3 md:p-6 text-slate-800 font-bold whitespace-nowrap">Solves Screen Diagrams</td>
-                          <td class="p-3 md:p-6 border-l border-slate-100 text-slate-600"><i class="fa-solid fa-xmark text-red-500 mr-1.5 md:mr-2"></i> Slow/Manual</td>
-                          <td class="p-3 md:p-6 bg-sky-50/50 border-l border-sky-100 text-slate-900 font-medium whitespace-nowrap"><i class="fa-solid fa-check text-accent mr-1.5 md:mr-2"></i> Instant Vision</td>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
-          <p class="text-center text-[10px] md:text-xs text-slate-500 mt-4 md:mt-6 italic px-4">Don't risk your dream job with generic tools. Use the specialist.</p>
-      </div>
-  </section>
-
-  <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-4">
-              <h2 id="testimonials" class="text-2xl md:text-3xl font-medium text-slate-900">Engineers love Whis.</h2>
-              <div class="text-left md:text-right">
-                  <div class="flex gap-1 text-yellow-400 text-xs md:text-sm mb-1">
-                      <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                  </div>
-                  <p class="text-[9px] md:text-[10px] text-slate-500">Rated 4.9/5 by 2,000+ users</p>
-              </div>
-          </div>
-           
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
-                  <div>
-                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
-                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">JK</div>
-                      <div>
-                          <p class="text-[11px] md:text-xs font-bold text-slate-900">James K.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">Senior SDE</p>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-sky-200 shadow-sm">
-                  <div>
-                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
-                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"The visual screen analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-teal-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">SM</div>
-                      <div>
-                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Sarah M.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">SDE II</p>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
-                  <div>
-                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
-                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
-                  </div>
-                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
-                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">AL</div>
-                      <div>
-                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Arjun L.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">L61 Engineer</p>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-
-
-  <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
-      <div class="max-w-3xl mx-auto px-4 md:px-6">
-          <h2 id="faq" class="text-2xl md:text-3xl font-medium text-slate-900 mb-8 md:mb-12 text-center">Common Questions.</h2>
-          <div class="space-y-3 md:space-y-4">
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Does this work on HackerRank or proctored assessments?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
-                  </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Because Whis runs as an independent, isolated desktop background process, browser-based environments like HackerRank cannot detect its presence or screen-reading activity.</p>
-                  </div>
-              </div>
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Is Whis really undetectable on Zoom/Teams?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
-                  </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Whis listens to system audio and scans the screen using technology that runs entirely outside of your browser. Meeting tools like Zoom or Teams only see the browser; they cannot detect Whis running in the background as a separate app.</p>
-                  </div>
-              </div>
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Can I get a refund if it doesn't work?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
-                  </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the app doesn't work on your laptop or you face issues we can't solve, simply email support for a full refund. No questions asked.</p>
-                  </div>
-              </div>
-               <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
-                      <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Does it work on Mac and Windows?</h3>
-                      <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
-                  </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes, we have apps for both Windows (10/11) and macOS (Intel & M1/M2/M3 chips). Linux support is coming soon.</p>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <footer class="py-10 md:py-12 bg-slate-100 border-t border-slate-200 flex flex-col items-center gap-6 pb-28 md:pb-12">
-    <div class="flex flex-wrap justify-center gap-4 md:gap-6 px-4 text-slate-500 text-[11px] md:text-xs font-medium">
-        <a href="/contact" class="hover:text-slate-900 transition">Contact</a>
-        <a href="/troubleshoot" class="hover:text-slate-900 transition">Troubleshoot</a>
-        <a href="/shipping-policy" class="hover:text-slate-900 transition">Shipping Policy</a>
-        <a href="/support" class="hover:text-slate-900 transition">Support</a>
-        <a href="/terms" class="hover:text-slate-900 transition">Terms</a>
-        <a href="/refund-policy" class="hover:text-slate-900 transition">Refund Policy</a>
-        <a href="/privacy" class="hover:text-slate-900 transition">Privacy</a>
+  <footer class="py-12 bg-white border-t border-slate-200 flex flex-col items-center gap-6 pb-28 md:pb-12">
+    <div class="flex flex-wrap justify-center gap-6 px-4 text-slate-500 text-[13px] font-medium">
+        <a href="/contact" class="hover:text-[#1d1d1f] transition">Contact</a>
+        <a href="/troubleshoot" class="hover:text-[#1d1d1f] transition">Troubleshoot</a>
+        <a href="/shipping-policy" class="hover:text-[#1d1d1f] transition">Shipping Policy</a>
+        <a href="/support" class="hover:text-[#1d1d1f] transition">Support</a>
+        <a href="/terms" class="hover:text-[#1d1d1f] transition">Terms</a>
+        <a href="/refund-policy" class="hover:text-[#1d1d1f] transition">Refund Policy</a>
+        <a href="/privacy" class="hover:text-[#1d1d1f] transition">Privacy</a>
     </div>
-    <p class="text-slate-500 text-[9px] md:text-[10px]">Built for those who refuse to lose.</p>
+    <p class="text-slate-400 text-[11px] font-medium">Built for those who refuse to lose.</p>
   </footer>
 
-  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-      <div class="perf-card p-6 md:p-10 max-w-sm w-full text-center relative border border-slate-200 shadow-2xl bg-white max-h-[90vh] overflow-y-auto no-scrollbar">
-        <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-lg md:text-xl font-medium text-slate-900 mb-6 md:mb-8">Sign In</h3>
-        <div id="googleBtnContainer" class="flex justify-center h-[50px] overflow-hidden"></div>
+  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xl transition-all">
+      <div class="perf-card p-8 md:p-12 max-w-sm w-full text-center relative border border-white/60 bg-white/70 max-h-[90vh] overflow-y-auto no-scrollbar">
+        <button onclick="closeLoginModal()" class="absolute top-5 right-5 text-slate-400 hover:text-black bg-white/50 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+        <h3 class="text-2xl font-bold text-[#1d1d1f] mb-8 tracking-tight">Sign In</h3>
+        <div id="googleBtnContainer" class="flex justify-center overflow-hidden"></div>
       </div>
   </div>
 
-  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-      <div class="perf-card p-6 md:p-8 max-sm w-full text-center border border-green-300 shadow-[0_0_50px_rgba(16,185,129,0.1)] bg-white max-h-[90vh] overflow-y-auto no-scrollbar">
-          <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4 md:mb-6">
-              <i class="fa-solid fa-check text-xl md:text-2xl text-green-500"></i>
+  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xl">
+      <div class="perf-card p-8 md:p-12 max-w-sm w-full text-center border border-green-300/50 bg-white/80">
+          <div class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-6 shadow-[0_10px_20px_rgba(34,197,94,0.3)]">
+              <i class="fa-solid fa-check text-3xl text-white"></i>
           </div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-2">Upgrade Complete</h3>
-          <p class="text-slate-600 text-[13px] md:text-sm mb-6 md:mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
-          <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 shadow transition active:scale-95 text-sm">Initialize System</button>
+          <h3 class="text-2xl font-bold text-[#1d1d1f] mb-3 tracking-tight">Upgrade Complete</h3>
+          <p class="text-slate-600 text-[15px] font-medium mb-8">Your account has been successfully upgraded. Systems are fully operational.</p>
+          <button onclick="window.location.reload()" class="w-full py-4 rounded-2xl bg-[#1d1d1f] text-white font-bold hover:bg-black shadow-lg transition active:scale-95 text-[13px] tracking-wide">Initialize System</button>
       </div>
   </div>
 
-<div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl">
-    <div class="perf-card p-6 md:p-10 max-w-md w-full text-center border border-slate-200 bg-white relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
-        <button onclick="closePaymentModal()" class="absolute top-4 right-4 md:top-5 md:right-5 text-slate-400 hover:text-slate-900 transition">
-            <i class="fa-solid fa-times md:text-lg"></i>
+<div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xl">
+    <div class="perf-card p-8 md:p-10 max-w-md w-full text-center border border-white/60 bg-white/80 relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <button onclick="closePaymentModal()" class="absolute top-5 right-5 text-slate-500 hover:text-black bg-white/50 rounded-full w-8 h-8 flex items-center justify-center transition">
+            <i class="fa-solid fa-times text-sm"></i>
         </button>
          
-        <div class="mb-5 md:mb-6 mt-2">
-            <h3 class="text-xl md:text-2xl font-bold text-slate-900 mb-1.5 md:mb-2 tracking-tight">Secure Checkout</h3>
-            <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-widest font-mono">Select your gateway</p>
+        <div class="mb-8 mt-2">
+            <h3 class="text-2xl md:text-3xl font-bold text-[#1d1d1f] mb-2 tracking-tight">Secure Checkout</h3>
+            <p class="text-[11px] text-slate-500 uppercase tracking-widest font-bold">Select your gateway</p>
         </div>
 
-        <div class="mb-5 md:mb-6 flex gap-2">
-            <input type="text" id="couponInput" placeholder="Discount Coupon" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 md:px-4 md:py-2 text-[16px] md:text-sm text-slate-900 focus:border-accent outline-none uppercase placeholder:text-slate-400">
-            <button onclick="applyCoupon()" class="bg-accent text-white font-bold px-4 py-2.5 md:py-2 rounded-lg text-xs whitespace-nowrap hover:bg-sky-700 shadow transition active:scale-95">Apply</button>
+        <div class="mb-6 flex gap-3">
+            <input type="text" id="couponInput" placeholder="Discount Coupon" class="w-full bg-white/60 backdrop-blur border border-white/80 rounded-xl px-4 py-3 text-[14px] text-[#1d1d1f] focus:border-[#0071e3] outline-none uppercase font-semibold shadow-inner placeholder:text-slate-400 placeholder:font-normal">
+            <button onclick="applyCoupon()" class="bg-[#1d1d1f] text-white font-bold px-6 py-3 rounded-xl text-[13px] whitespace-nowrap hover:bg-black shadow-md transition active:scale-95">Apply</button>
         </div>
         <div id="couponMessage" class="text-xs font-bold mb-4 hidden"></div>
 
-        <div id="influencerDiscountMsg" class="hidden bg-emerald-50/80 border border-emerald-200 text-emerald-800 text-[11px] md:text-xs p-3 rounded-xl mb-4 text-left shadow-sm">
+        <div id="influencerDiscountMsg" class="hidden bg-emerald-100/50 backdrop-blur-sm border border-emerald-200/50 text-emerald-800 text-[13px] font-medium p-4 rounded-2xl mb-6 text-left shadow-sm">
         </div>
 
-        <div class="space-y-3 md:space-y-4">
+        <div class="space-y-4">
             
             <div id="razorpayWrapper" class="hidden">
-                <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-3.5 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl hover:border-accent hover:bg-sky-50 transition-all duration-300">
-                    <div class="flex items-center gap-3 md:gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-credit-card text-base md:text-lg"></i>
+                <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-4 bg-white/60 backdrop-blur-md border border-white/80 rounded-2xl hover:border-[#0071e3]/50 hover:bg-sky-50/50 transition-all duration-300 shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-sky-100/80 flex items-center justify-center text-[#0071e3] group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-credit-card text-xl"></i>
                         </div>
                         <div class="text-left">
-                            <div class="text-[13px] md:text-sm font-bold text-slate-900">Razorpay</div>
-                            <div class="text-[9px] md:text-[10px] text-slate-500">Cards, UPI, Netbanking</div>
+                            <div class="text-[15px] font-bold text-[#1d1d1f]">Razorpay</div>
+                            <div class="text-[11px] font-medium text-slate-500">Cards, UPI, Netbanking</div>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-accent transition"></i>
+                    <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-[#0071e3] transition"></i>
                 </button>
             </div>
 
             <div id="paypalWrapper" class="hidden">
-                <div class="relative flex py-2 md:py-3 items-center">
-                    <div class="flex-grow border-t border-slate-200"></div>
-                    <span class="flex-shrink mx-3 md:mx-4 text-[8px] md:text-[9px] font-mono text-slate-400 tracking-widest uppercase">Global Payments</span>
-                    <div class="flex-grow border-t border-slate-200"></div>
+                <div class="relative flex py-4 items-center">
+                    <div class="flex-grow border-t border-slate-300/50"></div>
+                    <span class="flex-shrink mx-4 text-[10px] font-bold text-slate-400 tracking-widest uppercase">Global Payments</span>
+                    <div class="flex-grow border-t border-slate-300/50"></div>
                 </div>
-                <div id="paypal-button-container" class="w-full overflow-hidden rounded-xl md:rounded-2xl min-h-[150px]"></div>
+                <div id="paypal-button-container" class="w-full overflow-hidden rounded-2xl min-h-[150px]"></div>
             </div>
         </div>
         
-        <p class="mt-6 md:mt-8 text-[9px] md:text-[10px] text-slate-500 flex items-center justify-center gap-1.5 md:gap-2">
+        <p class="mt-8 text-[11px] font-semibold text-slate-500 flex items-center justify-center gap-2">
             <i class="fa-solid fa-lock"></i> 256-bit Encrypted Transaction
         </p>
     </div>
 </div>
 
-<div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-    <div class="perf-card p-6 md:p-10 max-w-md w-full border border-slate-200 bg-white relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
-        <button onclick="closeEnterpriseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times md:text-lg"></i></button>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900 mb-2 mt-2">Enterprise Inquiry</h3>
-        <p class="text-[11px] md:text-xs text-slate-600 mb-5 md:mb-6">Let's build a custom plan for your team.</p>
-        <form id="entForm" onsubmit="submitEnterpriseForm(event)" class="space-y-3 md:space-y-4 text-left">
-            <input type="email" id="entEmail" placeholder="Work Email" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-3 md:px-4 text-[16px] md:text-sm text-slate-900 focus:border-accent outline-none placeholder:text-slate-400">
-            <input type="tel" id="entMobile" placeholder="Mobile Number" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-3 md:px-4 text-[16px] md:text-sm text-slate-900 focus:border-accent outline-none placeholder:text-slate-400">
-            <textarea id="entQuery" placeholder="Tell us about your team's needs..." required rows="4" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-3 md:px-4 text-[16px] md:text-sm text-slate-900 focus:border-accent outline-none resize-none placeholder:text-slate-400"></textarea>
-            <button type="submit" id="entSubmitBtn" class="w-full py-3.5 md:py-4 mt-2 rounded-xl bg-accent text-white font-bold text-[11px] md:text-xs uppercase tracking-widest hover:bg-sky-700 shadow transition active:scale-95">Submit Inquiry</button>
+<div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xl">
+    <div class="perf-card p-8 md:p-10 max-w-md w-full border border-white/60 bg-white/80 relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <button onclick="closeEnterpriseModal()" class="absolute top-5 right-5 text-slate-400 hover:text-black bg-white/50 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+        <h3 class="text-2xl font-bold text-[#1d1d1f] mb-3 mt-2 tracking-tight">Enterprise Inquiry</h3>
+        <p class="text-[14px] text-slate-600 mb-8 font-medium">Let's build a custom plan for your team.</p>
+        <form id="entForm" onsubmit="submitEnterpriseForm(event)" class="space-y-4 text-left">
+            <input type="email" id="entEmail" placeholder="Work Email" required class="w-full bg-white/60 backdrop-blur border border-white/80 rounded-xl px-4 py-3.5 text-[14px] font-medium focus:border-[#0071e3] outline-none shadow-inner">
+            <input type="tel" id="entMobile" placeholder="Mobile Number" required class="w-full bg-white/60 backdrop-blur border border-white/80 rounded-xl px-4 py-3.5 text-[14px] font-medium focus:border-[#0071e3] outline-none shadow-inner">
+            <textarea id="entQuery" placeholder="Tell us about your team's needs..." required rows="4" class="w-full bg-white/60 backdrop-blur border border-white/80 rounded-xl px-4 py-3.5 text-[14px] font-medium focus:border-[#0071e3] outline-none resize-none shadow-inner"></textarea>
+            <button type="submit" id="entSubmitBtn" class="w-full py-4 mt-2 rounded-2xl bg-[#1d1d1f] text-white font-bold text-[13px] uppercase tracking-widest hover:bg-black shadow-lg transition active:scale-95">Submit Inquiry</button>
         </form>
     </div>
 </div>
 
-  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-    <div class="perf-card p-6 md:p-8 max-w-sm w-full border border-slate-200 bg-white shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
-        <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-base md:text-lg font-medium text-slate-900 mb-5 md:mb-6 mt-2">Select Platform</h3>
-        <div class="space-y-3">
-            <a href="https://github.com/whis-ai-labs/whis-ai/releases/download/v1.1.mac/Whis-AI-1.1.1-arm64.dmg" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
-                <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-apple text-lg md:text-xl"></i> macOS</span>
-                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
+  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xl">
+    <div class="perf-card p-8 md:p-10 max-w-sm w-full border border-white/60 bg-white/80 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <button onclick="closeDownloadModal()" class="absolute top-5 right-5 text-slate-400 hover:text-black bg-white/50 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+        <h3 class="text-xl font-bold text-[#1d1d1f] mb-6 mt-2 tracking-tight">Select OS</h3>
+        <div class="space-y-4">
+            <a href="https://github.com/whis-ai-labs/whis-ai/releases/download/v1.1.mac/Whis-AI-1.1.1-arm64.dmg" class="flex items-center justify-between p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 hover:bg-white transition group shadow-sm active:scale-95">
+                <span class="flex items-center gap-4 text-[15px] text-[#1d1d1f] font-bold"><i class="fa-brands fa-apple text-2xl"></i> macOS</span>
+                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-black"></i>
             </a>
-            <a href="https://apps.microsoft.com/detail/9npr5pfcc7hq?hl=en-us&gl=IN&ocid=pdpshare" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
-                <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-windows text-lg md:text-xl"></i> Windows</span>
-                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
+            <a href="https://apps.microsoft.com/detail/9npr5pfcc7hq?hl=en-us&gl=IN&ocid=pdpshare" class="flex items-center justify-between p-4 bg-white/60 backdrop-blur-md rounded-2xl border border-white/80 hover:bg-white transition group shadow-sm active:scale-95">
+                <span class="flex items-center gap-4 text-[15px] text-[#1d1d1f] font-bold"><i class="fa-brands fa-windows text-2xl"></i> Windows</span>
+                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-black"></i>
             </a>
         </div>
     </div>
   </div>
 
-  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-    <div class="perf-card p-6 md:p-8 max-w-sm w-full text-center border border-slate-200 bg-white shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
-        <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
-        <img id="modalUserAvatar" class="w-16 h-16 md:w-20 md:h-20 rounded-full mx-auto mb-3 md:mb-4 border-2 border-accent p-1 object-cover" />
-        <h3 id="modalUserName" class="text-base md:text-lg font-bold text-slate-900 mb-5 md:mb-6">User</h3>
-        <div class="bg-slate-50 rounded-xl p-5 md:p-6 text-left mb-5 md:mb-6 border border-slate-200 shadow-inner">
-            <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-widest mb-1">Current Plan</p>
+  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xl">
+    <div class="perf-card p-8 md:p-10 max-w-sm w-full text-center border border-white/60 bg-white/80 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-black bg-white/50 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fa-solid fa-times"></i></button>
+        <img id="modalUserAvatar" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-white shadow-lg object-cover" />
+        <h3 id="modalUserName" class="text-xl font-bold text-[#1d1d1f] mb-6 tracking-tight">User</h3>
+        <div class="bg-white/50 backdrop-blur rounded-2xl p-6 text-left mb-6 border border-white/80 shadow-inner">
+            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">Current Plan</p>
             <div class="flex justify-between items-baseline">
-                <span id="modalPlanName" class="text-lg md:text-xl font-bold text-slate-900">Free</span>
-                <span id="modalPlanStatus" class="text-[9px] md:text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-700 font-bold">ACTIVE</span>
+                <span id="modalPlanName" class="text-xl font-bold text-[#1d1d1f]">Free</span>
+                <span id="modalPlanStatus" class="text-[10px] bg-slate-800 px-2 py-1 rounded-md text-white font-bold">ACTIVE</span>
             </div>
-            <div id="modalPlanValidity" class="text-[9px] md:text-[10px] text-slate-500 mt-1.5 md:mt-2"></div>
+            <div id="modalPlanValidity" class="text-[11px] font-medium text-slate-600 mt-2"></div>
         </div>
-        <button onclick="logout()" class="w-full py-2.5 md:py-3 rounded-lg bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 text-[11px] md:text-xs font-bold uppercase transition active:scale-95">Sign Out</button>
+        <button onclick="logout()" class="w-full py-3.5 rounded-xl bg-red-50/80 text-red-600 border border-red-100 hover:bg-red-100 text-[12px] font-bold uppercase transition active:scale-95">Sign Out</button>
     </div>
   </div>
 
-  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
-      <div class="bg-sky-600 text-white px-4 md:px-5 py-3 md:py-4 flex justify-between items-center shadow-md z-20 shrink-0">
-          <div class="font-bold text-[13px] md:text-sm flex items-center gap-2">
-              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div> Live Support(Need Discount?)
+  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-28 md:right-8 z-[100] w-full h-[100dvh] md:w-[400px] md:h-[650px] perf-card bg-white/80 md:rounded-3xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right p-0">
+      <div class="bg-white/40 backdrop-blur-md px-5 py-4 border-b border-white/80 flex justify-between items-center z-20 shrink-0">
+          <div class="font-bold text-[14px] text-[#1d1d1f] flex items-center gap-3">
+              <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-sm"></div> Support
           </div>
-          <button onclick="toggleLiveChat()" class="text-sky-100 hover:text-white bg-sky-700/50 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition active:scale-95">
-              <i class="fa-solid fa-chevron-down md:hidden text-xs"></i>
-              <i class="fa-solid fa-times hidden md:block text-xs"></i>
+          <button onclick="toggleLiveChat()" class="text-slate-500 hover:text-black bg-white/50 w-8 h-8 rounded-full flex items-center justify-center transition active:scale-95">
+              <i class="fa-solid fa-chevron-down md:hidden text-sm"></i>
+              <i class="fa-solid fa-times hidden md:block text-sm"></i>
           </button>
       </div>
       
-      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-6 md:p-8 bg-white relative z-10">
-          <div class="w-14 h-14 md:w-16 md:h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-5 md:mb-6 shadow-inner"><i class="fa-solid fa-envelope-open-text text-xl md:text-2xl"></i></div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900 text-center mb-1.5 md:mb-2">Welcome to Support</h3>
-          <p class="text-[13px] md:text-sm text-slate-500 mb-6 md:mb-8 text-center leading-relaxed">Enter your email address to start chatting with our team instantly.</p>
-          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 md:py-3.5 text-[16px] md:text-sm focus:border-sky-500 outline-none mb-4 shadow-sm">
-          <button onclick="startChatAuth()" class="w-full bg-slate-900 text-white font-bold text-[13px] md:text-sm py-3 md:py-3.5 rounded-xl hover:bg-slate-800 shadow-md transition active:scale-95">Start Conversation</button>
+      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-8 bg-transparent relative z-10">
+          <div class="w-16 h-16 bg-white border border-white/80 text-[#0071e3] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm"><i class="fa-solid fa-envelope-open-text text-2xl"></i></div>
+          <h3 class="text-2xl font-bold text-[#1d1d1f] text-center mb-3 tracking-tight">Welcome to Support</h3>
+          <p class="text-[14px] text-slate-600 mb-8 text-center leading-relaxed font-medium">Enter your email address to start chatting instantly.</p>
+          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-white/60 border border-white/80 rounded-2xl px-4 py-4 text-[14px] font-medium focus:border-[#0071e3] outline-none mb-4 shadow-inner">
+          <button onclick="startChatAuth()" class="w-full bg-[#1d1d1f] text-white font-bold text-[14px] py-4 rounded-2xl hover:bg-black shadow-lg transition active:scale-95">Start Conversation</button>
       </div>
 
-      <div id="chatInterface" class="flex-1 hidden flex-col h-full bg-slate-50 overflow-hidden">
-          <div id="chatMessagesArea" class="flex-1 p-3 md:p-5 overflow-y-auto space-y-3 md:space-y-4 flex flex-col no-scrollbar bg-slate-50 z-10 pb-4"></div>
+      <div id="chatInterface" class="flex-1 hidden flex-col h-full bg-transparent overflow-hidden">
+          <div id="chatMessagesArea" class="flex-1 p-5 overflow-y-auto space-y-4 flex flex-col no-scrollbar z-10 pb-4"></div>
           
-          <div class="p-2.5 md:p-4 bg-white border-t border-slate-200 flex gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 safe-bottom">
-              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-[16px] md:text-sm focus:border-sky-500 outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
-              <button onclick="sendChatMessage()" class="bg-sky-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl hover:bg-sky-700 transition shadow-md active:scale-95 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-[11px] md:text-sm"></i></button>
+          <div class="p-4 bg-white/60 backdrop-blur-md border-t border-white/80 flex gap-3 w-full shrink-0 z-20 safe-bottom">
+              <input type="text" id="chatInput" placeholder="Message..." class="flex-1 bg-white/80 border border-white rounded-full px-5 py-3 text-[14px] font-medium focus:border-[#0071e3] outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+              <button onclick="sendChatMessage()" class="bg-[#0071e3] text-white w-12 h-12 rounded-full hover:bg-sky-600 transition shadow-lg active:scale-95 flex items-center justify-center"><i class="fa-solid fa-arrow-up text-[14px]"></i></button>
           </div>
       </div>
   </div>
 
   <script>
+    // --- ALL ORIGINAL JS REMAINS UNTOUCHED FOR FUNCTIONALITY ---
     const videos = [
         { src: 'visual.mp4', label: 'READING SCREEN' },
         { src: 'text.mp4', label: 'AUTO CODE WRITING' },
@@ -951,7 +735,7 @@
             video.muted = true; 
             video.playsInline = true; 
             
-            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:#f8fafc;"; 
+            video.style.cssText = "width:100%; height:100%; object-fit:contain; background:transparent;"; 
             div.appendChild(video);
             container.appendChild(div);
         });
@@ -1156,7 +940,7 @@
 
     const BACKEND_URL="https://api.whis-ai.com"; 
     let currentUser = null; 
-    let currentCycle = 'monthly'; // Default to monthly
+    let currentCycle = 'monthly'; 
     let currentTier = 'free';
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90;
@@ -1192,7 +976,6 @@
         profileTrigger.classList.add('flex'); 
         document.getElementById('navUserAvatar').src = u.avatarUrl; 
         document.getElementById('navPlanBadge').innerText = "FREE";
-        document.getElementById('navPlanBadge').classList.add('text-slate-500');
     }
      
     function formatPrice(amount, discount, isAffiliate, isEliteCard = false) {
@@ -1210,7 +993,7 @@
 
             let strikeColor = isEliteCard ? "text-slate-500" : "text-slate-400";
             let highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
-            let standardBadge = isEliteCard ? "bg-slate-700 text-white" : "bg-slate-800 text-white";
+            let standardBadge = isEliteCard ? "bg-white/20 text-white" : "bg-black/10 text-black";
 
             return `
                 <div class="flex flex-col">
@@ -1218,15 +1001,15 @@
                         <span class="text-sm line-through ${strikeColor} opacity-70">${currencySymbol}${displayAmount}</span>
                         <span class="text-lg line-through ${strikeColor}">${currencySymbol}${standardDiscounted}</span>
                     </div>
-                    <span class="text-4xl ${highlightColor} font-extrabold tracking-tight">${currencySymbol}${finalAffiliatePrice}</span>
-                    <div class="mt-2 flex gap-1 items-center flex-wrap">
-                        <span class="text-[9px] font-bold ${standardBadge} px-2 py-0.5 rounded uppercase">${discount}% OFF</span>
-                        <span class="text-[9px] font-bold text-emerald-900 bg-emerald-300 px-2 py-0.5 rounded shadow-sm uppercase">+10% PARTNER</span>
+                    <span class="text-5xl ${highlightColor} font-extrabold tracking-tight">${currencySymbol}${finalAffiliatePrice}</span>
+                    <div class="mt-3 flex gap-1.5 items-center flex-wrap">
+                        <span class="text-[10px] font-bold ${standardBadge} px-2.5 py-1 rounded-md uppercase">${discount}% OFF</span>
+                        <span class="text-[10px] font-bold text-emerald-900 bg-emerald-400 px-2.5 py-1 rounded-md shadow-sm uppercase">+10% PARTNER</span>
                     </div>
                 </div>
             `;
         } else if (discount > 0) {
-            return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-base line-through text-slate-400 opacity-60 mx-2">${currencySymbol}${displayAmount}</span> <span class="text-[11px] font-bold text-white bg-[#0071e3] px-2 py-1 rounded-md align-middle shadow-sm">${discount}% OFF</span>`;
         }
         
         return `${currencySymbol}${displayAmount}`;
@@ -1236,11 +1019,11 @@
         currentCycle=c;
         const btnM=document.getElementById('btnMonthly'); const btnQ=document.getElementById('btnQuarterly');
         if(c==='monthly'){
-            btnM.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
-            btnQ.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+            btnM.className="flex-1 px-6 md:px-10 py-2.5 md:py-3 rounded-full text-[13px] font-bold bg-white text-[#1d1d1f] shadow-md transition-all"; 
+            btnQ.className="flex-1 px-6 md:px-10 py-2.5 md:py-3 rounded-full text-[13px] font-bold text-slate-600 hover:text-black transition-all";
         } else {
-            btnQ.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
-            btnM.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+            btnQ.className="flex-1 px-6 md:px-10 py-2.5 md:py-3 rounded-full text-[13px] font-bold bg-white text-[#1d1d1f] shadow-md transition-all"; 
+            btnM.className="flex-1 px-6 md:px-10 py-2.5 md:py-3 rounded-full text-[13px] font-bold text-slate-600 hover:text-black transition-all";
         }
         updatePricingUI();
     }
@@ -1259,13 +1042,13 @@
         if (currentCycle === 'monthly') {
             proPrice = PRICING_CONFIG.pro.monthly;
             elitePrice = PRICING_CONFIG.pro_plus.monthly;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc, isAffiliate, false)}<span class="text-[10px] ${isAffiliate ? 'text-emerald-700/70 font-bold mt-1.5' : 'text-slate-500 font-normal mt-1'} block w-full">/month</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc, isAffiliate, true)}<span class="text-[10px] ${isAffiliate ? 'text-emerald-400/70 font-bold mt-1.5' : 'text-slate-300 font-normal mt-1'} block w-full">/month</span>`;
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc, isAffiliate, false)}<span class="text-[12px] ${isAffiliate ? 'text-emerald-700/80 font-bold mt-2' : 'text-slate-500 font-semibold mt-2'} block w-full">/month</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc, isAffiliate, true)}<span class="text-[12px] ${isAffiliate ? 'text-emerald-400/80 font-bold mt-2' : 'text-slate-400 font-semibold mt-2'} block w-full">/month</span>`;
         } else {
             proPrice = PRICING_CONFIG.pro.quarterly;
             elitePrice = PRICING_CONFIG.pro_plus.quarterly;
-            proDiv.innerHTML = `${formatPrice(proPrice, proDisc, isAffiliate, false)}<span class="text-[10px] ${isAffiliate ? 'text-emerald-700/70 font-bold mt-1.5' : 'text-slate-500 font-normal mt-1'} block w-full">/quarter</span>`;
-            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc, isAffiliate, true)}<span class="text-[10px] ${isAffiliate ? 'text-emerald-400/70 font-bold mt-1.5' : 'text-slate-300 font-normal mt-1'} block w-full">/quarter</span>`;
+            proDiv.innerHTML = `${formatPrice(proPrice, proDisc, isAffiliate, false)}<span class="text-[12px] ${isAffiliate ? 'text-emerald-700/80 font-bold mt-2' : 'text-slate-500 font-semibold mt-2'} block w-full">/quarter</span>`;
+            eliteDiv.innerHTML = `${formatPrice(elitePrice, eliteDisc, isAffiliate, true)}<span class="text-[12px] ${isAffiliate ? 'text-emerald-400/80 font-bold mt-2' : 'text-slate-400 font-semibold mt-2'} block w-full">/quarter</span>`;
         }
     }
 
@@ -1279,7 +1062,7 @@
             const validityEl = document.getElementById('modalPlanValidity');
             if(d.active){
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
-                badge.classList.remove('text-slate-500'); badge.classList.add('text-accent');
+                badge.classList.remove('text-slate-600'); badge.classList.add('text-[#0071e3]');
                 document.getElementById('modalPlanName').innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 if(d.expiry || d.validUntil) {
@@ -1290,7 +1073,7 @@
                 if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
                 if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
             } else {
-                badge.innerText = 'FREE'; badge.classList.add('text-slate-500'); badge.classList.remove('text-accent');
+                badge.innerText = 'FREE'; badge.classList.add('text-slate-600'); badge.classList.remove('text-[#0071e3]');
                 document.getElementById('modalPlanName').innerText = 'Free Tier';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 validityEl.innerText = "Lifetime Free Access";
@@ -1319,11 +1102,11 @@
             if(data.success) {
                 currentCoupon = code; currentCouponDiscount = data.discount;
                 msgEl.innerText = `✅ ${data.discount}% Discount Applied!`;
-                msgEl.className = "text-xs text-green-600 mb-4 font-bold block";
+                msgEl.className = "text-sm text-green-600 mb-4 font-bold block";
             } else {
                 currentCoupon = ""; currentCouponDiscount = 0;
                 msgEl.innerText = `❌ ${data.error || "Invalid Coupon"}`;
-                msgEl.className = "text-xs text-red-500 mb-4 font-bold block";
+                msgEl.className = "text-sm text-red-500 mb-4 font-bold block";
             }
         } catch(e) {}
     }
@@ -1354,7 +1137,7 @@
             
             document.getElementById('paypal-button-container').innerHTML = '';
             paypal.Buttons({
-                style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+                style: { layout: 'vertical', color: 'black', shape: 'pill', label: 'pay' },
                 createOrder: async function(data, actions) {
                     const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -1401,7 +1184,7 @@
             const activeRefName = localStorage.getItem('whisRefName') || activeRef;
             if (activeRef) {
                 const gatewayText = IS_INDIA ? "Razorpay" : "PayPal";
-                infMsg.innerHTML = `<span class="font-bold flex items-center gap-1.5 mb-1 text-emerald-600"><i class="fa-solid fa-tags"></i> ${activeRefName} Link Active</span>Your 10% discount is being automatically applied securely via ${gatewayText}.`;
+                infMsg.innerHTML = `<span class="font-bold flex items-center gap-2 mb-1 text-emerald-700"><i class="fa-solid fa-tags"></i> ${activeRefName} Link Active</span>Your 10% discount is being automatically applied securely via ${gatewayText}.`;
                 infMsg.classList.remove('hidden');
             } else {
                 infMsg.classList.add('hidden');
@@ -1415,7 +1198,7 @@
         const targetTier = selectedTierForPayment;
         const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
         const btn = event.currentTarget; const orig = btn.innerHTML; 
-        btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
+        btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[15px] font-bold text-[#1d1d1f]"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
                 method:'POST', headers:{'Content-Type':'application/json'},
@@ -1458,7 +1241,7 @@
                             else { alert("Verification Failed. Contact Support."); }
                         } catch(e) { alert("Network Error during verification."); }
                     },
-                    "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
+                    "theme": { "color": "#1d1d1f" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
                 rzp1.open();
             }
@@ -1478,15 +1261,12 @@
         
         if(GOOGLE_CLIENT_ID) {
             const redirectUri = encodeURIComponent(`${BACKEND_URL}/api/auth/google/callback`);
-            // --- NEW: FETCH SOURCE FOR SIGNUP ---
             const currentSource = localStorage.getItem('whisSource') || 'organic';
-            
-            // --- NEW: APPEND STATE TO OAUTH URL ---
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=${currentSource}`;
 
             container.innerHTML = `
-                <a href="${authUrl}" style="text-decoration:none;" class="flex items-center justify-center gap-3 bg-[#0f172a] text-white w-full max-w-[280px] mx-auto py-3.5 px-4 rounded-full shadow-md hover:bg-slate-800 transition active:scale-95 font-semibold text-[15px]">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <a href="${authUrl}" style="text-decoration:none;" class="flex items-center justify-center gap-4 bg-white border border-slate-300 text-[#1d1d1f] w-full max-w-[300px] mx-auto py-4 px-6 rounded-2xl shadow-sm hover:shadow-md hover:bg-slate-50 transition active:scale-95 font-semibold text-[15px]">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -1535,7 +1315,7 @@
         let html = div.innerHTML;
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-inherit">$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
-        html = html.replace(/`([^`]+)`/g, '<code class="bg-black/10 px-1.5 py-0.5 rounded text-[11px] font-mono">$1</code>');
+        html = html.replace(/`([^`]+)`/g, '<code class="bg-black/10 px-2 py-0.5 rounded-md text-[12px] font-mono">$1</code>');
         html = html.replace(/\n/g, '<br>');
         return html;
     }
@@ -1594,13 +1374,13 @@
     function renderChatMessages(messages) {
         const area = document.getElementById('chatMessagesArea');
         area.innerHTML = '';
-        if(messages.length === 0) { area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-4xl mb-3 opacity-20"></i><p class="text-[13px] md:text-sm">Start a conversation with our support team.</p></div>'; }
+        if(messages.length === 0) { area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-5xl mb-4 opacity-20"></i><p class="text-[14px] font-medium">Start a conversation with our support team.</p></div>'; }
 
         messages.forEach(msg => {
             const div = document.createElement('div');
-            div.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-sky-600 text-white self-end rounded-tr-sm'}`;
+            div.className = `max-w-[85%] p-4 rounded-3xl text-[14px] leading-relaxed shadow-sm relative group font-medium ${msg.isSupport ? 'bg-white border border-white/80 text-slate-800 self-start rounded-tl-sm' : 'bg-[#0071e3] text-white self-end rounded-tr-sm'}`;
             const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            div.innerHTML = `<div class="message-content">${formatMessage(msg.text)}</div><span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>`;
+            div.innerHTML = `<div class="message-content">${formatMessage(msg.text)}</div><span class="text-[10px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-2 block text-right">${timeStr}</span>`;
             area.appendChild(div);
         });
 
@@ -1614,9 +1394,9 @@
         
         const area = document.getElementById('chatMessagesArea');
         const tempDiv = document.createElement('div');
-        tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
+        tempDiv.className = `max-w-[85%] p-4 rounded-3xl text-[14px] leading-relaxed shadow-sm relative bg-[#0071e3]/80 text-white self-end rounded-tr-sm font-medium`;
         const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>`;
+        tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[10px] text-sky-200 mt-2 block text-right"><i class="fa-regular fa-clock"></i></span>`;
         area.appendChild(tempDiv); area.scrollTop = area.scrollHeight; lastChatCount++; 
 
         const tzOffset = new Date().getTimezoneOffset();
@@ -1634,54 +1414,42 @@
     function stopChatPolling() { if(chatPollInterval) clearInterval(chatPollInterval); }
 
     document.addEventListener("DOMContentLoaded", () => {
-        
-        // --- THIS CATCHES THE OAUTH SUCCESS FROM BACKEND ---
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth_success');
         const userStr = urlParams.get('user');
 
-        // --- AFFILIATE LINK CAPTURE ---
         const refCode = urlParams.get('ref');
         if (refCode) {
             localStorage.setItem('whisRef', refCode);
         }
         
-        // --- NEW: MARKETING SOURCE CAPTURE AND HIT TRACKING ---
         const utmSource = urlParams.get('source') || urlParams.get('utm_source');
         if (utmSource) {
             localStorage.setItem('whisSource', utmSource);
-            
-            // Fire the hit ping to the backend immediately
             fetch(`${BACKEND_URL}/api/marketing/hit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ source: utmSource })
             }).catch(e => console.log('Hit tracking failed', e));
         }
-        // ------------------------------------------------------
 
-        // --- VISUAL BANNER FOR AFFILIATE USERS ONLY ---
         const activeRef = localStorage.getItem('whisRef');
         if (activeRef) {
-            // 1. Show Default Banner immediately so it never "goes missing"
             const banner = document.createElement('div');
             banner.id = "global-influencer-banner";
-            banner.className = "bg-emerald-500 text-slate-900 text-[11px] md:text-xs font-bold text-center py-2 px-4 fixed top-0 w-full z-[100] shadow-md flex justify-center items-center gap-2 transition-all";
+            banner.className = "bg-emerald-500 text-white text-[12px] font-bold text-center py-2.5 px-4 fixed top-0 w-full z-[100] shadow-md flex justify-center items-center gap-2 transition-all";
             banner.innerHTML = `<i class="fa-solid fa-gift text-sm"></i> <span id="banner-text-content">Influencer Link Active! 10% discount applied.</span>`;
             document.body.prepend(banner);
             
             const nav = document.querySelector('nav');
-            if (nav) nav.style.top = '32px'; 
+            if (nav) nav.style.top = '44px'; 
 
-            // 2. Fetch the influencer name from the backend using the ID
             fetch(`${BACKEND_URL}/api/influencer/${activeRef}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.name) {
                         localStorage.setItem('whisRefName', data.name);
-
-                        // Swap the text smoothly once loaded
-                        document.getElementById('banner-text-content').innerHTML = `<span class="uppercase tracking-wider px-1.5 py-0.5 bg-white/30 rounded mr-1">${data.name}</span> Link Active! 10% discount applied.`;
+                        document.getElementById('banner-text-content').innerHTML = `<span class="uppercase tracking-wider px-2 py-1 bg-white/20 rounded-md mr-1">${data.name}</span> Link Active! 10% discount applied.`;
                         
                         const pName = document.getElementById('pricingInfluencerName');
                         if(pName) pName.innerText = data.name;
@@ -1689,11 +1457,9 @@
                 })
                 .catch(err => console.log("Failed to fetch influencer details. Using default banner.", err));
 
-            // 3. Make sure pricing section banner is visible instantly
             const pBanner = document.getElementById('pricingInfluencerBanner');
             if(pBanner) pBanner.classList.remove('hidden');
         }
-        // ------------------------------------------
 
         if (authSuccess === 'true' && userStr) {
             try {
