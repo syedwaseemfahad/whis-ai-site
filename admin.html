@@ -65,11 +65,16 @@
                         <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold shrink-0">
                             <i class="fa-solid fa-user"></i>
                         </div>
-                        <div class="truncate">
+                        <div class="truncate flex flex-col">
                             <h2 id="activeEmail" class="font-bold text-slate-900 text-sm truncate">user@example.com</h2>
-                            <p class="text-[10px] text-green-500 font-bold tracking-widest uppercase flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block"></span> Live
-                            </p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <p class="text-[10px] text-green-500 font-bold tracking-widest uppercase flex items-center gap-1 shrink-0">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block"></span> Live
+                                </p>
+                                <p id="activeLocation" class="text-[10px] text-slate-500 hidden flex items-center gap-1 border-l border-slate-300 pl-2 truncate">
+                                    <i class="fa-solid fa-location-dot"></i> <span class="truncate"></span>
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -222,6 +227,17 @@
                         if (chatData.aiPaused !== undefined && chatData.aiPaused !== currentAiPaused) {
                             updateToggleUI(chatData.aiPaused);
                         }
+
+                        // Render Location in Header
+                        const locEl = document.getElementById('activeLocation');
+                        if (chatData.location && chatData.location !== "Unknown") {
+                            locEl.classList.remove('hidden');
+                            locEl.classList.add('flex');
+                            locEl.querySelector('span').innerText = chatData.location;
+                        } else {
+                            locEl.classList.add('hidden');
+                            locEl.classList.remove('flex');
+                        }
                     }
                 } catch(e) {}
             }
@@ -245,10 +261,13 @@
 
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-1">
-                        <span class="font-bold text-sm text-slate-900 truncate pr-2 w-3/4">${chat._id}</span>
+                        <div class="flex flex-col truncate pr-2 w-3/4">
+                            <span class="font-bold text-sm text-slate-900 truncate">${chat._id}</span>
+                            ${chat.location && chat.location !== "Unknown" ? `<span class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-location-dot text-[9px]"></i> ${chat.location}</span>` : ''}
+                        </div>
                         <span class="text-[10px] text-slate-400 whitespace-nowrap mt-0.5">${timeStr}</span>
                     </div>
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center mt-1">
                         <span class="text-xs text-slate-500 truncate pr-2 w-5/6">${chat.latestMessage}</span>
                         ${chat.unreadCount > 0 ? `<span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 shadow-sm">${chat.unreadCount}</span>` : ''}
                     </div>
