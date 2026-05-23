@@ -1211,7 +1211,10 @@
             const res = await fetch(`${BACKEND_URL}/api/config`);
             if(res.ok) {
                 const data = await res.json();
-                PRICING_CONFIG = data.pricing;
+                // Pick the region-specific pricing table — no runtime USD→INR conversion needed
+                PRICING_CONFIG = IS_INDIA
+                    ? (data.pricingINR || data.pricing)
+                    : (data.pricingUSD || data.pricing);
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
@@ -1236,20 +1239,25 @@
      
     function formatPrice(amount, discount, isAffiliate, isEliteCard = false) {
         if (!amount) return "...";
-        let displayAmount = amount;
-        let currencySymbol = "$";
+        const currencySymbol = IS_INDIA ? "₹" : "$";
 
-        if (IS_INDIA) { displayAmount = Math.floor(amount * EXCHANGE_RATE); currencySymbol = "₹"; }
+        // Prices already in correct currency from pricingINR / pricingUSD — no EXCHANGE_RATE conversion
+        const baseNum       = IS_INDIA ? Math.floor(amount) : parseFloat(amount);
+        const discountedNum = IS_INDIA
+            ? Math.floor(amount * (1 - discount / 100))
+            : parseFloat((amount * (1 - discount / 100)).toFixed(2));
 
-        let standardDiscounted = IS_INDIA ? Math.floor(displayAmount * (1 - discount/100)) : (displayAmount * (1 - discount/100)).toFixed(2);
-        displayAmount = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
+        const displayAmount      = IS_INDIA ? baseNum : baseNum.toFixed(2);
+        const standardDiscounted = IS_INDIA ? discountedNum : discountedNum.toFixed(2);
 
         if (isAffiliate) {
-            let finalAffiliatePrice = IS_INDIA ? Math.floor(standardDiscounted * 0.9) : (standardDiscounted * 0.9).toFixed(2); 
+            const finalAffiliatePrice = IS_INDIA
+                ? Math.floor(discountedNum * 0.9)
+                : (discountedNum * 0.9).toFixed(2);
 
-            let strikeColor = isEliteCard ? "text-slate-500" : "text-slate-400";
-            let highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
-            let standardBadge = isEliteCard ? "bg-slate-700 text-white" : "bg-slate-800 text-white";
+            const strikeColor    = isEliteCard ? "text-slate-500" : "text-slate-400";
+            const highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
+            const standardBadge  = isEliteCard ? "bg-slate-700 text-white" : "bg-slate-800 text-white";
 
             return `
                 <div class="flex flex-col">
@@ -1267,7 +1275,7 @@
         } else if (discount > 0) {
             return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
-        
+
         return `${currencySymbol}${displayAmount}`;
     }
 
