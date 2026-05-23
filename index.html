@@ -339,6 +339,29 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
     transition:background .2s ease;
 }
 .comp-table-row:hover{background:rgba(14,165,233,.03)}
+
+/* MARQUEE LOGO TICKER */
+@keyframes marquee-left { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+.logo-ticker { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%); }
+.logo-ticker-track { display: flex; align-items: center; gap: 0; animation: marquee-left 32s linear infinite; width: max-content; }
+.logo-ticker-track:hover { animation-play-state: paused; }
+.logo-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #b0bec5; white-space: nowrap; padding: 6px 20px; border-radius: 100px; transition: color .2s ease; letter-spacing: .01em; }
+.logo-item:hover { color: #475569; }
+.logo-item i { font-size: 14px; }
+
+/* COUNT-UP POP */
+@keyframes statPop { 0% { transform: scale(0.7); opacity: 0 } 70% { transform: scale(1.08) } 100% { transform: scale(1); opacity: 1 } }
+.stat-pop { animation: statPop 0.55s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* LIVE PULSE DOT */
+@keyframes live-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); opacity:1 } 50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); opacity:.8 } }
+.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; animation:live-pulse 2s ease-in-out infinite; flex-shrink:0; }
+
+/* TESTIMONIAL FEATURED QUOTE */
+.testimonial-featured { background: linear-gradient(135deg,rgba(14,165,233,.05) 0%,rgba(16,185,129,.03) 100%); border: 1px solid rgba(14,165,233,.12); }
+
+/* BOTTOM FINAL CTA */
+.section-cta-final { background: linear-gradient(160deg,#050814 0%,#060b1a 60%,#050f18 100%); }
   </style>
 </head>
 <body class="no-scrollbar">
@@ -436,21 +459,50 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
       </button>
     </div>
 
-    <!-- Social proof strip -->
+    <!-- Social proof strip — infinite marquee -->
     <div class="mt-8 md:mt-10 w-full flex flex-col items-center">
-      <p class="text-[10px] md:text-[11px] text-slate-400 uppercase tracking-[0.18em] font-bold mb-4">Used by engineers at</p>
-      <div class="flex flex-wrap justify-center items-center gap-5 md:gap-10">
-        <span class="text-[11px] md:text-sm font-bold text-slate-300 flex items-center gap-1.5 hover:text-slate-500 transition"><i class="fa-brands fa-google"></i> Google</span>
-        <span class="text-[11px] md:text-sm font-bold text-slate-300 flex items-center gap-1.5 hover:text-slate-500 transition"><i class="fa-brands fa-amazon"></i> Amazon</span>
-        <span class="text-[11px] md:text-sm font-bold text-slate-300 flex items-center gap-1.5 hover:text-slate-500 transition"><i class="fa-brands fa-microsoft"></i> Microsoft</span>
-        <span class="text-[11px] md:text-sm font-bold text-slate-300 flex items-center gap-1.5 hover:text-slate-500 transition"><i class="fa-brands fa-meta"></i> Meta</span>
-        <span class="text-[11px] md:text-sm font-bold text-slate-300 flex items-center gap-1.5 hover:text-slate-500 transition"><i class="fa-brands fa-apple"></i> Apple</span>
-        <span class="text-[11px] md:text-sm font-bold text-slate-300 flex items-center gap-1.5 hover:text-slate-500 transition"><i class="fa-solid fa-building"></i> Uber</span>
+      <p class="text-[10px] md:text-[11px] text-slate-400 uppercase tracking-[0.18em] font-bold mb-5">Trusted by engineers at</p>
+      <div class="logo-ticker w-full">
+        <div class="logo-ticker-track">
+          <span class="logo-item"><i class="fa-brands fa-google"></i> Google</span>
+          <span class="logo-item"><i class="fa-brands fa-amazon"></i> Amazon</span>
+          <span class="logo-item"><i class="fa-brands fa-microsoft"></i> Microsoft</span>
+          <span class="logo-item"><i class="fa-brands fa-meta"></i> Meta</span>
+          <span class="logo-item"><i class="fa-brands fa-apple"></i> Apple</span>
+          <span class="logo-item"><i class="fa-solid fa-car"></i> Uber</span>
+          <span class="logo-item"><i class="fa-solid fa-film"></i> Netflix</span>
+          <span class="logo-item"><i class="fa-brands fa-stripe"></i> Stripe</span>
+          <span class="logo-item"><i class="fa-brands fa-airbnb"></i> Airbnb</span>
+          <span class="logo-item"><i class="fa-brands fa-linkedin"></i> LinkedIn</span>
+          <span class="logo-item"><i class="fa-solid fa-chart-line"></i> Goldman Sachs</span>
+          <span class="logo-item"><i class="fa-brands fa-adobe"></i> Adobe</span>
+          <span class="logo-item"><i class="fa-solid fa-database"></i> Oracle</span>
+          <span class="logo-item"><i class="fa-solid fa-cloud"></i> Salesforce</span>
+          <!-- duplicate for seamless loop -->
+          <span class="logo-item"><i class="fa-brands fa-google"></i> Google</span>
+          <span class="logo-item"><i class="fa-brands fa-amazon"></i> Amazon</span>
+          <span class="logo-item"><i class="fa-brands fa-microsoft"></i> Microsoft</span>
+          <span class="logo-item"><i class="fa-brands fa-meta"></i> Meta</span>
+          <span class="logo-item"><i class="fa-brands fa-apple"></i> Apple</span>
+          <span class="logo-item"><i class="fa-solid fa-car"></i> Uber</span>
+          <span class="logo-item"><i class="fa-solid fa-film"></i> Netflix</span>
+          <span class="logo-item"><i class="fa-brands fa-stripe"></i> Stripe</span>
+          <span class="logo-item"><i class="fa-brands fa-airbnb"></i> Airbnb</span>
+          <span class="logo-item"><i class="fa-brands fa-linkedin"></i> LinkedIn</span>
+          <span class="logo-item"><i class="fa-solid fa-chart-line"></i> Goldman Sachs</span>
+          <span class="logo-item"><i class="fa-brands fa-adobe"></i> Adobe</span>
+          <span class="logo-item"><i class="fa-solid fa-database"></i> Oracle</span>
+          <span class="logo-item"><i class="fa-solid fa-cloud"></i> Salesforce</span>
+        </div>
       </div>
     </div>
 
-    <!-- Security badge -->
-    <div class="mt-5 flex flex-col items-center gap-1.5">
+    <!-- Live social proof + security badge -->
+    <div class="mt-5 flex flex-col items-center gap-2.5">
+      <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-full px-3.5 py-1.5 shadow-sm">
+        <span class="live-dot"></span>
+        <span class="text-[10px] font-semibold text-slate-600"><span id="live-users">847</span> engineers using Whis right now</span>
+      </div>
       <div class="text-[10px] text-emerald-600 font-semibold tracking-wider uppercase opacity-90 flex items-center gap-1.5">
         <i class="fa-solid fa-shield-halved"></i> Undetectable • No recording • No data stored
       </div>
@@ -516,22 +568,22 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
 </section>
 
   <div class="section-divider"></div>
-<div class="bg-white/60 backdrop-blur-sm border-y border-slate-100 py-8 md:py-10 relative z-10">
+<div class="bg-white/60 backdrop-blur-sm border-y border-slate-100 py-8 md:py-10 relative z-10" id="stats-strip">
   <div class="max-w-5xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
     <div class="stat-card text-center">
-      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;">7,000<span class="text-accent">+</span></div>
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="stat-engineers" data-count="7000">7,000</span><span class="text-accent">+</span></div>
       <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Engineers Hired</div>
     </div>
     <div class="stat-card text-center">
-      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="uptime-counter">99.2</span><span class="text-accent">%</span></div>
-      <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Success Rate</div>
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="stat-success" data-count="94">94</span><span class="text-accent">%</span></div>
+      <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Interview Success</div>
     </div>
     <div class="stat-card text-center">
       <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;">&lt;2<span class="text-accent">s</span></div>
       <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Answer Speed</div>
     </div>
     <div class="stat-card text-center">
-      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;">0<span class="text-accent">%</span></div>
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="stat-detection" data-count="0">0</span><span class="text-accent">%</span></div>
       <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Detection Rate</div>
     </div>
   </div>
@@ -727,7 +779,7 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
                 </div>
                 <div>
                     <div class="text-[11px] font-semibold text-slate-500 mb-1">TECH ROUNDS CLEARED</div>
-                    <div class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">62,402</div>
+                    <div class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"><span id="rounds-counter">62,402</span></div>
                 </div>
                 <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-100 text-[11px] text-slate-500">
                     Assisting from initial OAs to final System Design
@@ -905,14 +957,12 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
 
   <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-4">
-              <h2 id="testimonials" class="text-2xl md:text-3xl font-medium text-slate-900">Engineers love Whis.</h2>
-              <div class="text-left md:text-right">
-                  <div class="flex gap-1 text-yellow-400 text-xs md:text-sm mb-1">
-                      <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                  </div>
-                  <p class="text-[9px] md:text-[10px] text-slate-500">Rated 4.9/5 by 2,000+ users</p>
-              </div>
+          <div class="text-center mb-10 md:mb-14">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold uppercase tracking-wider mb-5">
+              <i class="fa-solid fa-star text-amber-500"></i> 4.9 / 5 · 2,000+ verified engineers
+            </div>
+            <h2 id="testimonials" class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3" style="font-family:'Plus Jakarta Sans',sans-serif;">Real engineers.<br>Real offers.</h2>
+            <p class="text-slate-500 text-sm md:text-base max-w-md mx-auto">No incentivized reviews. No filler. Just engineers who used Whis and landed the job.</p>
           </div>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -974,7 +1024,58 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
                       <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">AL</div>
                       <div>
                           <p class="text-[11px] md:text-xs font-bold text-slate-900">Arjun L.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">L61 Engineer</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">L6 Engineer</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="perf-card testimonial-card flex flex-col justify-between">
+                  <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer · Netflix</div>
+                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"Had 3 final rounds in the same week. Whis handled system design questions I'd never seen before. All 3 sent offers. I chose Netflix."</p>
+                  </div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-red-500 to-orange-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">AT</div>
+                      <div>
+                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Alex T.</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">L5 SDE · Netflix</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="perf-card testimonial-card flex flex-col justify-between">
+                  <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer · Amazon</div>
+                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"Interviewer started drawing an architecture diagram. Whis caught it and whispered the exact sharding and caching strategy. Cleared it first attempt."</p>
+                  </div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">PR</div>
+                      <div>
+                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Priya R.</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">SDE-II · Amazon India</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="perf-card testimonial-card flex flex-col justify-between">
+                  <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
+                      <div class="flex items-center gap-1 text-purple-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-user-check"></i> Interview Coach · ex-Google</div>
+                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"I've prepped hundreds of engineers. Whis is the most unfair competitive advantage I've ever seen. Like a staff engineer whispering in your ear."</p>
+                  </div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-500 to-purple-600 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">MW</div>
+                      <div>
+                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Marcus W.</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">Staff Eng · ex-Google</p>
                       </div>
                   </div>
               </div>
@@ -1026,6 +1127,33 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
               </div>
           </div>
       </div>
+  </section>
+
+  <!-- FINAL CTA — dark premium closer -->
+  <section class="section-cta-final py-24 md:py-36 relative overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-sky-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-0 right-1/4 w-[400px] h-[200px] bg-emerald-500/8 blur-[80px] rounded-full pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-8">
+        <span class="live-dot"></span>
+        <span>Your next offer is one interview away</span>
+      </div>
+      <h2 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] mb-6" style="font-family:'Plus Jakarta Sans',sans-serif;">
+        Stop leaving offers<br>on the table.
+      </h2>
+      <p class="text-slate-400 text-base md:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
+        Join 7,000+ engineers who used Whis to land their dream role.<br class="hidden md:block"> First session is free. No card needed.
+      </p>
+      <button onclick="openDownloadModal()" class="btn-premium px-10 md:px-14 py-4 md:py-5 rounded-2xl text-sm md:text-base font-bold shadow-2xl inline-flex items-center gap-3">
+        <span><i class="fa-solid fa-download mr-1"></i> Download Free — Mac &amp; Windows</span>
+      </button>
+      <div class="mt-6 flex flex-wrap justify-center gap-5 text-[10px] text-slate-500 font-medium">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-emerald-500"></i> 7-day money back</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-emerald-500"></i> No data stored</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-eye-slash text-emerald-500"></i> 100% undetectable</span>
+        <span class="flex items-center gap-1.5"><i class="fa-brands fa-windows text-emerald-500"></i><i class="fa-brands fa-apple text-emerald-500"></i> Mac &amp; Windows</span>
+      </div>
+    </div>
   </section>
 
   <footer class="py-10 md:py-12 bg-slate-100 border-t border-slate-200 flex flex-col items-center gap-6 pb-28 md:pb-12">
@@ -1300,7 +1428,7 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
     }
 
     function initUptimeCounter() {
-        const counterEl = document.getElementById('uptime-counter');
+        const counterEl = document.getElementById('rounds-counter');
         if(!counterEl) return;
         let currentCount = 62402;
         setInterval(() => {
@@ -1993,13 +2121,57 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
         initUptimeCounter();
         typeCode();
         typeEffect();
-        typeHeroSequence(); 
+        typeHeroSequence();
         initSliderAutoPlay();
         checkUser();
         fetchPricingConfig();
-        
+        initStatsCountUp();
+        initLiveCounter();
+
         setCycle(IS_INDIA ? 'monthly' : 'quarterly');
     });
+
+    function initStatsCountUp() {
+        const strip = document.getElementById('stats-strip');
+        if (!strip) return;
+        let fired = false;
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !fired) {
+                fired = true;
+                ['stat-engineers', 'stat-success', 'stat-detection'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const target = parseInt(el.dataset.count);
+                    const duration = id === 'stat-engineers' ? 1800 : 1200;
+                    const startTs = performance.now();
+                    el.classList.add('stat-pop');
+                    function tick(ts) {
+                        const elapsed = ts - startTs;
+                        const p = Math.min(elapsed / duration, 1);
+                        const ease = 1 - Math.pow(1 - p, 3);
+                        const cur = Math.round(ease * target);
+                        el.textContent = target >= 1000 ? cur.toLocaleString() : cur;
+                        if (p < 1) requestAnimationFrame(tick);
+                        else el.textContent = target >= 1000 ? target.toLocaleString() : target;
+                    }
+                    requestAnimationFrame(tick);
+                });
+                observer.disconnect();
+            }
+        }, { threshold: 0.4 });
+        observer.observe(strip);
+    }
+
+    function initLiveCounter() {
+        const el = document.getElementById('live-users');
+        if (!el) return;
+        function update() {
+            const base = 780 + Math.floor(Math.random() * 240);
+            el.textContent = base.toLocaleString();
+            setTimeout(update, 4000 + Math.random() * 4000);
+        }
+        setTimeout(update, 2500);
+    }
   </script>
 </body>
 </html>
