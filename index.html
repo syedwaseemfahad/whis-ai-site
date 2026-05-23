@@ -130,30 +130,93 @@ h1,h2,h3,h4{letter-spacing:-0.03em;line-height:1.08}
 }
 .perf-card:hover::after{left:150%;transition:.8s ease-in-out}
 
+/* PRICING SECTION — ULTRA DARK */
+.section-pricing-ultra{
+    background:
+        radial-gradient(ellipse 100% 35% at 50% 6%,rgba(14,165,233,0.14) 0%,transparent 65%),
+        linear-gradient(180deg,#ffffff 0%,#010c1a 5%,#010c1a 95%,#ffffff 100%);
+}
+
+/* GLASS CARD — dark variant */
+.pricing-card-glass{
+    background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:22px;
+    transition:border-color .3s ease,background .3s ease,transform .3s ease;
+}
+.pricing-card-glass:hover{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);transform:translateY(-2px);}
+
 /* PRICING ELITE CARD */
-.pricing-elite{position:relative}
+.pricing-elite{
+    position:relative;
+    background:linear-gradient(145deg,#0d1c30 0%,#071321 60%,#0b192a 100%);
+    border-radius:26px;
+    border:1px solid rgba(14,165,233,0.25);
+}
 .pricing-elite::before{
     content:'';
     position:absolute;inset:0;
-    background:linear-gradient(135deg,rgba(14,165,233,0.06) 0%,rgba(16,185,129,0.04) 100%);
+    background:radial-gradient(ellipse 80% 45% at 50% -5%,rgba(14,165,233,0.18) 0%,transparent 70%);
     border-radius:inherit;
     pointer-events:none;
     z-index:0;
 }
 .pricing-elite::after{
     content:'';
-    position:absolute;inset:-1px;
-    border-radius:21px;
-    background:linear-gradient(135deg,var(--accent),rgba(16,185,129,.7),var(--accent));
-    background-size:200% 200%;
-    animation:gradient-x 4s ease infinite;
+    position:absolute;inset:-1.5px;
+    border-radius:27.5px;
+    background:linear-gradient(135deg,#0ea5e9 0%,#10b981 35%,#8b5cf6 65%,#0ea5e9 100%);
+    background-size:300% 300%;
+    animation:gradient-x 5s ease infinite;
     -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
     -webkit-mask-composite:xor;
     mask-composite:exclude;
     pointer-events:none;
-    opacity:.8;
+    opacity:0.9;
 }
-@media(min-width:768px){.pricing-elite::after{border-radius:25px}}
+
+/* MOST POPULAR BADGE */
+.popular-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,rgba(14,165,233,0.22),rgba(16,185,129,0.12));
+    border:1px solid rgba(14,165,233,0.45);
+    border-radius:100px;
+    padding:5px 12px;
+    font-size:9px;font-weight:800;letter-spacing:0.14em;
+    color:#7dd3fc;text-transform:uppercase;
+}
+
+/* ELITE CTA BUTTON */
+.btn-elite-cta{
+    background:linear-gradient(135deg,#0ea5e9 0%,#06b6d4 45%,#10b981 100%);
+    background-size:200% 200%;
+    animation:gradient-x 4s ease infinite;
+    color:#fff;font-weight:800;
+    border-radius:14px;border:none;
+    width:100%;padding:16px;
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+    position:relative;overflow:hidden;
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 4px 24px rgba(14,165,233,0.45),0 0 50px rgba(14,165,233,0.1);
+    cursor:pointer;
+}
+.btn-elite-cta::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.28),transparent);
+    transform:translateX(-100%);transition:transform .6s ease;
+}
+.btn-elite-cta:hover::before{transform:translateX(100%);}
+.btn-elite-cta:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 8px 36px rgba(14,165,233,0.55),0 0 60px rgba(14,165,233,0.18);}
+.btn-elite-cta:active{transform:scale(.97);}
+.btn-elite-cta:disabled{opacity:0.65;cursor:not-allowed;animation:none;}
+
+/* FEATURE ROW */
+.feat-row{display:flex;align-items:center;gap:10px;line-height:1.4;}
+.feat-row-icon{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;}
+
+/* ELITE AMBIENT GLOW PULSE */
+@keyframes elite-glow{0%,100%{opacity:.45}50%{opacity:.85}}
 
 /* CAROUSEL */
 .carousel-container{perspective:1200px;display:flex;justify-content:center;align-items:center;height:280px;position:relative;margin-top:20px;margin-bottom:20px}
@@ -678,89 +741,110 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
         </div>
     </section>
 
-    <section id="pricing" class="section-pricing-bg py-16 md:py-32 relative overflow-hidden">
-<div class="max-w-7xl mx-auto px-4 md:px-6 text-center mt-4 md:mt-8 relative z-10">
-<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm mb-5 md:mb-7">
-  <i class="fa-solid fa-rocket text-accent text-xs"></i>
-  <span class="text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-wider">Simple, transparent pricing</span>
+    <section id="pricing" class="section-pricing-ultra relative overflow-hidden">
+      <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-500/35 to-transparent pointer-events-none z-10"></div>
+      <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-500/20 to-transparent pointer-events-none z-10"></div>
+<div class="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-32 pb-20 md:pb-32 relative z-10">
+<div class="text-center mb-12 md:mb-20">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-5 md:mb-7">
+  <i class="fa-solid fa-rocket text-sky-400 text-xs"></i>
+  <span class="text-[10px] md:text-xs font-bold text-sky-300 uppercase tracking-wider">Simple, transparent pricing</span>
 </div>
-<h2 class="text-3xl md:text-6xl font-extrabold text-slate-900 mb-3 md:mb-5 tracking-[-0.04em]" style="font-family:'Plus Jakarta Sans',sans-serif;">Invest in your<br class="hidden md:block"> next offer.</h2>
-<p class="text-sm md:text-lg text-slate-500 mb-4 font-normal px-4 max-w-xl mx-auto leading-relaxed">Join 7,000+ engineers who turned interviews into offers.</p>
-<div class="guarantee-badge mb-6 md:mb-8">
-  <i class="fa-solid fa-shield-check"></i> 7-Day Money-Back Guarantee — No questions asked
+<h2 class="text-3xl md:text-6xl font-extrabold text-white mb-3 md:mb-5 tracking-[-0.04em]" style="font-family:'Plus Jakarta Sans',sans-serif;">Choose your <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-400">edge.</span></h2>
+<p class="text-sm md:text-lg text-slate-400 mb-6 font-normal px-4 max-w-xl mx-auto leading-relaxed">Join 7,000+ engineers who turned interviews into offers.</p>
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider mb-6 md:mb-8" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#4ade80;">
+  <i class="fa-solid fa-users"></i> Trusted by 7,000+ engineers worldwide
+</div>
 </div>
 
-<div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2 shadow-sm">
-    <i class="fa-solid fa-gift text-emerald-600 text-lg"></i>
+<div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2">
+    <i class="fa-solid fa-gift text-emerald-400 text-lg"></i>
     <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
-</div>        
-        <div class="flex flex-col items-center mb-10 md:mb-16 mt-6 gap-3">
-            <div class="inline-flex bg-slate-100 p-1 rounded-full border border-slate-200 shadow-inner w-full max-w-[340px] md:w-auto relative">
-                <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
-                <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all relative" onclick="setCycle('quarterly')">
+</div>
+        <div class="flex flex-col items-center mb-12 md:mb-16 gap-3">
+            <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 w-full max-w-[340px] md:w-auto relative">
+                <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all" onclick="setCycle('monthly')">Monthly</button>
+                <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all relative" onclick="setCycle('quarterly')">
                     Quarterly
-                    <span class="absolute -top-3 -right-2 bg-accent text-white text-[8px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-full shadow">Best Value</span>
+                    <span class="absolute -top-3 -right-2 bg-sky-500 text-white text-[8px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-full shadow">Best Value</span>
                 </button>
             </div>
-            <!-- Savings ribbon — shown when quarterly is selected -->
-            <div id="quarterlyRibbon" class="flex items-center gap-2 text-[11px] font-semibold rounded-full px-4 py-1.5 transition-all" style="color:var(--accent,#0ea5e9);background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.22);">
+            <div id="quarterlyRibbon" class="flex items-center gap-2 text-[11px] font-semibold rounded-full px-4 py-1.5 transition-all" style="color:#38bdf8;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);">
                 <i class="fa-solid fa-fire-flame-curved text-xs"></i>
                 <span>Most users pick quarterly — 3 full interview cycles for the price of 1.5×</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
-            <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-sm">
-                <h3 class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 md:mb-4">Foundation</h3>
-                <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8">Free</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-600 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400 text-sm"></i> 10 Daily Answers</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400 text-sm"></i> Normal Speed</p>
-                    <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark text-sm"></i> Stealth Mode</p>
-                    <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark text-sm"></i> Screen Solving</p>
-                </div>
-                <button onclick="openDownloadModal()" class="w-full py-3.5 md:py-4 rounded-xl border border-slate-300 text-slate-700 font-bold bg-slate-50 hover:bg-slate-100 text-[10px] uppercase tracking-widest transition-all active:scale-95">Download Trial</button>
+        <!-- Cards + ambient glow -->
+        <div class="relative">
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(14,165,233,0.16) 0%,transparent 70%);animation:elite-glow 4s ease-in-out infinite;"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 items-center">
+
+            <!-- FREE -->
+            <div class="pricing-card-glass p-6 md:p-8 flex flex-col">
+              <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Foundation</h3>
+              <div class="text-3xl md:text-4xl font-bold text-white mb-1">Free</div>
+              <p class="text-[10px] text-slate-600 mb-7">Forever free — no card needed</p>
+              <div class="space-y-3 text-xs mb-8 flex-grow">
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">10 Answers per day</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">Standard response speed</span></div>
+                <div class="feat-row" style="opacity:0.35;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Stealth Mode</span></div>
+                <div class="feat-row" style="opacity:0.35;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Screen Solving</span></div>
+              </div>
+              <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 hover:bg-white/5">Download Trial</button>
             </div>
 
-            <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-lg z-20 relative">
-                <h3 class="text-[9px] md:text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-3 md:mb-4">Pro Professional</h3>
-                <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8 flex items-baseline flex-wrap" id="pricePro">...</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-700 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-clock text-accent text-sm"></i> 10 Hours App Usage / mo</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Unlimited Answers</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Screen Reading Tool</p>
-                    <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye text-sm"></i> Visible on Screen</p>
-                </div>
-                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-3.5 md:py-4 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-[10px] font-bold uppercase tracking-widest transition-all shadow-md active:scale-95">Upgrade Now</button>
+            <!-- ELITE STEALTH — CENTER HERO -->
+            <div class="pricing-elite p-6 md:p-10 flex flex-col md:scale-[1.07] z-30 overflow-hidden" style="box-shadow:0 40px 100px -20px rgba(14,165,233,0.3),0 0 0 0 transparent;">
+              <div class="absolute top-0 right-0 p-5 pointer-events-none select-none" style="opacity:0.06;z-index:0;"><i class="fa-solid fa-ghost text-6xl text-sky-300"></i></div>
+              <div class="popular-badge mb-4 relative z-10">
+                <span class="live-dot" style="background:#22d3ee;box-shadow:0 0 6px #22d3ee;"></span>
+                Most Popular
+              </div>
+              <div class="relative z-10">
+                <h3 class="text-[9px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-3">Elite Stealth</h3>
+                <div class="text-3xl md:text-4xl font-bold text-white flex items-baseline flex-wrap" id="priceStealth">...</div>
+              </div>
+              <div class="space-y-3.5 text-xs mb-8 flex-grow relative z-10 mt-6">
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-white font-medium">10 Hours App Usage / mo</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-white font-semibold">100% Undetectable</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-ghost text-[9px]"></i></div><span class="text-slate-200">Invisible to Zoom / Teams</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-user-secret text-[9px]"></i></div><span class="text-slate-200">Hidden App Process</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen Reading + Solving</span></div>
+              </div>
+              <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="btn-elite-cta relative z-10">Go Elite →</button>
             </div>
 
-            <div class="perf-card pricing-elite p-6 md:p-10 text-left flex flex-col border-accent/40 bg-slate-900 relative overflow-hidden shadow-2xl md:scale-105 z-30">
-                 <div class="absolute top-0 right-0 p-4 md:p-6 opacity-10"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
-                 <h3 class="text-[9px] md:text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-3 md:mb-4">Elite Stealth</h3>
-                <div class="text-3xl md:text-4xl font-bold text-white mb-6 md:mb-8 flex items-baseline flex-wrap" id="priceStealth">...</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-300 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning text-sm"></i> 10 Hours App Usage / mo</p>
-                    <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-sky-400 text-sm"></i> 100% Undetectable</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80 text-sm"></i> Invisible to Zoom/Teams</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80 text-sm"></i> Hidden App Process</p>
-                </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-3.5 md:py-4 rounded-xl bg-sky-500 text-white hover:bg-sky-400 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">Go Elite</button>
+            <!-- PRO -->
+            <div class="pricing-card-glass p-6 md:p-8 flex flex-col">
+              <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Pro Professional</h3>
+              <div class="text-3xl md:text-4xl font-bold text-white mb-1 flex items-baseline flex-wrap" id="pricePro">...</div>
+              <p class="text-[10px] text-slate-600 mb-7">Unlimited answers, screen reading</p>
+              <div class="space-y-3 text-xs mb-8 flex-grow">
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-accent"><i class="fa-solid fa-clock text-[9px]"></i></div><span class="text-slate-300 font-medium">10 Hours App Usage / mo</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-accent"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-300">Unlimited Answers</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-accent"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-300">Screen Reading Tool</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(251,146,60,0.15);color:#fb923c;"><i class="fa-solid fa-eye text-[9px]"></i></div><span style="color:#fb923c;" class="font-medium">Visible on Screen</span></div>
+              </div>
+              <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Upgrade to Pro</button>
             </div>
+
+          </div>
         </div>
 
-        <div class="max-w-3xl mx-auto mt-12 md:mt-20 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-sky-300 transition-all duration-500">
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 text-center md:text-left">
-                <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-accent shrink-0 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-stopwatch text-xl md:text-2xl"></i>
-                </div>
-                <div>
-                    <h4 class="text-xs md:text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Smart Usage Credit System</h4>
-                    <p class="text-[11px] md:text-xs text-slate-600 leading-relaxed">
-                        Paid plans include <span class="text-slate-900 font-semibold">10-hours per month</span> of overall app usage. Audio is always monitored and screenshots are taken automatically when you request an output. To save your credits, the **Ghost Timer** only counts while the app is actively running. Preparation time and breaks are never deducted from your balance.
-                    </p>
-                </div>
-            </div>
+        <!-- Ghost Timer info (dark glass) -->
+        <div class="max-w-3xl mx-auto mt-12 md:mt-16 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 text-center md:text-left group hover:border-sky-500/20 transition-all duration-500" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(20px);">
+          <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-sky-400 shrink-0 group-hover:scale-110 transition-transform" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);">
+            <i class="fa-solid fa-stopwatch text-xl md:text-2xl"></i>
+          </div>
+          <div>
+            <h4 class="text-xs md:text-sm font-bold text-white mb-2 uppercase tracking-wide">Smart Usage Credit System</h4>
+            <p class="text-[11px] md:text-xs text-slate-400 leading-relaxed">
+              Paid plans include <span class="text-white font-semibold">10 hours / month</span> of app usage. The Ghost Timer only counts while you're actively in an interview — prep time and breaks never touch your balance.
+            </p>
+          </div>
         </div>
+
     </div>
   </section>
 
@@ -1637,8 +1721,8 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
         const ribbon  = document.getElementById('quarterlyRibbon');
 
         if (c === 'monthly') {
-            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all";
-            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all relative";
+            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all";
+            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all relative";
             // Tempt monthly users with the quarterly upsell
             if (ribbon) {
                 ribbon.style.opacity = '1';
@@ -1646,8 +1730,8 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
                 ribbon.innerHTML = `<i class="fa-solid fa-arrow-up-right-dots text-xs"></i><span>Switch to Quarterly — same price as 1.5 months, covers your full prep cycle</span>`;
             }
         } else {
-            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all relative";
-            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all relative";
+            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all";
             if (ribbon) {
                 ribbon.style.opacity = '1';
                 ribbon.style.transform = 'scale(1)';
