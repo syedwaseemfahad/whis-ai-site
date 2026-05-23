@@ -452,9 +452,19 @@
     <i class="fa-solid fa-gift text-emerald-600 text-lg"></i>
     <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
 </div>        
-        <div class="inline-flex bg-slate-100 p-1 rounded-full border border-slate-200 mb-10 md:mb-16 mt-6 shadow-inner w-full max-w-[300px] md:w-auto">
-           <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('quarterly')">Quarterly (Only 1.5x)</button>
+        <div class="flex flex-col items-center mb-10 md:mb-16 mt-6 gap-3">
+            <div class="inline-flex bg-slate-100 p-1 rounded-full border border-slate-200 shadow-inner w-full max-w-[340px] md:w-auto relative">
+                <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
+                <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all relative" onclick="setCycle('quarterly')">
+                    Quarterly
+                    <span class="absolute -top-3 -right-2 bg-accent text-white text-[8px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-full shadow">Best Value</span>
+                </button>
+            </div>
+            <!-- Savings ribbon — shown when quarterly is selected -->
+            <div id="quarterlyRibbon" class="flex items-center gap-2 text-[11px] font-semibold rounded-full px-4 py-1.5 transition-all" style="color:var(--accent,#0ea5e9);background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.22);">
+                <i class="fa-solid fa-fire-flame-curved text-xs"></i>
+                <span>Most users pick quarterly — 3 full interview cycles for the price of 1.5×</span>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
@@ -1195,7 +1205,8 @@
 
     const BACKEND_URL="https://api.whis-ai.com"; 
     let currentUser = null; 
-    let currentCycle = 'monthly'; // Default to monthly
+    // Non-India: default quarterly (max value); India: default monthly (lower entry barrier)
+    let currentCycle = IS_INDIA ? 'monthly' : 'quarterly';
     let currentTier = 'free';
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90;
@@ -1280,14 +1291,28 @@
     }
 
     function setCycle(c){
-        currentCycle=c;
-        const btnM=document.getElementById('btnMonthly'); const btnQ=document.getElementById('btnQuarterly');
-        if(c==='monthly'){
-            btnM.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
-            btnQ.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+        currentCycle = c;
+        const btnM    = document.getElementById('btnMonthly');
+        const btnQ    = document.getElementById('btnQuarterly');
+        const ribbon  = document.getElementById('quarterlyRibbon');
+
+        if (c === 'monthly') {
+            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all";
+            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all relative";
+            // Tempt monthly users with the quarterly upsell
+            if (ribbon) {
+                ribbon.style.opacity = '1';
+                ribbon.style.transform = 'scale(1)';
+                ribbon.innerHTML = `<i class="fa-solid fa-arrow-up-right-dots text-xs"></i><span>Switch to Quarterly — same price as 1.5 months, covers your full prep cycle</span>`;
+            }
         } else {
-            btnQ.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
-            btnM.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all relative";
+            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+            if (ribbon) {
+                ribbon.style.opacity = '1';
+                ribbon.style.transform = 'scale(1)';
+                ribbon.innerHTML = `<i class="fa-solid fa-fire-flame-curved text-xs"></i><span>Most users pick quarterly — 3 full interview cycles for the price of 1.5×</span>`;
+            }
         }
         updatePricingUI();
     }
@@ -1761,7 +1786,7 @@
         checkUser();
         fetchPricingConfig();
         
-        setCycle('monthly');
+        setCycle(IS_INDIA ? 'monthly' : 'quarterly');
     });
   </script>
 </body>
