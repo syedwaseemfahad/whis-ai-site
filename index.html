@@ -1203,8 +1203,13 @@
         animate();
     }
 
-    const BACKEND_URL="https://api.whis-ai.com"; 
-    let currentUser = null; 
+    const BACKEND_URL="https://api.whis-ai.com";
+    let currentUser = null;
+
+    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
+                  || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
+                  || new Date().getTimezoneOffset() === -330;
+
     // Non-India: default quarterly (max value); India: default monthly (lower entry barrier)
     let currentCycle = IS_INDIA ? 'monthly' : 'quarterly';
     let currentTier = 'free';
@@ -1212,10 +1217,6 @@
     let EXCHANGE_RATE = 90;
     let currentCoupon = "";
     let currentCouponDiscount = 0;
-
-    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
-                  || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
-                  || new Date().getTimezoneOffset() === -330;
 
     async function fetchPricingConfig() {
         try {
