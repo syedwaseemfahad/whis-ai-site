@@ -535,11 +535,16 @@ p.text-slate-400 { color: #94a3b8 !important; }
 
 /* HERO SPECIFIC */
 .hero-badge {
-    background: rgba(255,255,255,0.07) !important;
-    border-color: rgba(14,165,233,0.3) !important;
+    background: linear-gradient(135deg, rgba(14,165,233,0.14), rgba(16,185,129,0.08)) !important;
+    border-color: rgba(14,165,233,0.35) !important;
     color: #7dd3fc !important;
+    box-shadow: 0 0 24px rgba(14,165,233,0.12), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    padding: 8px 18px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
 }
-.hero-badge strong { color: #38bdf8; }
+.hero-badge strong { color: #34d399; font-weight: 800; }
 /* Flow pill */
 section > div > .flex.flex-wrap.justify-center.items-center.gap-2 {
     background: rgba(255,255,255,0.05) !important;
@@ -694,8 +699,12 @@ input::placeholder, textarea::placeholder { color: #475569 !important; }
   <!-- Announcement banner -->
   <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4">
     <div class="hero-badge">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-      <span>7,000+ engineers hired • <strong>Live & trusted</strong></span>
+      <div class="relative flex shrink-0">
+        <span class="w-2 h-2 rounded-full" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
+        <span class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping opacity-60"></span>
+      </div>
+      <span>7,000+ engineers hired &nbsp;·&nbsp; <strong>Live & trusted</strong></span>
+      <i class="fa-solid fa-star text-[8px]" style="color:#fbbf24;margin-left:2px;"></i>
     </div>
   </div>
 
@@ -710,13 +719,22 @@ input::placeholder, textarea::placeholder { color: #475569 !important; }
       Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong>, <strong class="plat-chime">Chime</strong> &amp; <strong class="plat-hackerrank">HackerRank</strong>.<br class="hidden md:block"> Completely invisible. Your silent co-pilot in every interview.
     </p>
 
-    <!-- Flow pill -->
-    <div class="flex flex-wrap justify-center items-center gap-2 md:gap-3 text-[10px] md:text-xs font-semibold mb-8 px-4 md:px-6 py-3 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(12px);color:#64748b;">
-      <span class="flex items-center gap-1.5"><i class="fa-solid fa-ear-listen text-accent"></i> Listens Live</span>
-      <i class="fa-solid fa-arrow-right text-slate-300"></i>
-      <span class="flex items-center gap-1.5"><i class="fa-solid fa-eye text-slate-400"></i> Reads Screen</span>
-      <i class="fa-solid fa-arrow-right text-slate-300"></i>
-      <span class="flex items-center gap-1.5 text-accent font-bold"><i class="fa-solid fa-bolt"></i> Fires Answer</span>
+    <!-- Flow pill — 3-step pipeline -->
+    <div class="flex flex-wrap justify-center items-center gap-2 md:gap-3 mb-8">
+      <div class="flex items-center gap-2 px-4 py-2 rounded-full" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.22);">
+        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style="background:rgba(14,165,233,0.2);"><i class="fa-solid fa-ear-listen text-[9px]" style="color:#38bdf8;"></i></div>
+        <span class="text-[11px] font-bold" style="color:#7dd3fc;">Listens Live</span>
+      </div>
+      <i class="fa-solid fa-chevron-right text-[9px]" style="color:#334155;"></i>
+      <div class="flex items-center gap-2 px-4 py-2 rounded-full" style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.22);">
+        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style="background:rgba(139,92,246,0.2);"><i class="fa-solid fa-desktop text-[9px]" style="color:#a78bfa;"></i></div>
+        <span class="text-[11px] font-bold" style="color:#c4b5fd;">Reads Screen</span>
+      </div>
+      <i class="fa-solid fa-chevron-right text-[9px]" style="color:#334155;"></i>
+      <div class="flex items-center gap-2 px-4 py-2 rounded-full" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);">
+        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style="background:rgba(16,185,129,0.2);"><i class="fa-solid fa-bolt text-[9px]" style="color:#34d399;"></i></div>
+        <span class="text-[11px] font-bold" style="color:#6ee7b7;">Fires Answer</span>
+      </div>
     </div>
 
     <!-- CTA -->
@@ -764,23 +782,49 @@ input::placeholder, textarea::placeholder { color: #475569 !important; }
       </div>
     </div>
 
-    <!-- Live social proof + security badge -->
-    <div class="mt-5 flex flex-col items-center gap-2.5">
-      <div class="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(12px);">
-        <span class="live-dot"></span>
-        <span class="text-[10px] font-semibold" style="color:#94a3b8;"><span id="live-users" style="color:#e2e8f0;font-weight:700;">847</span> engineers using Whis right now</span>
+    <!-- Live social proof + security badges -->
+    <div class="mt-6 flex flex-col items-center gap-4">
+
+      <!-- Live counter -->
+      <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl" style="background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(14,165,233,0.07));border:1px solid rgba(16,185,129,0.2);backdrop-filter:blur(16px);">
+        <div class="relative flex shrink-0">
+          <span class="w-2.5 h-2.5 rounded-full" style="background:#22c55e;box-shadow:0 0 10px #22c55e;"></span>
+          <span class="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-400 animate-ping opacity-60"></span>
+        </div>
+        <div>
+          <span class="text-base font-black" style="color:#f0fdf4;letter-spacing:-0.02em;"><span id="live-users">847</span></span>
+          <span class="text-[11px] font-semibold ml-1.5" style="color:#86efac;">engineers using Whis right now</span>
+        </div>
       </div>
-      <div class="text-[10px] font-semibold tracking-wider uppercase opacity-90 flex items-center gap-1.5" style="color:#34d399;">
-        <i class="fa-solid fa-shield-halved"></i> Undetectable • No recording • No data stored
+
+      <!-- Security claims — 3 chips -->
+      <div class="flex flex-wrap justify-center gap-2">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.18);">
+          <i class="fa-solid fa-eye-slash text-[9px]" style="color:#34d399;"></i>
+          <span class="text-[10px] font-bold tracking-wide" style="color:#6ee7b7;">100% Undetectable</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.18);">
+          <i class="fa-solid fa-ban text-[9px]" style="color:#a78bfa;"></i>
+          <span class="text-[10px] font-bold tracking-wide" style="color:#c4b5fd;">No Recording</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.18);">
+          <i class="fa-solid fa-lock text-[9px]" style="color:#38bdf8;"></i>
+          <span class="text-[10px] font-bold tracking-wide" style="color:#7dd3fc;">No Data Stored</span>
+        </div>
       </div>
+
     </div>
   </div>
 
   <!-- Comparison slider -->
   <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-12">
-    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5 md:mb-7" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);">
-      <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" style="box-shadow:0 0 6px #38bdf8;"></span>
-      <span class="text-[10px] md:text-xs font-bold tracking-wide uppercase" style="color:#38bdf8;">100% Undetectable — Drag to see</span>
+    <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-2xl mb-5 md:mb-7" style="background:linear-gradient(135deg,rgba(14,165,233,0.13),rgba(16,185,129,0.08));border:1px solid rgba(14,165,233,0.28);backdrop-filter:blur(12px);">
+      <div class="relative flex shrink-0">
+        <span class="w-2 h-2 rounded-full" style="background:#38bdf8;box-shadow:0 0 8px #38bdf8;"></span>
+        <span class="absolute inset-0 w-2 h-2 rounded-full bg-sky-400 animate-ping opacity-50"></span>
+      </div>
+      <span class="text-[11px] md:text-xs font-black tracking-widest uppercase" style="background:linear-gradient(90deg,#38bdf8,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">100% Undetectable — Drag to see</span>
+      <i class="fa-solid fa-arrow-right text-[9px]" style="color:#38bdf8;"></i>
     </div>
     <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 px-2 tracking-tight">Invisible to <span class="plat-zoom">Zoom</span>, <span class="plat-teams">Teams</span> &amp; <span class="plat-meet">Meet</span>.</h2>
 
