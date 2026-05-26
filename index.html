@@ -1,28 +1,20 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18106016519"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'AW-18106016519');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());</script>
 
   <meta charset="UTF-8" />
   <title>Whis-AI – Your Silent Interview Partner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <meta name="theme-color" content="#ffffff">
-  <script defer src="https://shown.io/metrics/lv3RWlmb8J" type="text/javascript"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { 
-            sans: ['SF Pro Display', 'Inter', '-apple-system', 'sans-serif'], 
-            mono: ['JetBrains Mono', 'Fira Code', 'monospace'] 
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace']
           },
           colors: { 
             page: '#ffffff', 
@@ -40,191 +32,658 @@
     }
   </script>
    
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
    
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://www.paypal.com/sdk/js?client-id=AWt11sXML_MxwSp4shnL-JDfXlqWe_wO7d_VVCvRNT00Ws-dHCTywlD9La4aWpNNJbfz-SGuWggCNgip&currency=USD"></script>
     
   <style>
-    :root {
-        --accent: #0284c7; 
-        --accent-glow: rgba(2, 132, 199, 0.15);
-    }
+:root {
+    --accent: #0ea5e9;
+    --accent-dark: #0284c7;
+    --accent-glow: rgba(14,165,233,0.18);
+    --accent-glow-strong: rgba(14,165,233,0.35);
+    --emerald: #10b981;
+    --surface: #ffffff;
+    --border: rgba(15,23,42,0.07);
+    --border-med: rgba(15,23,42,0.11);
+    --text-1: #0a0f1e;
+    --text-2: #475569;
+    --text-3: #94a3b8;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    background:#f8fafc;
+    background-image:
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(14,165,233,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(16,185,129,0.04) 0%, transparent 60%);
+    color:var(--text-1);
+    font-family:'Plus Jakarta Sans','Inter',-apple-system,sans-serif;
+    overflow-x:hidden;
+    padding-bottom:90px;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+h1,h2,h3,h4{letter-spacing:-0.03em;line-height:1.08}
+.text-accent{color:var(--accent)}
+.bg-accent{background-color:var(--accent)}
+.border-accent{border-color:var(--accent)}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+.safe-bottom{padding-bottom:max(1rem,env(safe-area-inset-bottom))}
 
-    body { 
-        background-color: #f8fafc; 
-        color: #0f172a; 
-        font-family: 'Inter', sans-serif; 
-        overflow-x: hidden; 
-        padding-bottom: 90px; 
-    }
+/* ANIMATIONS */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.animate-float{animation:float 6s ease-in-out infinite}
+@keyframes hueCycle{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+.animate-hue{animation:hueCycle 60s linear infinite;will-change:filter}
+@keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.animate-spin-slow{animation:spin-slow 8s linear infinite}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes gradient-x{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 
-    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    .animate-float { animation: float 6s ease-in-out infinite; }
-    
-    @keyframes hueCycle {
-        0% { filter: hue-rotate(0deg); }
-        100% { filter: hue-rotate(360deg); }
-    }
-    .animate-hue { animation: hueCycle 60s infinite linear; will-change: filter; }
+/* PREMIUM CARD */
+.perf-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:20px;
+    position:relative;
+    overflow:hidden;
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,box-shadow .35s ease;
+    transform:translateZ(0);
+    box-shadow:
+        0 1px 0 rgba(255,255,255,1) inset,
+        0 2px 4px rgba(0,0,0,0.03),
+        0 8px 24px -4px rgba(0,0,0,0.06);
+}
+@media(min-width:768px){.perf-card{border-radius:24px}}
+.perf-card:hover{
+    transform:translateY(-4px) scale(1.005);
+    border-color:var(--border-med);
+    box-shadow:
+        0 1px 0 rgba(255,255,255,1) inset,
+        0 4px 8px rgba(0,0,0,0.04),
+        0 20px 48px -8px rgba(0,0,0,0.10),
+        0 0 0 1px rgba(14,165,233,0.06);
+}
+.perf-card::after{
+    content:"";
+    position:absolute;
+    top:0;left:-100%;width:50%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.7),transparent);
+    transform:skewX(-25deg);
+    pointer-events:none;
+    transition:.6s;
+}
+.perf-card:hover::after{left:150%;transition:.8s ease-in-out}
 
-    .text-accent { color: var(--accent); }
-    .bg-accent { background-color: var(--accent); }
-    .border-accent { border-color: var(--accent); }
+/* PRICING SECTION — ULTRA DARK */
+.section-pricing-ultra{
+    background:
+        radial-gradient(ellipse 100% 35% at 50% 6%,rgba(14,165,233,0.14) 0%,transparent 65%),
+        linear-gradient(180deg,#ffffff 0%,#010c1a 5%,#010c1a 95%,#ffffff 100%);
+}
 
-    .perf-card {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        border-radius: 20px;
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        transform: translateZ(0);
-        box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
-    }
+/* GLASS CARD — dark variant */
+.pricing-card-glass{
+    background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:22px;
+    transition:border-color .3s ease,background .3s ease,transform .3s ease;
+}
+.pricing-card-glass:hover{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);transform:translateY(-2px);}
 
-    @media (min-width: 768px) {
-        .perf-card { border-radius: 24px; }
-    }
+/* PRICING ELITE CARD */
+.pricing-elite{
+    position:relative;
+    background:linear-gradient(145deg,#0d1c30 0%,#071321 60%,#0b192a 100%);
+    border-radius:26px;
+    border:1px solid rgba(14,165,233,0.25);
+}
+.pricing-elite::before{
+    content:'';
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse 80% 45% at 50% -5%,rgba(14,165,233,0.18) 0%,transparent 70%);
+    border-radius:inherit;
+    pointer-events:none;
+    z-index:0;
+}
+.pricing-elite::after{
+    content:'';
+    position:absolute;inset:-1.5px;
+    border-radius:27.5px;
+    background:linear-gradient(135deg,#0ea5e9 0%,#10b981 35%,#8b5cf6 65%,#0ea5e9 100%);
+    background-size:300% 300%;
+    animation:gradient-x 5s ease infinite;
+    -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    pointer-events:none;
+    opacity:0.9;
+}
 
-    @keyframes spin-slow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    .animate-spin-slow {
-        animation: spin-slow 8s linear infinite;
-    }
+/* MOST POPULAR BADGE */
+.popular-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,rgba(14,165,233,0.22),rgba(16,185,129,0.12));
+    border:1px solid rgba(14,165,233,0.45);
+    border-radius:100px;
+    padding:5px 12px;
+    font-size:9px;font-weight:800;letter-spacing:0.14em;
+    color:#7dd3fc;text-transform:uppercase;
+}
 
-    .perf-card:active, .perf-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(15, 23, 42, 0.15);
-        box-shadow: 0 15px 40px -10px rgba(0,0,0,0.08);
-    }
+/* ELITE CTA BUTTON */
+.btn-elite-cta{
+    background:linear-gradient(135deg,#0ea5e9 0%,#06b6d4 45%,#10b981 100%);
+    background-size:200% 200%;
+    animation:gradient-x 4s ease infinite;
+    color:#fff;font-weight:800;
+    border-radius:14px;border:none;
+    width:100%;padding:16px;
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+    position:relative;overflow:hidden;
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 4px 24px rgba(14,165,233,0.45),0 0 50px rgba(14,165,233,0.1);
+    cursor:pointer;
+}
+.btn-elite-cta::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.28),transparent);
+    transform:translateX(-100%);transition:transform .6s ease;
+}
+.btn-elite-cta:hover::before{transform:translateX(100%);}
+.btn-elite-cta:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 8px 36px rgba(14,165,233,0.55),0 0 60px rgba(14,165,233,0.18);}
+.btn-elite-cta:active{transform:scale(.97);}
+.btn-elite-cta:disabled{opacity:0.65;cursor:not-allowed;animation:none;}
 
-    .perf-card::after {
-        content: "";
-        position: absolute;
-        top: 0; left: -100%; width: 50%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-        transform: skewX(-25deg);
-        pointer-events: none;
-        transition: 0.5s;
-    }
-    .perf-card:hover::after { left: 150%; transition: 0.7s ease-in-out; }
+/* FEATURE ROW */
+.feat-row{display:flex;align-items:center;gap:10px;line-height:1.4;}
+.feat-row-icon{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;}
 
-    .carousel-container { 
-        perspective: 1200px; display: flex; justify-content: center; align-items: center; 
-        height: 280px; position: relative; margin-top: 20px; margin-bottom: 20px;
-    }
-    @media (min-width: 768px) { .carousel-container { height: 650px; margin-top: 0; } }
-    
-    .carousel-item { 
-        position: absolute; width: 90%; aspect-ratio: 16/9; 
-        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
-        border-radius: 16px; overflow: hidden; background: #f1f5f9; 
-        border: 1px solid rgba(15,23,42,0.1); 
-        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-        will-change: transform, opacity;
-    }
-    @media (min-width: 768px) { .carousel-item { width: 85%; max-height: 100%; } }
-    
-    .item-center { z-index: 20; transform: translateZ(0) scale(1); opacity: 1; border-color: var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
-    .item-left { z-index: 10; transform: translateX(-15%) scale(0.85) translateZ(-100px); opacity: 0.5; }
-    .item-right { z-index: 10; transform: translateX(15%) scale(0.85) translateZ(-100px); opacity: 0.5; }
-    @media (min-width: 768px) {
-        .item-left { transform: translateX(-55%) scale(0.85) translateZ(-200px) rotateY(15deg); }
-        .item-right { transform: translateX(55%) scale(0.85) translateZ(-200px) rotateY(-15deg); }
-    }
-    .item-hidden { z-index: 0; opacity: 0; transform: scale(0.5); pointer-events: none; }
+/* ELITE AMBIENT GLOW PULSE */
+@keyframes elite-glow{0%,100%{opacity:.45}50%{opacity:.85}}
 
-    pre { white-space: pre; margin: 0; font-family: 'JetBrains Mono', monospace; }
-    .keyword { color: #a626a4; } .function { color: #4078f2; } .string { color: #50a14f; } .number { color: #986801; } 
+/* CAROUSEL */
+.carousel-container{perspective:1200px;display:flex;justify-content:center;align-items:center;height:280px;position:relative;margin-top:20px;margin-bottom:20px}
+@media(min-width:768px){.carousel-container{height:650px;margin-top:0}}
+.carousel-item{position:absolute;width:90%;aspect-ratio:16/9;transition:all .8s cubic-bezier(.2,.8,.2,1);border-radius:16px;overflow:hidden;background:#f1f5f9;border:1px solid rgba(15,23,42,.1);box-shadow:0 20px 40px -10px rgba(0,0,0,.1);will-change:transform,opacity}
+@media(min-width:768px){.carousel-item{width:85%;max-height:100%}}
+.item-center{z-index:20;transform:translateZ(0) scale(1);opacity:1;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 40px var(--accent-glow),0 20px 40px -10px rgba(0,0,0,.15)}
+.item-left{z-index:10;transform:translateX(-15%) scale(0.85) translateZ(-100px);opacity:.5}
+.item-right{z-index:10;transform:translateX(15%) scale(0.85) translateZ(-100px);opacity:.5}
+@media(min-width:768px){.item-left{transform:translateX(-55%) scale(.85) translateZ(-200px) rotateY(15deg)}.item-right{transform:translateX(55%) scale(.85) translateZ(-200px) rotateY(-15deg)}}
+.item-hidden{z-index:0;opacity:0;transform:scale(.5);pointer-events:none}
 
-    .comp-container { position: relative; width: 100%; max-width: 1000px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid rgba(15,23,42,0.1); aspect-ratio: 4/3; background: #fff; box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.15); --position: 50%; }
-    @media (min-width: 768px) { .comp-container { aspect-ratio: 16/9; } }
-    .mac-header { position: absolute; top: 0; left: 0; right: 0; height: 28px; background: rgba(248, 250, 252, 0.95); border-bottom: 1px solid rgba(15,23,42,0.05); z-index: 50; display: flex; align-items: center; padding-left: 12px; gap: 6px; }
-    @media (min-width: 768px) { .mac-header { height: 32px; gap: 8px; } }
-    .mac-dot { width: 8px; height: 8px; border-radius: 50%; }
-    @media (min-width: 768px) { .mac-dot { width: 10px; height: 10px; } }
-    .mac-red { background: #ff5f57; } .mac-yellow { background: #febc2e; } .mac-green { background: #28c840; }
-    .comp-image { position: absolute; top: 28px; left: 0; width: 100%; bottom: 0; pointer-events: none; }
-    @media (min-width: 768px) { .comp-image { top: 32px; } }
-    .comp-overlay { position: absolute; top: 28px; left: 0; width: 100%; bottom: 0; clip-path: inset(0 calc(100% - var(--position)) 0 0); z-index: 10; background: #fff; will-change: clip-path; }
-    @media (min-width: 768px) { .comp-overlay { top: 32px; } }
-    .comp-divider { position: absolute; top: 28px; bottom: 0; left: var(--position); width: 1px; background: rgba(255,255,255,0.8); z-index: 20; transform: translateX(-50%); box-shadow: 0 0 15px rgba(0,0,0,0.3); pointer-events: none; will-change: left; }
-    @media (min-width: 768px) { .comp-divider { top: 32px; } }
-    .comp-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30; opacity: 0; cursor: ew-resize; margin: 0; -webkit-appearance: none; }
-    .comp-handle-btn { position: absolute; top: 50%; left: var(--position); width: 5px; height: 36px; background: white; border-radius: 4px; transform: translate(-50%, -50%); z-index: 21; pointer-events: none; box-shadow: 0 0 10px rgba(0,0,0,0.2), 0 0 5px white; transition: height 0.2s ease; border: 1px solid rgba(0,0,0,0.1); will-change: left; }
-    @media (min-width: 768px) { .comp-handle-btn { width: 6px; height: 48px; } }
-    .comp-label { position: absolute; top: 36px; padding: 4px 8px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); color: #334155; font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border-radius: 6px; pointer-events: none; z-index: 15; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    @media (min-width: 768px) { .comp-label { top: 48px; font-size: 10px; padding: 4px 12px; } }
-    .label-left { left: 8px; border: 1px solid rgba(15,23,42,0.1); }
-    .label-right { right: 8px; border: 1px solid var(--accent); color: var(--accent); }
-    @media (min-width: 768px) { .label-left { left: 16px; } .label-right { right: 16px; } }
+/* CODE HIGHLIGHTING */
+pre{white-space:pre;margin:0;font-family:'JetBrains Mono',monospace}
+.keyword{color:#a626a4}.function{color:#4078f2}.string{color:#50a14f}.number{color:#986801}
 
-    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s cubic-bezier(0, 1, 0, 1); }
-    .group.active .faq-answer { max-height: 300px; transition: max-height 0.3s cubic-bezier(1, 0, 1, 0); }
-    .group.active .faq-icon { transform: rotate(180deg); }
+/* COMPARISON SLIDER */
+.comp-container{position:relative;width:100%;max-width:1000px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid rgba(15,23,42,.1);aspect-ratio:4/3;background:#fff;box-shadow:0 30px 80px -15px rgba(0,0,0,.18);--position:50%}
+@media(min-width:768px){.comp-container{aspect-ratio:16/9;border-radius:20px}}
+.mac-header{position:absolute;top:0;left:0;right:0;height:28px;background:rgba(248,250,252,.97);border-bottom:1px solid rgba(15,23,42,.06);z-index:50;display:flex;align-items:center;padding-left:12px;gap:6px}
+@media(min-width:768px){.mac-header{height:32px;gap:8px}}
+.mac-dot{width:8px;height:8px;border-radius:50%}
+@media(min-width:768px){.mac-dot{width:10px;height:10px}}
+.mac-red{background:#ff5f57}.mac-yellow{background:#febc2e}.mac-green{background:#28c840}
+.comp-image{position:absolute;top:28px;left:0;width:100%;bottom:0;pointer-events:none}
+@media(min-width:768px){.comp-image{top:32px}}
+.comp-overlay{position:absolute;top:28px;left:0;width:100%;bottom:0;clip-path:inset(0 calc(100% - var(--position)) 0 0);z-index:10;background:#fff;will-change:clip-path}
+@media(min-width:768px){.comp-overlay{top:32px}}
+.comp-divider{position:absolute;top:28px;bottom:0;left:var(--position);width:1px;background:rgba(255,255,255,.9);z-index:20;transform:translateX(-50%);box-shadow:0 0 20px rgba(0,0,0,.25);pointer-events:none;will-change:left}
+@media(min-width:768px){.comp-divider{top:32px}}
+.comp-slider{position:absolute;top:0;left:0;width:100%;height:100%;z-index:30;opacity:0;cursor:ew-resize;margin:0;-webkit-appearance:none}
+.comp-handle-btn{position:absolute;top:50%;left:var(--position);width:5px;height:36px;background:white;border-radius:4px;transform:translate(-50%,-50%);z-index:21;pointer-events:none;box-shadow:0 0 10px rgba(0,0,0,.2),0 0 5px white;transition:height .2s ease;border:1px solid rgba(0,0,0,.1);will-change:left}
+@media(min-width:768px){.comp-handle-btn{width:6px;height:48px}}
+.comp-label{position:absolute;top:36px;padding:4px 8px;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);color:#334155;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border-radius:6px;pointer-events:none;z-index:15;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+@media(min-width:768px){.comp-label{top:48px;font-size:10px;padding:4px 12px}}
+.label-left{left:8px;border:1px solid rgba(15,23,42,.1)}
+.label-right{right:8px;border:1px solid var(--accent);color:var(--accent)}
+@media(min-width:768px){.label-left{left:16px}.label-right{right:16px}}
 
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .pricing-elite { position: relative; }
-    .pricing-elite::after { content: ''; position: absolute; inset: -1px; border-radius: 20px; padding: 1px; background: linear-gradient(180deg, var(--accent), transparent 60%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
-    @media (min-width: 768px) { .pricing-elite::after { border-radius: 25px; } }
+/* FAQ */
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(0,1,0,1)}
+.group.active .faq-answer{max-height:300px;transition:max-height .3s cubic-bezier(1,0,1,0)}
+.group.active .faq-icon{transform:rotate(180deg)}
 
-    input[type="text"], input[type="email"], input[type="tel"], textarea { font-size: 16px !important; }
-    @media (min-width: 768px) { input[type="text"], input[type="email"], input[type="tel"], textarea { font-size: 14px !important; } }
-    .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+/* INPUTS */
+input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px!important}
+@media(min-width:768px){input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:14px!important}}
+
+/* PREMIUM NAV PILL */
+.nav-pill-link{
+    padding:8px 16px;
+    font-size:11px;
+    font-weight:600;
+    color:#475569;
+    border-radius:100px;
+    transition:all .2s ease;
+    letter-spacing:.01em;
+}
+.nav-pill-link:hover{color:#0a0f1e;background:rgba(0,0,0,0.04)}
+
+/* GRADIENT CTA BUTTON */
+.btn-premium{
+    background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+    color:#fff;
+    border:none;
+    border-radius:100px;
+    font-weight:700;
+    letter-spacing:-.01em;
+    box-shadow:0 1px 3px rgba(0,0,0,.15),0 8px 20px -6px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.1);
+    transition:all .25s cubic-bezier(.34,1.56,.64,1);
+    position:relative;
+    overflow:hidden;
+}
+.btn-premium::before{
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(135deg,var(--accent),rgba(16,185,129,.8));
+    opacity:0;
+    transition:opacity .3s ease;
+}
+.btn-premium:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 6px rgba(0,0,0,.1),0 16px 32px -8px rgba(0,0,0,.2),0 0 0 1px rgba(255,255,255,.05) inset}
+.btn-premium:hover::before{opacity:.15}
+.btn-premium:active{transform:scale(.97)}
+.btn-premium span{position:relative;z-index:1}
+
+/* HERO BADGE */
+.hero-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.9);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(14,165,233,.2);
+    border-radius:100px;
+    padding:6px 14px;
+    font-size:11px;font-weight:600;
+    color:#0284c7;
+    box-shadow:0 2px 12px rgba(14,165,233,.12);
+    letter-spacing:-.01em;
+}
+
+/* STAT CARD */
+.stat-card{
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(16px);
+    border:1px solid rgba(15,23,42,.07);
+    border-radius:16px;
+    padding:20px 28px;
+    box-shadow:0 4px 20px -4px rgba(0,0,0,.06);
+    transition:transform .3s ease,box-shadow .3s ease;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px -8px rgba(0,0,0,.10)}
+
+/* FEATURE CARD — dark section */
+.feature-card-dark{
+    background:rgba(15,20,35,.6);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:20px;
+    transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease;
+}
+.feature-card-dark:hover{
+    transform:translateY(-4px);
+    border-color:rgba(14,165,233,.2);
+    box-shadow:0 0 0 1px rgba(14,165,233,.1),0 20px 40px -12px rgba(0,0,0,.4);
+}
+
+/* TESTIMONIAL */
+.testimonial-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 4px 20px -4px rgba(0,0,0,.06);
+    transition:transform .3s ease,box-shadow .3s ease;
+    position:relative;
+    overflow:hidden;
+}
+.testimonial-card::before{
+    content:'"';
+    position:absolute;top:-10px;right:20px;
+    font-size:120px;font-weight:900;
+    color:rgba(14,165,233,.06);
+    font-family:Georgia,serif;
+    line-height:1;
+    pointer-events:none;
+}
+.testimonial-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px -8px rgba(0,0,0,.10)}
+
+/* PRICING SECTION DARK BG */
+.section-pricing-bg{
+    background:linear-gradient(180deg,#fff 0%,#f0f9ff 50%,#fff 100%);
+    position:relative;
+}
+.section-pricing-bg::before{
+    content:'';
+    position:absolute;inset:0;
+    background:
+        radial-gradient(ellipse 60% 40% at 50% 30%,rgba(14,165,233,.07) 0%,transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 70%,rgba(16,185,129,.04) 0%,transparent 60%);
+    pointer-events:none;
+}
+
+/* GUARANTEE BADGE */
+.guarantee-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+    border:1px solid rgba(16,185,129,.25);
+    border-radius:100px;
+    padding:6px 14px;
+    font-size:11px;font-weight:700;
+    color:#15803d;
+    box-shadow:0 2px 8px rgba(16,185,129,.1);
+}
+
+/* SECTION DIVIDER */
+.section-divider{
+    height:1px;
+    background:linear-gradient(90deg,transparent,rgba(15,23,42,.08),transparent);
+}
+
+/* COMPARISON TABLE */
+.comp-table-row{
+    transition:background .2s ease;
+}
+.comp-table-row:hover{background:rgba(14,165,233,.03)}
+
+/* MARQUEE LOGO TICKER */
+@keyframes marquee-left { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@keyframes mobileTicker { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
+.logo-ticker { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%); }
+.logo-ticker-track { display: flex; align-items: center; gap: 0; animation: marquee-left 32s linear infinite; width: max-content; }
+.logo-ticker-track:hover { animation-play-state: paused; }
+.logo-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #b0bec5; white-space: nowrap; padding: 6px 20px; border-radius: 100px; transition: color .2s ease; letter-spacing: .01em; }
+.logo-item:hover { color: #475569; }
+.logo-item i { font-size: 14px; }
+
+/* COUNT-UP POP */
+@keyframes statPop { 0% { transform: scale(0.7); opacity: 0 } 70% { transform: scale(1.08) } 100% { transform: scale(1); opacity: 1 } }
+.stat-pop { animation: statPop 0.55s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* LIVE PULSE DOT */
+@keyframes live-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); opacity:1 } 50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); opacity:.8 } }
+.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; animation:live-pulse 2s ease-in-out infinite; flex-shrink:0; }
+
+/* TESTIMONIAL FEATURED QUOTE */
+.testimonial-featured { background: linear-gradient(135deg,rgba(14,165,233,.05) 0%,rgba(16,185,129,.03) 100%); border: 1px solid rgba(14,165,233,.12); }
+
+/* BOTTOM FINAL CTA */
+.section-cta-final { background: linear-gradient(160deg,#050814 0%,#060b1a 60%,#050f18 100%); }
+
+/* ============================================================
+   GLOBAL DARK THEME — matches pricing section standard
+============================================================ */
+body {
+    background: #010c1a !important;
+    background-image:
+        radial-gradient(ellipse 100% 60% at 50% -10%, rgba(14,165,233,0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(16,185,129,0.03) 0%, transparent 60%) !important;
+    color: #e2e8f0;
+}
+/* Background orbs — dark-friendly */
+body > .fixed.inset-0.z-0 > div:first-child {
+    background: linear-gradient(to bottom right, rgba(14,165,233,0.22), rgba(6,40,80,0.4)) !important;
+    opacity: 0.18 !important;
+}
+body > .fixed.inset-0.z-0 > div:nth-child(2) {
+    background: linear-gradient(to top left, rgba(16,185,129,0.15), rgba(5,40,60,0.3)) !important;
+    opacity: 0.14 !important;
+}
+
+/* NAV */
+nav.fixed {
+    background: rgba(1,12,26,0.9) !important;
+    border-bottom-color: rgba(255,255,255,0.07) !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+nav .hidden.md\:flex.items-center.gap-0\.5 {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+.nav-pill-link { color: #94a3b8 !important; }
+.nav-pill-link:hover { color: #f1f5f9 !important; background: rgba(255,255,255,0.06) !important; }
+#signInBtn { color: #94a3b8 !important; border-color: rgba(255,255,255,0.12) !important; }
+#signInBtn:hover { color: white !important; }
+
+/* PERF-CARD → dark glass globally */
+.perf-card {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 2px 8px rgba(0,0,0,0.35) !important;
+}
+.perf-card:hover {
+    border-color: rgba(255,255,255,0.14) !important;
+    background: rgba(255,255,255,0.06) !important;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 20px 48px -8px rgba(0,0,0,0.5), 0 0 0 1px rgba(14,165,233,0.08) !important;
+}
+.perf-card::after { background: linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent) !important; }
+
+/* STAT CARDS */
+.stat-card {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+    box-shadow: 0 4px 20px -4px rgba(0,0,0,0.4) !important;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px -8px rgba(0,0,0,0.5) !important; }
+#stats-strip { background: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.06) !important; }
+
+/* TESTIMONIAL CARDS */
+.testimonial-card {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+.testimonial-card .border-t { border-color: rgba(255,255,255,0.06) !important; }
+
+/* FAQ ITEMS */
+.group.border.border-slate-100 {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+.group.border.border-slate-100:hover { border-color: rgba(255,255,255,0.14) !important; }
+.faq-answer p { color: #94a3b8 !important; }
+.faq-icon { color: #64748b !important; }
+.group.active .faq-icon { color: var(--accent) !important; }
+
+/* SECTION BACKGROUNDS */
+section.py-16.md\:py-24.border-t { background: #010c1a !important; border-top-color: rgba(255,255,255,0.06) !important; }
+section.py-16.md\:py-20.border-t { background: #010c1a !important; border-top-color: rgba(255,255,255,0.06) !important; }
+section.py-12.border-t { background: #010c1a !important; border-top-color: rgba(255,255,255,0.06) !important; }
+section.py-24.md\:py-36.border-t { background: #010c1a !important; border-top-color: rgba(255,255,255,0.06) !important; }
+.section-divider { background: linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent) !important; }
+
+/* COMPARISON TABLE */
+.comp-container { background: #050f1e !important; border-color: rgba(255,255,255,0.1) !important; }
+.mac-header { background: rgba(3,10,24,0.98) !important; border-bottom-color: rgba(255,255,255,0.07) !important; }
+.comp-label { background: rgba(15,25,45,0.95) !important; color: #94a3b8 !important; border-color: rgba(255,255,255,0.1) !important; }
+.label-right { border-color: var(--accent) !important; color: var(--accent) !important; }
+table thead tr { background: rgba(255,255,255,0.04) !important; }
+table tbody tr { border-color: rgba(255,255,255,0.05) !important; }
+table th, table td { border-color: rgba(255,255,255,0.06) !important; }
+.comp-table-row:hover { background: rgba(255,255,255,0.03) !important; }
+.bg-sky-50 { background: rgba(14,165,233,0.07) !important; }
+.border-sky-200 { border-color: rgba(14,165,233,0.2) !important; }
+.border-l.border-sky-200 { border-color: rgba(14,165,233,0.2) !important; }
+.border-l.border-sky-100 { border-color: rgba(14,165,233,0.15) !important; }
+.bg-sky-50\/50 { background: rgba(14,165,233,0.05) !important; }
+
+/* TEXT — global dark remapping */
+h2.text-slate-900, h3.text-slate-900, h4.text-slate-900 { color: #f1f5f9 !important; }
+p.text-slate-600 { color: #94a3b8 !important; }
+p.text-slate-500 { color: #64748b !important; }
+p.text-slate-400 { color: #94a3b8 !important; }
+.text-slate-900 { color: #f1f5f9 !important; }
+.text-slate-800 { color: #e2e8f0 !important; }
+.text-slate-700 { color: #cbd5e1 !important; }
+.text-slate-600 { color: #94a3b8 !important; }
+.text-slate-500 { color: #64748b !important; }
+
+/* HERO SPECIFIC */
+.hero-badge {
+    background: linear-gradient(135deg, rgba(14,165,233,0.14), rgba(16,185,129,0.08)) !important;
+    border-color: rgba(14,165,233,0.35) !important;
+    color: #7dd3fc !important;
+    box-shadow: 0 0 24px rgba(14,165,233,0.12), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    padding: 8px 18px !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+}
+.hero-badge strong { color: #34d399; font-weight: 800; }
+/* Flow pill */
+section > div > .flex.flex-wrap.justify-center.items-center.gap-2 {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* GUARANTEE BADGE */
+.guarantee-badge {
+    background: linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06)) !important;
+    border-color: rgba(16,185,129,0.25) !important;
+    color: #4ade80 !important;
+}
+
+/* SKY/EMERALD tints for dark */
+.bg-sky-100 { background: rgba(14,165,233,0.12) !important; }
+.border-sky-100, .border-sky-200 { border-color: rgba(14,165,233,0.18) !important; }
+.text-sky-700 { color: #38bdf8 !important; }
+.bg-emerald-50 { background: rgba(16,185,129,0.08) !important; }
+.border-emerald-200 { border-color: rgba(16,185,129,0.2) !important; }
+.text-emerald-700 { color: #34d399 !important; }
+.bg-slate-800 { background: rgba(255,255,255,0.08) !important; }
+.bg-slate-900:not(.pricing-elite):not(.section-cta-final *) { background: rgba(255,255,255,0.1) !important; }
+
+/* FOOTER */
+footer { background: #00080f !important; border-top-color: rgba(255,255,255,0.06) !important; }
+footer a { color: #475569 !important; }
+footer a:hover { color: #e2e8f0 !important; }
+footer p { color: #334155 !important; }
+
+/* MOBILE BOTTOM BAR */
+.fixed.bottom-0.left-0.right-0.z-50 {
+    background: rgba(1,12,26,0.98) !important;
+    border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+/* MODALS */
+#loginModal .perf-card, #successModal .perf-card { background: #050f1e !important; }
+.bg-slate-900\/60 { background: rgba(1,12,26,0.75) !important; }
+
+/* MEETING PLATFORM BRAND COLORS */
+.plat-zoom, .plat-teams, .plat-meet, .plat-chime, .plat-hackerrank, .plat-coderpad {
+    color: #e2e8f0;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* ── DARK POLISH: remaining elements ───────────────────────── */
+
+/* Feature card icon tints not yet covered */
+.bg-purple-50 { background: rgba(139,92,246,0.09) !important; }
+.bg-orange-50 { background: rgba(249,115,22,0.09) !important; }
+.text-purple-600 { color: #a78bfa !important; }
+.text-orange-600 { color: #fb923c !important; }
+
+/* Global border softening */
+.border-slate-100 { border-color: rgba(255,255,255,0.06) !important; }
+.border-slate-200 { border-color: rgba(255,255,255,0.09) !important; }
+.border-slate-300 { border-color: rgba(255,255,255,0.14) !important; }
+
+/* Hero answer demo box */
+#hero-answer-container {
+    background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(6,182,212,0.04)) !important;
+    border-left-color: var(--accent) !important;
+}
+
+/* Form fields — all modals */
+input, textarea, select {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: #e2e8f0 !important;
+}
+input::placeholder, textarea::placeholder { color: #475569 !important; }
+
+/* bg-slate-50 utility (buttons, rows, containers) */
+.bg-slate-50 { background: rgba(255,255,255,0.04) !important; }
+.hover\:bg-slate-50:hover { background: rgba(255,255,255,0.07) !important; }
+.hover\:bg-slate-100:hover { background: rgba(255,255,255,0.09) !important; }
+.hover\:bg-sky-50:hover { background: rgba(14,165,233,0.08) !important; }
+
+/* All modal inner containers */
+#paymentModal .perf-card,
+#enterpriseModal .perf-card,
+#downloadModal .perf-card { background: #050f1e !important; }
+
+/* Success/upgrade modal icon circle */
+.bg-green-50 { background: rgba(16,185,129,0.1) !important; }
+.border-green-300 { border-color: rgba(16,185,129,0.3) !important; }
+.text-emerald-800 { color: #34d399 !important; }
   </style>
 </head>
 <body class="no-scrollbar">
 
-  <div class="fixed inset-0 z-0 pointer-events-none">
-      <div class="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vh] bg-sky-300 rounded-full blur-[150px] opacity-20"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vh] bg-emerald-100 rounded-full blur-[150px] opacity-20"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-multiply"></div>
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-[-30%] left-[-15%] w-[90vw] h-[90vh] bg-gradient-to-br from-sky-200 to-cyan-100 rounded-full blur-[180px] opacity-[0.22]"></div>
+      <div class="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vh] bg-gradient-to-tl from-emerald-100 to-teal-50 rounded-full blur-[160px] opacity-[0.18]"></div>
+      <div class="absolute top-[40%] left-[60%] w-[40vw] h-[40vh] bg-purple-100 rounded-full blur-[120px] opacity-[0.1]"></div>
+      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.025] mix-blend-multiply"></div>
   </div>
 
   <nav class="fixed top-0 w-full z-50 h-[60px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm transition-all">
     <div class="w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
-      
-      <a href="/" class="flex items-center group relative">
-        <div class="absolute -inset-1 bg-gradient-to-tr from-sky-300 to-accent rounded-full blur-sm opacity-0 group-hover:opacity-50 transition duration-500"></div>
-        <img src="whis_nee_log0.jpeg" alt="Whis-AI Logo" class="relative h-10 w-10 md:h-12 md:w-12 rounded-full object-cover border-[3px] border-white shadow-md transition-all duration-300 group-hover:scale-105">
-      </a>
-       
-      <div class="hidden md:flex items-center gap-1 bg-slate-50 p-1 rounded-full border border-slate-200">
-        <a href="#how-to" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">How to Use</a>
-        <a href="#pricing" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Pricing</a>
-        <a href="#features" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Features</a>
-        <a href="#testimonials" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">Reviews</a>
-        <a href="#faq" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-full transition">FAQ</a>
-      </div>
-
-      <div class="flex items-center gap-3 md:gap-5">
-          <button onclick="openLoginModal()" id="signInBtn" class="text-xs font-semibold text-slate-600 hover:text-slate-900 transition border border-slate-200 px-3 py-1.5 rounded-full md:border-none md:p-0">Sign In</button>
-           
-          <button onclick="openDownloadModal()" class="hidden md:block group relative px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold overflow-hidden shadow-md hover:shadow-lg transition">
-             <span class="relative z-10"><i class="fa-brands fa-windows mr-1"></i> <i class="fa-brands fa-apple mr-1"></i> Get App</span>
-             <div class="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition duration-300"></div>
-          </button>
-           
-          <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-2 md:gap-3 bg-slate-100 pr-3 md:pr-4 pl-1 py-1 rounded-full border border-slate-200 hover:border-slate-300 transition">
-            <img id="navUserAvatar" src="" class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-slate-200 object-cover" />
-            <span id="navPlanBadge" class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-wide">FREE</span>
-          </button>
-      </div>
+        <a href="/" class="flex items-center gap-2.5 group relative">
+            <div class="absolute -inset-3 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none" style="background:radial-gradient(ellipse at center,rgba(14,165,233,0.12),transparent 70%);"></div>
+            <!-- Owl mark -->
+            <div class="relative h-9 w-9 md:h-10 md:w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105" style="background:linear-gradient(140deg,#0ea5e9 0%,#0284c7 50%,#0e7490 100%);box-shadow:0 4px 16px rgba(14,165,233,0.45),inset 0 1px 0 rgba(255,255,255,0.2);">
+              <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Left ear -->
+                <path d="M5 9 L7.5 2 L10 9" fill="rgba(255,255,255,0.25)" stroke="none"/>
+                <!-- Right ear -->
+                <path d="M14 9 L16.5 2 L19 9" fill="rgba(255,255,255,0.25)" stroke="none"/>
+                <!-- W shape (body outline / wings) -->
+                <path d="M2 5 L6 17 L12 9 L18 17 L22 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <!-- Left eye dot -->
+                <circle cx="8.5" cy="12" r="1.6" fill="white" opacity="0.9"/>
+                <!-- Right eye dot -->
+                <circle cx="15.5" cy="12" r="1.6" fill="white" opacity="0.9"/>
+              </svg>
+            </div>
+            <!-- Wordmark -->
+            <div class="flex md:flex flex-col leading-none">
+              <span class="text-[15px] font-black tracking-tight text-white" style="letter-spacing:-0.03em;">Whis<span style="background:linear-gradient(90deg,#38bdf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">AI</span></span>
+              <span class="text-[8px] font-semibold tracking-[0.18em] uppercase" style="color:#38bdf8;margin-top:1px;">Silent Co-pilot</span>
+            </div>
+        </a>
+        <div class="hidden md:flex items-center gap-0.5 bg-white/70 backdrop-blur-xl p-1 rounded-full border border-slate-200/80 shadow-sm">
+            <a href="#how-to" class="nav-pill-link">How it Works</a>
+            <a href="#pricing" class="nav-pill-link">Pricing</a>
+            <a href="#features" class="nav-pill-link">Features</a>
+            <a href="#testimonials" class="nav-pill-link">Reviews</a>
+            <a href="#faq" class="nav-pill-link">FAQ</a>
+        </div>
+        <div class="flex items-center gap-3 md:gap-4">
+            <button onclick="openLoginModal()" id="signInBtn" class="text-[11px] font-semibold text-slate-600 hover:text-slate-900 transition border border-slate-200 px-3 py-1.5 rounded-full md:border-none md:p-0 md:text-xs">Sign In</button>
+            <button onclick="openDownloadModal()" class="hidden md:flex items-center gap-2 btn-premium px-5 py-2.5 text-[11px] font-bold">
+                <span><i class="fa-brands fa-windows mr-0.5"></i> <i class="fa-brands fa-apple mr-0.5"></i> Get App Free</span>
+            </button>
+            <button onclick="openProfileModal()" id="userProfileTrigger" class="hidden items-center gap-2 bg-white/80 backdrop-blur-sm pr-3 pl-1 py-1 rounded-full border border-slate-200 hover:border-slate-300 hover:shadow-sm transition">
+                <img id="navUserAvatar" src="" class="w-7 h-7 rounded-full bg-slate-200 object-cover ring-2 ring-white" />
+                <span id="navPlanBadge" class="text-[9px] font-bold text-slate-500 uppercase tracking-wide">FREE</span>
+            </button>
+        </div>
     </div>
   </nav>
 
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-2xl border-t border-slate-200 p-3 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-      <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl bg-slate-900 text-white text-[13px] font-bold text-center shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
-          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get Whis-AI Free
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/97 backdrop-blur-2xl border-t border-slate-100 p-3 pb-safe shadow-[0_-8px_40px_rgba(0,0,0,0.08)]">
+      <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 text-white text-[13px] font-bold text-center shadow-lg flex items-center justify-center gap-2 active:scale-[.98] transition-transform">
+          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get Whis-AI Free — No Credit Card
       </button>
   </div>
 
@@ -244,114 +703,217 @@
       </button>
   </div>
 
-  <section class="relative pt-28 md:pt-48 pb-10 md:pb-12 overflow-hidden flex flex-col items-center">
-    <div class="relative z-10 text-center max-w-5xl px-4 md:px-6 mb-8 md:mb-10 flex flex-col items-center">
-       
-      <h1 class="text-4xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.1] md:leading-[1] mb-4 md:mb-6 text-slate-900">
-        Helps you answer interviews<br class="hidden md:block">
-        <span class="text-accent animate-hue inline-block mt-1 md:mt-0">in real-time.</span>
-      </h1>
-       
-      <p class="text-[15px] md:text-lg text-slate-600 max-w-2xl mx-auto mb-6 md:mb-6 leading-relaxed font-light px-2">
-        Works seamlessly on Zoom, Teams, Meet, Chime, and HackerRank. <br class="md:hidden"><span class="text-slate-900 font-medium">Your silent partner in the dark.</span>
-      </p>
+  <section class="relative pt-[88px] md:pt-[110px] pb-10 md:pb-12 overflow-hidden flex flex-col items-center">
 
-      <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[10px] md:text-sm font-mono text-slate-600 mb-8 bg-white px-4 py-2.5 rounded-full border border-slate-200 shadow-sm">
-        <span class="flex items-center"><i class="fa-solid fa-ear-listen text-slate-400 mr-1 md:mr-2"></i>Listens</span>
-        <i class="fa-solid fa-arrow-right text-slate-300 md:text-slate-400"></i>
-        <span class="flex items-center"><i class="fa-solid fa-eye text-slate-400 mr-1 md:mr-2"></i>Reads Screen</span>
-        <i class="fa-solid fa-arrow-right text-slate-300 md:text-slate-400"></i>
-        <span class="flex items-center text-accent"><i class="fa-solid fa-pen-nib mr-1 md:mr-2"></i>Writes answers</span>
+  <!-- Announcement banner -->
+  <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4">
+    <div class="hero-badge">
+      <div class="relative flex shrink-0">
+        <span class="w-2 h-2 rounded-full" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
+        <span class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping opacity-60"></span>
       </div>
+      <span><span id="hero-eng-count">7,000+</span> engineers hired &nbsp;·&nbsp; <strong>Live & trusted</strong></span>
+      <i class="fa-solid fa-star text-[8px]" style="color:#fbbf24;margin-left:2px;"></i>
+    </div>
+  </div>
 
-      <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-xl md:rounded-full bg-slate-900 text-white text-sm font-bold hover:scale-105 transition duration-300 shadow-lg flex justify-center items-center gap-3">
-             Try Free – No Credit Card / No Setup
-        </button>
+  <div class="relative z-10 text-center max-w-5xl px-4 md:px-6 mb-8 md:mb-10 flex flex-col items-center">
+
+    <!-- Mobile h1 — 3 lines, smaller font, no overflow -->
+    <h1 class="md:hidden text-[36px] font-extrabold tracking-[-0.04em] leading-[1.1] mb-5 text-white w-full px-4 text-center" style="font-family:'Plus Jakarta Sans',sans-serif;">
+      Helps you answer<br>interviews<br>
+      <span style="background:linear-gradient(90deg,#38bdf8,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">in real&#8209;time.</span>
+    </h1>
+    <!-- Desktop h1 — original 2-line layout, untouched -->
+    <h1 class="hidden md:block text-7xl lg:text-[88px] font-extrabold tracking-[-0.04em] leading-[1.0] mb-7 text-white" style="font-family:'Plus Jakarta Sans',sans-serif;">
+      Helps you answer<br>interviews
+      <span style="background:linear-gradient(90deg,#38bdf8,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"> in real&#8209;time.</span>
+    </h1>
+
+    <!-- Mobile subtitle — concise, full-width, no overflow risk -->
+    <p class="md:hidden w-full text-[15px] text-slate-400 mb-7 leading-relaxed font-normal px-6 text-center">
+      Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong> &amp; more.<br>Completely invisible. Your silent co-pilot.
+    </p>
+    <!-- Desktop subtitle — full version, untouched -->
+    <p class="hidden md:block text-xl text-slate-500 max-w-2xl mx-auto mb-7 md:mb-8 leading-relaxed font-normal px-2">
+      Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong>, <strong class="plat-chime">Chime</strong> &amp; <strong class="plat-hackerrank">HackerRank</strong>.<br>Completely invisible. Your silent co-pilot in every interview.
+    </p>
+
+    <!-- Flow pill — 3-step pipeline -->
+<div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-2 mb-6">
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);">
+        <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style="background:rgba(14,165,233,0.2);"><i class="fa-solid fa-ear-listen text-[7px]" style="color:#38bdf8;"></i></div>
+        <span class="text-[9px] font-bold" style="color:#7dd3fc;">Listens Live</span>
       </div>
-
-      <div class="mt-4 md:mt-8 mb-4 w-full flex flex-col items-center opacity-80">
-        <p class="text-[10px] md:text-xs text-slate-500 uppercase tracking-widest font-bold mb-3 md:mb-4">Tested and 100% Undetectable On</p>
-        <div class="flex flex-wrap justify-center items-center gap-5 md:gap-10 text-slate-400">
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-solid fa-video"></i> Zoom</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-microsoft"></i> Teams</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-google"></i> Meet</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-amazon"></i> Chime</span>
-            <span class="flex items-center gap-1.5 text-xs md:text-sm font-bold"><i class="fa-brands fa-hackerrank"></i> HackerRank</span>
-        </div>
+      <i class="fa-solid fa-chevron-right text-[7px]" style="color:#1e3a5f;"></i>
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);">
+        <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style="background:rgba(14,165,233,0.2);"><i class="fa-solid fa-desktop text-[7px]" style="color:#38bdf8;"></i></div>
+        <span class="text-[9px] font-bold" style="color:#7dd3fc;">Reads Screen</span>
       </div>
-
-      <div class="flex flex-col items-center mt-2 md:mt-6 gap-3">
-          <div class="text-[9px] md:text-[10px] text-green-600 font-mono tracking-widest uppercase opacity-90 text-center px-4">
-             <i class="fa-solid fa-shield-halved mr-1"></i> Undetectable • No recording • No access
-          </div>
+      <i class="fa-solid fa-chevron-right text-[7px]" style="color:#1e3a5f;"></i>
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.18);border:1px solid rgba(14,165,233,0.4);">
+        <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style="background:rgba(14,165,233,0.3);"><i class="fa-solid fa-bolt text-[7px]" style="color:#38bdf8;"></i></div>
+        <span class="text-[9px] font-black" style="color:#e0f2fe;">Fires Answer</span>
       </div>
     </div>
 
-    <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-12">
-        <div class="inline-block p-1 rounded-full border border-sky-200 bg-sky-50 px-3 md:px-4 mb-4 md:mb-6 shadow-sm">
-            <span class="text-[10px] md:text-xs font-bold text-sky-700">🛡️ 100% Undetectable</span>
-        </div>
-        <h2 class="text-2xl md:text-3xl font-medium text-slate-900 mb-6 md:mb-8 px-2">Invisible to Zoom, Teams & Meets.</h2>
-         
-        <div class="comp-container" id="comparisonSlider">
-            <div class="mac-header">
-                <div class="mac-dot mac-red"></div>
-                <div class="mac-dot mac-yellow"></div>
-                <div class="mac-dot mac-green"></div>
-            </div>
-
-            <div class="comp-image">
-                <video src="interviewee.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-            </div>
-
-            <div class="comp-overlay">
-                 <video src="interviewer.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
-            </div>
-
-            <div class="comp-divider"></div>
-            <input type="range" min="0" max="100" value="50" class="comp-slider" oninput="updateSlider(this.value)">
-            
-            <div class="comp-handle-btn"></div>
-            
-            <div class="comp-label label-left">Interviewer View</div>
-            <div class="comp-label label-right">Your View</div>
-        </div>
-        
-        <p class="text-[9px] md:text-xs text-slate-500 mt-4 md:mt-6 tracking-wide uppercase">Drag slider to see how it stays hidden</p>
+    <!-- CTA -->
+    <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
+      <button id="heroDownloadBtn" onclick="openDownloadModal()" class="btn-premium w-full md:w-auto px-10 py-4 rounded-2xl text-sm font-bold flex justify-center items-center gap-2.5 shadow-xl">
+        <span><i class="fa-solid fa-download mr-1"></i> Try Free — No Credit Card. No Setup.</span>
+      </button>
     </div>
 
-    <div class="w-full max-w-3xl mx-auto mb-10 md:mb-12 relative z-20 px-4">
-        <div class="perf-card p-0 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden">
-             <div class="bg-slate-50 px-3 md:px-4 py-2 md:py-3 flex items-center justify-between border-b border-slate-200">
-                 <div class="flex gap-1.5 md:gap-2">
-                     <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400"></div>
-                     <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-400"></div>
-                     <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-400"></div>
-                 </div>
-                 <span class="text-[9px] md:text-[10px] text-slate-500 font-mono tracking-widest uppercase"><i class="fa-solid fa-feather-pointed mr-1 md:mr-2 text-accent"></i>Whis System: Active</span>
-             </div>
-             
-             <div class="p-4 md:p-6 font-mono text-xs md:text-sm h-[260px] md:h-auto md:min-h-[330px] relative overflow-hidden flex flex-col justify-start">
-                 
-                 <div id="hero-status" class="text-slate-500 mb-3 text-[10px] md:text-xs flex items-center gap-2 hidden">
-                    <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-500 animate-pulse"></span> 
-                    Listening to audio...
-                 </div>
-                 
-                 <div id="hero-question-container" class="mb-4 md:mb-6 hidden">
-                    <span class="text-accent text-[10px] md:text-xs uppercase tracking-wider block mb-1">INTERVIEWER QUESTION DETECTED:</span>
-                    <p id="hero-question-text" class="text-slate-900 text-sm md:text-lg font-medium leading-snug"></p>
-                 </div>
-
-                 <div id="hero-answer-container" class="p-3 md:p-4 bg-slate-50 rounded-lg border-l-[3px] md:border-l-4 border-accent text-slate-800 leading-relaxed shadow-sm hidden">
-                     <span class="text-accent text-[10px] md:text-xs font-bold block mb-1">Suggested Answer:</span>
-                     <span id="hero-answer-text" class="text-xs md:text-sm"></span><span class="inline-block w-1.5 h-3 md:w-2 md:h-4 bg-accent animate-pulse align-text-bottom ml-1"></span>
-                 </div>
-             </div>
+    <!-- Social proof strip — infinite marquee -->
+    <div class="mt-8 md:mt-10 w-full flex flex-col items-center">
+      <p class="text-[10px] md:text-[11px] text-slate-400 uppercase tracking-[0.18em] font-bold mb-5">Trusted by engineers at</p>
+      <div class="logo-ticker w-full">
+        <div class="logo-ticker-track">
+          <span class="logo-item"><i class="fa-brands fa-google"></i> Google</span>
+          <span class="logo-item"><i class="fa-brands fa-amazon"></i> Amazon</span>
+          <span class="logo-item"><i class="fa-brands fa-microsoft"></i> Microsoft</span>
+          <span class="logo-item"><i class="fa-brands fa-meta"></i> Meta</span>
+          <span class="logo-item"><i class="fa-brands fa-apple"></i> Apple</span>
+          <span class="logo-item"><i class="fa-solid fa-car"></i> Uber</span>
+          <span class="logo-item"><i class="fa-solid fa-film"></i> Netflix</span>
+          <span class="logo-item"><i class="fa-brands fa-stripe"></i> Stripe</span>
+          <span class="logo-item"><i class="fa-brands fa-airbnb"></i> Airbnb</span>
+          <span class="logo-item"><i class="fa-brands fa-linkedin"></i> LinkedIn</span>
+          <span class="logo-item"><i class="fa-solid fa-chart-line"></i> Goldman Sachs</span>
+          <span class="logo-item"><i class="fa-brands fa-adobe"></i> Adobe</span>
+          <span class="logo-item"><i class="fa-solid fa-database"></i> Oracle</span>
+          <span class="logo-item"><i class="fa-solid fa-cloud"></i> Salesforce</span>
+          <!-- duplicate for seamless loop -->
+          <span class="logo-item"><i class="fa-brands fa-google"></i> Google</span>
+          <span class="logo-item"><i class="fa-brands fa-amazon"></i> Amazon</span>
+          <span class="logo-item"><i class="fa-brands fa-microsoft"></i> Microsoft</span>
+          <span class="logo-item"><i class="fa-brands fa-meta"></i> Meta</span>
+          <span class="logo-item"><i class="fa-brands fa-apple"></i> Apple</span>
+          <span class="logo-item"><i class="fa-solid fa-car"></i> Uber</span>
+          <span class="logo-item"><i class="fa-solid fa-film"></i> Netflix</span>
+          <span class="logo-item"><i class="fa-brands fa-stripe"></i> Stripe</span>
+          <span class="logo-item"><i class="fa-brands fa-airbnb"></i> Airbnb</span>
+          <span class="logo-item"><i class="fa-brands fa-linkedin"></i> LinkedIn</span>
+          <span class="logo-item"><i class="fa-solid fa-chart-line"></i> Goldman Sachs</span>
+          <span class="logo-item"><i class="fa-brands fa-adobe"></i> Adobe</span>
+          <span class="logo-item"><i class="fa-solid fa-database"></i> Oracle</span>
+          <span class="logo-item"><i class="fa-solid fa-cloud"></i> Salesforce</span>
         </div>
+      </div>
     </div>
-  </section>
+
+    <!-- Live social proof + security badges -->
+    <div class="mt-6 flex flex-col items-center gap-4">
+
+      <!-- Live counter -->
+      <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl" style="background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(14,165,233,0.07));border:1px solid rgba(16,185,129,0.2);backdrop-filter:blur(16px);">
+        <div class="relative flex shrink-0">
+          <span class="w-2.5 h-2.5 rounded-full" style="background:#22c55e;box-shadow:0 0 10px #22c55e;"></span>
+          <span class="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-400 animate-ping opacity-60"></span>
+        </div>
+        <div>
+          <span class="text-base font-black" style="color:#f0fdf4;letter-spacing:-0.02em;"><span id="live-users">847</span></span>
+          <span class="text-[11px] font-semibold ml-1.5" style="color:#86efac;">engineers using Whis right now</span>
+        </div>
+      </div>
+
+      <!-- Security claims — 3 chips, unified sky palette -->
+      <div class="flex flex-wrap justify-center gap-2">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);">
+          <i class="fa-solid fa-eye-slash text-[9px]" style="color:#38bdf8;"></i>
+          <span class="text-[10px] font-bold tracking-wide" style="color:#7dd3fc;">100% Undetectable</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);">
+          <i class="fa-solid fa-ban text-[9px]" style="color:#38bdf8;"></i>
+          <span class="text-[10px] font-bold tracking-wide" style="color:#7dd3fc;">No Recording</span>
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);">
+          <i class="fa-solid fa-lock text-[9px]" style="color:#38bdf8;"></i>
+          <span class="text-[10px] font-bold tracking-wide" style="color:#7dd3fc;">No Data Stored</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Comparison slider -->
+  <div class="w-full max-w-6xl mx-auto px-4 md:px-6 text-center relative z-20 mb-12">
+    <h2 class="text-2xl md:text-3xl font-extrabold text-white mb-6 md:mb-8 px-2 tracking-tight">Invisible to <span class="plat-zoom">Zoom</span>, <span class="plat-teams">Teams</span> &amp; <span class="plat-meet">Meet</span>.</h2>
+
+    <div class="comp-container" id="comparisonSlider">
+      <div class="mac-header">
+        <div class="mac-dot mac-red"></div>
+        <div class="mac-dot mac-yellow"></div>
+        <div class="mac-dot mac-green"></div>
+      </div>
+      <div class="comp-image">
+        <video src="interviewee.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+      </div>
+      <div class="comp-overlay">
+        <video src="interviewer.mov" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+      </div>
+      <div class="comp-divider"></div>
+      <input type="range" min="0" max="100" value="50" class="comp-slider" oninput="updateSlider(this.value)">
+      <div class="comp-handle-btn"></div>
+      <div class="comp-label label-left">Interviewer View</div>
+      <div class="comp-label label-right">Your View</div>
+    </div>
+    <p class="text-[9px] md:text-xs text-slate-400 mt-4 md:mt-6 tracking-widest uppercase font-medium">← Drag the handle to compare views →</p>
+  </div>
+
+  <!-- Live answer demo card -->
+  <div class="w-full max-w-xl mx-auto mb-10 md:mb-12 relative z-20 px-4">
+    <!-- ambient glow -->
+    <div class="absolute inset-0 rounded-3xl pointer-events-none" style="background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(14,165,233,0.18) 0%,transparent 70%);filter:blur(20px);z-index:-1;"></div>
+    <div class="rounded-xl overflow-hidden" style="background:linear-gradient(145deg,#050f1e 0%,#071626 100%);border:1px solid rgba(14,165,233,0.18);box-shadow:0 24px 80px -16px rgba(14,165,233,0.24),0 0 0 1px rgba(14,165,233,0.06),0 12px 40px rgba(0,0,0,0.6);">
+      <div class="px-3 py-2 flex items-center justify-between border-b" style="background:rgba(2,7,20,0.95);border-color:rgba(14,165,233,0.1);">
+        <div class="flex gap-1.5">
+          <div class="w-2 h-2 rounded-full bg-red-500/80"></div>
+          <div class="w-2 h-2 rounded-full bg-yellow-400/80"></div>
+          <div class="w-2 h-2 rounded-full bg-emerald-500/80"></div>
+        </div>
+        <span class="text-[8px] font-mono tracking-widest uppercase flex items-center gap-1" style="color:#38bdf8;"><span class="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" style="box-shadow:0 0 4px #34d399;"></span> Whis System: Active</span>
+      </div>
+      <div class="p-3 md:p-4 font-mono h-[200px] md:min-h-[240px] relative overflow-hidden flex flex-col justify-start">
+        <div id="hero-status" class="mb-2 text-[9px] flex items-center gap-1.5 hidden" style="color:#64748b;">
+          <span class="w-1 h-1 rounded-full bg-red-500 animate-pulse"></span>
+          Listening to audio...
+        </div>
+        <div id="hero-question-container" class="mb-3 hidden">
+          <span class="text-accent text-[9px] uppercase tracking-wider block mb-1 font-bold">Interviewer Question Detected:</span>
+          <p id="hero-question-text" class="text-[11px] md:text-xs font-semibold leading-snug" style="color:#e2e8f0;"></p>
+        </div>
+        <div id="hero-answer-container" class="p-2 md:p-3 rounded-lg border-l-2 border-accent leading-relaxed hidden" style="background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(6,182,212,0.05));border-left-color:var(--accent);">
+          <span class="text-accent text-[9px] font-bold block mb-1 uppercase tracking-wider">Suggested Answer:</span>
+          <span id="hero-answer-text" class="text-[10px] md:text-[11px]" style="color:#cbd5e1;"></span><span class="inline-block w-1 h-2.5 bg-accent animate-pulse align-text-bottom ml-0.5 rounded-sm"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <div class="section-divider"></div>
+<div class="bg-white/60 backdrop-blur-sm border-y border-slate-100 py-8 md:py-10 relative z-10" id="stats-strip">
+  <div class="max-w-5xl mx-auto px-4 md:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+    <div class="stat-card text-center">
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="stat-engineers" data-count="7000">7,000</span><span class="text-accent">+</span></div>
+      <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Engineers Hired</div>
+    </div>
+    <div class="stat-card text-center">
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="stat-success" data-count="94">94</span><span class="text-accent">%</span></div>
+      <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Interview Success</div>
+    </div>
+    <div class="stat-card text-center">
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;">&lt;2<span class="text-accent">s</span></div>
+      <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Answer Speed</div>
+    </div>
+    <div class="stat-card text-center">
+      <div class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-1" style="font-family:'Plus Jakarta Sans',sans-serif;"><span id="stat-detection" data-count="0">0</span><span class="text-accent">%</span></div>
+      <div class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Detection Rate</div>
+    </div>
+  </div>
+</div>
+<div class="section-divider"></div>
 
   <section id="how-to" class="py-24 relative bg-[#050814] overflow-hidden font-sans">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-sky-500/10 blur-[120px] rounded-full pointer-events-none"></div>
@@ -366,7 +928,7 @@
                     Master <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Silent Flight</span>
                 </h2>
                 <p class="text-slate-400 text-lg max-w-2xl leading-relaxed">
-                    Whis-AI operates at the kernel level. Whether you share a single window or your <strong>entire screen</strong>, the app is completely invisible to Zoom, Teams, and browser proctoring. Your hands never leave the keyboard.
+                    Whis-AI operates at the kernel level. Whether you share a single window or your <strong>entire screen</strong>, the app is completely invisible to <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, and browser proctoring. Your hands never leave the keyboard.
                 </p>
             </div>
 
@@ -441,74 +1003,144 @@
         </div>
     </section>
 
-    <section id="pricing" class="py-16 md:py-32 border-t border-slate-200 bg-white relative overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-sky-200 rounded-full blur-[100px] md:blur-[120px] pointer-events-none opacity-50"></div>
+    <section id="pricing" class="section-pricing-ultra relative overflow-hidden">
+      <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-500/35 to-transparent pointer-events-none z-10"></div>
+      <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-500/20 to-transparent pointer-events-none z-10"></div>
+<div class="max-w-7xl mx-auto px-4 md:px-6 pt-20 md:pt-32 pb-20 md:pb-32 relative z-10">
+<div class="text-center mb-12 md:mb-20">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-5 md:mb-7">
+  <i class="fa-solid fa-rocket text-sky-400 text-xs"></i>
+  <span class="text-[10px] md:text-xs font-bold text-sky-300 uppercase tracking-wider">Simple, transparent pricing</span>
+</div>
+<h2 class="text-3xl md:text-6xl font-extrabold text-white mb-3 md:mb-5 tracking-[-0.04em]" style="font-family:'Plus Jakarta Sans',sans-serif;">Choose your <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-400">edge.</span></h2>
+<p class="text-sm md:text-lg text-slate-400 mb-6 font-normal px-4 max-w-xl mx-auto leading-relaxed">Join <span id="pricing-eng-count">7,000+</span> engineers who turned interviews into offers.</p>
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider mb-6 md:mb-8" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#4ade80;">
+  <i class="fa-solid fa-users"></i> Trusted by <span id="trust-eng-count">7,000+</span> engineers worldwide
+</div>
+</div>
 
-    <div class="max-w-7xl mx-auto px-4 md:px-6 text-center mt-6 md:mt-12 relative z-10">
-<h2 class="text-3xl md:text-5xl font-medium text-slate-900 mb-4 md:mb-6 tracking-tight">Invest in your career.</h2>
-<p class="text-sm md:text-base text-slate-600 mb-6 font-light px-4">Join 7,000+ engineers who have unlocked their full potential.</p>
-
-<div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2 shadow-sm">
-    <i class="fa-solid fa-gift text-emerald-600 text-lg"></i>
+<div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2">
+    <i class="fa-solid fa-gift text-emerald-400 text-lg"></i>
     <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
-</div>        
-        <div class="inline-flex bg-slate-100 p-1 rounded-full border border-slate-200 mb-10 md:mb-16 mt-6 shadow-inner w-full max-w-[300px] md:w-auto">
-           <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all" onclick="setCycle('monthly')">Monthly</button>
-           <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all" onclick="setCycle('quarterly')">Quarterly (Save 40%)</button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
-            <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-sm">
-                <h3 class="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 md:mb-4">Foundation</h3>
-                <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8">Free</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-600 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400 text-sm"></i> 10 Daily Answers</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-slate-400 text-sm"></i> Normal Speed</p>
-                    <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark text-sm"></i> Stealth Mode</p>
-                    <p class="flex items-center gap-3 opacity-50"><i class="fa-solid fa-circle-xmark text-sm"></i> Screen Solving</p>
-                </div>
-                <button onclick="openDownloadModal()" class="w-full py-3.5 md:py-4 rounded-xl border border-slate-300 text-slate-700 font-bold bg-slate-50 hover:bg-slate-100 text-[10px] uppercase tracking-widest transition-all active:scale-95">Download Trial</button>
+</div>
+        <div class="flex flex-col items-center mb-12 md:mb-16 gap-3">
+            <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 w-full max-w-[340px] md:w-auto relative">
+                <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all" onclick="setCycle('monthly')">Monthly</button>
+                <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all relative" onclick="setCycle('quarterly')">
+                    Quarterly
+                    <span class="absolute -top-3 -right-2 bg-sky-500 text-white text-[8px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-full shadow">Best Value</span>
+                </button>
             </div>
-
-            <div class="perf-card p-6 md:p-10 text-left flex flex-col border-slate-200 bg-white shadow-lg z-20 relative">
-                <h3 class="text-[9px] md:text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-3 md:mb-4">Pro Professional</h3>
-                <div class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 md:mb-8 flex items-baseline flex-wrap" id="pricePro">...</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-700 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-slate-900"><i class="fa-solid fa-clock text-accent text-sm"></i> 10 Hours App Usage / mo</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Unlimited Answers</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-circle-check text-accent/80 text-sm"></i> Screen Reading Tool</p>
-                    <p class="flex items-center gap-3 text-red-500"><i class="fa-solid fa-eye text-sm"></i> Visible on Screen</p>
-                </div>
-                <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-3.5 md:py-4 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-[10px] font-bold uppercase tracking-widest transition-all shadow-md active:scale-95">Upgrade Now</button>
-            </div>
-
-            <div class="perf-card pricing-elite p-6 md:p-10 text-left flex flex-col border-accent/40 bg-slate-900 relative overflow-hidden shadow-2xl md:scale-105 z-30">
-                 <div class="absolute top-0 right-0 p-4 md:p-6 opacity-10"><i class="fa-solid fa-ghost text-4xl text-accent"></i></div>
-                 <h3 class="text-[9px] md:text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-3 md:mb-4">Elite Stealth</h3>
-                <div class="text-3xl md:text-4xl font-bold text-white mb-6 md:mb-8 flex items-baseline flex-wrap" id="priceStealth">...</div>
-                <div class="space-y-4 md:space-y-5 text-xs text-slate-300 mb-8 md:mb-10 flex-grow">
-                    <p class="flex items-center gap-3 font-medium text-sky-400"><i class="fa-solid fa-bolt-lightning text-sm"></i> 10 Hours App Usage / mo</p>
-                    <p class="flex items-center gap-3 font-semibold text-white"><i class="fa-solid fa-shield-halved text-sky-400 text-sm"></i> 100% Undetectable</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-ghost text-sky-400/80 text-sm"></i> Invisible to Zoom/Teams</p>
-                    <p class="flex items-center gap-3"><i class="fa-solid fa-user-secret text-sky-400/80 text-sm"></i> Hidden App Process</p>
-                </div>
-                <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="w-full py-3.5 md:py-4 rounded-xl bg-sky-500 text-white hover:bg-sky-400 text-[10px] font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95">Go Elite</button>
+            <div id="quarterlyRibbon" class="flex items-center gap-2 text-[11px] font-semibold rounded-full px-4 py-1.5 transition-all" style="color:#38bdf8;background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);">
+                <i class="fa-solid fa-fire-flame-curved text-xs"></i>
+                <span>Most users pick quarterly — 3 full interview cycles for the price of 1.5×</span>
             </div>
         </div>
 
-        <div class="max-w-3xl mx-auto mt-12 md:mt-20 p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-200 shadow-sm group hover:border-sky-300 transition-all duration-500">
-            <div class="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 text-center md:text-left">
-                <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-accent shrink-0 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-stopwatch text-xl md:text-2xl"></i>
-                </div>
+        <!-- ── KEY DIFFERENTIATOR CALLOUT ── -->
+        <div class="max-w-2xl mx-auto mb-10 md:mb-14 flex flex-col sm:flex-row items-center gap-4 md:gap-6 px-4">
+          <div class="flex-1 flex items-center gap-3 p-4 rounded-2xl" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.22);">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(16,185,129,0.15);"><i class="fa-solid fa-eye-slash" style="color:#34d399;font-size:14px;"></i></div>
+            <div>
+              <div class="text-[9px] font-black uppercase tracking-widest mb-0.5" style="color:#34d399;">Elite Stealth</div>
+              <div class="text-[11px] font-semibold text-white leading-tight">Invisible to screen share.</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">Your interviewer sees nothing.</div>
+            </div>
+          </div>
+          <div class="text-slate-600 text-xs font-bold tracking-widest hidden sm:block">VS</div>
+          <div class="flex-1 flex items-center gap-3 p-4 rounded-2xl" style="background:rgba(251,146,60,0.05);border:1px solid rgba(251,146,60,0.18);">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(251,146,60,0.12);"><i class="fa-solid fa-eye" style="color:#fb923c;font-size:14px;"></i></div>
+            <div>
+              <div class="text-[9px] font-black uppercase tracking-widest mb-0.5" style="color:#fb923c;">Pro Plan</div>
+              <div class="text-[11px] font-semibold text-white leading-tight">Window visible on screen share.</div>
+              <div class="text-[9px] text-slate-400 mt-0.5">Interviewer can see the Whis window.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards + ambient glow -->
+        <div class="relative">
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(14,165,233,0.16) 0%,transparent 70%);animation:elite-glow 4s ease-in-out infinite;"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 items-center">
+
+            <!-- FREE -->
+            <div class="pricing-card-glass p-6 md:p-8 flex flex-col">
+              <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Foundation</h3>
+              <div class="text-3xl md:text-4xl font-bold text-white mb-1">Free</div>
+              <p class="text-[10px] text-slate-600 mb-7">Forever free — no card needed</p>
+              <div class="space-y-3 text-xs mb-8 flex-grow">
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">10 Answers per day</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">Standard response speed</span></div>
+                <div class="feat-row" style="opacity:0.35;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Stealth Mode</span></div>
+                <div class="feat-row" style="opacity:0.35;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Screen Solving</span></div>
+              </div>
+              <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 hover:bg-white/5">Download Trial</button>
+            </div>
+
+            <!-- ELITE STEALTH — CENTER HERO -->
+            <div class="pricing-elite p-6 md:p-10 flex flex-col md:scale-[1.07] z-30 overflow-hidden" style="box-shadow:0 40px 100px -20px rgba(14,165,233,0.3),0 0 0 0 transparent;">
+              <div class="absolute top-0 right-0 p-5 pointer-events-none select-none" style="opacity:0.06;z-index:0;"><i class="fa-solid fa-ghost text-6xl text-sky-300"></i></div>
+              <div class="popular-badge mb-4 relative z-10">
+                <span class="live-dot" style="background:#22d3ee;box-shadow:0 0 6px #22d3ee;"></span>
+                Most Popular
+              </div>
+              <div class="relative z-10">
+                <h3 class="text-[9px] font-bold text-sky-400 uppercase tracking-[0.2em] mb-3">Elite Stealth</h3>
+                <div class="text-3xl md:text-4xl font-bold text-white flex items-baseline flex-wrap" id="priceStealth">...</div>
+              </div>
+              <!-- KEY DIFFERENTIATOR BADGE -->
+              <div class="relative z-10 mb-5 flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl" style="background:linear-gradient(135deg,rgba(16,185,129,0.14),rgba(14,165,233,0.08));border:1px solid rgba(16,185,129,0.35);">
+                <i class="fa-solid fa-eye-slash" style="color:#34d399;font-size:13px;"></i>
                 <div>
-                    <h4 class="text-xs md:text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Smart Usage Credit System</h4>
-                    <p class="text-[11px] md:text-xs text-slate-600 leading-relaxed">
-                        Paid plans include <span class="text-slate-900 font-semibold">10-hours per month</span> of overall app usage. Audio is always monitored and screenshots are taken automatically when you request an output. To save your credits, the **Ghost Timer** only counts while the app is actively running. Preparation time and breaks are never deducted from your balance.
-                    </p>
+                  <div class="text-[9px] font-black uppercase tracking-widest" style="color:#34d399;">Screen Share Invisible</div>
+                  <div class="text-[9px] text-slate-400 font-medium mt-0.5">Your interviewer cannot see this window</div>
                 </div>
+              </div>
+              <div class="space-y-3.5 text-xs mb-8 flex-grow relative z-10">
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-white font-medium">10 Hours App Usage / mo</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-white font-semibold">100% Undetectable AI</span></div>
+                <div class="feat-row" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:8px 10px;"><div class="feat-row-icon shrink-0" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-ghost text-[9px]"></i></div><span style="color:#34d399;" class="font-bold">Invisible to <span class="plat-zoom">Zoom</span> / <span class="plat-teams">Teams</span> screen share</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-user-secret text-[9px]"></i></div><span class="text-slate-200">Hidden App Process</span></div>
+                <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen Reading + Solving</span></div>
+              </div>
+              <button id="btnElite" disabled onclick="initiatePayment('pro_plus')" class="btn-elite-cta relative z-10">Go Elite →</button>
             </div>
+
+            <!-- PRO -->
+            <div class="pricing-card-glass p-6 md:p-8 flex flex-col">
+              <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Pro Professional</h3>
+              <div class="text-3xl md:text-4xl font-bold text-white mb-1 flex items-baseline flex-wrap" id="pricePro">...</div>
+              <p class="text-[10px] text-slate-600 mb-5">Unlimited answers, screen reading</p>
+              <!-- STEALTH WARNING -->
+              <div class="mb-5 flex items-start gap-2.5 p-3 rounded-xl" style="background:rgba(251,146,60,0.07);border:1px solid rgba(251,146,60,0.22);">
+                <i class="fa-solid fa-triangle-exclamation text-[11px] mt-0.5 shrink-0" style="color:#fb923c;"></i>
+                <p class="text-[9px] leading-relaxed" style="color:#fdba74;"><strong style="color:#fb923c;">No Stealth Mode.</strong> Whis window is visible to your interviewer during screen share.</p>
+              </div>
+              <div class="space-y-3 text-xs mb-8 flex-grow">
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-accent"><i class="fa-solid fa-clock text-[9px]"></i></div><span class="text-slate-300 font-medium">10 Hours App Usage / mo</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-accent"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-300">Unlimited Answers</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-accent"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-300">Screen Reading Tool</span></div>
+                <div class="feat-row opacity-50"><div class="feat-row-icon" style="background:rgba(251,146,60,0.1);color:#fb923c;"><i class="fa-solid fa-eye text-[9px]"></i></div><span style="color:#fb923c;" class="font-medium line-through">Screenshare Invisible</span></div>
+              </div>
+              <button id="btnPro" disabled onclick="initiatePayment('pro')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Upgrade to Pro</button>
+            </div>
+
+          </div>
         </div>
+
+        <!-- Ghost Timer info (dark glass) -->
+        <div class="max-w-3xl mx-auto mt-12 md:mt-16 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 text-center md:text-left group hover:border-sky-500/20 transition-all duration-500" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(20px);">
+          <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-sky-400 shrink-0 group-hover:scale-110 transition-transform" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.2);">
+            <i class="fa-solid fa-stopwatch text-xl md:text-2xl"></i>
+          </div>
+          <div>
+            <h4 class="text-xs md:text-sm font-bold text-white mb-2 uppercase tracking-wide">Smart Usage Credit System</h4>
+            <p class="text-[11px] md:text-xs text-slate-400 leading-relaxed">
+              Paid plans include <span class="text-white font-semibold"><span id="usage-hours">10</span> hours / month</span> of app usage. The Ghost Timer only counts while you're actively in an interview — prep time and breaks never touch your balance.
+            </p>
+          </div>
+        </div>
+
     </div>
   </section>
 
@@ -527,7 +1159,7 @@
                 </div>
                 <div>
                     <div class="text-[11px] font-semibold text-slate-500 mb-1">TECH ROUNDS CLEARED</div>
-                    <div class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight" id="uptime-counter">62,402</div>
+                    <div class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight"><span id="rounds-counter">62,402</span></div>
                 </div>
                 <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-100 text-[11px] text-slate-500">
                     Assisting from initial OAs to final System Design
@@ -599,7 +1231,7 @@
               <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm border-sky-100">
                   <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-sky-50 flex items-center justify-center mb-3 md:mb-4 text-sky-600 group-hover:scale-110 transition"><i class="fa-solid fa-ghost text-lg md:text-xl"></i></div>
                   <h3 class="text-sm md:text-base text-slate-900 font-bold mb-1.5 md:mb-2">Silent Flight</h3>
-                  <p class="text-[13px] md:text-sm text-slate-600">Flies completely under the radar. Invisible to screen-shares (Zoom/Teams) and browser proctoring.</p>
+                  <p class="text-[13px] md:text-sm text-slate-600">Flies completely under the radar. Invisible to screen-shares (<strong class="plat-zoom">Zoom</strong>/<strong class="plat-teams">Teams</strong>) and browser proctoring.</p>
               </div>
 
               <div class="perf-card p-5 md:p-6 hover:bg-slate-50 transition group bg-white shadow-sm border-emerald-100">
@@ -705,19 +1337,24 @@
 
   <section class="py-16 md:py-24 border-t border-slate-200 bg-slate-50">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-4">
-              <h2 id="testimonials" class="text-2xl md:text-3xl font-medium text-slate-900">Engineers love Whis.</h2>
-              <div class="text-left md:text-right">
-                  <div class="flex gap-1 text-yellow-400 text-xs md:text-sm mb-1">
-                      <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                  </div>
-                  <p class="text-[9px] md:text-[10px] text-slate-500">Rated 4.9/5 by 2,000+ users</p>
-              </div>
+          <div class="text-center mb-10 md:mb-14">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold uppercase tracking-wider mb-5">
+              <i class="fa-solid fa-star text-amber-500"></i> 4.9 / 5 · 2,000+ verified engineers
+            </div>
+            <h2 id="testimonials" class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-3" style="font-family:'Plus Jakarta Sans',sans-serif;">Real engineers.<br>Real offers.</h2>
+            <p class="text-slate-500 text-sm md:text-base max-w-md mx-auto">No incentivized reviews. No filler. Just engineers who used Whis and landed the job.</p>
           </div>
            
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
+              <div class="perf-card testimonial-card flex flex-col justify-between">
                   <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
                       <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
                       <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"I was skeptical about the 'undetectable' claim, but it really works. The context feature is a lifesaver for behavioral rounds. Landed an L5 offer at Google."</p>
                   </div>
@@ -730,8 +1367,15 @@
                   </div>
               </div>
 
-              <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-sky-200 shadow-sm">
+              <div class="perf-card testimonial-card flex flex-col justify-between">
                   <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
                       <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
                       <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"The visual screen analysis is insane. It read my interviewer's diagram and suggested sharding strategies instantly. Best investment I've made."</p>
                   </div>
@@ -744,8 +1388,15 @@
                   </div>
               </div>
 
-              <div class="perf-card p-6 md:p-8 flex flex-col justify-between bg-white border border-slate-200 shadow-sm">
+              <div class="perf-card testimonial-card flex flex-col justify-between">
                   <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
                       <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer</div>
                       <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"English isn't my first language. Whis translated my complex thoughts into professional answers in real-time. It gave me the confidence I needed."</p>
                   </div>
@@ -753,7 +1404,58 @@
                       <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-500 to-orange-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">AL</div>
                       <div>
                           <p class="text-[11px] md:text-xs font-bold text-slate-900">Arjun L.</p>
-                          <p class="text-[9px] md:text-[10px] text-slate-500">L61 Engineer</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">L6 Engineer</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="perf-card testimonial-card flex flex-col justify-between">
+                  <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer · Netflix</div>
+                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"Had 3 final rounds in the same week. Whis handled system design questions I'd never seen before. All 3 sent offers. I chose Netflix."</p>
+                  </div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-red-500 to-orange-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">AT</div>
+                      <div>
+                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Alex T.</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">L5 SDE · Netflix</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="perf-card testimonial-card flex flex-col justify-between">
+                  <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
+                      <div class="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-circle-check"></i> Verified Offer · Amazon</div>
+                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"Interviewer started drawing an architecture diagram. Whis caught it and whispered the exact sharding and caching strategy. Cleared it first attempt."</p>
+                  </div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">PR</div>
+                      <div>
+                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Priya R.</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">SDE-II · Amazon India</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="perf-card testimonial-card flex flex-col justify-between">
+                  <div>
+                      <div class="flex gap-0.5 mb-3 md:mb-4">
+                          <i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i><i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                      </div>
+                      <div class="flex items-center gap-1 text-purple-600 text-[10px] font-bold uppercase tracking-widest mb-3"><i class="fa-solid fa-user-check"></i> Interview Coach · ex-Google</div>
+                      <p class="text-slate-700 text-[13px] md:text-sm leading-relaxed mb-5 md:mb-6">"I've prepped hundreds of engineers. Whis is the most unfair competitive advantage I've ever seen. Like a staff engineer whispering in your ear."</p>
+                  </div>
+                  <div class="flex items-center gap-3 border-t border-slate-100 pt-4">
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-500 to-purple-600 flex items-center justify-center text-[10px] md:text-xs font-bold text-white">MW</div>
+                      <div>
+                          <p class="text-[11px] md:text-xs font-bold text-slate-900">Marcus W.</p>
+                          <p class="text-[9px] md:text-[10px] text-slate-500">Staff Eng · ex-Google</p>
                       </div>
                   </div>
               </div>
@@ -767,44 +1469,71 @@
       <div class="max-w-3xl mx-auto px-4 md:px-6">
           <h2 id="faq" class="text-2xl md:text-3xl font-medium text-slate-900 mb-8 md:mb-12 text-center">Common Questions.</h2>
           <div class="space-y-3 md:space-y-4">
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
+              <div class="group border border-slate-100 rounded-2xl overflow-hidden p-5 md:p-7 shadow-sm bg-white hover:border-slate-200 transition-colors cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="flex justify-between items-center">
                       <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Does this work on HackerRank or proctored assessments?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
                   </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Because Whis runs as an independent, isolated desktop background process, browser-based environments like HackerRank cannot detect its presence or screen-reading activity.</p>
+                  <div class="faq-answer">
+                      <p class="pt-3 pb-1 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Because Whis runs as an independent, isolated desktop background process, browser-based environments like <strong class="plat-hackerrank">HackerRank</strong> cannot detect its presence or screen-reading activity.</p>
                   </div>
               </div>
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
+              <div class="group border border-slate-100 rounded-2xl overflow-hidden p-5 md:p-7 shadow-sm bg-white hover:border-slate-200 transition-colors cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="flex justify-between items-center">
                       <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Is Whis really undetectable on Zoom/Teams?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
                   </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Whis listens to system audio and scans the screen using technology that runs entirely outside of your browser. Meeting tools like Zoom or Teams only see the browser; they cannot detect Whis running in the background as a separate app.</p>
+                  <div class="faq-answer">
+                      <p class="pt-3 pb-1 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes. Whis listens to system audio and scans the screen using technology that runs entirely outside of your browser. Meeting tools like <strong class="plat-zoom">Zoom</strong> or <strong class="plat-teams">Teams</strong> only see the browser — they cannot detect Whis running in the background as a separate app.</p>
                   </div>
               </div>
-              <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
+              <div class="group border border-slate-100 rounded-2xl overflow-hidden p-5 md:p-7 shadow-sm bg-white hover:border-slate-200 transition-colors cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="flex justify-between items-center">
                       <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Can I get a refund if it doesn't work?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
                   </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Absolutely. We offer a 7-day money-back guarantee. If the app doesn't work on your laptop or you face issues we can't solve, simply email support for a full refund. No questions asked.</p>
+                  <div class="faq-answer">
+                      <p class="pt-3 pb-1 text-slate-600 text-[13px] md:text-sm leading-relaxed">Absolutely. We offer a <span id="refund-days-faq">7</span>-day money-back guarantee. If the app doesn't work on your laptop or you face issues we can't solve, simply email support for a full refund. No questions asked.</p>
                   </div>
               </div>
-               <div class="group border border-slate-200 rounded-xl overflow-hidden bg-white hover:border-slate-300 transition cursor-pointer shadow-sm" onclick="this.classList.toggle('active')">
-                  <div class="p-4 md:p-6 flex justify-between items-center">
+               <div class="group border border-slate-100 rounded-2xl overflow-hidden p-5 md:p-7 shadow-sm bg-white hover:border-slate-200 transition-colors cursor-pointer" onclick="this.classList.toggle('active')">
+                  <div class="flex justify-between items-center">
                       <h3 class="text-[13px] md:text-sm font-bold text-slate-900">Does it work on Mac and Windows?</h3>
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
                   </div>
-                  <div class="faq-answer px-4 md:px-6">
-                      <p class="pb-4 md:pb-6 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes, we have apps for both Windows (10/11) and macOS (Intel & M1/M2/M3 chips). Linux support is coming soon.</p>
+                  <div class="faq-answer">
+                      <p class="pt-3 pb-1 text-slate-600 text-[13px] md:text-sm leading-relaxed">Yes, we have apps for both Windows (10/11) and macOS (Intel & M1/M2/M3 chips). Linux support is coming soon.</p>
                   </div>
               </div>
           </div>
       </div>
+  </section>
+
+  <!-- FINAL CTA — dark premium closer -->
+  <section class="section-cta-final py-24 md:py-36 relative overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-sky-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-0 right-1/4 w-[400px] h-[200px] bg-emerald-500/8 blur-[80px] rounded-full pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-8">
+        <span class="live-dot"></span>
+        <span>Your next offer is one interview away</span>
+      </div>
+      <h2 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] mb-6" style="font-family:'Plus Jakarta Sans',sans-serif;">
+        Stop leaving offers<br>on the table.
+      </h2>
+      <p class="text-slate-400 text-base md:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
+        Join <span id="cta-eng-count">7,000+</span> engineers who used Whis to land their dream role.<br class="hidden md:block"> First session is free. No card needed.
+      </p>
+      <button onclick="openDownloadModal()" class="btn-premium px-10 md:px-14 py-4 md:py-5 rounded-2xl text-sm md:text-base font-bold shadow-2xl inline-flex items-center gap-3">
+        <span><i class="fa-solid fa-download mr-1"></i> Download Free — Mac &amp; Windows</span>
+      </button>
+      <div class="mt-6 flex flex-wrap justify-center gap-5 text-[10px] text-slate-500 font-medium">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-emerald-500"></i> <span id="refund-days-cta">7</span>-day money back</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-emerald-500"></i> No data stored</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-eye-slash text-emerald-500"></i> 100% undetectable</span>
+        <span class="flex items-center gap-1.5"><i class="fa-brands fa-windows text-emerald-500"></i><i class="fa-brands fa-apple text-emerald-500"></i> Mac &amp; Windows</span>
+      </div>
+    </div>
   </section>
 
   <footer class="py-10 md:py-12 bg-slate-100 border-t border-slate-200 flex flex-col items-center gap-6 pb-28 md:pb-12">
@@ -882,7 +1611,18 @@
                     <span class="flex-shrink mx-3 md:mx-4 text-[8px] md:text-[9px] font-mono text-slate-400 tracking-widest uppercase">Global Payments</span>
                     <div class="flex-grow border-t border-slate-200"></div>
                 </div>
-                <div id="paypal-button-container" class="w-full overflow-hidden rounded-xl md:rounded-2xl min-h-[150px]"></div>
+                <button id="paypalBtn" onclick="handlePayPalRedirect()" class="w-full group flex items-center justify-between p-3.5 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-300 active:scale-95">
+                    <div class="flex items-center gap-3 md:gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 3h9C19.1 3 21 4.9 21 7.5S19.1 12 16.5 12H13l-1.5 6H9l1.5-6H8.25L6.75 18H4.5L6 12H4.5C2.7 12 2 10.5 2 9c0-3.3 2.4-6 5.5-6z" fill="#003087"/><path d="M9 12h4.5C16.6 12 19 9.6 19 6.5 19 4.6 17.9 3 16.5 3H7.5C4.4 3 2 5.7 2 9c0 1.5.7 3 2.25 3H6L4.5 18h2.25L8.25 12H9z" fill="#009cde"/></svg>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-[13px] md:text-sm font-bold text-slate-900">Pay with PayPal</div>
+                            <div class="text-[9px] md:text-[10px] text-slate-500">Credit / Debit · Secure checkout</div>
+                        </div>
+                    </div>
+                    <i id="paypalBtnIcon" class="fa-solid fa-chevron-right text-slate-400 group-hover:text-yellow-500 transition"></i>
+                </button>
             </div>
         </div>
         
@@ -911,11 +1651,11 @@
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-base md:text-lg font-medium text-slate-900 mb-5 md:mb-6 mt-2">Select Platform</h3>
         <div class="space-y-3">
-            <a href="https://github.com/whis-ai-labs/whis-ai/releases/download/v1.1.mac/Whis-AI-1.1.2-arm64.dmg" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
+            <a id="download-mac-link" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
                 <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-apple text-lg md:text-xl"></i> macOS</span>
                 <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
             </a>
-            <a href="https://apps.microsoft.com/detail/9npr5pfcc7hq?hl=en-us&gl=IN&ocid=pdpshare" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
+            <a id="download-windows-link" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
                 <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-windows text-lg md:text-xl"></i> Windows</span>
                 <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
             </a>
@@ -940,31 +1680,40 @@
     </div>
   </div>
 
-  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] bg-slate-50 md:bg-white md:border border-slate-200 shadow-2xl md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right">
-      <div class="bg-sky-600 text-white px-4 md:px-5 py-3 md:py-4 flex justify-between items-center shadow-md z-20 shrink-0">
-          <div class="font-bold text-[13px] md:text-sm flex items-center gap-2">
-              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div> Live Support(Need Discount?)
+  <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right" style="background:#050f1e;border:1px solid rgba(14,165,233,0.2);box-shadow:0 40px 100px rgba(0,0,0,0.8),0 0 0 1px rgba(14,165,233,0.08),0 0 60px rgba(14,165,233,0.05);">
+
+      <!-- Header -->
+      <div class="px-4 md:px-5 py-3 md:py-4 flex justify-between items-center shrink-0 z-20" style="background:linear-gradient(135deg,rgba(14,165,233,0.18),rgba(6,182,212,0.08));border-bottom:1px solid rgba(14,165,233,0.18);">
+          <div class="font-bold text-[13px] md:text-sm flex items-center gap-2.5">
+              <div class="relative flex shrink-0">
+                  <span class="w-2 h-2 rounded-full" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
+                  <span class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping opacity-60"></span>
+              </div>
+              <span class="text-white">Live Support</span><span style="color:#38bdf8;">&nbsp;(Need Discount?)</span>
           </div>
-          <button onclick="toggleLiveChat()" class="text-sky-100 hover:text-white bg-sky-700/50 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition active:scale-95">
+          <button onclick="toggleLiveChat()" class="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition active:scale-95 hover:bg-white/10" style="color:#64748b;">
               <i class="fa-solid fa-chevron-down md:hidden text-xs"></i>
               <i class="fa-solid fa-times hidden md:block text-xs"></i>
           </button>
       </div>
-      
-      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-6 md:p-8 bg-white relative z-10">
-          <div class="w-14 h-14 md:w-16 md:h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-5 md:mb-6 shadow-inner"><i class="fa-solid fa-envelope-open-text text-xl md:text-2xl"></i></div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900 text-center mb-1.5 md:mb-2">Welcome to Support</h3>
-          <p class="text-[13px] md:text-sm text-slate-500 mb-6 md:mb-8 text-center leading-relaxed">Enter your email address to start chatting with our team instantly.</p>
-          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 md:py-3.5 text-[16px] md:text-sm focus:border-sky-500 outline-none mb-4 shadow-sm">
-          <button onclick="startChatAuth()" class="w-full bg-slate-900 text-white font-bold text-[13px] md:text-sm py-3 md:py-3.5 rounded-xl hover:bg-slate-800 shadow-md transition active:scale-95">Start Conversation</button>
+
+      <!-- Auth screen -->
+      <div id="chatAuthScreen" class="flex-1 flex flex-col justify-center p-6 md:p-8 relative z-10">
+          <div class="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 md:mb-6" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.25);color:#38bdf8;">
+              <i class="fa-solid fa-envelope-open-text text-xl md:text-2xl"></i>
+          </div>
+          <h3 class="text-lg md:text-xl font-bold text-white text-center mb-1.5 md:mb-2">Welcome to Support</h3>
+          <p class="text-[13px] md:text-sm mb-6 md:mb-8 text-center leading-relaxed" style="color:#475569;">Enter your email to start chatting with our team instantly.</p>
+          <input type="email" id="chatAuthEmail" placeholder="your@email.com" class="w-full rounded-xl px-4 py-3 md:py-3.5 text-[16px] md:text-sm outline-none mb-4 transition-all" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;" onfocus="this.style.borderColor='rgba(14,165,233,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+          <button onclick="startChatAuth()" class="w-full text-white font-bold text-[13px] md:text-sm py-3 md:py-3.5 rounded-xl shadow-md transition active:scale-95" style="background:linear-gradient(135deg,#0ea5e9 0%,#0891b2 100%);box-shadow:0 4px 20px rgba(14,165,233,0.35);">Start Conversation</button>
       </div>
 
-      <div id="chatInterface" class="flex-1 hidden flex-col h-full bg-slate-50 overflow-hidden">
-          <div id="chatMessagesArea" class="flex-1 p-3 md:p-5 overflow-y-auto space-y-3 md:space-y-4 flex flex-col no-scrollbar bg-slate-50 z-10 pb-4"></div>
-          
-          <div class="p-2.5 md:p-4 bg-white border-t border-slate-200 flex gap-2 w-full shrink-0 shadow-[0_-5px_15px_rgba(0,0,0,0.02)] z-20 safe-bottom">
-              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-[16px] md:text-sm focus:border-sky-500 outline-none shadow-inner" onkeypress="if(event.key === 'Enter') sendChatMessage()">
-              <button onclick="sendChatMessage()" class="bg-sky-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-xl hover:bg-sky-700 transition shadow-md active:scale-95 flex items-center justify-center"><i class="fa-solid fa-paper-plane text-[11px] md:text-sm"></i></button>
+      <!-- Chat interface -->
+      <div id="chatInterface" class="flex-1 hidden flex-col h-full overflow-hidden">
+          <div id="chatMessagesArea" class="flex-1 p-3 md:p-5 overflow-y-auto space-y-3 md:space-y-4 flex flex-col no-scrollbar pb-4"></div>
+          <div class="p-2.5 md:p-4 flex gap-2.5 w-full shrink-0 z-20 safe-bottom" style="background:rgba(2,8,20,0.95);border-top:1px solid rgba(255,255,255,0.07);">
+              <input type="text" id="chatInput" placeholder="Type your message..." class="flex-1 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-[16px] md:text-sm outline-none transition-all" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;" onkeypress="if(event.key === 'Enter') sendChatMessage()" onfocus="this.style.borderColor='rgba(14,165,233,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+              <button onclick="sendChatMessage()" class="w-10 h-10 md:w-12 md:h-12 rounded-xl transition active:scale-95 flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,#0ea5e9,#0891b2);box-shadow:0 4px 14px rgba(14,165,233,0.4);"><i class="fa-solid fa-paper-plane text-[11px] md:text-sm text-white"></i></button>
           </div>
       </div>
   </div>
@@ -1079,7 +1828,7 @@
     }
 
     function initUptimeCounter() {
-        const counterEl = document.getElementById('uptime-counter');
+        const counterEl = document.getElementById('rounds-counter');
         if(!counterEl) return;
         let currentCount = 62402;
         setInterval(() => {
@@ -1193,28 +1942,90 @@
         animate();
     }
 
-    const BACKEND_URL="https://api.whis-ai.com"; 
-    let currentUser = null; 
-    let currentCycle = 'monthly'; // Default to monthly
+    const BACKEND_URL="https://api.whis-ai.com";
+    let currentUser = null;
+
+    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
+                  || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
+                  || new Date().getTimezoneOffset() === -330;
+
+    // Non-India: default quarterly (max value); India: default monthly (lower entry barrier)
+    let currentCycle = IS_INDIA ? 'monthly' : 'quarterly';
     let currentTier = 'free';
     let PRICING_CONFIG = null, GOOGLE_CLIENT_ID = null;
     let EXCHANGE_RATE = 90;
     let currentCoupon = "";
     let currentCouponDiscount = 0;
+    let SITE_CONFIG = {};
 
-    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
-                  || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
-                  || new Date().getTimezoneOffset() === -330;
+    function _loadScript(src, defer) {
+        const s = document.createElement('script');
+        s.src = src;
+        if (defer) s.defer = true; else s.async = true;
+        document.head.appendChild(s);
+        return s;
+    }
+
+    function applyConfig(data) {
+        // ── Third-party scripts ──────────────────────────────────────────
+        if (data.googleAdsId) {
+            _loadScript(`https://www.googletagmanager.com/gtag/js?id=${data.googleAdsId}`);
+            gtag('config', data.googleAdsId);
+        }
+        if (data.shownIoToken) {
+            _loadScript(`https://shown.io/metrics/${data.shownIoToken}`, true);
+        }
+        // PayPal SDK not needed — using redirect flow (no popup)
+
+        // ── Download links ───────────────────────────────────────────────
+        const macLink = document.getElementById('download-mac-link');
+        const winLink = document.getElementById('download-windows-link');
+        if (macLink && data.downloadMacUrl) macLink.href = data.downloadMacUrl;
+        if (winLink && data.downloadWindowsUrl) winLink.href = data.downloadWindowsUrl;
+
+        // ── Social proof stats ───────────────────────────────────────────
+        if (data.statEngineersHired) {
+            const fmt = n => n >= 1000 ? (n/1000).toFixed(0) + ',000+' : n + '+';
+            const label = fmt(data.statEngineersHired);
+            ['hero-eng-count','pricing-eng-count','trust-eng-count','cta-eng-count'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = label;
+            });
+            const statEl = document.getElementById('stat-engineers');
+            if (statEl) { statEl.dataset.count = data.statEngineersHired; statEl.textContent = data.statEngineersHired.toLocaleString(); }
+        }
+        if (data.statSuccessRate) {
+            const statEl = document.getElementById('stat-success');
+            if (statEl) { statEl.dataset.count = data.statSuccessRate; statEl.textContent = data.statSuccessRate; }
+        }
+
+        // ── Product rules ────────────────────────────────────────────────
+        if (data.monthlyUsageHours) {
+            const el = document.getElementById('usage-hours');
+            if (el) el.textContent = data.monthlyUsageHours;
+        }
+        if (data.refundWindowDays) {
+            ['refund-days-faq','refund-days-cta'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = data.refundWindowDays;
+            });
+        }
+    }
 
     async function fetchPricingConfig() {
         try {
             const res = await fetch(`${BACKEND_URL}/api/config`);
             if(res.ok) {
                 const data = await res.json();
-                PRICING_CONFIG = data.pricing;
+                SITE_CONFIG = data;
+                // Pick the region-specific pricing table — no runtime USD→INR conversion needed
+                PRICING_CONFIG = IS_INDIA
+                    ? (data.pricingINR || data.pricing)
+                    : (data.pricingUSD || data.pricing);
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
+                applyConfig(data);
                 updatePricingUI();
                 document.getElementById('btnPro').disabled = false;
                 document.getElementById('btnElite').disabled = false;
@@ -1236,20 +2047,25 @@
      
     function formatPrice(amount, discount, isAffiliate, isEliteCard = false) {
         if (!amount) return "...";
-        let displayAmount = amount;
-        let currencySymbol = "$";
+        const currencySymbol = IS_INDIA ? "₹" : "$";
 
-        if (IS_INDIA) { displayAmount = Math.floor(amount * EXCHANGE_RATE); currencySymbol = "₹"; }
+        // Prices already in correct currency from pricingINR / pricingUSD — no EXCHANGE_RATE conversion
+        const baseNum       = IS_INDIA ? Math.floor(amount) : parseFloat(amount);
+        const discountedNum = IS_INDIA
+            ? Math.floor(amount * (1 - discount / 100))
+            : parseFloat((amount * (1 - discount / 100)).toFixed(2));
 
-        let standardDiscounted = IS_INDIA ? Math.floor(displayAmount * (1 - discount/100)) : (displayAmount * (1 - discount/100)).toFixed(2);
-        displayAmount = IS_INDIA ? displayAmount : displayAmount.toFixed(2);
+        const displayAmount      = IS_INDIA ? baseNum : baseNum.toFixed(2);
+        const standardDiscounted = IS_INDIA ? discountedNum : discountedNum.toFixed(2);
 
         if (isAffiliate) {
-            let finalAffiliatePrice = IS_INDIA ? Math.floor(standardDiscounted * 0.9) : (standardDiscounted * 0.9).toFixed(2); 
+            const finalAffiliatePrice = IS_INDIA
+                ? Math.floor(discountedNum * 0.9)
+                : (discountedNum * 0.9).toFixed(2);
 
-            let strikeColor = isEliteCard ? "text-slate-500" : "text-slate-400";
-            let highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
-            let standardBadge = isEliteCard ? "bg-slate-700 text-white" : "bg-slate-800 text-white";
+            const strikeColor    = isEliteCard ? "text-slate-500" : "text-slate-400";
+            const highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
+            const standardBadge  = isEliteCard ? "bg-slate-700 text-white" : "bg-slate-800 text-white";
 
             return `
                 <div class="flex flex-col">
@@ -1267,19 +2083,33 @@
         } else if (discount > 0) {
             return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
         }
-        
+
         return `${currencySymbol}${displayAmount}`;
     }
 
     function setCycle(c){
-        currentCycle=c;
-        const btnM=document.getElementById('btnMonthly'); const btnQ=document.getElementById('btnQuarterly');
-        if(c==='monthly'){
-            btnM.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
-            btnQ.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+        currentCycle = c;
+        const btnM    = document.getElementById('btnMonthly');
+        const btnQ    = document.getElementById('btnQuarterly');
+        const ribbon  = document.getElementById('quarterlyRibbon');
+
+        if (c === 'monthly') {
+            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all";
+            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all relative";
+            // Tempt monthly users with the quarterly upsell
+            if (ribbon) {
+                ribbon.style.opacity = '1';
+                ribbon.style.transform = 'scale(1)';
+                ribbon.innerHTML = `<i class="fa-solid fa-arrow-up-right-dots text-xs"></i><span>Switch to Quarterly — same price as 1.5 months, covers your full prep cycle</span>`;
+            }
         } else {
-            btnQ.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white text-slate-900 shadow transition-all"; 
-            btnM.className="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 transition-all";
+            btnQ.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all relative";
+            btnM.className = "flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all";
+            if (ribbon) {
+                ribbon.style.opacity = '1';
+                ribbon.style.transform = 'scale(1)';
+                ribbon.innerHTML = `<i class="fa-solid fa-fire-flame-curved text-xs"></i><span>Most users pick quarterly — 3 full interview cycles for the price of 1.5×</span>`;
+            }
         }
         updatePricingUI();
     }
@@ -1390,48 +2220,6 @@
         } else {
             if(rzWrapper) rzWrapper.classList.add('hidden');
             if(ppWrapper) ppWrapper.classList.remove('hidden');
-            
-            document.getElementById('paypal-button-container').innerHTML = '';
-            paypal.Buttons({
-                style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-                createOrder: async function(data, actions) {
-                    const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ 
-                            googleId: currentUser.googleId, 
-                            tier: selectedTierForPayment, 
-                            cycle: currentCycle, 
-                            couponCode: currentCoupon,
-                            refCode: localStorage.getItem('whisRef'),
-                            utmSource: localStorage.getItem('whisSource')
-                        })
-                    });
-                    const orderData = await res.json();
-                    return orderData.id; 
-                },
-                onApprove: async function(data, actions) {
-                    const res = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
-                    });
-                    const details = await res.json();
-                    if (details.success) { 
-                        if (typeof gtag !== 'undefined') {
-                            gtag('event', 'conversion', {
-                                'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
-                                'value': details.revenue,
-                                'currency': details.currency,
-                                'transaction_id': details.transaction_id
-                            });
-                        }
-                        closePaymentModal(); 
-                        document.getElementById('successModal').classList.remove('hidden'); 
-                        document.getElementById('successModal').classList.add('flex'); 
-                    } 
-                    else { alert("PayPal transaction verification failed."); }
-                },
-                onError: function (err) { console.error('PayPal Error', err); alert("Payment could not be processed with PayPal."); }
-            }).render('#paypal-button-container');
         }
 
         const infMsg = document.getElementById('influencerDiscountMsg');
@@ -1449,6 +2237,38 @@
     }
 
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
+
+    async function handlePayPalRedirect() {
+        if (!currentUser) { openLoginModal(); return; }
+        const btn = document.getElementById('paypalBtn');
+        const icon = document.getElementById('paypalBtnIcon');
+        btn.disabled = true;
+        icon.className = 'fa-solid fa-circle-notch fa-spin text-slate-400';
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    googleId: currentUser.googleId,
+                    tier: selectedTierForPayment,
+                    cycle: currentCycle,
+                    couponCode: currentCoupon,
+                    refCode: localStorage.getItem('whisRef'),
+                    utmSource: localStorage.getItem('whisSource')
+                })
+            });
+            const orderData = await res.json();
+            if (orderData.approveUrl) {
+                window.location.href = orderData.approveUrl;
+            } else {
+                throw new Error('No approval URL returned');
+            }
+        } catch (err) {
+            console.error('PayPal redirect error', err);
+            alert('Could not start PayPal checkout. Please try again.');
+            btn.disabled = false;
+            icon.className = 'fa-solid fa-chevron-right text-slate-400 group-hover:text-yellow-500 transition';
+        }
+    }
 
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
@@ -1484,7 +2304,7 @@
                             if(verifyData.success){ 
                                 if (typeof gtag !== 'undefined') {
                                     gtag('event', 'conversion', {
-                                        'send_to': 'AW-18106016519/XGeZCK7Mrp8cEIfGz7lD',
+                                        'send_to': SITE_CONFIG.googleAdsConversionTag || '',
                                         'value': verifyData.revenue,
                                         'currency': verifyData.currency,
                                         'transaction_id': verifyData.transaction_id
@@ -1633,13 +2453,16 @@
     function renderChatMessages(messages) {
         const area = document.getElementById('chatMessagesArea');
         area.innerHTML = '';
-        if(messages.length === 0) { area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-slate-400 mt-10"><i class="fa-solid fa-message text-4xl mb-3 opacity-20"></i><p class="text-[13px] md:text-sm">Start a conversation with our support team.</p></div>'; }
+        if(messages.length === 0) { area.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center mt-10" style="color:#334155;"><i class="fa-solid fa-message text-4xl mb-3 opacity-30"></i><p class="text-[13px] md:text-sm">Start a conversation with our support team.</p></div>'; }
 
         messages.forEach(msg => {
             const div = document.createElement('div');
-            div.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative group ${msg.isSupport ? 'bg-white border border-slate-200 text-slate-800 self-start rounded-tl-sm' : 'bg-sky-600 text-white self-end rounded-tr-sm'}`;
+            div.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed relative group ${msg.isSupport ? 'self-start rounded-tl-sm' : 'self-end rounded-tr-sm'}`;
+            div.style.cssText = msg.isSupport
+                ? 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;'
+                : 'background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#ffffff;box-shadow:0 4px 14px rgba(14,165,233,0.25);';
             const timeStr = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            div.innerHTML = `<div class="message-content">${formatMessage(msg.text)}</div><span class="text-[9px] ${msg.isSupport ? 'text-slate-400' : 'text-sky-200'} mt-1.5 block text-right">${timeStr}</span>`;
+            div.innerHTML = `<div class="message-content">${formatMessage(msg.text)}</div><span class="text-[9px] mt-1.5 block text-right" style="color:${msg.isSupport ? '#475569' : 'rgba(255,255,255,0.6)'};">${timeStr}</span>`;
             area.appendChild(div);
         });
 
@@ -1653,9 +2476,10 @@
         
         const area = document.getElementById('chatMessagesArea');
         const tempDiv = document.createElement('div');
-        tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed shadow-sm relative bg-sky-600/80 text-white self-end rounded-tr-sm`;
+        tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed relative text-white self-end rounded-tr-sm`;
+        tempDiv.style.cssText = 'background:linear-gradient(135deg,#0ea5e9,#0284c7);box-shadow:0 4px 14px rgba(14,165,233,0.25);opacity:0.75;';
         const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] text-sky-200 mt-1.5 block text-right"><i class="fa-regular fa-clock"></i></span>`;
+        tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] mt-1.5 block text-right" style="color:rgba(255,255,255,0.5);"><i class="fa-regular fa-clock"></i></span>`;
         area.appendChild(tempDiv); area.scrollTop = area.scrollHeight; lastChatCount++; 
 
         const tzOffset = new Date().getTimezoneOffset();
@@ -1744,17 +2568,92 @@
             }
         }
 
+        // Handle PayPal redirect return
+        const paypalSuccess = urlParams.get('paypal_success');
+        const paypalError = urlParams.get('paypal_error');
+        if (paypalSuccess === 'true') {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const revenue = parseFloat(urlParams.get('revenue') || '0');
+            const currency = urlParams.get('currency') || 'USD';
+            const txId = urlParams.get('transaction_id') || '';
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'conversion', {
+                    'send_to': SITE_CONFIG.googleAdsConversionTag || '',
+                    'value': revenue,
+                    'currency': currency,
+                    'transaction_id': txId
+                });
+            }
+            setTimeout(() => {
+                const successModal = document.getElementById('successModal');
+                if (successModal) {
+                    successModal.classList.remove('hidden');
+                    successModal.classList.add('flex');
+                }
+                checkUser();
+            }, 500);
+        } else if (paypalError) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            alert('PayPal payment was not completed. Please try again.');
+        }
+
         initCarousel();
         initUptimeCounter();
         typeCode();
         typeEffect();
-        typeHeroSequence(); 
+        typeHeroSequence();
         initSliderAutoPlay();
         checkUser();
         fetchPricingConfig();
-        
-        setCycle('monthly');
+        initStatsCountUp();
+        initLiveCounter();
+
+        setCycle(IS_INDIA ? 'monthly' : 'quarterly');
     });
+
+    function initStatsCountUp() {
+        const strip = document.getElementById('stats-strip');
+        if (!strip) return;
+        let fired = false;
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !fired) {
+                fired = true;
+                ['stat-engineers', 'stat-success', 'stat-detection'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const target = parseInt(el.dataset.count);
+                    const duration = id === 'stat-engineers' ? 1800 : 1200;
+                    const startTs = performance.now();
+                    el.classList.add('stat-pop');
+                    function tick(ts) {
+                        const elapsed = ts - startTs;
+                        const p = Math.min(elapsed / duration, 1);
+                        const ease = 1 - Math.pow(1 - p, 3);
+                        const cur = Math.round(ease * target);
+                        el.textContent = target >= 1000 ? cur.toLocaleString() : cur;
+                        if (p < 1) requestAnimationFrame(tick);
+                        else el.textContent = target >= 1000 ? target.toLocaleString() : target;
+                    }
+                    requestAnimationFrame(tick);
+                });
+                observer.disconnect();
+            }
+        }, { threshold: 0.4 });
+        observer.observe(strip);
+    }
+
+    function initLiveCounter() {
+        const el = document.getElementById('live-users');
+        if (!el) return;
+        function update() {
+            const min = SITE_CONFIG.liveUsersMin || 780;
+            const max = SITE_CONFIG.liveUsersMax || 1020;
+            const base = min + Math.floor(Math.random() * (max - min));
+            el.textContent = base.toLocaleString();
+            setTimeout(update, 4000 + Math.random() * 4000);
+        }
+        setTimeout(update, 2500);
+    }
   </script>
 </body>
 </html>
