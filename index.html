@@ -1298,12 +1298,16 @@ input::placeholder, textarea::placeholder { color: #444444 !important; }
         0 16px 32px rgba(0,0,0,0.6) !important;
 }
 
-/* MODAL BACKDROP */
-.bg-slate-900\/60 { background: rgba(0,0,0,0.72) !important; backdrop-filter: blur(10px) !important; }
+/* MODAL BACKDROP — no backdrop-filter on fixed overlays (Chromium bug: backdrop-filter breaks height:auto on fixed+inset-0) */
+.bg-slate-900\/60 { background: rgba(0,0,0,0.78) !important; backdrop-filter: none !important; }
 
-/* Modals must sit above the page vignette (z:9996) and grain (z:9997) */
+/* Modals must sit above the page vignette (z:9996) and grain (z:9997).
+   Force height/overflow so the flex container stays viewport-sized. */
 #loginModal, #successModal, #paymentModal, #enterpriseModal, #downloadModal, #profileModal {
     z-index: 10000 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
 }
 
 /* SECTION DIVIDER — hairline */
@@ -2532,7 +2536,7 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
     <p class="text-slate-500 text-[9px] md:text-[10px]">Built for those who refuse to lose.</p>
   </footer>
 
-  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+  <div id="loginModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60">
       <div class="perf-card p-6 md:p-10 max-w-sm w-full text-center relative border border-slate-200 shadow-2xl bg-white max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-lg md:text-xl font-medium text-slate-900 mb-6 md:mb-8">Sign In</h3>
@@ -2540,7 +2544,7 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
       </div>
   </div>
 
-  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+  <div id="successModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60">
       <div class="perf-card p-6 md:p-8 max-sm w-full text-center border border-green-300 shadow-[0_0_50px_rgba(16,185,129,0.1)] bg-white max-h-[90vh] overflow-y-auto no-scrollbar">
           <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4 md:mb-6">
               <i class="fa-solid fa-check text-xl md:text-2xl text-green-500"></i>
@@ -2551,7 +2555,7 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
       </div>
   </div>
 
-<div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl">
+<div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-slate-900/60">
     <div class="perf-card p-6 md:p-10 max-w-md w-full text-center border border-slate-200 bg-white relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closePaymentModal()" class="absolute top-4 right-4 md:top-5 md:right-5 text-slate-400 hover:text-slate-900 transition">
             <i class="fa-solid fa-times md:text-lg"></i>
@@ -2615,7 +2619,7 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
     </div>
 </div>
 
-<div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+<div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60">
     <div class="perf-card p-6 md:p-10 max-w-md w-full border border-slate-200 bg-white relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closeEnterpriseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times md:text-lg"></i></button>
         <h3 class="text-xl md:text-2xl font-bold text-slate-900 mb-2 mt-2">Enterprise Inquiry</h3>
@@ -2629,7 +2633,7 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
     </div>
 </div>
 
-  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+  <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60">
     <div class="perf-card p-6 md:p-8 max-w-sm w-full border border-slate-200 bg-white shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-base md:text-lg font-medium text-slate-900 mb-5 md:mb-6 mt-2">Select Platform</h3>
@@ -2646,7 +2650,7 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
     </div>
   </div>
 
-  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+  <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60">
     <div class="perf-card p-6 md:p-8 max-w-sm w-full text-center border border-slate-200 bg-white shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
         <img id="modalUserAvatar" class="w-16 h-16 md:w-20 md:h-20 rounded-full mx-auto mb-3 md:mb-4 border-2 border-accent p-1 object-cover" />
