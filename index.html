@@ -806,15 +806,12 @@ p.italic.text-slate-500 { color: #475569 !important; }
 /* Base */
 html { background: #000000 !important; }
 body {
-    background: #000000 !important;
+    background: transparent !important;
     background-image: none !important;
     color: #ffffff !important;
 }
 
-/* Background orbs — remove colour, keep subtle depth */
-body > .fixed.inset-0.z-0 > div:first-child { background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 70%) !important; opacity: 1 !important; }
-body > .fixed.inset-0.z-0 > div:nth-child(2) { background: none !important; opacity: 0 !important; }
-body > .fixed.inset-0.z-0 > div:nth-child(3) { background: none !important; opacity: 0 !important; }
+/* Background — handled by Aurora canvas (#flow-aurora) */
 
 /* NAV */
 nav.fixed { background: rgba(0,0,0,0.92) !important; border-color: rgba(255,255,255,0.07) !important; box-shadow: 0 1px 0 rgba(255,255,255,0.05) !important; backdrop-filter: blur(24px) !important; }
@@ -914,9 +911,9 @@ strong { color: #ffffff !important; }
 .border-slate-100,.border-slate-200,.border-slate-300 { border-color: rgba(255,255,255,0.07) !important; }
 section { border-color: rgba(255,255,255,0.05) !important; }
 
-/* ALL SECTIONS → pure black */
-section, section.bg-white, section.bg-slate-50, section.bg-slate-100 { background: #000000 !important; }
-section#how-to, section.section-pricing-ultra, section.section-cta-final { background: #000000 !important; }
+/* ALL SECTIONS → transparent so aurora canvas shows through */
+section, section.bg-white, section.bg-slate-50, section.bg-slate-100 { background: transparent !important; }
+section#how-to, section.section-pricing-ultra, section.section-cta-final { background: transparent !important; }
 div.bg-white\/60, div.bg-white\/80, div.bg-white\/70 { background: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.05) !important; }
 
 /* HOW-TO step cards */
@@ -1067,7 +1064,7 @@ div.bg-slate-900.text-white.border.border-slate-700 .bg-slate-900 { background: 
 .absolute.-top-3.-right-2 { background: #ffffff !important; color: #000000 !important; }
 
 /* Final CTA section */
-.section-cta-final { background: #000000 !important; }
+.section-cta-final { background: transparent !important; }
 
 /* Pricing ribbon */
 div[style*="color:#38bdf8;background:rgba(14,165,233"] { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; color: #666666 !important; }
@@ -1106,8 +1103,9 @@ h3 { letter-spacing: -0.03em !important; line-height: 1.1 !important; font-weigh
 h4 { letter-spacing: -0.02em !important; font-weight: 700 !important; }
 p { line-height: 1.7 !important; font-weight: 400 !important; }
 
-/* Pure base */
-html, body { background: #000000 !important; }
+/* Pure base — html is black fallback; body transparent so aurora canvas shows through */
+html { background: #000000 !important; }
+body { background: transparent !important; }
 
 /* Nav — razor sharp */
 nav.fixed {
@@ -1421,40 +1419,98 @@ html { scroll-behavior: smooth !important; }
     font-size: 11px !important;
 }
 
+/* ============================================================
+   GOOGLE FLOW INSPIRED — Cinematic Motion Layer
+   Aurora · Cursor · Scroll Reveal · Hero Entrance
+============================================================ */
+
+/* Page entrance */
+@keyframes flowEntry { from{opacity:0} to{opacity:1} }
+body { animation: flowEntry 0.6s ease both; }
+
+/* Hero staggered entrance — blur + rise */
+@keyframes flowHeroUp {
+    from { opacity:0; transform:translateY(28px); filter:blur(6px); }
+    to   { opacity:1; transform:none;             filter:none; }
+}
+.fh1{opacity:0;animation:flowHeroUp .9s cubic-bezier(.16,1,.3,1) .05s both}
+.fh2{opacity:0;animation:flowHeroUp .9s cubic-bezier(.16,1,.3,1) .20s both}
+.fh3{opacity:0;animation:flowHeroUp .9s cubic-bezier(.16,1,.3,1) .36s both}
+.fh4{opacity:0;animation:flowHeroUp .9s cubic-bezier(.16,1,.3,1) .52s both}
+.fh5{opacity:0;animation:flowHeroUp .9s cubic-bezier(.16,1,.3,1) .68s both}
+.fh6{opacity:0;animation:flowHeroUp .9s cubic-bezier(.16,1,.3,1) .84s both}
+
+/* Scroll reveal */
+.flow-reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .78s cubic-bezier(.16,1,.3,1), transform .78s cubic-bezier(.16,1,.3,1);
+    will-change: opacity, transform;
+}
+.flow-reveal.in { opacity:1; transform:none; }
+
+/* Card shimmer sweep on hover */
+.flow-shimmer { position:relative; overflow:hidden; isolation:isolate; }
+.flow-shimmer::before {
+    content:''; position:absolute; inset:0; z-index:10; pointer-events:none;
+    background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.065) 50%, transparent 70%);
+    transform: translateX(-150%);
+    transition: none;
+}
+.flow-shimmer:hover::before { transform:translateX(150%); transition:transform .65s ease; }
+
+/* Cursor glow */
+#flow-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+        rgba(255,255,255,0.05) 0%,
+        rgba(255,255,255,0.012) 28%,
+        transparent 65%
+    );
+    transform: translate(-50%, -50%);
+    left: 50%; top: 50%;
+    will-change: left, top;
+    mix-blend-mode: screen;
+}
+@media (hover: none) { #flow-cursor { display:none; } }
+
   </style>
 </head>
 <body class="no-scrollbar">
 
-  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-30%] left-[-15%] w-[90vw] h-[90vh] bg-gradient-to-br from-sky-200 to-cyan-100 rounded-full blur-[180px] opacity-[0.22]"></div>
-      <div class="absolute bottom-[-20%] right-[-10%] w-[70vw] h-[70vh] bg-gradient-to-tl from-emerald-100 to-teal-50 rounded-full blur-[160px] opacity-[0.18]"></div>
-      <div class="absolute top-[40%] left-[60%] w-[40vw] h-[40vh] bg-purple-100 rounded-full blur-[120px] opacity-[0.1]"></div>
-      <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.025] mix-blend-multiply"></div>
-  </div>
+  <!-- Aurora canvas — flowing iridescent nebula background -->
+  <canvas id="flow-aurora" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
+  <!-- Cursor glow — soft light follows the mouse -->
+  <div id="flow-cursor"></div>
 
   <nav class="fixed top-0 w-full z-50 h-[60px] md:h-[80px] flex items-center justify-center bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm transition-all">
     <div class="w-full max-w-7xl px-4 md:px-6 flex items-center justify-between">
         <a href="/" class="flex items-center gap-2.5 group relative">
             <div class="absolute -inset-3 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-500 pointer-events-none" style="background:radial-gradient(ellipse at center,rgba(14,165,233,0.12),transparent 70%);"></div>
             <!-- Owl mark -->
-            <div class="relative h-9 w-9 md:h-10 md:w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105" style="background:linear-gradient(140deg,#0ea5e9 0%,#0284c7 50%,#0e7490 100%);box-shadow:0 4px 16px rgba(14,165,233,0.45),inset 0 1px 0 rgba(255,255,255,0.2);">
+            <div class="relative h-9 w-9 md:h-10 md:w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105" style="background:#ffffff;box-shadow:0 4px 20px rgba(255,255,255,0.18),0 0 0 1px rgba(255,255,255,0.1);">
               <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <!-- Left ear -->
-                <path d="M5 9 L7.5 2 L10 9" fill="rgba(255,255,255,0.25)" stroke="none"/>
+                <path d="M5 9 L7.5 2 L10 9" fill="rgba(0,0,0,0.15)" stroke="none"/>
                 <!-- Right ear -->
-                <path d="M14 9 L16.5 2 L19 9" fill="rgba(255,255,255,0.25)" stroke="none"/>
+                <path d="M14 9 L16.5 2 L19 9" fill="rgba(0,0,0,0.15)" stroke="none"/>
                 <!-- W shape (body outline / wings) -->
-                <path d="M2 5 L6 17 L12 9 L18 17 L22 5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M2 5 L6 17 L12 9 L18 17 L22 5" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                 <!-- Left eye dot -->
-                <circle cx="8.5" cy="12" r="1.6" fill="white" opacity="0.9"/>
+                <circle cx="8.5" cy="12" r="1.6" fill="#000000" opacity="0.85"/>
                 <!-- Right eye dot -->
-                <circle cx="15.5" cy="12" r="1.6" fill="white" opacity="0.9"/>
+                <circle cx="15.5" cy="12" r="1.6" fill="#000000" opacity="0.85"/>
               </svg>
             </div>
             <!-- Wordmark -->
             <div class="flex md:flex flex-col leading-none">
-              <span class="text-[15px] font-black tracking-tight text-white" style="letter-spacing:-0.03em;">Whis<span style="background:linear-gradient(90deg,#38bdf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">AI</span></span>
-              <span class="text-[8px] font-semibold tracking-[0.18em] uppercase" style="color:#38bdf8;margin-top:1px;">Silent Co-pilot</span>
+              <span class="text-[15px] font-black tracking-tight text-white" style="letter-spacing:-0.03em;">WhisAI</span>
+              <span class="text-[8px] font-semibold tracking-[0.18em] uppercase" style="color:rgba(255,255,255,0.45);margin-top:1px;">Silent Co-pilot</span>
             </div>
         </a>
         <div class="hidden md:flex items-center gap-0.5 bg-white/70 backdrop-blur-xl p-1 rounded-full border border-slate-200/80 shadow-sm">
@@ -1502,7 +1558,7 @@ html { scroll-behavior: smooth !important; }
   <section class="relative pt-[88px] md:pt-[110px] pb-10 md:pb-12 overflow-hidden flex flex-col items-center">
 
   <!-- Announcement banner -->
-  <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4">
+  <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4 fh1">
     <div class="hero-badge">
       <div class="relative flex shrink-0">
         <span class="w-2 h-2 rounded-full" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
@@ -1516,27 +1572,27 @@ html { scroll-behavior: smooth !important; }
   <div class="relative z-10 text-center max-w-5xl px-4 md:px-6 mb-8 md:mb-10 flex flex-col items-center">
 
     <!-- Mobile h1 — 3 lines, smaller font, no overflow -->
-    <h1 class="md:hidden text-[36px] font-extrabold tracking-[-0.04em] leading-[1.1] mb-5 text-white w-full px-4 text-center" style="font-family:'Plus Jakarta Sans',sans-serif;">
+    <h1 class="md:hidden text-[36px] font-extrabold tracking-[-0.04em] leading-[1.1] mb-5 text-white w-full px-4 text-center fh2" style="font-family:'Plus Jakarta Sans',sans-serif;">
       Helps you answer<br>interviews<br>
       <span style="background:linear-gradient(90deg,#38bdf8,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">in real&#8209;time.</span>
     </h1>
     <!-- Desktop h1 — original 2-line layout, untouched -->
-    <h1 class="hidden md:block text-7xl lg:text-[88px] font-extrabold tracking-[-0.04em] leading-[1.0] mb-7 text-white" style="font-family:'Plus Jakarta Sans',sans-serif;">
+    <h1 class="hidden md:block text-7xl lg:text-[88px] font-extrabold tracking-[-0.04em] leading-[1.0] mb-7 text-white fh2" style="font-family:'Plus Jakarta Sans',sans-serif;">
       Helps you answer<br>interviews
       <span style="background:linear-gradient(90deg,#38bdf8,#22d3ee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"> in real&#8209;time.</span>
     </h1>
 
     <!-- Mobile subtitle — concise, full-width, no overflow risk -->
-    <p class="md:hidden w-full text-[15px] text-slate-400 mb-7 leading-relaxed font-normal px-6 text-center">
+    <p class="md:hidden w-full text-[15px] text-slate-400 mb-7 leading-relaxed font-normal px-6 text-center fh3">
       Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong> &amp; more.<br>Completely invisible. Your silent co-pilot.
     </p>
     <!-- Desktop subtitle — full version, untouched -->
-    <p class="hidden md:block text-xl text-slate-500 max-w-2xl mx-auto mb-7 md:mb-8 leading-relaxed font-normal px-2">
+    <p class="hidden md:block text-xl text-slate-500 max-w-2xl mx-auto mb-7 md:mb-8 leading-relaxed font-normal px-2 fh3">
       Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong>, <strong class="plat-chime">Chime</strong> &amp; <strong class="plat-hackerrank">HackerRank</strong>.<br>Completely invisible. Your silent co-pilot in every interview.
     </p>
 
     <!-- Flow pill — 3-step pipeline -->
-<div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-2 mb-6">
+<div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-2 mb-6 fh4">
       <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.25);">
         <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style="background:rgba(14,165,233,0.2);"><i class="fa-solid fa-ear-listen text-[7px]" style="color:#38bdf8;"></i></div>
         <span class="text-[9px] font-bold" style="color:#7dd3fc;">Listens Live</span>
@@ -1554,14 +1610,14 @@ html { scroll-behavior: smooth !important; }
     </div>
 
     <!-- CTA -->
-    <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto">
+    <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-center md:w-auto fh5">
       <button id="heroDownloadBtn" onclick="openDownloadModal()" class="btn-premium w-full md:w-auto px-10 py-4 rounded-2xl text-sm font-bold flex justify-center items-center gap-2.5 shadow-xl">
         <span><i class="fa-solid fa-download mr-1"></i> Try Free — No Credit Card. No Setup.</span>
       </button>
     </div>
 
     <!-- Social proof strip — infinite marquee -->
-    <div class="mt-8 md:mt-10 w-full flex flex-col items-center">
+    <div class="mt-8 md:mt-10 w-full flex flex-col items-center fh6">
       <p class="text-[10px] md:text-[11px] text-slate-400 uppercase tracking-[0.18em] font-bold mb-5">Trusted by engineers at</p>
       <div class="logo-ticker w-full">
         <div class="logo-ticker-track">
@@ -3445,6 +3501,96 @@ html { scroll-behavior: smooth !important; }
         }
         setTimeout(update, 2500);
     }
+
+  /* ============================================================
+     GOOGLE FLOW INSPIRED — Aurora · Cursor · Scroll Reveal
+  ============================================================ */
+
+  // AURORA CANVAS — slowly flowing nebula, always behind content
+  (function initAurora() {
+    const canvas = document.getElementById('flow-aurora');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    // Six iridescent orbs: dark blues, deep violets, midnight teals
+    const orbs = [
+      { nx:0.12, ny:0.15, r:0.90, h:235, a:0.52, sp:0.0000172, ph:0.00 },
+      { nx:0.82, ny:0.22, r:0.72, h:265, a:0.44, sp:0.0000130, ph:1.20 },
+      { nx:0.50, ny:0.84, r:0.78, h:208, a:0.38, sp:0.0000154, ph:2.40 },
+      { nx:0.92, ny:0.70, r:0.60, h:300, a:0.30, sp:0.0000122, ph:0.80 },
+      { nx:0.06, ny:0.88, r:0.65, h:185, a:0.34, sp:0.0000147, ph:3.60 },
+      { nx:0.64, ny:0.04, r:0.54, h:228, a:0.40, sp:0.0000192, ph:1.80 },
+    ];
+
+    function frame(ts) {
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+      for (const o of orbs) {
+        const px = (o.nx + Math.sin(ts * o.sp + o.ph) * 0.22) * W;
+        const py = (o.ny + Math.cos(ts * o.sp * 1.38 + o.ph) * 0.16) * H;
+        const r  = o.r * Math.max(W, H);
+        const g  = ctx.createRadialGradient(px, py, 0, px, py, r);
+        g.addColorStop(0,    `hsla(${o.h},88%,30%,${o.a})`);
+        g.addColorStop(0.42, `hsla(${o.h},75%,16%,${o.a * 0.40})`);
+        g.addColorStop(1,    `hsla(${o.h},60%,5%,0)`);
+        ctx.globalCompositeOperation = 'screen';
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
+  // CURSOR GLOW — soft phosphorescent light trails the pointer
+  (function initCursorGlow() {
+    const el = document.getElementById('flow-cursor');
+    if (!el) return;
+    // Hide on touch devices
+    if (window.matchMedia('(hover: none)').matches) { el.style.display = 'none'; return; }
+    let cx = innerWidth / 2, cy = innerHeight / 2, tx = cx, ty = cy;
+    document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; }, { passive: true });
+    (function loop() {
+      cx += (tx - cx) * 0.065;
+      cy += (ty - cy) * 0.065;
+      el.style.left = cx + 'px';
+      el.style.top  = cy + 'px';
+      requestAnimationFrame(loop);
+    })();
+  })();
+
+  // SCROLL REVEAL + CARD SHIMMER — elements animate into view
+  (function initScrollReveal() {
+    const skip = '#loginModal,#paymentModal,#successModal,#enterpriseModal,#downloadModal,#profileModal,#liveChat';
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -28px 0px' });
+
+    // Section headings — reveal only, skip hero section and modals
+    document.querySelectorAll('h2').forEach((el, i) => {
+      if (el.closest('section:first-of-type') || el.closest(skip)) return;
+      el.classList.add('flow-reveal');
+      el.style.transitionDelay = `${(i % 2) * 0.05}s`;
+      io.observe(el);
+    });
+
+    // Cards — reveal + shimmer sweep
+    document.querySelectorAll('.perf-card, .pricing-card-glass, .pricing-elite, .testimonial-card, .feature-card-dark, .stat-card').forEach((el, i) => {
+      if (el.closest(skip)) return;
+      el.classList.add('flow-reveal', 'flow-shimmer');
+      el.style.transitionDelay = `${(i % 5) * 0.07}s`;
+      io.observe(el);
+    });
+  })();
+
   </script>
 </body>
 </html>
