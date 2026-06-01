@@ -3514,12 +3514,7 @@ nav.fixed     { contain: layout style; }
             });
             const data = await res.json();
             if (data.approveUrl) {
-                // Open in a small popup — user stays on our page
-                const w = 500, h = 650;
-                const left = Math.max(0, (screen.width - w) / 2);
-                const top = Math.max(0, (screen.height - h) / 2);
-                window.open(data.approveUrl, 'paypal_checkout',
-                    `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+                window.location.href = data.approveUrl;
             }
         } catch(e) {
             console.error('PayPal fallback error', e);
@@ -3585,49 +3580,13 @@ nav.fixed     { contain: layout style; }
             });
             const data = await res.json();
             if (!data.approveUrl) throw new Error('No approval URL');
-            openPayPalPopup(data.approveUrl);
+            window.location.href = data.approveUrl; // same tab — PayPal redirects back after payment
         } catch(err) {
             console.error('Checkout error', err);
             alert('Could not start checkout. Please try again.');
+            btn.disabled = false;
+            if (icon) icon.className = origIcon;
         }
-        btn.disabled = false;
-        if (icon) icon.className = origIcon;
-    }
-
-    function openPayPalPopup(approveUrl) {
-        const w = 500, h = 660;
-        const left = Math.max(0, Math.round((screen.width  - w) / 2));
-        const top  = Math.max(0, Math.round((screen.height - h) / 2));
-        const popup = window.open(
-            approveUrl, 'paypal_checkout',
-            `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
-        );
-        if (!popup) { window.location.href = approveUrl; return; } // blocked → fall back
-
-        // Poll: when PayPal redirects back to our domain with ?paypal_success=true, handle it here
-        const poll = setInterval(() => {
-            try {
-                if (popup.closed) { clearInterval(poll); return; }
-                const url = popup.location.href;
-                if (url && url.includes('paypal_success=true')) {
-                    clearInterval(poll);
-                    popup.close();
-                    const params = new URLSearchParams(popup.location.search);
-                    closePaymentModal();
-                    const successModal = document.getElementById('successModal');
-                    if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
-                    checkUser();
-                    if (typeof gtag !== 'undefined' && SITE_CONFIG.googleAdsConversionTag) {
-                        gtag('event', 'conversion', {
-                            send_to: SITE_CONFIG.googleAdsConversionTag,
-                            value: parseFloat(params.get('revenue') || '0'),
-                            currency: params.get('currency') || 'USD',
-                            transaction_id: params.get('transaction_id') || ''
-                        });
-                    }
-                }
-            } catch(e) { /* cross-origin while on PayPal — expected, keep polling */ }
-        }, 600);
     }
 
     async function triggerRazorpayFlow(event) {
