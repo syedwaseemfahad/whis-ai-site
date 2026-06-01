@@ -2719,91 +2719,89 @@ nav.fixed     { contain: layout style; }
   </div>
 
 <div id="paymentModal" class="fixed inset-0 z-[150] hidden items-center justify-center p-4 bg-slate-900/60">
-    <div class="perf-card max-w-sm w-full bg-white relative shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar" style="border-radius:24px;border:1px solid rgba(0,0,0,0.07);">
+  <div class="w-full max-w-[360px] bg-white relative max-h-[90vh] overflow-y-auto no-scrollbar" style="border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.18),0 0 0 1px rgba(0,0,0,0.06);">
 
-        <!-- Close -->
-        <button onclick="closePaymentModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition z-10">
-            <i class="fa-solid fa-times text-sm"></i>
-        </button>
+    <!-- Close -->
+    <button onclick="closePaymentModal()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#94a3b8;background:transparent;border:none;cursor:pointer;z-index:10;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+        <i class="fa-solid fa-times text-xs"></i>
+    </button>
 
-        <!-- Header -->
-        <div class="pt-7 px-6 pb-5 text-center" style="border-bottom:1px solid #f1f5f9;">
-            <div class="w-11 h-11 rounded-2xl flex items-center justify-center mx-auto mb-3" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);">
-                <i class="fa-solid fa-lock text-emerald-600 text-sm"></i>
-            </div>
-            <h3 class="text-[17px] font-bold text-slate-900 tracking-tight">Secure Checkout</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">256-bit SSL encrypted &middot; Trusted &amp; safe</p>
+    <!-- Header -->
+    <div style="padding:28px 24px 20px;text-align:center;border-bottom:1px solid #f1f5f9;">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ecfdf5,#bbf7d0);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <i class="fa-solid fa-lock" style="color:#16a34a;font-size:14px;"></i>
         </div>
-
-        <!-- Coupon -->
-        <div class="px-5 pt-4 pb-3">
-            <div class="flex gap-2">
-                <input type="text" id="couponInput" placeholder="Have a coupon code?" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-[16px] md:text-[13px] text-slate-900 focus:border-accent outline-none uppercase placeholder:text-slate-400 placeholder:normal-case placeholder:font-normal">
-                <button onclick="applyCoupon()" class="bg-accent text-white font-bold px-4 py-2.5 rounded-xl text-[12px] whitespace-nowrap hover:bg-sky-700 transition active:scale-95">Apply</button>
-            </div>
-            <div id="couponMessage" class="text-xs font-bold mt-2 hidden"></div>
-        </div>
-
-        <div id="influencerDiscountMsg" class="hidden mx-5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] p-3 rounded-xl mb-2 text-left">
-        </div>
-
-        <!-- Payment options -->
-        <div class="px-5 pb-6 space-y-2.5 mt-1">
-
-            <!-- India: Razorpay only -->
-            <div id="razorpayWrapper" class="hidden">
-                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">Choose payment method</p>
-                <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center gap-3.5 p-3.5 rounded-2xl border-2 border-slate-100 hover:border-sky-400 hover:bg-sky-50/40 transition-all duration-200 active:scale-[0.98] text-left">
-                    <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform" style="border:1px solid #bae6fd;">
-                        <i class="fa-solid fa-credit-card text-sky-600 text-base"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-slate-800 text-[13px]">Razorpay</div>
-                        <div class="text-[11px] text-slate-400 mt-0.5">Cards · UPI · Netbanking · Wallets</div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-sky-500 transition text-xs mr-1"></i>
-                </button>
-            </div>
-
-            <!-- Non-India: PayPal + Credit/Debit Card (both same checkout) -->
-            <div id="paypalWrapper" class="hidden space-y-2.5">
-                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2.5">Choose payment method</p>
-
-                <!-- PayPal -->
-                <button onclick="triggerCardPayment(event)" class="w-full group flex items-center gap-3.5 p-3.5 rounded-2xl border-2 border-slate-100 hover:border-[#003087] hover:bg-[#eef4ff] transition-all duration-200 active:scale-[0.98] text-left">
-                    <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform" style="background:#eef4ff;border:1px solid #bfdbfe;">
-                        <img src="https://cdn.simpleicons.org/paypal/003087" width="22" height="22" alt="PayPal" draggable="false"/>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-slate-800 text-[13px]">PayPal</div>
-                        <div class="text-[11px] text-slate-400 mt-0.5">Fast &amp; secure checkout</div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-[#003087] transition text-xs mr-1 pay-btn-icon"></i>
-                </button>
-
-                <!-- Credit / Debit Card -->
-                <button onclick="triggerCardPayment(event)" class="w-full group flex items-center gap-3.5 p-3.5 rounded-2xl border-2 border-slate-100 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200 active:scale-[0.98] text-left">
-                    <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform gap-1" style="background:#f8fafc;border:1px solid #e2e8f0;">
-                        <svg width="15" height="10" viewBox="0 0 48 30" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="30" rx="4" fill="#1A1F71"/><text x="5" y="22" font-size="18" fill="white" font-weight="900" font-family="Arial,sans-serif">VISA</text></svg>
-                        <svg width="14" height="14" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="17" r="12" fill="#EB001B"/><circle cx="22" cy="17" r="12" fill="#F79E1B"/><path d="M17 8.3a12 12 0 010 17.4 12 12 0 010-17.4z" fill="#FF5F00"/></svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-slate-800 text-[13px]">Credit / Debit Card</div>
-                        <div class="text-[11px] text-slate-400 mt-0.5">Visa, Mastercard &amp; more</div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-600 transition text-xs mr-1 pay-btn-icon"></i>
-                </button>
-            </div>
-
-        </div>
-
-        <!-- Footer -->
-        <div class="px-6 pb-5 flex items-center justify-center gap-1.5 text-slate-400" style="border-top:1px solid #f1f5f9;">
-            <i class="fa-solid fa-shield-halved text-[11px] text-emerald-500"></i>
-            <span class="text-[10px] font-medium">Payments secured by industry-standard encryption</span>
-        </div>
-
+        <div style="font-size:17px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Secure Checkout</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:3px;">256-bit SSL &nbsp;·&nbsp; Trusted &amp; safe</div>
     </div>
+
+    <!-- Coupon -->
+    <div style="padding:16px 20px 12px;">
+        <div style="display:flex;gap:8px;">
+            <input type="text" id="couponInput" placeholder="Coupon code" style="flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:13px;color:#0f172a;outline:none;text-transform:uppercase;" onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+            <button onclick="applyCoupon()" style="background:#0ea5e9;color:#fff;font-weight:700;padding:0 16px;border-radius:10px;font-size:12px;border:none;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">Apply</button>
+        </div>
+        <div id="couponMessage" class="text-xs font-bold mt-2 hidden"></div>
+    </div>
+
+    <div id="influencerDiscountMsg" class="hidden" style="margin:0 20px 8px;background:#ecfdf5;border:1px solid #bbf7d0;color:#15803d;font-size:11px;padding:10px 12px;border-radius:10px;text-align:left;"></div>
+
+    <!-- Payment options -->
+    <div style="padding:4px 20px 20px;">
+        <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">Payment method</div>
+
+        <!-- India: Razorpay -->
+        <div id="razorpayWrapper" class="hidden">
+            <button onclick="triggerRazorpayFlow(event)" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='#38bdf8';this.style.background='#f0f9ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+                <div style="width:44px;height:44px;border-radius:12px;background:#f0f9ff;border:1.5px solid #bae6fd;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fa-solid fa-credit-card" style="color:#0284c7;font-size:16px;"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:700;color:#0f172a;">Razorpay</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Cards · UPI · Netbanking · Wallets</div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:#cbd5e1;font-size:11px;flex-shrink:0;"></i>
+            </button>
+        </div>
+
+        <!-- Non-India: PayPal + Card -->
+        <div id="paypalWrapper" class="hidden" style="flex-direction:column;gap:10px;">
+
+            <!-- PayPal -->
+            <button onclick="triggerCardPayment(event)" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='#003087';this.style.background='#eef4ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+                <div style="width:44px;height:44px;border-radius:12px;background:#eef4ff;border:1.5px solid #bfdbfe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <img src="https://cdn.simpleicons.org/paypal/003087" width="22" height="22" alt="PayPal" draggable="false"/>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:700;color:#0f172a;">PayPal</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Fast &amp; secure checkout</div>
+                </div>
+                <i class="fa-solid fa-chevron-right pay-btn-icon" style="color:#cbd5e1;font-size:11px;flex-shrink:0;"></i>
+            </button>
+
+            <!-- Credit / Debit Card -->
+            <button onclick="triggerCardPayment(event)" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='#64748b';this.style.background='#f8fafc'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+                <div style="width:44px;height:44px;border-radius:12px;background:#f8fafc;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;gap:4px;">
+                    <svg width="15" height="10" viewBox="0 0 48 30"><rect width="48" height="30" rx="4" fill="#1A1F71"/><text x="5" y="22" font-size="18" fill="white" font-weight="900" font-family="Arial,sans-serif">VISA</text></svg>
+                    <svg width="14" height="14" viewBox="0 0 34 34"><circle cx="12" cy="17" r="12" fill="#EB001B"/><circle cx="22" cy="17" r="12" fill="#F79E1B"/><path d="M17 8.3a12 12 0 010 17.4 12 12 0 010-17.4z" fill="#FF5F00"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:700;color:#0f172a;">Credit / Debit Card</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Visa, Mastercard &amp; more</div>
+                </div>
+                <i class="fa-solid fa-chevron-right pay-btn-icon" style="color:#cbd5e1;font-size:11px;flex-shrink:0;"></i>
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:12px 24px 18px;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <i class="fa-solid fa-shield-halved" style="color:#22c55e;font-size:11px;"></i>
+        <span style="font-size:10px;color:#94a3b8;font-weight:500;">Payments secured by SSL encryption</span>
+    </div>
+
+  </div>
 </div>
 
 <div id="enterpriseModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-slate-900/60">
@@ -3411,11 +3409,11 @@ nav.fixed     { contain: layout style; }
         const ppWrapper = document.getElementById('paypalWrapper');
         
         if (IS_INDIA) {
-            if(rzWrapper) rzWrapper.classList.remove('hidden');
-            if(ppWrapper) ppWrapper.classList.add('hidden');
+            if(rzWrapper) { rzWrapper.classList.remove('hidden'); rzWrapper.style.display = ''; }
+            if(ppWrapper) { ppWrapper.classList.add('hidden'); ppWrapper.style.display = 'none'; }
         } else {
-            if(rzWrapper) rzWrapper.classList.add('hidden');
-            if(ppWrapper) ppWrapper.classList.remove('hidden');
+            if(rzWrapper) { rzWrapper.classList.add('hidden'); rzWrapper.style.display = 'none'; }
+            if(ppWrapper) { ppWrapper.classList.remove('hidden'); ppWrapper.style.display = 'flex'; }
             initPayPalButtons();
         }
 
