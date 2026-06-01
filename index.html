@@ -1732,6 +1732,14 @@ section p.italic { color: #64748b !important; }
 #successModal .text-slate-600 { color: #475569 !important; }
 /* Chat widget — must override broad div[style*] attribute selectors */
 #liveChatWidget { background: #050f1e !important; }
+/* Card payment button in payment modal */
+#cardPayBtn { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
+#cardPayBtn:hover { background: #f1f5f9 !important; border-color: #94a3b8 !important; }
+#cardPayBtn .text-slate-900 { color: #0f172a !important; }
+#cardPayBtn .text-slate-500 { color: #64748b !important; }
+#cardPayBtn .text-slate-400 { color: #94a3b8 !important; }
+#cardWrapper .border-t { border-color: #e2e8f0 !important; }
+#cardWrapper .text-slate-400 { color: #94a3b8 !important; }
 
   </style>
 </head>
@@ -2712,8 +2720,12 @@ section p.italic { color: #64748b !important; }
             <div id="razorpayWrapper" class="hidden">
                 <button onclick="triggerRazorpayFlow(event)" class="w-full group flex items-center justify-between p-3.5 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl hover:border-accent hover:bg-sky-50 transition-all duration-300">
                     <div class="flex items-center gap-3 md:gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-credit-card text-base md:text-lg"></i>
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden" style="background:#3395FF;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 72" width="18" height="22">
+                                <rect fill="white" x="5" y="4" width="12" height="64"/>
+                                <path fill="white" d="M17 4h18c10 0 16 6.5 16 15.5S44.5 35 35 35H17V4z"/>
+                                <path fill="white" d="M26.5 35l18 33H32L17 35z"/>
+                            </svg>
                         </div>
                         <div class="text-left">
                             <div class="text-[13px] md:text-sm font-bold text-slate-900">Razorpay</div>
@@ -2732,8 +2744,11 @@ section p.italic { color: #64748b !important; }
                 </div>
                 <button id="paypalBtn" onclick="handlePayPalRedirect()" class="w-full group flex items-center justify-between p-3.5 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-300 active:scale-95">
                     <div class="flex items-center gap-3 md:gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fa-brands fa-paypal text-[#003087] text-lg"></i>
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style="background:linear-gradient(135deg,#eef4ff,#dbeeff);">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 36" width="20" height="24">
+                                <path fill="#003087" d="M3 2h9C15.5 2 18 4.5 18 8c0 5-3.5 8-8.5 8H7L5.2 28H2L3 2z"/>
+                                <path fill="#009cde" d="M8 10h9C20.5 10 23 12.5 23 16c0 5-3.5 8-8.5 8H12L10.2 34H7L8 10z"/>
+                            </svg>
                         </div>
                         <div class="text-left">
                             <div class="text-[13px] md:text-sm font-bold text-slate-900">Pay with PayPal</div>
@@ -2743,8 +2758,41 @@ section p.italic { color: #64748b !important; }
                     <i id="paypalBtnIcon" class="fa-solid fa-chevron-right text-slate-400 group-hover:text-yellow-500 transition"></i>
                 </button>
             </div>
+
+            <!-- Card payment — always visible, routes to active gateway -->
+            <div id="cardWrapper">
+                <div class="relative flex py-2 md:py-3 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-3 md:mx-4 text-[8px] md:text-[9px] font-mono text-slate-400 tracking-widest uppercase">Cards Accepted</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+                <button id="cardPayBtn" onclick="triggerCardPayment(event)" class="w-full group flex items-center justify-between p-3.5 md:p-4 bg-slate-50 border border-slate-200 rounded-xl md:rounded-2xl hover:border-slate-400 hover:bg-slate-100 transition-all duration-300 active:scale-95">
+                    <div class="flex items-center gap-3 md:gap-4">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style="background:#f1f5f9;border:1px solid #e2e8f0;">
+                            <div class="flex items-center gap-0.5">
+                                <!-- Visa -->
+                                <svg width="14" height="9" viewBox="0 0 48 30" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="48" height="30" rx="4" fill="#1A1F71"/>
+                                    <text x="5" y="22" font-size="18" fill="white" font-weight="900" font-family="Arial,sans-serif">VISA</text>
+                                </svg>
+                                <!-- Mastercard -->
+                                <svg width="13" height="13" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="17" r="12" fill="#EB001B"/>
+                                    <circle cx="22" cy="17" r="12" fill="#F79E1B"/>
+                                    <path d="M17 8.3a12 12 0 010 17.4 12 12 0 010-17.4z" fill="#FF5F00"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-[13px] md:text-sm font-bold text-slate-900">Pay by Card</div>
+                            <div class="text-[9px] md:text-[10px] text-slate-500">Credit &amp; Debit Cards Accepted</div>
+                        </div>
+                    </div>
+                    <i id="cardBtnIcon" class="fa-solid fa-chevron-right text-slate-400 group-hover:text-slate-600 transition"></i>
+                </button>
+            </div>
         </div>
-        
+
         <p class="mt-6 md:mt-8 text-[9px] md:text-[10px] text-slate-500 flex items-center justify-center gap-1.5 md:gap-2">
             <i class="fa-solid fa-lock"></i> 256-bit Encrypted Transaction
         </p>
@@ -3399,6 +3447,37 @@ section p.italic { color: #64748b !important; }
         }
     }
 
+    async function triggerCardPayment(event) {
+        if (!currentUser) { openLoginModal(); return; }
+        if (IS_INDIA) {
+            triggerRazorpayFlow(event);
+        } else {
+            const btn = event.currentTarget;
+            const icon = document.getElementById('cardBtnIcon');
+            btn.disabled = true;
+            if (icon) icon.className = 'fa-solid fa-circle-notch fa-spin text-slate-400';
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        googleId: currentUser.googleId, tier: selectedTierForPayment,
+                        cycle: currentCycle, couponCode: currentCoupon,
+                        refCode: localStorage.getItem('whisRef'),
+                        utmSource: localStorage.getItem('whisSource')
+                    })
+                });
+                const data = await res.json();
+                if (data.approveUrl) { window.location.href = data.approveUrl; }
+                else throw new Error('No approval URL');
+            } catch(err) {
+                console.error('Card payment error', err);
+                alert('Could not start checkout. Please try again.');
+                btn.disabled = false;
+                if (icon) icon.className = 'fa-solid fa-chevron-right text-slate-400 group-hover:text-slate-600 transition';
+            }
+        }
+    }
+
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
         const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
@@ -3746,7 +3825,7 @@ section p.italic { color: #64748b !important; }
         initStatsCountUp();
         initLiveCounter();
 
-        setCycle(IS_INDIA ? 'monthly' : 'quarterly');
+        setCycle('monthly');
     });
 
     function initStatsCountUp() {
