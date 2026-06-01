@@ -32,7 +32,7 @@
     }
   </script>
    
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
    
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -398,7 +398,7 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
 @keyframes marquee-left { from { transform: translateX(0) } to { transform: translateX(-50%) } }
 @keyframes mobileTicker { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }
 .logo-ticker { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%); }
-.logo-ticker-track { display: flex; align-items: center; gap: 0; animation: marquee-left 32s linear infinite; width: max-content; }
+.logo-ticker-track { display: flex; align-items: center; gap: 0; animation: marquee-left 32s linear infinite; width: max-content; will-change: transform; transform: translateZ(0); }
 .logo-ticker-track:hover { animation-play-state: paused; }
 .logo-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: #b0bec5; white-space: nowrap; padding: 6px 20px; border-radius: 100px; transition: color .2s ease; letter-spacing: .01em; }
 .logo-item:hover { color: #475569; }
@@ -410,7 +410,7 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
 
 /* LIVE PULSE DOT */
 @keyframes live-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,.5); opacity:1 } 50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); opacity:.8 } }
-.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; animation:live-pulse 2s ease-in-out infinite; flex-shrink:0; }
+.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; animation:live-pulse 2s ease-in-out infinite; flex-shrink:0; will-change:box-shadow,opacity; }
 
 /* TESTIMONIAL FEATURED QUOTE */
 .testimonial-featured { background: linear-gradient(135deg,rgba(14,165,233,.05) 0%,rgba(16,185,129,.03) 100%); border: 1px solid rgba(14,165,233,.12); }
@@ -1095,8 +1095,10 @@ div[style*="color:#38bdf8;background:rgba(14,165,233"] { background: rgba(255,25
    Typography · Spacing · Easing · Micro-detail
 ============================================================ */
 
-/* Global smooth easing */
-*, *::before, *::after {
+/* Smooth easing on interactive elements only (not global * — too expensive) */
+a, button, .perf-card, .pricing-card-glass, .pricing-elite,
+.testimonial-card, .feature-card-dark, .stat-card,
+.btn-premium, .btn-elite-cta, .nav-pill-link {
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
@@ -1334,9 +1336,9 @@ input::placeholder, textarea::placeholder { color: #444444 !important; }
 
 /* MOBILE BOTTOM BAR */
 .fixed.bottom-0.left-0.right-0.z-50 {
-    background: rgba(0,0,0,0.96) !important;
+    background: rgba(0,0,0,0.97) !important;
     border-top: 1px solid rgba(255,255,255,0.07) !important;
-    backdrop-filter: blur(20px) !important;
+    backdrop-filter: none !important;
 }
 .fixed.bottom-0.left-0.right-0.z-50 button {
     background: #ffffff !important;
@@ -1459,8 +1461,8 @@ body { animation: flowEntry 0.7s ease both; }
 
 /* Hero staggered entrance — blur lift */
 @keyframes flowHeroUp {
-    from { opacity:0; transform:translateY(32px); filter:blur(10px); }
-    to   { opacity:1; transform:none;             filter:none; }
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:none; }
 }
 .fh1{opacity:0;animation:flowHeroUp 1.0s cubic-bezier(.16,1,.3,1) .05s both}
 .fh2{opacity:0;animation:flowHeroUp 1.0s cubic-bezier(.16,1,.3,1) .20s both}
@@ -1490,34 +1492,27 @@ body { animation: flowEntry 0.7s ease both; }
 
 /* No backdrop-filter anywhere — use solid backgrounds for performance */
 
-/* Cursor glow — larger, more ethereal */
+/* Cursor glow — compositor-only, no layout cost */
 #flow-cursor {
     position: fixed;
     pointer-events: none;
     z-index: 1;
-    width: 900px;
-    height: 900px;
+    width: 500px;
+    height: 500px;
     border-radius: 50%;
     background: radial-gradient(circle at center,
-        rgba(255,255,255,0.055) 0%,
-        rgba(210,190,255,0.018) 22%,
-        transparent 60%
+        rgba(255,255,255,0.045) 0%,
+        rgba(210,190,255,0.012) 25%,
+        transparent 65%
     );
-    transform: translate(-50%, -50%);
-    left: 50%; top: 50%;
-    will-change: left, top;
-    mix-blend-mode: screen;
+    left: 0; top: 0;
+    will-change: transform;
 }
 @media (hover: none) { #flow-cursor { display:none; } }
 
-/* Film grain texture */
+/* Film grain — hidden (feTurbulence is too GPU-heavy) */
 #flow-grain {
-    position: fixed;
-    inset: 0;
-    z-index: 9997;
-    pointer-events: none;
-    opacity: 0.042;
-    mix-blend-mode: overlay;
+    display: none;
 }
 
 /* Page vignette — darkens edges for cinematic depth */
@@ -1732,6 +1727,26 @@ section p.italic { color: #64748b !important; }
 #successModal .text-slate-600 { color: #475569 !important; }
 /* Chat widget — must override broad div[style*] attribute selectors */
 #liveChatWidget { background: #050f1e !important; }
+/* ============================================================
+   SCROLL & LAYOUT PERFORMANCE
+============================================================ */
+/* Kill the two backdrop-filters that bypass the * override (higher specificity) */
+nav.fixed { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(2,8,22,0.97) !important; }
+.hero-badge { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+/* Skip paint for off-screen sections — huge scroll perf gain */
+section:not(:first-of-type) {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 560px;
+}
+/* Contain layout for isolated UI blocks */
+.logo-ticker { contain: layout style; }
+#stats-strip  { contain: layout style; }
+nav.fixed     { contain: layout style; }
+/* Promote continuous-animation elements to their own GPU layers */
+.fh1,.fh2,.fh3,.fh4,.fh5,.fh6 { will-change: opacity, transform; }
+/* Card paint containment — avoids full-page repaint on hover */
+.perf-card, .pricing-card-glass, .pricing-elite, .testimonial-card { contain: layout style; }
+/* Card paint containment */
 /* Card payment button in payment modal */
 #cardPayBtn { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
 #cardPayBtn:hover { background: #f1f5f9 !important; border-color: #94a3b8 !important; }
@@ -1746,7 +1761,7 @@ section p.italic { color: #64748b !important; }
 <body class="no-scrollbar">
 
   <!-- Aurora canvas — vivid flowing nebula -->
-  <canvas id="flow-aurora" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;"></canvas>
+  <canvas id="flow-aurora" style="position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;will-change:contents;transform:translateZ(0);"></canvas>
   <!-- Cursor glow -->
   <div id="flow-cursor"></div>
   <!-- Film grain texture -->
@@ -1830,7 +1845,7 @@ section p.italic { color: #64748b !important; }
 
   <section class="relative pt-[88px] md:pt-[110px] pb-10 md:pb-12 overflow-hidden flex flex-col items-center">
   <!-- Hero ambient glow — radial halo behind the headline -->
-  <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);width:min(900px,120vw);height:420px;background:radial-gradient(ellipse at center,rgba(140,110,255,0.16) 0%,rgba(80,60,180,0.06) 45%,transparent 75%);pointer-events:none;z-index:0;filter:blur(30px);"></div>
+  <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);width:min(900px,120vw);height:420px;background:radial-gradient(ellipse at center,rgba(140,110,255,0.12) 0%,rgba(80,60,180,0.04) 45%,transparent 75%);pointer-events:none;z-index:0;"></div>
 
   <!-- Announcement banner -->
   <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4 fh1">
@@ -1991,7 +2006,7 @@ section p.italic { color: #64748b !important; }
   <!-- Live answer demo card -->
   <div class="w-full max-w-xl mx-auto mb-10 md:mb-12 relative z-20 px-4">
     <!-- ambient glow -->
-    <div class="absolute inset-0 rounded-3xl pointer-events-none" style="background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(14,165,233,0.18) 0%,transparent 70%);filter:blur(20px);z-index:-1;"></div>
+    <div class="absolute inset-0 rounded-3xl pointer-events-none" style="background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(14,165,233,0.14) 0%,transparent 70%);z-index:-1;"></div>
     <div class="rounded-xl overflow-hidden" style="background:linear-gradient(145deg,#050f1e 0%,#071626 100%);border:1px solid rgba(14,165,233,0.18);box-shadow:0 24px 80px -16px rgba(14,165,233,0.24),0 0 0 1px rgba(14,165,233,0.06),0 12px 40px rgba(0,0,0,0.6);">
       <div class="px-3 py-2 flex items-center justify-between border-b" style="background:rgba(2,7,20,0.95);border-color:rgba(14,165,233,0.1);">
         <div class="flex gap-1.5">
@@ -3887,20 +3902,17 @@ section p.italic { color: #64748b !important; }
     window.addEventListener('resize', resize, { passive: true });
     window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
 
-    // Vivid aurora orbs — electric blues, deep purples, midnight teals
+    // Aurora orbs — 5 orbs, balanced coverage, less GPU overdraw
     const orbs = [
-      { nx:0.10, ny:0.12, r:1.10, h:240, l:14, a:0.82, sp:0.0000172, ph:0.00 },
-      { nx:0.84, ny:0.18, r:0.90, h:268, l:10, a:0.76, sp:0.0000130, ph:1.20 },
-      { nx:0.50, ny:0.88, r:0.95, h:210, l:12, a:0.70, sp:0.0000154, ph:2.40 },
-      { nx:0.92, ny:0.72, r:0.78, h:300, l:8,  a:0.62, sp:0.0000122, ph:0.80 },
-      { nx:0.05, ny:0.92, r:0.82, h:186, l:10, a:0.66, sp:0.0000147, ph:3.60 },
-      { nx:0.66, ny:0.03, r:0.72, h:228, l:12, a:0.74, sp:0.0000192, ph:1.80 },
-      { nx:0.35, ny:0.48, r:0.68, h:252, l:7,  a:0.52, sp:0.0000110, ph:4.50 },
-      { nx:0.72, ny:0.58, r:0.62, h:196, l:9,  a:0.48, sp:0.0000165, ph:2.80 },
+      { nx:0.10, ny:0.12, r:1.05, h:240, l:14, a:0.78, sp:0.0000172, ph:0.00 },
+      { nx:0.84, ny:0.18, r:0.88, h:268, l:10, a:0.72, sp:0.0000130, ph:1.20 },
+      { nx:0.50, ny:0.88, r:0.90, h:210, l:12, a:0.66, sp:0.0000154, ph:2.40 },
+      { nx:0.92, ny:0.72, r:0.76, h:300, l:8,  a:0.58, sp:0.0000122, ph:0.80 },
+      { nx:0.66, ny:0.03, r:0.70, h:228, l:12, a:0.70, sp:0.0000192, ph:1.80 },
     ];
 
-    // Twinkling star field — 40 stars (was 100)
-    const stars = Array.from({ length: 40 }, () => ({
+    // Twinkling star field — 18 stars
+    const stars = Array.from({ length: 18 }, () => ({
       x: Math.random(), y: Math.random(),
       r: Math.random() * 1.1 + 0.15,
       a: Math.random() * 0.45 + 0.08,
@@ -3912,11 +3924,11 @@ section p.italic { color: #64748b !important; }
     let paused = false;
     document.addEventListener('visibilitychange', () => { paused = document.hidden; });
 
-    // Cap aurora at ~24fps — smooth ambient, much less GPU work than 60fps
+    // Cap aurora at ~20fps — ambient enough, minimal GPU cost
     let lastFrame = 0;
     function frame(ts) {
       requestAnimationFrame(frame);
-      if (paused || ts - lastFrame < 42) return; // ~24fps cap
+      if (paused || ts - lastFrame < 50) return; // ~20fps cap
       lastFrame = ts;
 
       ctx.clearRect(0, 0, W, H);
@@ -3954,25 +3966,26 @@ section p.italic { color: #64748b !important; }
     requestAnimationFrame(frame);
   })();
 
-  // CURSOR GLOW — physics-lagged, only runs rAF when cursor moved
+  // CURSOR GLOW — compositor-only transform, no layout cost
   (function initCursorGlow() {
     const el = document.getElementById('flow-cursor');
     if (!el) return;
     if (window.matchMedia('(hover: none)').matches) { el.style.display = 'none'; return; }
+    const half = 250; // half of 500px cursor size
     let cx = innerWidth / 2, cy = innerHeight / 2, tx = cx, ty = cy, dirty = false, rafId = 0;
     document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; if (!dirty) { dirty = true; cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop); } }, { passive: true });
     function loop() {
       dirty = false;
       cx += (tx - cx) * 0.08;
       cy += (ty - cy) * 0.08;
-      el.style.left = cx + 'px';
-      el.style.top  = cy + 'px';
+      el.style.transform = `translate(${cx - half}px, ${cy - half}px)`;
       if (Math.abs(tx - cx) > 0.5 || Math.abs(ty - cy) > 0.5) { dirty = true; rafId = requestAnimationFrame(loop); }
     }
   })();
 
-  // 3D CARD TILT — rAF-throttled, no getBoundingClientRect on every mousemove
+  // 3D CARD TILT — desktop-only (touch devices never use hover)
   (function initCardTilt() {
+    if (window.matchMedia('(hover: none)').matches) return;
     const skip = '#loginModal,#paymentModal,#successModal,#enterpriseModal,#downloadModal,#profileModal,#liveChat';
     document.querySelectorAll('.perf-card, .pricing-card-glass, .pricing-elite, .testimonial-card, .feature-card-dark').forEach(card => {
       if (card.closest(skip)) return;
@@ -4008,8 +4021,9 @@ section p.italic { color: #64748b !important; }
 
     document.querySelectorAll('.perf-card, .pricing-card-glass, .pricing-elite, .testimonial-card, .feature-card-dark, .stat-card').forEach((el, i) => {
       if (el.closest(skip)) return;
-      el.classList.add('flow-reveal', 'flow-shimmer');
-      el.style.transitionDelay = `${(i % 5) * 0.065}s`;
+      el.classList.add('flow-reveal');
+      // Stagger only within groups of 3 to keep delay short and avoid layout thrash
+      el.style.transitionDelay = `${(i % 3) * 0.05}s`;
       io.observe(el);
     });
   })();
