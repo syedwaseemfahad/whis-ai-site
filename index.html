@@ -1733,10 +1733,18 @@ section p.italic { color: #64748b !important; }
 /* Kill the two backdrop-filters that bypass the * override (higher specificity) */
 nav.fixed { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(2,8,22,0.97) !important; }
 .hero-badge { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-/* Skip paint for off-screen sections — huge scroll perf gain */
-section:not(:first-of-type) {
+/* Skip paint for off-screen sections — huge scroll perf gain.
+   Exclude #pricing so its scroll offset is always calculated correctly. */
+section:not(:first-of-type):not(#pricing) {
     content-visibility: auto;
     contain-intrinsic-size: 0 560px;
+}
+/* Scroll-margin: offset by the fixed nav height so anchors land correctly */
+#pricing-anchor {
+    scroll-margin-top: 88px; /* nav height (80px desktop) + 8px breathing room */
+}
+#pricing, #features, #testimonials, #faq, #how-to {
+    scroll-margin-top: 80px;
 }
 /* Contain layout for isolated UI blocks */
 .logo-ticker { contain: layout style; }
@@ -1803,7 +1811,7 @@ nav.fixed     { contain: layout style; }
         </div>
         <div class="hidden md:flex items-center gap-0.5 bg-white/70 backdrop-blur-xl p-1 rounded-full border border-slate-200/80 shadow-sm">
             <a href="#how-to" class="nav-pill-link">How it Works</a>
-            <a href="#pricing" class="nav-pill-link">Pricing</a>
+            <a href="#pricing-anchor" class="nav-pill-link">Pricing</a>
             <a href="#features" class="nav-pill-link">Features</a>
             <a href="#testimonials" class="nav-pill-link">Reviews</a>
             <a href="#faq" class="nav-pill-link">FAQ</a>
@@ -2165,7 +2173,7 @@ nav.fixed     { contain: layout style; }
     <i class="fa-solid fa-gift text-emerald-400 text-lg"></i>
     <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
 </div>
-        <div class="flex flex-col items-center mb-12 md:mb-16 gap-3">
+        <div id="pricing-anchor" class="flex flex-col items-center mb-12 md:mb-16 gap-3">
             <div class="inline-flex bg-white/5 p-1 rounded-full border border-white/10 w-full max-w-[340px] md:w-auto relative">
                 <button id="btnMonthly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all" onclick="setCycle('monthly')">Monthly</button>
                 <button id="btnQuarterly" class="flex-1 px-4 md:px-8 py-2 md:py-2.5 rounded-full text-xs font-bold bg-white/15 text-white shadow border border-white/10 transition-all relative" onclick="setCycle('quarterly')">
