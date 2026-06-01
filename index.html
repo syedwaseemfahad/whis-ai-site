@@ -3149,13 +3149,18 @@ nav.fixed     { contain: layout style; }
         if (data.shownIoToken) {
             _loadScript(`https://shown.io/metrics/${data.shownIoToken}`, true);
         }
-        // Load PayPal SDK if client ID provided by config
-        if (data.paypalClientId) {
+        // Load PayPal SDK — check all common field names backends use
+        const paypalClientId = data.paypalClientId || data.paypalClientID
+            || data.paypalSDKClientId || data.paypalSdkClientId
+            || data.paypal_client_id || data.paypalKey;
+        if (paypalClientId) {
             const ppScript = document.createElement('script');
-            ppScript.src = `https://www.paypal.com/sdk/js?client-id=${data.paypalClientId}&currency=${IS_INDIA ? 'USD' : 'USD'}&intent=capture&commit=true`;
-            ppScript.dataset.sdkIntegrationSource = 'button-factory';
+            ppScript.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&currency=USD&intent=capture&commit=true&components=buttons`;
             ppScript.onload = () => { window._paypalSdkReady = true; };
             document.head.appendChild(ppScript);
+        } else {
+            // No client ID in config — log available keys so you can find the right one
+            console.warn('[PayPal] No client ID found in config. Available keys:', Object.keys(data).join(', '));
         }
 
         // ── Download links ───────────────────────────────────────────────
@@ -3429,31 +3434,49 @@ nav.fixed     { contain: layout style; }
     }
 
     function initPayPalButtons() {
-        if (!window.paypal || !window._paypalSdkReady) return;
         const container = document.getElementById('paypal-button-container');
-        if (!container || container.children.length > 0) return; // already rendered
+        if (!container || container.children.length > 0) return;
 
+        if (!window._paypalSdkReady) {
+            // SDK still loading — show spinner and poll until ready (max 6s)
+            container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;padding:16px;"><i class="fa-solid fa-circle-notch fa-spin" style="color:#003087;font-size:20px;"></i></div>';
+            let attempts = 0;
+            const poll = setInterval(() => {
+                attempts++;
+                if (window._paypalSdkReady) {
+                    clearInterval(poll);
+                    container.innerHTML = '';
+                    _renderPayPalButtons(container);
+                } else if (attempts >= 30) {
+                    clearInterval(poll);
+                    _showPayPalFallback(container);
+                }
+            }, 200);
+            return;
+        }
+        _renderPayPalButtons(container);
+    }
+
+    function _renderPayPalButtons(container) {
         paypal.Buttons({
             style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal', height: 45 },
             createOrder: async function() {
+                if (!currentUser) { openLoginModal(); throw new Error('not logged in'); }
                 const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        googleId: currentUser ? currentUser.googleId : null,
-                        tier: selectedTierForPayment,
-                        cycle: currentCycle,
-                        couponCode: currentCoupon,
+                        googleId: currentUser.googleId, tier: selectedTierForPayment,
+                        cycle: currentCycle, couponCode: currentCoupon,
                         refCode: localStorage.getItem('whisRef'),
                         utmSource: localStorage.getItem('whisSource')
                     })
                 });
                 const data = await res.json();
                 if (data.orderId) return data.orderId;
-                // Extract order token from the approve URL as fallback
                 if (data.approveUrl) {
                     try { return new URL(data.approveUrl).searchParams.get('token'); } catch(e) {}
                 }
-                throw new Error('No order ID from backend');
+                throw new Error('No order ID returned from backend');
             },
             onApprove: async function() {
                 closePaymentModal();
@@ -3464,12 +3487,47 @@ nav.fixed     { contain: layout style; }
                     gtag('event', 'conversion', { 'send_to': SITE_CONFIG.googleAdsConversionTag });
                 }
             },
-            onError: function(err) {
-                console.error('PayPal Smart Button error', err);
-                handlePayPalRedirect(); // fall back to redirect on SDK error
-            },
-            onCancel: function() { /* user cancelled, do nothing */ }
-        }).render('#paypal-button-container');
+            onError: function(err) { console.error('PayPal SDK error', err); _showPayPalFallback(container); },
+            onCancel: function() {}
+        }).render(container);
+    }
+
+    // Fallback: open PayPal in a popup window (stays on our page — no full redirect)
+    function _showPayPalFallback(container) {
+        container.innerHTML = `
+            <button id="paypalFallbackBtn" onclick="_paypalPopup()" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-bold text-sm transition active:scale-95" style="background:#003087;">
+                <img src="https://cdn.simpleicons.org/paypal/ffffff" width="18" height="18" alt="" style="display:inline-block;"/>
+                Pay with PayPal
+            </button>`;
+    }
+
+    async function _paypalPopup() {
+        if (!currentUser) { openLoginModal(); return; }
+        const btn = document.getElementById('paypalFallbackBtn');
+        if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    googleId: currentUser.googleId, tier: selectedTierForPayment,
+                    cycle: currentCycle, couponCode: currentCoupon,
+                    refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource')
+                })
+            });
+            const data = await res.json();
+            if (data.approveUrl) {
+                // Open in a small popup — user stays on our page
+                const w = 500, h = 650;
+                const left = Math.max(0, (screen.width - w) / 2);
+                const top = Math.max(0, (screen.height - h) / 2);
+                window.open(data.approveUrl, 'paypal_checkout',
+                    `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+            }
+        } catch(e) {
+            console.error('PayPal fallback error', e);
+            alert('Could not start PayPal checkout. Please try again.');
+        }
+        if (btn) { btn.disabled = false; btn.textContent = 'Pay with PayPal'; }
     }
 
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); unlockScroll(); }
