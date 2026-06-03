@@ -31,7 +31,12 @@
       }
     }
   </script>
-   
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+  <meta name="color-scheme" content="light">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
    
@@ -1552,10 +1557,12 @@ section:not(:first-of-type) h2.in::after { opacity: 1; }
 
 /* Hero "in real-time." — static gradient, no infinite animation */
 .hero-realtime {
-    background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.75) 50%, #ffffff 100%) !important;
+    background: linear-gradient(135deg, #ffffff 0%, #7dd3fc 35%, #a5f3fc 60%, #ffffff 100%) !important;
+    background-size: 300% 300% !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
+    animation: heroGradientShift 6s ease infinite !important;
 }
 
 /* CTA button — no pulsing animation */
@@ -1774,6 +1781,111 @@ nav.fixed     { contain: layout style; }
 #cardPayBtn .text-slate-400 { color: #94a3b8 !important; }
 #cardWrapper .border-t { border-color: #e2e8f0 !important; }
 #cardWrapper .text-slate-400 { color: #94a3b8 !important; }
+
+/* ===== World-class polish additions ===== */
+
+/* 1. Branded text selection */
+::selection { background:rgba(14,165,233,0.22); color:#0a0f1e; }
+::-moz-selection { background:rgba(14,165,233,0.22); color:#0a0f1e; }
+
+/* 2. Touch device polish */
+* { -webkit-tap-highlight-color:transparent; }
+button,a,[role="button"] { touch-action:manipulation; }
+
+/* 3. Keyboard-only focus ring */
+:focus-visible { outline:2px solid rgba(14,165,233,0.7); outline-offset:3px; border-radius:6px; }
+:focus:not(:focus-visible) { outline:none; }
+
+/* 4. Scroll progress bar */
+#scroll-progress {
+    position:fixed; top:0; left:0; height:2px; z-index:9999;
+    width:100%;
+    background:linear-gradient(90deg,#0ea5e9,#10b981);
+    transform-origin:left; transform:scaleX(0);
+    will-change:transform; pointer-events:none;
+    transition:transform .05s linear;
+}
+
+/* 5. Nav link hover — underline sweep */
+.nav-pill-link { position:relative; }
+.nav-pill-link::after {
+    content:''; position:absolute; bottom:4px; left:16px; right:16px; height:1px;
+    background:var(--accent); transform:scaleX(0); transform-origin:right;
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.nav-pill-link:hover::after { transform:scaleX(1); transform-origin:left; }
+
+/* 6. Button click ripple */
+.btn-ripple { position:relative; overflow:hidden; }
+.ripple-wave {
+    position:absolute; border-radius:50%;
+    background:rgba(255,255,255,0.28);
+    transform:scale(0); animation:rippleOut .55s ease-out forwards;
+    pointer-events:none;
+}
+@keyframes rippleOut {
+    to { transform:scale(4); opacity:0; }
+}
+
+/* 7. Hero heading — animated gradient text */
+@keyframes heroGradientShift {
+    0%,100% { background-position:0% 50%; }
+    50%      { background-position:100% 50%; }
+}
+.hero-gradient-text {
+    background:linear-gradient(135deg,#ffffff 0%,#7dd3fc 35%,#a5f3fc 60%,#ffffff 100%);
+    background-size:300% 300%;
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+    animation:heroGradientShift 6s ease infinite;
+}
+
+/* 8. Text rendering on headings */
+h1,h2,h3,h4 { text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased; }
+
+/* 9. FAQ accordion — smoother ease refinement */
+.faq-answer { transition:max-height .4s cubic-bezier(0.4,0,0.2,1), opacity .3s ease; opacity:0; }
+.group.active .faq-answer { opacity:1; transition:max-height .4s cubic-bezier(0.4,0,0.2,1), opacity .3s ease .05s; }
+
+/* 10. Testimonial card — gradient border on hover */
+.testimonial-card { transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+.testimonial-card:hover { border-color:rgba(14,165,233,0.2); box-shadow:0 12px 40px -8px rgba(0,0,0,.10),0 0 0 1px rgba(14,165,233,0.06); }
+
+/* 11. prefers-reduced-motion comprehensive guard */
+@media(prefers-reduced-motion:reduce) {
+    *, *::before, *::after { animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; scroll-behavior:auto!important; }
+    .logo-ticker-track { animation:none; }
+    #flow-aurora { display:none; }
+    body { animation:none; opacity:1; }
+}
+
+/* 12. Marquee pause when off-screen */
+.ticker-paused .logo-ticker-track { animation-play-state:paused; }
+
+/* 13. Mobile safe area + smooth overscroll */
+body { overscroll-behavior-y:none; }
+@supports(padding-bottom:env(safe-area-inset-bottom)) {
+    body { padding-bottom:max(90px,calc(90px + env(safe-area-inset-bottom))); }
+}
+
+/* 14. Pricing card entrance perspective */
+.pricing-card-glass.flow-reveal, .pricing-elite.flow-reveal {
+    transform:translateY(32px) scale(0.96) perspective(800px) rotateX(4deg);
+}
+.pricing-card-glass.flow-reveal.in, .pricing-elite.flow-reveal.in {
+    transform:translateY(0) scale(1) perspective(800px) rotateX(0deg);
+}
+
+/* 15. Button loading state */
+.btn-loading { pointer-events:none; opacity:0.75; }
+.btn-loading::after {
+    content:''; display:inline-block; width:12px; height:12px;
+    border:2px solid rgba(255,255,255,0.35); border-top-color:#fff;
+    border-radius:50%; margin-left:8px; vertical-align:middle;
+    animation:spin .6s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+/* ===== End world-class polish additions ===== */
 
   </style>
 </head>
@@ -3998,6 +4110,46 @@ nav.fixed     { contain: layout style; }
 
     document.addEventListener("DOMContentLoaded", () => {
 
+        // --- World-class polish: interactions & performance ---
+        (function initRipple() {
+            document.addEventListener('click', e => {
+                const btn = e.target.closest('.btn-premium,.btn-elite-cta,.btn-ripple');
+                if (!btn) return;
+                const r = btn.getBoundingClientRect();
+                const size = Math.max(r.width, r.height);
+                const el = document.createElement('span');
+                el.className = 'ripple-wave';
+                el.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-r.left-size/2}px;top:${e.clientY-r.top-size/2}px`;
+                btn.appendChild(el);
+                el.addEventListener('animationend', () => el.remove());
+            });
+        })();
+
+        (function initTickerVisibility() {
+            const ticker = document.querySelector('.logo-ticker');
+            if (!ticker) return;
+            new IntersectionObserver(([e]) => {
+                ticker.classList.toggle('ticker-paused', !e.isIntersecting);
+            }, { threshold: 0 }).observe(ticker);
+        })();
+
+        document.querySelectorAll('img:not([loading])').forEach(img => { img.loading = 'lazy'; img.decoding = 'async'; });
+
+        (function initLinkPrefetch() {
+            const seen = new Set();
+            document.addEventListener('mouseover', e => {
+                const a = e.target.closest('a[href]');
+                if (!a || seen.has(a.href)) return;
+                const url = new URL(a.href, location.href);
+                if (url.origin !== location.origin) return;
+                seen.add(a.href);
+                const link = document.createElement('link');
+                link.rel = 'prefetch'; link.href = a.href;
+                document.head.appendChild(link);
+            });
+        })();
+        // --- End world-class polish ---
+
         // --- THIS CATCHES THE OAUTH SUCCESS FROM BACKEND ---
         const urlParams = new URLSearchParams(window.location.search);
         const authSuccess = urlParams.get('auth_success');
@@ -4289,6 +4441,18 @@ nav.fixed     { contain: layout style; }
       el.style.transitionDelay = `${(i % 3) * 0.05}s`;
       io.observe(el);
     });
+  })();
+
+  (function initScrollProgress() {
+      const bar = document.createElement('div');
+      bar.id = 'scroll-progress';
+      document.body.prepend(bar);
+      const update = () => {
+          const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+          bar.style.transform = `scaleX(${Math.min(pct,1)})`;
+      };
+      window.addEventListener('scroll', update, { passive:true });
+      update();
   })();
 
   </script>
