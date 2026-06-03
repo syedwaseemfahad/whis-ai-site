@@ -2910,8 +2910,20 @@ nav.fixed     { contain: layout style; }
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
         <h3 class="text-base md:text-lg font-medium text-slate-900 mb-5 md:mb-6 mt-2">Select Platform</h3>
         <div class="space-y-3">
-            <a id="download-mac-link" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
-                <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-apple text-lg md:text-xl"></i> macOS</span>
+            <!-- Apple Silicon (M1/M2/M3/M4) — hidden by default, shown when chip detected or both shown on Safari -->
+            <a id="download-mac-arm" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
+                <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold">
+                    <i class="fa-brands fa-apple text-lg md:text-xl"></i>
+                    <span>macOS<span class="ml-2 text-[10px] font-semibold text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">Apple Silicon</span></span>
+                </span>
+                <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
+            </a>
+            <!-- Intel — only shown when chip detected as Intel, or both shown on Safari -->
+            <a id="download-mac-intel" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95" style="display:none">
+                <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold">
+                    <i class="fa-brands fa-apple text-lg md:text-xl"></i>
+                    <span>macOS<span class="ml-2 text-[10px] font-semibold text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded">Intel</span></span>
+                </span>
                 <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
             </a>
             <a id="download-windows-link" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
@@ -3249,10 +3261,13 @@ nav.fixed     { contain: layout style; }
         }
 
         // ── Download links ───────────────────────────────────────────────
-        const macLink = document.getElementById('download-mac-link');
+        window._dlMacArm   = data.downloadMacUrl      || '';
+        window._dlMacIntel = data.downloadMacIntelUrl  || '';
         const winLink = document.getElementById('download-windows-link');
-        if (macLink && data.downloadMacUrl) macLink.href = data.downloadMacUrl;
         if (winLink && data.downloadWindowsUrl) winLink.href = data.downloadWindowsUrl;
+        // Apply chip detection result if it already resolved; otherwise the
+        // openDownloadModal call will pick it up when the user taps the button.
+        _applyMacDownloadLinks();
 
         // ── Social proof stats ───────────────────────────────────────────
         if (data.statEngineersHired) {
@@ -3767,7 +3782,70 @@ nav.fixed     { contain: layout style; }
     }
      
     function closeLoginModal(){loginModal.classList.add('hidden');loginModal.classList.remove('flex');unlockScroll();}
-    function openDownloadModal(){lockScroll();downloadModal.classList.remove('hidden');downloadModal.classList.add('flex');}
+    // ── Mac chip detection ────────────────────────────────────────────────
+    // Resolves to 'apple_silicon' | 'intel' | null (Safari / unknown).
+    // Cached after first call so subsequent modal opens are instant.
+    let _macChipResult = undefined; // undefined = not yet checked
+    async function _detectMacChip() {
+        if (_macChipResult !== undefined) return _macChipResult;
+        try {
+            if (navigator.userAgentData) {
+                const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+                _macChipResult = ua.architecture === 'arm' ? 'apple_silicon' : 'intel';
+            } else {
+                _macChipResult = null; // Safari / Firefox — can't detect
+            }
+        } catch (_) {
+            _macChipResult = null;
+        }
+        return _macChipResult;
+    }
+
+    // Applies the correct Mac download button(s) based on detected chip and
+    // available URLs.  Called both after config loads and after modal opens.
+    function _applyMacDownloadLinks() {
+        const armEl   = document.getElementById('download-mac-arm');
+        const intelEl = document.getElementById('download-mac-intel');
+        const armUrl   = window._dlMacArm   || '';
+        const intelUrl = window._dlMacIntel || '';
+        if (!armEl || !intelEl) return;
+
+        // Set hrefs
+        if (armUrl)   armEl.href   = armUrl;
+        if (intelUrl) intelEl.href = intelUrl;
+
+        // If no Intel URL configured, always show just the arm button (unchanged behaviour)
+        if (!intelUrl) {
+            armEl.style.display   = '';
+            intelEl.style.display = 'none';
+            return;
+        }
+
+        const chip = _macChipResult; // may be undefined (detection not done yet)
+        if (chip === 'apple_silicon') {
+            armEl.style.display   = '';
+            intelEl.style.display = 'none';
+        } else if (chip === 'intel') {
+            armEl.style.display   = 'none';
+            intelEl.style.display = '';
+        } else {
+            // null = Safari/unknown, undefined = detection pending → show both
+            armEl.style.display   = '';
+            intelEl.style.display = '';
+        }
+    }
+
+    // Kick off detection immediately on page load so the result is ready before
+    // the user ever taps the download button.
+    _detectMacChip().then(_applyMacDownloadLinks);
+
+    function openDownloadModal(){
+        lockScroll();
+        downloadModal.classList.remove('hidden');
+        downloadModal.classList.add('flex');
+        // Re-run detection (no-op if already resolved) and refresh buttons.
+        _detectMacChip().then(_applyMacDownloadLinks);
+    }
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');unlockScroll();}
     function openProfileModal(){lockScroll();if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');unlockScroll();}
