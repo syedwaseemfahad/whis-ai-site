@@ -3332,6 +3332,47 @@ body { overscroll-behavior-y:none; }
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
 
+    // ── Geo-pricing band from timezone ───────────────────────────────────────
+    // Band 1 (1.0×): <$15K GDP/capita — India/SE Asia/Africa (default)
+    // Band 2 (1.25×): $15K-$50K — Europe, Japan, Korea, Turkey, LatAm
+    // Band 3 (1.5×): >$50K — USA, Canada, Singapore, Australia, UAE, etc.
+    window._geoBand = (function() {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        const B3 = ['America/New_York','America/Chicago','America/Denver','America/Los_Angeles',
+            'America/Phoenix','America/Anchorage','Pacific/Honolulu','America/Toronto',
+            'America/Vancouver','America/Montreal','America/Edmonton','America/Calgary',
+            'America/Winnipeg','America/Halifax','Australia/Sydney','Australia/Melbourne',
+            'Australia/Brisbane','Australia/Perth','Australia/Adelaide','Asia/Singapore',
+            'Asia/Dubai','Europe/Zurich','Europe/Oslo','Europe/Stockholm','Europe/Copenhagen',
+            'Europe/Helsinki','Europe/Amsterdam','Europe/Luxembourg','Pacific/Auckland',
+            'Europe/Vienna','Europe/Brussels','Asia/Hong_Kong','Asia/Macau',
+            'America/Detroit','America/Indiana/Indianapolis','America/Boise'];
+        const B2 = ['Europe/London','Europe/Paris','Europe/Berlin','Europe/Madrid',
+            'Europe/Rome','Europe/Warsaw','Europe/Prague','Europe/Budapest',
+            'Europe/Bucharest','Europe/Athens','Europe/Lisbon','Europe/Istanbul',
+            'Europe/Moscow','Europe/Kiev','Europe/Sofia','Europe/Zagreb','Europe/Belgrade',
+            'Europe/Bratislava','Europe/Tallinn','Europe/Riga','Europe/Vilnius',
+            'Europe/Minsk','Europe/Dublin','Europe/Nicosia','Europe/Chisinau',
+            'Europe/Skopje','Europe/Sarajevo','Europe/Podgorica','Europe/Tirane',
+            'Asia/Tokyo','Asia/Seoul','Asia/Taipei','Asia/Kuala_Lumpur',
+            'Asia/Shanghai','Asia/Chongqing','Asia/Urumqi','Asia/Harbin',
+            'Asia/Bangkok','Asia/Phnom_Penh','Asia/Vientiane',
+            'Asia/Jerusalem','Asia/Amman','Asia/Beirut','Asia/Riyadh',
+            'Asia/Kuwait','Asia/Qatar','Asia/Bahrain','Asia/Muscat',
+            'Asia/Tbilisi','Asia/Baku','Asia/Yerevan','Asia/Almaty','Asia/Tashkent',
+            'America/Sao_Paulo','America/Belem','America/Manaus','America/Rio_Branco',
+            'America/Buenos_Aires','America/Cordoba','America/Bogota','America/Lima',
+            'America/Santiago','America/Mexico_City','America/Monterrey',
+            'America/Guadalajara','America/Cancun','America/Montevideo',
+            'America/Panama','America/Costa_Rica','America/Guayaquil',
+            'America/Asuncion','America/La_Paz','Africa/Johannesburg',
+            'Africa/Cairo','Africa/Tunis','Africa/Casablanca','Africa/Algiers'];
+        if (B3.includes(tz)) return 3;
+        if (B2.includes(tz)) return 2;
+        return 1;
+    })();
+    window._geoMultiplier = { 1: 1.0, 2: 1.25, 3: 1.5 }[window._geoBand];
+
     // Non-India: default quarterly (max value); India: default monthly (lower entry barrier)
     let currentCycle = 'monthly' ;
     let currentTier = 'free';
@@ -3417,9 +3458,23 @@ body { overscroll-behavior-y:none; }
                 const data = await res.json();
                 SITE_CONFIG = data;
                 // Pick the region-specific pricing table — no runtime USD→INR conversion needed
-                PRICING_CONFIG = IS_INDIA
+                const _rawPricing = IS_INDIA
                     ? (data.pricingINR || data.pricing)
                     : (data.pricingUSD || data.pricing);
+
+                // Apply geo multiplier to USD prices for non-India users
+                // India is always Band 1 (1.0×) — INR prices never change
+                const _m = (!IS_INDIA && window._geoMultiplier > 1.0) ? window._geoMultiplier : 1.0;
+                if (_m > 1.0) {
+                    const _r = (n) => parseFloat((n * _m).toFixed(2));
+                    PRICING_CONFIG = {
+                        pro:      { ..._rawPricing.pro,      monthly: _r(_rawPricing.pro.monthly),      quarterly: _r(_rawPricing.pro.quarterly)      },
+                        pro_plus: { ..._rawPricing.pro_plus, monthly: _r(_rawPricing.pro_plus.monthly), quarterly: _r(_rawPricing.pro_plus.quarterly) }
+                    };
+                } else {
+                    PRICING_CONFIG = _rawPricing;
+                }
+
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
 
@@ -4255,7 +4310,10 @@ body { overscroll-behavior-y:none; }
         initStatsCountUp();
         initLiveCounter();
 
-        setCycle('quarterly');
+        // Mac/iOS users → quarterly default (premium device = higher willingness to pay)
+        // Windows/Android/other → monthly default (lower anchor, lower friction)
+        const _isAppleDevice = /Macintosh|MacIntel|iPhone|iPad/i.test(navigator.userAgent);
+        setCycle(_isAppleDevice ? 'quarterly' : 'monthly');
     });
 
     function initStatsCountUp() {
