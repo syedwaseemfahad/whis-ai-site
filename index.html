@@ -3346,6 +3346,19 @@ body { overscroll-behavior-y:none; }
     let currentCouponDiscount = 0;
     let SITE_CONFIG = {};
 
+    // ── Charm pricing (client-side) ──────────────────────────────────────────
+    // Matches server-side charm functions so all prices are perfectly aligned
+    function charmUSD(price) {
+        if (Math.round(price * 100) % 100 === 99) return parseFloat(price.toFixed(2));
+        const base = Math.floor(price / 5) * 5;
+        return parseFloat(Math.max(base - 0.01, 0.99).toFixed(2));
+    }
+    function charmINR(price) {
+        const n = Math.round(price);
+        if (n % 100 === 99) return n;
+        return Math.floor(n / 100) * 100 - 1;
+    }
+
     function _loadScript(src, defer) {
         const s = document.createElement('script');
         s.src = src;
@@ -3459,18 +3472,19 @@ body { overscroll-behavior-y:none; }
         const currencySymbol = IS_INDIA ? "₹" : "$";
 
         // Prices already in correct currency from pricingINR / pricingUSD — no EXCHANGE_RATE conversion
-        const baseNum       = IS_INDIA ? Math.floor(amount) : parseFloat(amount);
-        const discountedNum = IS_INDIA
-            ? Math.floor(amount * (1 - discount / 100))
-            : parseFloat((amount * (1 - discount / 100)).toFixed(2));
+        const baseNum = IS_INDIA ? amount : parseFloat(amount);
+        // Apply discount then charm-round to align with server prices
+        const discountAmount = IS_INDIA
+            ? charmINR(amount * (1 - discount / 100))
+            : charmUSD(amount * (1 - discount / 100));
 
         const displayAmount      = IS_INDIA ? baseNum : baseNum.toFixed(2);
-        const standardDiscounted = IS_INDIA ? discountedNum : discountedNum.toFixed(2);
+        const standardDiscounted = IS_INDIA ? discountAmount : discountAmount.toFixed(2);
 
         if (isAffiliate) {
             const finalAffiliatePrice = IS_INDIA
-                ? Math.floor(discountedNum * 0.9)
-                : (discountedNum * 0.9).toFixed(2);
+                ? charmINR(discountAmount * 0.9)
+                : charmUSD(discountAmount * 0.9);
 
             const strikeColor    = isEliteCard ? "text-slate-500" : "text-slate-400";
             const highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
