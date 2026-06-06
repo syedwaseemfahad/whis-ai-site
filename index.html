@@ -2340,14 +2340,14 @@ body { overscroll-behavior-y:none; }
             <div class="pricing-card-glass p-6 md:p-8 flex flex-col">
               <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3">Foundation</h3>
               <div class="text-3xl md:text-4xl font-bold text-white mb-1">Free</div>
-              <p class="text-[10px] text-slate-600 mb-7">Forever free — no card needed</p>
+              <p class="text-[10px] text-slate-600 mb-7">2 free trials per day — no card needed</p>
               <div class="space-y-3 text-xs mb-8 flex-grow">
-                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">10 Answers per day</span></div>
-                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">Standard response speed</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">2 × 5-min trials daily</span></div>
+                <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-400">Full Elite access during trial</span></div>
                 <div class="feat-row" style="opacity:0.35;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Stealth Mode</span></div>
                 <div class="feat-row" style="opacity:0.35;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Screen Solving</span></div>
               </div>
-              <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 hover:bg-white/5">Download Trial</button>
+              <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl border border-white/10 text-slate-400 font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 hover:bg-white/5">Download & Try Free</button>
             </div>
 
             <!-- ELITE STEALTH — CENTER HERO -->
@@ -3332,46 +3332,10 @@ body { overscroll-behavior-y:none; }
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
 
-    // ── Geo-pricing band from timezone ───────────────────────────────────────
-    // Band 1 (1.0×): <$15K GDP/capita — India/SE Asia/Africa (default)
-    // Band 2 (1.25×): $15K-$50K — Europe, Japan, Korea, Turkey, LatAm
-    // Band 3 (1.5×): >$50K — USA, Canada, Singapore, Australia, UAE, etc.
-    window._geoBand = (function() {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        const B3 = ['America/New_York','America/Chicago','America/Denver','America/Los_Angeles',
-            'America/Phoenix','America/Anchorage','Pacific/Honolulu','America/Toronto',
-            'America/Vancouver','America/Montreal','America/Edmonton','America/Calgary',
-            'America/Winnipeg','America/Halifax','Australia/Sydney','Australia/Melbourne',
-            'Australia/Brisbane','Australia/Perth','Australia/Adelaide','Asia/Singapore',
-            'Asia/Dubai','Europe/Zurich','Europe/Oslo','Europe/Stockholm','Europe/Copenhagen',
-            'Europe/Helsinki','Europe/Amsterdam','Europe/Luxembourg','Pacific/Auckland',
-            'Europe/Vienna','Europe/Brussels','Asia/Hong_Kong','Asia/Macau',
-            'America/Detroit','America/Indiana/Indianapolis','America/Boise'];
-        const B2 = ['Europe/London','Europe/Paris','Europe/Berlin','Europe/Madrid',
-            'Europe/Rome','Europe/Warsaw','Europe/Prague','Europe/Budapest',
-            'Europe/Bucharest','Europe/Athens','Europe/Lisbon','Europe/Istanbul',
-            'Europe/Moscow','Europe/Kiev','Europe/Sofia','Europe/Zagreb','Europe/Belgrade',
-            'Europe/Bratislava','Europe/Tallinn','Europe/Riga','Europe/Vilnius',
-            'Europe/Minsk','Europe/Dublin','Europe/Nicosia','Europe/Chisinau',
-            'Europe/Skopje','Europe/Sarajevo','Europe/Podgorica','Europe/Tirane',
-            'Asia/Tokyo','Asia/Seoul','Asia/Taipei','Asia/Kuala_Lumpur',
-            'Asia/Shanghai','Asia/Chongqing','Asia/Urumqi','Asia/Harbin',
-            'Asia/Bangkok','Asia/Phnom_Penh','Asia/Vientiane',
-            'Asia/Jerusalem','Asia/Amman','Asia/Beirut','Asia/Riyadh',
-            'Asia/Kuwait','Asia/Qatar','Asia/Bahrain','Asia/Muscat',
-            'Asia/Tbilisi','Asia/Baku','Asia/Yerevan','Asia/Almaty','Asia/Tashkent',
-            'America/Sao_Paulo','America/Belem','America/Manaus','America/Rio_Branco',
-            'America/Buenos_Aires','America/Cordoba','America/Bogota','America/Lima',
-            'America/Santiago','America/Mexico_City','America/Monterrey',
-            'America/Guadalajara','America/Cancun','America/Montevideo',
-            'America/Panama','America/Costa_Rica','America/Guayaquil',
-            'America/Asuncion','America/La_Paz','Africa/Johannesburg',
-            'Africa/Cairo','Africa/Tunis','Africa/Casablanca','Africa/Algiers'];
-        if (B3.includes(tz)) return 3;
-        if (B2.includes(tz)) return 2;
-        return 1;
-    })();
-    window._geoMultiplier = { 1: 1.0, 2: 1.25, 3: 1.5 }[window._geoBand];
+    // Geo band/multiplier — set by server via /api/config response.
+    // Defaults to Band 1 (1.0×) until config loads; overwritten in fetchPricingConfig.
+    window._geoBand      = 1;
+    window._geoMultiplier = 1.0;
 
     // Non-India: default quarterly (max value); India: default monthly (lower entry barrier)
     let currentCycle = 'monthly' ;
@@ -3457,23 +3421,15 @@ body { overscroll-behavior-y:none; }
             if(res.ok) {
                 const data = await res.json();
                 SITE_CONFIG = data;
-                // Pick the region-specific pricing table — no runtime USD→INR conversion needed
-                const _rawPricing = IS_INDIA
+                // Server returns prices already multiplied by geo + city + device factors.
+                // Client renders directly — zero pricing math on the frontend.
+                PRICING_CONFIG = IS_INDIA
                     ? (data.pricingINR || data.pricing)
                     : (data.pricingUSD || data.pricing);
 
-                // Apply geo multiplier to USD prices for non-India users
-                // India is always Band 1 (1.0×) — INR prices never change
-                const _m = (!IS_INDIA && window._geoMultiplier > 1.0) ? window._geoMultiplier : 1.0;
-                if (_m > 1.0) {
-                    const _r = (n) => parseFloat((n * _m).toFixed(2));
-                    PRICING_CONFIG = {
-                        pro:      { ..._rawPricing.pro,      monthly: _r(_rawPricing.pro.monthly),      quarterly: _r(_rawPricing.pro.quarterly)      },
-                        pro_plus: { ..._rawPricing.pro_plus, monthly: _r(_rawPricing.pro_plus.monthly), quarterly: _r(_rawPricing.pro_plus.quarterly) }
-                    };
-                } else {
-                    PRICING_CONFIG = _rawPricing;
-                }
+                // Store geo metadata for cycle-default logic (Band 3 → quarterly, etc.)
+                if (data.geoBand)       window._geoBand       = data.geoBand;
+                if (data.geoMultiplier) window._geoMultiplier = data.geoMultiplier;
 
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
