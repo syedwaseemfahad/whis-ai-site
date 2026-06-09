@@ -3058,7 +3058,9 @@ body { overscroll-behavior-y:none; }
                 <span id="modalPlanStatus" class="text-[9px] md:text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-700 font-bold">ACTIVE</span>
             </div>
             <div id="modalPlanValidity" class="text-[9px] md:text-[10px] text-slate-500 mt-1.5 md:mt-2"></div>
+            <div id="modalRenewInfo" class="text-[9px] md:text-[10px] text-slate-500 mt-1"></div>
         </div>
+        <button id="cancelSubBtn" onclick="cancelSubscription()" class="hidden w-full py-2.5 md:py-3 mb-3 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 text-[11px] md:text-xs font-bold uppercase transition active:scale-95">Cancel Auto-Renew</button>
         <button onclick="logout()" class="w-full py-2.5 md:py-3 rounded-lg bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 text-[11px] md:text-xs font-bold uppercase transition active:scale-95">Sign Out</button>
     </div>
   </div>
@@ -3346,16 +3348,18 @@ body { overscroll-behavior-y:none; }
     let SITE_CONFIG = {};
 
     // ── Charm pricing (client-side) ──────────────────────────────────────────
-    // Matches server-side charm functions so all prices are perfectly aligned
+    // Matches server-side charm functions so all prices are perfectly aligned.
+    // Rounds to the NEAREST $5 / ₹100 charm value (not down) so a 50%-off price
+    // lands on the true discount instead of overshooting to the next-lower bracket.
     function charmUSD(price) {
         if (Math.round(price * 100) % 100 === 99) return parseFloat(price.toFixed(2));
-        const base = Math.floor(price / 5) * 5;
+        const base = Math.round(price / 5) * 5;
         return parseFloat(Math.max(base - 0.01, 0.99).toFixed(2));
     }
     function charmINR(price) {
         const n = Math.round(price);
         if (n % 100 === 99) return n;
-        return Math.floor(n / 100) * 100 - 1;
+        return Math.round(n / 100) * 100 - 1;
     }
 
     function _loadScript(src, defer) {
@@ -3381,7 +3385,8 @@ body { overscroll-behavior-y:none; }
             || data.paypal_client_id || data.paypalKey;
         if (paypalClientId) {
             const ppScript = document.createElement('script');
-            ppScript.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&currency=USD&intent=capture&commit=true&components=buttons`;
+            // Subscription mode requires vault=true & intent=subscription
+            ppScript.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&vault=true&intent=subscription&components=buttons`;
             ppScript.onload = () => { window._paypalSdkReady = true; };
             document.head.appendChild(ppScript);
         } else {
@@ -3480,6 +3485,12 @@ body { overscroll-behavior-y:none; }
         const displayAmount      = IS_INDIA ? baseNum : baseNum.toFixed(2);
         const standardDiscounted = IS_INDIA ? discountAmount : discountAmount.toFixed(2);
 
+        // Honest badge: the % actually shown after charm-rounding, not the nominal
+        // discount. Keeps "X% OFF" in sync with the real (base → charmed) drop.
+        const realDiscount = baseNum > 0
+            ? Math.round((baseNum - parseFloat(standardDiscounted)) / baseNum * 100)
+            : discount;
+
         if (isAffiliate) {
             const finalAffiliatePrice = IS_INDIA
                 ? charmINR(discountAmount * 0.9)
@@ -3497,13 +3508,13 @@ body { overscroll-behavior-y:none; }
                     </div>
                     <span class="text-4xl ${highlightColor} font-extrabold tracking-tight">${currencySymbol}${finalAffiliatePrice}</span>
                     <div class="mt-2 flex gap-1 items-center flex-wrap">
-                        <span class="text-[9px] font-bold ${standardBadge} px-2 py-0.5 rounded uppercase">${discount}% OFF</span>
+                        <span class="text-[9px] font-bold ${standardBadge} px-2 py-0.5 rounded uppercase">${realDiscount}% OFF</span>
                         <span class="text-[9px] font-bold text-emerald-900 bg-emerald-300 px-2 py-0.5 rounded shadow-sm uppercase">+10% PARTNER</span>
                     </div>
                 </div>
             `;
         } else if (discount > 0) {
-            return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${discount}% OFF</span>`;
+            return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${realDiscount}% OFF</span>`;
         }
 
         return `${currencySymbol}${displayAmount}`;
@@ -3568,6 +3579,8 @@ body { overscroll-behavior-y:none; }
             if(d.active) currentTier = d.tier; else currentTier = 'free';
             const badge = document.getElementById('navPlanBadge');
             const validityEl = document.getElementById('modalPlanValidity');
+            const renewEl = document.getElementById('modalRenewInfo');
+            const cancelBtn = document.getElementById('cancelSubBtn');
             if(d.active){
                 badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO';
                 badge.classList.remove('text-slate-500'); badge.classList.add('text-accent');
@@ -3577,6 +3590,22 @@ body { overscroll-behavior-y:none; }
                     const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
                     validityEl.innerText = "Valid until: " + dateStr;
                 } else { validityEl.innerText = "Active Subscription"; }
+                // Auto-renew state + cancel button
+                if (renewEl && cancelBtn) {
+                    if (d.autoRenew && !d.cancelledAt) {
+                        const next = d.nextBillingDate || d.validUntil;
+                        renewEl.innerText = next ? `🔄 Auto-renews on ${new Date(next).toLocaleDateString()}` : '🔄 Auto-renew on';
+                        renewEl.className = "text-[9px] md:text-[10px] text-emerald-600 font-semibold mt-1";
+                        cancelBtn.classList.remove('hidden');
+                    } else if (d.cancelledAt) {
+                        renewEl.innerText = `Auto-renew cancelled — access until ${new Date(d.validUntil).toLocaleDateString()}`;
+                        renewEl.className = "text-[9px] md:text-[10px] text-amber-600 font-semibold mt-1";
+                        cancelBtn.classList.add('hidden');
+                    } else {
+                        renewEl.innerText = "";
+                        cancelBtn.classList.add('hidden');
+                    }
+                }
                 const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
                 if(d.tier === 'pro') { btnPro.innerText="Active"; btnPro.disabled=true; btnElite.innerText="Upgrade (Pay Diff)"; }
                 if(d.tier === 'pro_plus') { btnPro.innerText="Included"; btnPro.disabled=true; btnElite.innerText="Active"; btnElite.disabled=true; }
@@ -3585,10 +3614,37 @@ body { overscroll-behavior-y:none; }
                 document.getElementById('modalPlanName').innerText = 'Free Tier';
                 document.getElementById('modalPlanStatus').innerText = 'ACTIVE';
                 validityEl.innerText = "Lifetime Free Access";
+                if (renewEl) renewEl.innerText = "";
+                if (cancelBtn) cancelBtn.classList.add('hidden');
             }
             document.getElementById('modalUserName').innerText = currentUser.name;
             document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
         } catch(e){}
+    }
+
+    async function cancelSubscription() {
+        if (!currentUser) return;
+        const ok = confirm("Cancel auto-renewal?\n\nYour access continues until the end of your current billing period — you won't be charged again.");
+        if (!ok) return;
+        const btn = document.getElementById('cancelSubBtn');
+        const orig = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Cancelling...';
+        try {
+            const r = await fetch(`${BACKEND_URL}/api/subscription/cancel`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'x-google-id': currentUser.googleId },
+                body: JSON.stringify({ googleId: currentUser.googleId })
+            });
+            const d = await r.json();
+            if (d.success) {
+                alert(`Auto-renew cancelled. You keep full access until ${new Date(d.accessUntil).toLocaleDateString()}.`);
+                fetchUserStatus();
+            } else {
+                alert(d.error || "Could not cancel. Please contact support.");
+            }
+        } catch(e) {
+            alert("Network error. Please try again.");
+        }
+        btn.disabled = false; btn.innerHTML = orig;
     }
 
     let selectedTierForPayment = null; 
@@ -3697,26 +3753,30 @@ body { overscroll-behavior-y:none; }
 
     function _renderPayPalButtons(container) {
         paypal.Buttons({
-            style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal', height: 45 },
-            createOrder: async function() {
+            style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'subscribe', height: 45 },
+            createSubscription: async function() {
                 if (!currentUser) { openLoginModal(); throw new Error('not logged in'); }
-                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-subscription`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         googleId: currentUser.googleId, tier: selectedTierForPayment,
-                        cycle: currentCycle, couponCode: currentCoupon,
+                        cycle: currentCycle,
                         refCode: localStorage.getItem('whisRef'),
                         utmSource: localStorage.getItem('whisSource')
                     })
                 });
                 const data = await res.json();
-                if (data.orderId) return data.orderId;
-                if (data.approveUrl) {
-                    try { return new URL(data.approveUrl).searchParams.get('token'); } catch(e) {}
-                }
-                throw new Error('No order ID returned from backend');
+                if (data.subscriptionId) return data.subscriptionId;
+                throw new Error('No subscription ID returned from backend');
             },
-            onApprove: async function() {
+            onApprove: async function(data) {
+                // Confirm the subscription server-side, then show success
+                try {
+                    await fetch(`${BACKEND_URL}/api/payment/verify-paypal-subscription`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ subscriptionID: data.subscriptionID })
+                    });
+                } catch (e) { console.error('PayPal sub verify error', e); }
                 closePaymentModal();
                 const successModal = document.getElementById('successModal');
                 if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
@@ -3744,11 +3804,11 @@ body { overscroll-behavior-y:none; }
         const btn = document.getElementById('paypalFallbackBtn');
         if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-subscription`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     googleId: currentUser.googleId, tier: selectedTierForPayment,
-                    cycle: currentCycle, couponCode: currentCoupon,
+                    cycle: currentCycle,
                     refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource')
                 })
             });
@@ -3772,13 +3832,12 @@ body { overscroll-behavior-y:none; }
         btn.disabled = true;
         icon.className = 'fa-solid fa-circle-notch fa-spin text-slate-400';
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-subscription`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     googleId: currentUser.googleId,
                     tier: selectedTierForPayment,
                     cycle: currentCycle,
-                    couponCode: currentCoupon,
                     refCode: localStorage.getItem('whisRef'),
                     utmSource: localStorage.getItem('whisSource')
                 })
@@ -3831,54 +3890,55 @@ body { overscroll-behavior-y:none; }
 
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
-        const isUpgrade = (currentTier === 'pro' && targetTier === 'pro_plus');
-        const btn = event.currentTarget; const orig = btn.innerHTML; 
-        btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';         
+        const btn = event.currentTarget; const orig = btn.innerHTML;
+        btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
+            // Auto-renew subscription flow (replaces one-time orders)
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`,{
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({ 
-                    googleId: currentUser.googleId, 
-                    tier: targetTier, 
-                    cycle: currentCycle, 
-                    isUpgrade: isUpgrade, 
-                    couponCode: currentCoupon,
+                body:JSON.stringify({
+                    googleId: currentUser.googleId,
+                    tier: targetTier,
+                    cycle: currentCycle,
                     refCode: localStorage.getItem('whisRef'),
                     utmSource: localStorage.getItem('whisSource')
                 })
             });
             const data = await res.json();
-             
-            if(data.order_id){
+
+            if(data.subscriptionId){
                 const rzp1 = new Razorpay({
-                    "key": data.key_id, "amount": data.amount, "currency": data.currency, "name": "Whis AI",
-                    "description": isUpgrade ? "Upgrade" : "License", "order_id": data.order_id,
-                    "handler": async function (response){ 
+                    "key": data.keyId, "name": "Whis AI",
+                    "description": (targetTier === 'pro_plus' ? 'Elite' : 'Pro') + ` ${currentCycle} (auto-renews)`,
+                    "subscription_id": data.subscriptionId,
+                    "handler": async function (response){
                         try {
-                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify-subscription`, {
                                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature })
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_subscription_id: response.razorpay_subscription_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
                             });
                             const verifyData = await verifyRes.json();
-                            if(verifyData.success){ 
+                            if(verifyData.success){
                                 if (typeof gtag !== 'undefined') {
-                                    gtag('event', 'conversion', {
-                                        'send_to': SITE_CONFIG.googleAdsConversionTag || '',
-                                        'value': verifyData.revenue,
-                                        'currency': verifyData.currency,
-                                        'transaction_id': verifyData.transaction_id
-                                    });
+                                    gtag('event', 'conversion', { 'send_to': SITE_CONFIG.googleAdsConversionTag || '' });
                                 }
                                 closePaymentModal(); lockScroll();
                                 document.getElementById('successModal').classList.remove('hidden');
                                 document.getElementById('successModal').classList.add('flex');
-                            } 
+                            }
                             else { alert("Verification Failed. Contact Support."); }
                         } catch(e) { alert("Network Error during verification."); }
                     },
                     "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
                 rzp1.open();
+            } else {
+                alert(data.error || "Could not start subscription. Please try again.");
+                btn.innerHTML = orig;
             }
         } catch(e){ btn.innerHTML = orig; }
     }
@@ -4266,6 +4326,23 @@ body { overscroll-behavior-y:none; }
         } else if (paypalError) {
             window.history.replaceState({}, document.title, window.location.pathname);
             alert('PayPal payment was not completed. Please try again.');
+        }
+
+        // PayPal subscription redirect return — confirm the subscription server-side
+        const paypalSub = urlParams.get('paypal_sub');
+        if (paypalSub) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            fetch(`${BACKEND_URL}/api/payment/verify-paypal-subscription`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscriptionID: paypalSub })
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    const successModal = document.getElementById('successModal');
+                    if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
+                    checkUser();
+                    if (typeof gtag !== 'undefined') gtag('event', 'conversion', { 'send_to': SITE_CONFIG.googleAdsConversionTag || '' });
+                }
+            }).catch(e => console.error('paypal_sub verify', e));
         }
 
         initCarousel();
