@@ -3385,8 +3385,8 @@ body { overscroll-behavior-y:none; }
             || data.paypal_client_id || data.paypalKey;
         if (paypalClientId) {
             const ppScript = document.createElement('script');
-            // Subscription mode requires vault=true & intent=subscription
-            ppScript.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&vault=true&intent=subscription&components=buttons`;
+            // One-time order capture flow — intent=capture (default), no vaulting
+            ppScript.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&intent=capture&components=buttons`;
             ppScript.onload = () => { window._paypalSdkReady = true; };
             document.head.appendChild(ppScript);
         } else {
@@ -3753,30 +3753,32 @@ body { overscroll-behavior-y:none; }
 
     function _renderPayPalButtons(container) {
         paypal.Buttons({
-            style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'subscribe', height: 45 },
-            createSubscription: async function() {
+            style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay', height: 45 },
+            createOrder: async function() {
                 if (!currentUser) { openLoginModal(); throw new Error('not logged in'); }
-                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-subscription`, {
+                const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         googleId: currentUser.googleId, tier: selectedTierForPayment,
-                        cycle: currentCycle,
+                        cycle: currentCycle, couponCode: currentCoupon,
                         refCode: localStorage.getItem('whisRef'),
                         utmSource: localStorage.getItem('whisSource')
                     })
                 });
                 const data = await res.json();
-                if (data.subscriptionId) return data.subscriptionId;
-                throw new Error('No subscription ID returned from backend');
+                if (data.id) return data.id;
+                throw new Error('No order ID returned from backend');
             },
             onApprove: async function(data) {
-                // Confirm the subscription server-side, then show success
+                // Capture the order server-side, then show success
                 try {
-                    await fetch(`${BACKEND_URL}/api/payment/verify-paypal-subscription`, {
+                    const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ subscriptionID: data.subscriptionID })
+                        body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
                     });
-                } catch (e) { console.error('PayPal sub verify error', e); }
+                    const verifyData = await verifyRes.json();
+                    if (!verifyData.success) { alert('Verification Failed. Contact Support.'); return; }
+                } catch (e) { alert('Network Error during verification.'); return; }
                 closePaymentModal();
                 const successModal = document.getElementById('successModal');
                 if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
@@ -3804,11 +3806,11 @@ body { overscroll-behavior-y:none; }
         const btn = document.getElementById('paypalFallbackBtn');
         if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-subscription`, {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     googleId: currentUser.googleId, tier: selectedTierForPayment,
-                    cycle: currentCycle,
+                    cycle: currentCycle, couponCode: currentCoupon,
                     refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource')
                 })
             });
@@ -3832,12 +3834,12 @@ body { overscroll-behavior-y:none; }
         btn.disabled = true;
         icon.className = 'fa-solid fa-circle-notch fa-spin text-slate-400';
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-subscription`, {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     googleId: currentUser.googleId,
                     tier: selectedTierForPayment,
-                    cycle: currentCycle,
+                    cycle: currentCycle, couponCode: currentCoupon,
                     refCode: localStorage.getItem('whisRef'),
                     utmSource: localStorage.getItem('whisSource')
                 })
@@ -3893,31 +3895,35 @@ body { overscroll-behavior-y:none; }
         const btn = event.currentTarget; const orig = btn.innerHTML;
         btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold text-slate-700"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</div>';
         try {
-            // Auto-renew subscription flow (replaces one-time orders)
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-subscription`,{
+            // One-time order flow
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
                 method:'POST', headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({
                     googleId: currentUser.googleId,
                     tier: targetTier,
                     cycle: currentCycle,
+                    couponCode: currentCoupon,
                     refCode: localStorage.getItem('whisRef'),
                     utmSource: localStorage.getItem('whisSource')
                 })
             });
             const data = await res.json();
 
-            if(data.subscriptionId){
+            if(data.order_id){
                 const rzp1 = new Razorpay({
-                    "key": data.keyId, "name": "Whis AI",
-                    "description": (targetTier === 'pro_plus' ? 'Elite' : 'Pro') + ` ${currentCycle} (auto-renews)`,
-                    "subscription_id": data.subscriptionId,
+                    "key": data.key_id, "name": "Whis AI",
+                    "description": (targetTier === 'pro_plus' ? 'Elite' : 'Pro') + ` ${currentCycle}`,
+                    "order_id": data.order_id,
+                    "amount": data.amount,
+                    "currency": data.currency,
+                    "prefill": { "name": data.user_name || "", "email": data.user_email || "", "contact": data.user_contact || "" },
                     "handler": async function (response){
                         try {
-                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify-subscription`, {
+                            const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
                                 method: 'POST', headers: {'Content-Type': 'application/json'},
                                 body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
                                     razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_subscription_id: response.razorpay_subscription_id,
                                     razorpay_signature: response.razorpay_signature
                                 })
                             });
@@ -3937,7 +3943,7 @@ body { overscroll-behavior-y:none; }
                 });
                 rzp1.open();
             } else {
-                alert(data.error || "Could not start subscription. Please try again.");
+                alert(data.error || "Could not start checkout. Please try again.");
                 btn.innerHTML = orig;
             }
         } catch(e){ btn.innerHTML = orig; }
@@ -4326,23 +4332,6 @@ body { overscroll-behavior-y:none; }
         } else if (paypalError) {
             window.history.replaceState({}, document.title, window.location.pathname);
             alert('PayPal payment was not completed. Please try again.');
-        }
-
-        // PayPal subscription redirect return — confirm the subscription server-side
-        const paypalSub = urlParams.get('paypal_sub');
-        if (paypalSub) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            fetch(`${BACKEND_URL}/api/payment/verify-paypal-subscription`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ subscriptionID: paypalSub })
-            }).then(r => r.json()).then(d => {
-                if (d.success) {
-                    const successModal = document.getElementById('successModal');
-                    if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
-                    checkUser();
-                    if (typeof gtag !== 'undefined') gtag('event', 'conversion', { 'send_to': SITE_CONFIG.googleAdsConversionTag || '' });
-                }
-            }).catch(e => console.error('paypal_sub verify', e));
         }
 
         initCarousel();
