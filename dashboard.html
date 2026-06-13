@@ -71,6 +71,9 @@
                 <button onclick="switchTab('payouts')" id="nav-payouts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-emerald-400/70 hover:text-emerald-400 text-xs font-semibold tracking-wide border border-transparent transition mt-4">
                     <i class="fa-solid fa-hand-holding-dollar w-4"></i> Partner Payouts
                 </button>
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-purple-400 text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-chart-bar w-4"></i> Revenue Intel
+                </button>
             </nav>
             <div class="p-4 border-t border-[#1e293b] text-[10px] text-slate-500 flex justify-between items-center font-mono uppercase">
                 <span>Sys_Online</span>
@@ -236,6 +239,221 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ══ REVENUE INTEL TAB ══════════════════════════════════════════ -->
+                <div id="tab-analytics" class="tab-content hidden-tab flex flex-col gap-5">
+
+                    <!-- Top bar -->
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-widest">Live Business Intelligence</p>
+                            <p class="text-[10px] text-slate-600 font-mono mt-0.5" id="an-timestamp">Not loaded — click Fetch</p>
+                        </div>
+                        <button onclick="fetchAnalytics()" id="an-refresh-btn"
+                            class="bg-purple-900/30 hover:bg-purple-900/50 text-purple-400 px-4 py-2 rounded text-xs font-semibold border border-purple-500/30 transition flex items-center gap-2">
+                            <i class="fa-solid fa-brain"></i> Fetch Live Analytics
+                        </button>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="an-loading" class="glass-panel rounded p-12 text-center hidden">
+                        <i class="fa-solid fa-circle-notch fa-spin text-purple-400 text-2xl mb-4"></i>
+                        <p class="text-slate-400 text-sm">Pulling 115K+ data points from database...</p>
+                        <p class="text-slate-600 text-xs mt-2 font-mono">Takes ~15 seconds</p>
+                    </div>
+
+                    <!-- Error -->
+                    <div id="an-error" class="glass-panel rounded p-8 text-center hidden border border-red-500/20">
+                        <i class="fa-solid fa-circle-exclamation text-red-500 text-2xl mb-3 block"></i>
+                        <p class="text-red-400 text-sm mb-3">Could not reach analytics server.</p>
+                        <p class="text-slate-600 text-xs font-mono mb-3">Check your network connection or try again.</p>
+                        <button onclick="fetchAnalytics()" class="text-xs text-purple-400 border border-purple-500/30 px-3 py-1 rounded">Retry</button>
+                    </div>
+
+                    <!-- ── Main Content ──────────────────────────────────────── -->
+                    <div id="an-content" class="flex flex-col gap-5 hidden">
+
+                        <!-- Row 1: 4 KPI cards -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-brand-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Total Revenue</span><i class="fa-solid fa-indian-rupee-sign text-brand-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-white" id="an-total-rev">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3" id="an-arpu">ARPU --</p>
+                            </div>
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-emerald-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Paid Orders</span><i class="fa-solid fa-receipt text-emerald-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-emerald-400" id="an-paid-orders">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3" id="an-aov">AOV --</p>
+                            </div>
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Active Subs</span><i class="fa-solid fa-users text-purple-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-purple-400" id="an-active-subs">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3" id="an-churn-pct">Churn --%</p>
+                            </div>
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Payment Success</span><i class="fa-solid fa-percent text-amber-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-amber-400" id="an-pay-success">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3">Of all checkouts</p>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Collected vs Abandoned -->
+                        <div class="glass-panel rounded p-4">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Revenue Collected vs Checkout Abandoned</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-mono mb-1">
+                                        <span class="text-emerald-400">Collected</span>
+                                        <span class="text-emerald-400 font-bold" id="an-collected">--</span>
+                                    </div>
+                                    <div class="bg-slate-900 rounded-full h-2.5">
+                                        <div class="bg-emerald-500 h-2.5 rounded-full transition-all duration-700" id="an-collected-bar" style="width:0%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-mono mb-1">
+                                        <span class="text-red-400">Abandoned at Checkout</span>
+                                        <span class="text-red-400 font-bold" id="an-abandoned">--</span>
+                                    </div>
+                                    <div class="bg-slate-900 rounded-full h-2.5">
+                                        <div class="bg-red-500/60 h-2.5 rounded-full" id="an-abandoned-bar" style="width:100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-slate-600 font-mono mt-3" id="an-abandon-note">-- users reached checkout and left</p>
+                        </div>
+
+                        <!-- Row 3: India vs USA -->
+                        <div>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Regional Split — Telugu Audience</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="glass-panel rounded p-4 border border-orange-500/20">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-2xl">🇮🇳</span>
+                                        <span class="text-[9px] text-slate-500 font-mono uppercase">India</span>
+                                    </div>
+                                    <p class="data-value text-white text-lg mb-3" id="an-india-rev">--</p>
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Paid Users</span>
+                                            <span class="text-slate-300" id="an-india-users">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Checkout Success</span>
+                                            <span class="text-amber-400 font-bold" id="an-india-success">--%</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Order</span>
+                                            <span class="text-slate-300" id="an-india-aov">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Days to Pay</span>
+                                            <span class="text-slate-300" id="an-india-days">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="glass-panel rounded p-4 border border-blue-500/20">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-2xl">🇺🇸</span>
+                                        <span class="text-[9px] text-slate-500 font-mono uppercase">NRI · Telugu</span>
+                                    </div>
+                                    <p class="data-value text-white text-lg mb-3" id="an-usa-rev">--</p>
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Paid Users</span>
+                                            <span class="text-slate-300" id="an-usa-users">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Checkout Success</span>
+                                            <span class="text-emerald-400 font-bold" id="an-usa-success">--%</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Order</span>
+                                            <span class="text-slate-300" id="an-usa-aov">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Days to Pay</span>
+                                            <span class="text-slate-300" id="an-usa-days">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Last 7 Days Table -->
+                        <div class="glass-panel rounded overflow-hidden">
+                            <div class="p-4 border-b border-[#1e293b] flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Last 7 Days Performance</h3>
+                                <span class="text-[9px] text-slate-600 font-mono italic">← swipe →</span>
+                            </div>
+                            <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full text-left text-xs font-mono whitespace-nowrap">
+                                    <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 text-[10px] uppercase">
+                                        <tr>
+                                            <th class="px-4 py-2">Date</th>
+                                            <th class="px-4 py-2 text-right">Visits</th>
+                                            <th class="px-4 py-2 text-right">Signups</th>
+                                            <th class="px-4 py-2 text-right">Conv%</th>
+                                            <th class="px-4 py-2 text-right">Paid</th>
+                                            <th class="px-4 py-2 text-right">Revenue</th>
+                                            <th class="px-4 py-2 text-right">Abandoned</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="an-7day-tbody" class="divide-y divide-[#1e293b] text-slate-300"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Day of Week -->
+                        <div class="glass-panel rounded p-4">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Best Days — Avg Revenue</h3>
+                            <div id="an-dow" class="space-y-2.5"></div>
+                        </div>
+
+                        <!-- Row 6: Cohort Chart -->
+                        <div class="glass-panel rounded p-5">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cohort Conversion Rate</h3>
+                            <p class="text-[9px] text-slate-600 font-mono mb-4">Older cohorts convert better — early Telugu followers are warmest</p>
+                            <div class="h-[180px]"><canvas id="an-cohort-chart"></canvas></div>
+                        </div>
+
+                        <!-- Row 7: Warm Leads Alert -->
+                        <div class="glass-panel rounded p-4 border border-amber-500/30" style="background:rgba(245,158,11,0.04)">
+                            <div class="flex gap-3 items-start">
+                                <div class="bg-amber-500/20 rounded p-2 shrink-0">
+                                    <i class="fa-solid fa-fire-flame-curved text-amber-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-bold text-amber-400 mb-1">Warm Leads — Checkout Abandoned</h3>
+                                    <p class="text-[11px] text-slate-400 leading-relaxed" id="an-warm-text">--</p>
+                                    <div class="grid grid-cols-3 gap-3 mt-4">
+                                        <div class="bg-slate-900 rounded p-3 text-center border border-[#1e293b]">
+                                            <p class="text-[8px] text-slate-500 uppercase mb-1">Users</p>
+                                            <p class="data-value text-amber-400 text-lg" id="an-warm-users">--</p>
+                                        </div>
+                                        <div class="bg-slate-900 rounded p-3 text-center border border-[#1e293b]">
+                                            <p class="text-[8px] text-slate-500 uppercase mb-1">Left on Table</p>
+                                            <p class="data-value text-red-400 text-lg" id="an-warm-lost">--</p>
+                                        </div>
+                                        <div class="bg-slate-900 rounded p-3 text-center border border-[#1e293b]">
+                                            <p class="text-[8px] text-slate-500 uppercase mb-1">Avg / User</p>
+                                            <p class="data-value text-slate-300 text-lg" id="an-warm-avg">--</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- end an-content -->
+                </div><!-- end tab-analytics -->
 
                 <div id="tab-payouts" class="tab-content hidden-tab flex flex-col h-full">
                     <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
@@ -502,12 +720,13 @@
             if(tab !== 'payouts') active.querySelector('i').classList.add('text-brand-400');
             else active.querySelector('i').classList.add('text-emerald-400');
             
-            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)', 'payouts': 'Partner Payouts' };
+            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)', 'payouts': 'Partner Payouts', 'analytics': 'Revenue Intelligence' };
             document.getElementById('header-title').innerText = titles[tab] || 'Dashboard';
             
             if(tab === 'users' && currentPage === 0) fetchUsersList();
             if(tab === 'ops') fetchOpsTelemetry();
             if(tab === 'payouts') fetchPayoutsList();
+            if(tab === 'analytics') fetchAnalytics();
         }
 
         function drillDownToDate(dateString) {
@@ -914,6 +1133,160 @@
                 options: { responsive: true, maintainAspectRatio: false, onClick: (e, el) => el[0] && drillDownToDate(loadedDateRangeArray[el[0].index]), plugins: { legend: { labels: { boxWidth: 10 } } } }
             });
         }
+
+        // ══ REVENUE INTEL ════════════════════════════════════════════════════════
+
+        let anCohortChart = null;
+
+        function anFmt(n) {
+            if (n >= 100000) return '₹' + (n / 100000).toFixed(1) + 'L';
+            if (n >= 1000)   return '₹' + (n / 1000).toFixed(1) + 'K';
+            return '₹' + (n || 0).toLocaleString();
+        }
+
+        async function fetchAnalytics() {
+            const btn = document.getElementById('an-refresh-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Fetching...';
+            document.getElementById('an-loading').classList.remove('hidden');
+            document.getElementById('an-content').classList.add('hidden');
+            document.getElementById('an-error').classList.add('hidden');
+
+            try {
+                const res  = await fetch(`${BACKEND_URL}/api/dashboard/analytics`, {
+                    headers: { 'x-dashboard-password': adminPassword }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Failed');
+                renderAnalytics(data);
+                document.getElementById('an-timestamp').textContent = 'Updated: ' + data.timestamp;
+                document.getElementById('an-content').classList.remove('hidden');
+            } catch (e) {
+                document.getElementById('an-error').classList.remove('hidden');
+            } finally {
+                document.getElementById('an-loading').classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh';
+            }
+        }
+
+        function renderAnalytics(data) {
+            const s  = data.summary        || {};
+            const k  = data.kpis           || {};
+            const r  = data.revenue        || {};
+            const IN = data.india          || {};
+            const US = data.usa            || {};
+            const fs = data.failed_summary || {};
+
+            // ── KPI cards
+            document.getElementById('an-total-rev').textContent    = anFmt(s.total_revenue || 0);
+            document.getElementById('an-arpu').textContent         = 'ARPU ₹' + Math.round(k.arpu || 0);
+            document.getElementById('an-paid-orders').textContent  = (s.paid_orders || 0).toLocaleString();
+            document.getElementById('an-aov').textContent          = 'AOV ₹' + Math.round(k.aov || 0).toLocaleString();
+            document.getElementById('an-active-subs').textContent  = (s.active_subs || 0) + ' (' + (s.active_pct || 0) + '%)';
+            document.getElementById('an-churn-pct').textContent    = 'Churn ' + (s.churn_pct || 0) + '%';
+            document.getElementById('an-pay-success').textContent  = (k.payment_success || 0) + '%';
+
+            // ── Revenue vs Abandoned bars
+            const paid   = r.paid_value   || 0;
+            const failed = r.failed_value || 0;
+            const total  = paid + failed;
+            const pPct   = total > 0 ? Math.round(paid   / total * 100) : 20;
+            const fPct   = total > 0 ? Math.round(failed / total * 100) : 80;
+            document.getElementById('an-collected').textContent      = anFmt(paid);
+            document.getElementById('an-abandoned').textContent      = anFmt(failed);
+            document.getElementById('an-collected-bar').style.width  = pPct + '%';
+            document.getElementById('an-abandoned-bar').style.width  = fPct + '%';
+            document.getElementById('an-abandon-note').textContent   =
+                (fs.unique_users || 0) + ' users reached checkout and left without paying (last 90 days)';
+
+            // ── India
+            document.getElementById('an-india-rev').textContent     = anFmt(IN.revenue_inr || 0);
+            document.getElementById('an-india-users').textContent   = (IN.paid_users || 0) + ' users';
+            document.getElementById('an-india-success').textContent = (IN.success_rate || 0) + '%';
+            document.getElementById('an-india-aov').textContent     = '₹' + (IN.avg_order || 0).toLocaleString();
+            document.getElementById('an-india-days').textContent    = (IN.avg_days || 0) + ' days';
+
+            // ── USA
+            const usaRevStr = anFmt(US.revenue_inr || 0) + (US.revenue_usd ? ' ($' + Math.round(US.revenue_usd) + ')' : '');
+            document.getElementById('an-usa-rev').textContent       = usaRevStr;
+            document.getElementById('an-usa-users').textContent     = (US.paid_users || 0) + ' users';
+            document.getElementById('an-usa-success').textContent   = (US.success_rate || 0) + '%';
+            document.getElementById('an-usa-aov').textContent       = '₹' + (US.avg_order || 0).toLocaleString();
+            document.getElementById('an-usa-days').textContent      = (US.avg_days || 0) + ' days';
+
+            // ── 7 day table
+            const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const tbody = document.getElementById('an-7day-tbody');
+            tbody.innerHTML = '';
+            (data.last_7_days || []).forEach(row => {
+                const dayLabel = DAYS[new Date(row.date + 'T00:00:00').getDay()];
+                const hiRev    = row.revenue > 20000;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/20 transition">
+                        <td class="px-4 py-2.5 text-slate-400">${row.date.slice(5)} <span class="text-slate-600">${dayLabel}</span></td>
+                        <td class="px-4 py-2.5 text-right">${(row.visits||0).toLocaleString()}</td>
+                        <td class="px-4 py-2.5 text-right">${(row.signups||0).toLocaleString()}</td>
+                        <td class="px-4 py-2.5 text-right ${row.conv_pct>15?'text-emerald-400':''}">${row.conv_pct}%</td>
+                        <td class="px-4 py-2.5 text-right text-emerald-400 font-bold">${row.paid_orders||0}</td>
+                        <td class="px-4 py-2.5 text-right ${hiRev?'text-brand-400 font-bold':'text-slate-300'}">₹${(row.revenue||0).toLocaleString()}</td>
+                        <td class="px-4 py-2.5 text-right text-red-400/70">${row.failed||0}</td>
+                    </tr>`;
+            });
+
+            // ── Day of week bars
+            const dowEl = document.getElementById('an-dow');
+            dowEl.innerHTML = '';
+            const maxRev = Math.max(...(data.day_of_week || []).map(d => d.avg_revenue || 0), 1);
+            (data.day_of_week || []).forEach(row => {
+                const pct   = Math.round((row.avg_revenue || 0) / maxRev * 100);
+                const color = pct >= 80 ? 'bg-brand-500' : pct >= 50 ? 'bg-slate-500' : 'bg-slate-700';
+                dowEl.innerHTML += `
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] text-slate-400 font-mono w-8">${row.day.slice(0,3).toUpperCase()}</span>
+                        <div class="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden">
+                            <div class="${color} h-full rounded-full" style="width:${pct}%"></div>
+                        </div>
+                        <span class="text-[10px] data-value text-slate-300 w-16 text-right">₹${((row.avg_revenue||0)/1000).toFixed(1)}K</span>
+                        <span class="text-[9px] text-slate-600 w-8 text-right">${row.paid_orders||0} ord</span>
+                    </div>`;
+            });
+
+            // ── Cohort chart
+            const cohorts = (data.cohorts || []).filter(c => c.conv_rate > 0).reverse();
+            if (anCohortChart) anCohortChart.destroy();
+            anCohortChart = new Chart(document.getElementById('an-cohort-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: cohorts.map(c => c.month.slice(5) + '/' + c.month.slice(2,4)),
+                    datasets: [{
+                        label: 'Conv %',
+                        data: cohorts.map(c => c.conv_rate),
+                        backgroundColor: cohorts.map(c => c.conv_rate >= 5 ? '#0ea5e9' : c.conv_rate >= 2 ? '#818cf8' : '#334155'),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { callback: v => v + '%', font: { size: 10 } }, grid: { color: '#1e293b' } },
+                        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // ── Warm leads
+            document.getElementById('an-warm-users').textContent = (fs.unique_users || 0).toLocaleString();
+            document.getElementById('an-warm-lost').textContent  = anFmt(fs.total_lost || 0);
+            document.getElementById('an-warm-avg').textContent   = '₹' + (fs.avg_per_user || 0).toLocaleString();
+            document.getElementById('an-warm-text').textContent  =
+                `${fs.unique_users || '--'} users opened checkout and left without paying in the last 90 days. ` +
+                `Average intent value ₹${(fs.avg_per_user||0).toLocaleString()} per user. ` +
+                `Send a WhatsApp/email follow-up within 1 hour of abandonment for best recovery rate.`;
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════
 
         function renderLoadChart(labels, chats, transcribes) {
             const ctx = document.getElementById('aiLoadChart').getContext('2d');
