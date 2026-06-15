@@ -3963,11 +3963,13 @@ body { overscroll-behavior-y:none; }
         
         if(GOOGLE_CLIENT_ID) {
             const redirectUri = encodeURIComponent(`${BACKEND_URL}/api/auth/google/callback`);
-            // --- NEW: FETCH SOURCE FOR SIGNUP ---
+            // --- Carry BOTH the UTM source and the influencer ref into OAuth state ---
+            // so attribution survives sign-in and binds to the account server-side.
             const currentSource = localStorage.getItem('whisSource') || 'organic';
-            
-            // --- NEW: APPEND STATE TO OAUTH URL ---
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=${currentSource}`;
+            const currentRef = localStorage.getItem('whisRef') || '';
+            const stateParam = encodeURIComponent(JSON.stringify({ s: currentSource, r: currentRef }));
+
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=${stateParam}`;
 
             container.innerHTML = `
                 <a href="${authUrl}" style="text-decoration:none;" class="flex items-center justify-center gap-3 bg-[#0f172a] text-white w-full max-w-[280px] mx-auto py-3.5 px-4 rounded-full shadow-md hover:bg-slate-800 transition active:scale-95 font-semibold text-[15px]">
