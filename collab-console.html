@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whis-AI · Collab Console</title>
+<style>
+  :root{
+    --bg:#08080b; --panel:#101015; --panel2:#16161d; --line:rgba(255,255,255,0.07);
+    --txt:#ececf2; --mut:#8a8a99; --dim:#5a5a68; --accent:#38bdf8;
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:
+      radial-gradient(900px 500px at 80% -10%, rgba(56,189,248,.06), transparent 60%),
+      var(--bg);color:var(--txt);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.5;min-height:100vh}
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 18px 80px}
+
+  /* header */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px}
+  .top h1{font-size:21px;font-weight:800;letter-spacing:-.4px;margin:0;display:flex;align-items:center;gap:9px}
+  .logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#38bdf8,#0284c7);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .sub{color:var(--mut);font-size:13px;margin:0 0 22px}
+  .lock{font-size:12px;color:var(--dim);cursor:pointer}
+  .lock:hover{color:var(--mut)}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+  .tab{padding:8px 16px;border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);color:var(--mut);transition:.15s}
+  .tab:hover{color:var(--txt)}
+  .tab.on{background:#fff;color:#000;border-color:#fff}
+  .tab .n{opacity:.6;margin-left:5px;font-weight:600}
+
+  /* card */
+  .card{background:linear-gradient(180deg,var(--panel),#0d0d12);border:1px solid var(--line);
+    border-radius:18px;padding:20px 22px;margin-bottom:16px;transition:.2s;position:relative;overflow:hidden}
+  .card:hover{border-color:rgba(255,255,255,.13)}
+  .chead{display:flex;align-items:center;gap:13px;margin-bottom:18px}
+  .ava{width:44px;height:44px;border-radius:12px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:18px;color:#0b0b0f;background:linear-gradient(135deg,#7dd3fc,#38bdf8)}
+  .who{flex:1;min-width:0}
+  .who .h{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:8px}
+  .who .m{font-size:12px;color:var(--mut);display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+  .plat{font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(56,189,248,.12);color:var(--accent)}
+
+  /* trust ring */
+  .ring{width:58px;height:58px;border-radius:50%;flex:0 0 58px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:3px solid var(--line);font-weight:800;font-size:19px;line-height:1}
+  .ring small{font-size:8px;font-weight:700;letter-spacing:.08em;color:var(--dim);margin-top:1px}
+  .ring.good{border-color:var(--good);color:var(--good)}
+  .ring.warn{border-color:var(--warn);color:var(--warn)}
+  .ring.bad{border-color:var(--bad);color:var(--bad)}
+
+  /* stats grid */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+  .stat .k{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+  .stat .v{font-size:17px;font-weight:800;margin-top:3px}
+  .stat.fee .v{color:var(--accent)}
+
+  /* actions */
+  .acts{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .feeIn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+    padding:10px 12px;font-size:14px;font-weight:700;width:130px;outline:none}
+  .feeIn:focus{border-color:var(--accent)}
+  .feeIn-wrap{position:relative}
+  .feeIn-wrap::before{content:"₹";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mut);font-weight:700;font-size:13px}
+  .feeIn{padding-left:24px}
+  button{cursor:pointer;border:none;border-radius:10px;font-weight:700;font-size:13px;padding:10px 18px;transition:.15s}
+  .approve{background:var(--good);color:#04130d}
+  .approve:hover{filter:brightness(1.08)}
+  .reject{background:transparent;border:1px solid var(--line);color:var(--mut)}
+  .reject:hover{border-color:var(--bad);color:var(--bad)}
+  .raw-toggle{margin-left:auto;font-size:11.5px;color:var(--dim);background:none;border:none;padding:6px}
+  .raw-toggle:hover{color:var(--mut)}
+  .raw{display:none;margin-top:14px;font-size:11px;color:var(--mut);white-space:pre-wrap;
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:160px;overflow:auto}
+
+  .badge-done{position:absolute;top:14px;right:16px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:6px}
+  .badge-approved{background:rgba(52,211,153,.14);color:var(--good)}
+  .badge-rejected{background:rgba(248,113,113,.12);color:var(--bad)}
+
+  .empty,.loading{text-align:center;color:var(--mut);font-size:14px;padding:70px 0}
+
+  /* auth gate */
+  .gate{position:fixed;inset:0;background:rgba(5,5,8,.86);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:50}
+  .gate .box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:32px;width:min(380px,90vw);text-align:center}
+  .gate h2{margin:0 0 6px;font-size:18px;font-weight:800}
+  .gate p{margin:0 0 18px;font-size:13px;color:var(--mut)}
+  .gate input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px;font-size:15px;outline:none;margin-bottom:12px}
+  .gate input:focus{border-color:var(--accent)}
+  .gate button{width:100%;background:#fff;color:#000;padding:12px}
+  .gate .err{color:var(--bad);font-size:12px;min-height:16px;margin-top:8px}
+
+  /* toast */
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:var(--panel);border:1px solid var(--line);color:var(--txt);padding:13px 20px;border-radius:12px;
+    font-size:13.5px;font-weight:600;box-shadow:0 16px 40px rgba(0,0,0,.5);transition:.25s;pointer-events:none;z-index:60;max-width:90vw}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.ok{border-color:rgba(52,211,153,.4)}
+  #toast.err{border-color:rgba(248,113,113,.4)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1><span class="logo">🦉</span> Collab Console</h1>
+    <span class="lock" id="lockBtn" onclick="lockOut()" style="display:none">🔒 Lock</span>
+  </div>
+  <p class="sub">Review creator submissions, set the fee, approve — the tracking code and offer email go out automatically.</p>
+
+  <div class="tabs" id="tabs" style="display:none">
+    <div class="tab on" data-s="pending" onclick="setTab(this)">Pending <span class="n" id="c-pending"></span></div>
+    <div class="tab" data-s="approved" onclick="setTab(this)">Approved <span class="n" id="c-approved"></span></div>
+    <div class="tab" data-s="rejected" onclick="setTab(this)">Rejected <span class="n" id="c-rejected"></span></div>
+    <div class="tab" data-s="" onclick="setTab(this)">All</div>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<!-- auth gate -->
+<div class="gate" id="gate">
+  <div class="box">
+    <h2>Console access</h2>
+    <p>Enter your dashboard password to continue.</p>
+    <input id="pw" type="password" placeholder="Dashboard password" onkeydown="if(event.key==='Enter')unlock()" />
+    <button onclick="unlock()">Unlock</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = "https://api.whis-ai.com";
+let PW = sessionStorage.getItem('whisDashPw') || "";
+let CURRENT = "pending";
+let CACHE = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inr = n => "₹"+Math.round(n||0).toLocaleString('en-IN');
+const views = n => n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"k":Math.round(n||0);
+const ago = d => { const s=(Date.now()-new Date(d))/1000; if(s<3600)return Math.floor(s/60)+"m ago"; if(s<86400)return Math.floor(s/3600)+"h ago"; return Math.floor(s/86400)+"d ago"; };
+
+function toast(msg,type){ const t=$('toast'); t.textContent=msg; t.className=(type||'')+' show'; setTimeout(()=>t.className=t.className.replace('show',''),2600); }
+
+function trustClass(s){ return s>=75?'good':s>=50?'warn':'bad'; }
+
+// ── auth ──
+async function unlock(){
+  const v = $('pw').value.trim();
+  if(!v){ $('gateErr').textContent="Enter your password."; return; }
+  $('gateErr').textContent="Checking…";
+  PW = v;
+  const ok = await load(true);
+  if(ok){ sessionStorage.setItem('whisDashPw', v); $('gate').style.display='none'; $('tabs').style.display='flex'; $('lockBtn').style.display='block'; }
+  else { $('gateErr').textContent="Wrong password or server unreachable."; PW=""; }
+}
+function lockOut(){ sessionStorage.removeItem('whisDashPw'); location.reload(); }
+
+// ── data ──
+async function load(silent){
+  if(!silent) $('list').innerHTML='<div class="loading">Loading…</div>';
+  try{
+    const res = await fetch(`${API}/api/collab/list`, { headers:{ 'x-dashboard-password': PW } });
+    if(res.status===401) return false;
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    CACHE = data.submissions || [];
+    updateCounts();
+    render();
+    return true;
+  }catch(e){
+    if(!silent) $('list').innerHTML=`<div class="empty">Couldn't reach the server.<br><small>${esc(e.message)}</small></div>`;
+    return false;
+  }
+}
+
+function updateCounts(){
+  const c = s => CACHE.filter(x=>x.status===s).length;
+  $('c-pending').textContent = c('pending')||'';
+  $('c-approved').textContent = c('approved')||'';
+  $('c-rejected').textContent = c('rejected')||'';
+}
+
+function setTab(el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  CURRENT = el.dataset.s;
+  render();
+}
+
+function render(){
+  const rows = CURRENT ? CACHE.filter(x=>x.status===CURRENT) : CACHE;
+  if(!rows.length){ $('list').innerHTML=`<div class="empty">No ${CURRENT||''} submissions yet.</div>`; return; }
+  $('list').innerHTML = rows.map(card).join('');
+}
+
+function card(s){
+  const tc = trustClass(s.trustScore);
+  const cper1k = s.totalComments>0 ? ((s.totalComments/(s.views.reduce((a,b)=>a+b,0)||1))*1000).toFixed(2) : '—';
+  const done = s.status!=='pending';
+  const badge = s.status==='approved'?`<span class="badge-done badge-approved">✓ Approved · ${esc(s.influencerCode||'')}</span>`
+              : s.status==='rejected'?`<span class="badge-done badge-rejected">Rejected</span>`:'';
+  return `
+  <div class="card" id="card-${s._id}">
+    ${badge}
+    <div class="chead">
+      <div class="ava">${esc((s.handle||'?')[0].toUpperCase())}</div>
+      <div class="who">
+        <div class="h">@${esc(s.handle)} <span class="plat">${esc(s.platform)}</span></div>
+        <div class="m"><span>${esc(s.name||'—')}</span><span>·</span><span>${esc(s.email)}</span><span>·</span><span>${ago(s.createdAt)}</span></div>
+      </div>
+      <div class="ring ${tc}">${s.trustScore}<small>TRUST</small></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Followers</div><div class="v">${views(s.followers)}</div></div>
+      <div class="stat"><div class="k">Median views</div><div class="v">${views(s.medianViews)}</div></div>
+      <div class="stat"><div class="k">Comments/1k</div><div class="v">${cper1k}</div></div>
+      <div class="stat fee"><div class="k">Suggested fee</div><div class="v">${inr(s.suggestedFee)}</div></div>
+    </div>
+    ${done ? `<div style="font-size:12.5px;color:var(--mut)">${s.status==='approved'?`Approved at <b style="color:var(--txt)">${inr(s.approvedFee)}</b> · code <b style="color:var(--accent)">${esc(s.influencerCode)}</b> · offer email sent.`:'Marked as rejected.'}</div>`
+    : `<div class="acts">
+        <div class="feeIn-wrap"><input class="feeIn" id="fee-${s._id}" type="number" value="${s.suggestedFee}" /></div>
+        <button class="approve" onclick="decide('${s._id}','approve')">✓ Approve &amp; send offer</button>
+        <button class="reject" onclick="decide('${s._id}','reject')">Reject</button>
+        <button class="raw-toggle" onclick="var r=document.getElementById('raw-${s._id}');r.style.display=r.style.display==='block'?'none':'block'">View OCR / raw</button>
+      </div>
+      <div class="raw" id="raw-${s._id}">Views: ${s.views.join(', ')}\nLikes: ${s.totalLikes} · Comments: ${s.totalComments}\nTrust band: ${esc(s.trustBand)}\n\n${esc(s.ocrText||'(no OCR text submitted)')}</div>`}
+  </div>`;
+}
+
+async function decide(id, decision){
+  const feeEl = $('fee-'+id);
+  const fee = feeEl ? feeEl.value : undefined;
+  if(decision==='approve' && !confirm(`Approve this creator at ${inr(fee)} and email the offer now?`)) return;
+  if(decision==='reject' && !confirm('Reject this submission?')) return;
+  try{
+    const res = await fetch(`${API}/api/collab/decide`, {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-dashboard-password': PW },
+      body: JSON.stringify({ id, decision, fee })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error||("HTTP "+res.status));
+    if(decision==='approve') toast(`Approved · code ${data.code} · offer email sent ✓`,'ok');
+    else toast('Submission rejected','ok');
+    await load(true);
+  }catch(e){ toast('Failed: '+e.message,'err'); }
+}
+
+// ── boot ──
+if(PW){ $('gate').style.display='none'; $('tabs').style.display='flex'; $('lockBtn').style.display='block'; load().then(ok=>{ if(!ok){ sessionStorage.removeItem('whisDashPw'); PW=''; $('gate').style.display='flex'; $('tabs').style.display='none'; $('lockBtn').style.display='none'; } }); }
+</script>
+</body>
+</html>

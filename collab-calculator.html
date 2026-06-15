@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whis-AI · Collab Pricing Calculator</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#121217; --panel2:#16161d; --line:rgba(255,255,255,0.08);
+    --txt:#e6e6ee; --mut:#8a8a99; --accent:#38bdf8; --good:#34d399; --warn:#fb923c; --bad:#f87171;
+  }
+  *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--txt);padding:32px 16px;line-height:1.5}
+  .wrap{max-width:920px;margin:0 auto}
+  h1{font-size:22px;font-weight:800;letter-spacing:-.5px;margin:0 0 4px}
+  .sub{color:var(--mut);font-size:13px;margin:0 0 24px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--mut);margin:0 0 14px;font-weight:700}
+  label{display:block;font-size:12px;color:var(--mut);margin:12px 0 5px;font-weight:600}
+  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+  textarea{resize:vertical;min-height:64px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .row{display:flex;gap:10px}
+  .row>*{flex:1}
+  button{cursor:pointer;border:none;border-radius:10px;font-weight:700;font-size:13px;padding:11px 14px}
+  .btn-fetch{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.3);width:auto;padding:10px 14px;white-space:nowrap}
+  .btn-calc{background:#fff;color:#000;width:100%;margin-top:18px;padding:13px}
+  .hint{font-size:11px;color:var(--mut);margin-top:5px}
+  /* result */
+  .fee{font-size:44px;font-weight:800;letter-spacing:-1px;margin:2px 0}
+  .fee small{font-size:15px;color:var(--mut);font-weight:600}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .stat:last-child{border-bottom:none}
+  .stat .k{color:var(--mut)}
+  .stat .v{font-weight:700}
+  .pill{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:99px}
+  .p-good{background:rgba(52,211,153,.15);color:var(--good)}
+  .p-warn{background:rgba(251,146,60,.15);color:var(--warn)}
+  .p-bad{background:rgba(248,113,113,.15);color:var(--bad)}
+  .split{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px;font-size:13px}
+  .split b{color:var(--accent)}
+  .muted-card{opacity:.5}
+  details{margin-top:14px}
+  summary{cursor:pointer;font-size:12px;color:var(--mut);font-weight:600}
+  .adv{margin-top:12px;padding-top:8px;border-top:1px dashed var(--line)}
+  .flag{margin-top:14px;padding:11px 13px;border-radius:10px;font-size:12.5px;display:none}
+  .flag.show{display:block}
+  .flag-bad{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:#fca5a5}
+  .flag-warn{background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);color:#fdba74}
+  #emptyState{color:var(--mut);font-size:13px;text-align:center;padding:40px 0}
+  /* trust score */
+  .trust{display:flex;gap:14px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;margin:6px 0 14px}
+  .ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 64px;
+    font-size:22px;font-weight:800;border:3px solid var(--line)}
+  .ring.t-good{border-color:var(--good);color:var(--good)}
+  .ring.t-warn{border-color:var(--warn);color:var(--warn)}
+  .ring.t-bad{border-color:var(--bad);color:var(--bad)}
+  .trust .tlabel{font-size:13px;font-weight:700;margin-bottom:2px}
+  .trust .tsub{font-size:11.5px;color:var(--mut)}
+  .reasons{list-style:none;padding:0;margin:0;font-size:12px}
+  .reasons li{padding:4px 0;display:flex;gap:7px;align-items:flex-start}
+  .reasons .ok{color:var(--good)}
+  .reasons .no{color:var(--bad)}
+  .reasons .meh{color:var(--warn)}
+  .reasons .na{color:var(--mut)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <h1>Collab Pricing Calculator</h1>
+  <p class="sub">Median-based fair fee for a flat-cash creator collab. Anchor: ₹40 CPM (₹4,000 / 100k views), adjusted for niche fit &amp; engagement.</p>
+
+  <div class="grid">
+    <!-- INPUT -->
+    <div class="card">
+      <h2>Creator inputs</h2>
+
+      <label>Auto-fetch by handle (Route 1)</label>
+      <div class="row">
+        <select id="platform" style="flex:0 0 120px">
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+          <option value="tiktok">TikTok</option>
+        </select>
+        <input id="handle" placeholder="@handle" />
+        <button class="btn-fetch" onclick="fetchMetrics()">Fetch</button>
+      </div>
+      <div class="hint" id="fetchStatus">Or upload a screenshot below (in-house OCR), or paste numbers manually.</div>
+
+      <label>In-house OCR — upload profile / insights screenshot(s)</label>
+      <input id="shot" type="file" accept="image/*" multiple onchange="runOCR(this.files)" />
+      <div class="hint" id="ocrStatus">Reads numbers locally in your browser — images never leave this machine. Best on the Insights/Dashboard panel, not the reel grid.</div>
+      <details id="ocrTextWrap" style="display:none">
+        <summary>Detected text (verify / copy)</summary>
+        <pre id="ocrText" style="white-space:pre-wrap;font-size:11px;color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:8px;max-height:160px;overflow:auto"></pre>
+      </details>
+
+      <label>Last ~10 posts — views (comma or newline separated)</label>
+      <textarea id="views" placeholder="120000, 85000, 240000, 95000, 60000, 110000, ..."></textarea>
+
+      <div class="row">
+        <div>
+          <label>Total likes (optional)</label>
+          <input id="likes" type="number" placeholder="e.g. 64000" />
+        </div>
+        <div>
+          <label>Total comments (optional)</label>
+          <input id="comments" type="number" placeholder="e.g. 1850" />
+        </div>
+      </div>
+      <label>Follower count (optional — enables reach check)</label>
+      <input id="followers" type="number" placeholder="e.g. 48000" />
+
+      <label>Niche fit</label>
+      <select id="niche">
+        <option value="1.0">Coding / CS / Jobs / Tech-career (×1.0)</option>
+        <option value="0.75">Tech-general — gadgets, AI news (×0.75)</option>
+        <option value="0.5">General / comedy / lifestyle (×0.5)</option>
+      </select>
+
+      <details>
+        <summary>Advanced — tune the model</summary>
+        <div class="adv">
+          <label>Base CPM (₹ per 1,000 views)</label>
+          <input id="cpm" type="number" value="40" />
+          <label>Your sale price for break-even (₹)</label>
+          <input id="price" type="number" value="2499" />
+          <label>Assumed gross margin on a sale (%)</label>
+          <input id="margin" type="number" value="80" />
+        </div>
+      </details>
+
+      <button class="btn-calc" onclick="calc()">Calculate fee →</button>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="card" id="resultCard">
+      <h2>Suggested deal</h2>
+      <div id="emptyState">Enter views and hit <b>Calculate</b>.</div>
+      <div id="result" style="display:none">
+        <div class="fee" id="feeVal">₹0</div>
+        <div id="feeNote" class="hint" style="margin-bottom:6px"></div>
+        <div id="feeGate" class="hint" style="margin-bottom:14px;font-weight:700"></div>
+
+        <div class="trust">
+          <div class="ring" id="trustRing">—</div>
+          <div>
+            <div class="tlabel" id="trustLabel">Trust score</div>
+            <div class="tsub" id="trustSub">How believable these numbers are.</div>
+            <ul class="reasons" id="reasons"></ul>
+          </div>
+        </div>
+
+        <div class="stat"><span class="k">Median views (outliers dropped)</span><span class="v" id="rMedian">—</span></div>
+        <div class="stat"><span class="k">Engagement (comments / 1k views)</span><span class="v" id="rEng">—</span></div>
+        <div class="stat"><span class="k">Niche multiplier</span><span class="v" id="rNiche">—</span></div>
+        <div class="stat"><span class="k">Engagement multiplier</span><span class="v" id="rEngMult">—</span></div>
+        <div class="stat"><span class="k">Effective CPM you'd pay</span><span class="v" id="rCpm">—</span></div>
+        <div class="stat"><span class="k">Sales needed to break even</span><span class="v" id="rBreak">—</span></div>
+
+        <div class="flag" id="flag"></div>
+
+        <div class="split">
+          Recommended payout split (de-risks a weak post):<br>
+          <b id="splitNow">₹0</b> on posting · <b id="splitLater">₹0</b> after it hits <span id="splitThresh">0</span> views in 72h.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────
+// Point this at your backend once /api/influencer/metrics is live.
+const METRICS_ENDPOINT = "https://api.whis-ai.com/api/influencer/metrics";
+
+// ── Helpers ─────────────────────────────────────────────
+function parseViews(raw){
+  return raw.split(/[\s,]+/).map(s=>{
+    s = s.trim().toLowerCase().replace(/views?/,'');
+    if(!s) return NaN;
+    let mult = 1;
+    if(s.endsWith('k')){ mult=1e3; s=s.slice(0,-1); }
+    else if(s.endsWith('m')){ mult=1e6; s=s.slice(0,-1); }
+    const n = parseFloat(s.replace(/,/g,''));
+    return isNaN(n)?NaN:n*mult;
+  }).filter(n=>!isNaN(n) && n>0);
+}
+
+function median(arr){
+  const a=[...arr].sort((x,y)=>x-y);
+  const m=Math.floor(a.length/2);
+  return a.length%2 ? a[m] : (a[m-1]+a[m])/2;
+}
+
+// Drop one highest + one lowest when we have enough samples (kills viral flukes & duds)
+function trimmedMedian(arr){
+  if(arr.length>=5){
+    const a=[...arr].sort((x,y)=>x-y);
+    return median(a.slice(1,-1));
+  }
+  return median(arr);
+}
+
+function engagementMultiplier(cper1k){
+  if(cper1k>=2)   return {m:1.1,  label:"Strong",  cls:"p-good"};
+  if(cper1k>=0.5) return {m:1.0,  label:"Normal",  cls:"p-good"};
+  if(cper1k>=0.1) return {m:0.85, label:"Weak",    cls:"p-warn"};
+  return {m:0.6, label:"Suspicious", cls:"p-bad"};
+}
+
+const fmt = n => "₹" + Math.round(n).toLocaleString('en-IN');
+const fmtViews = n => n>=1e6 ? (n/1e6).toFixed(1)+"M" : n>=1e3 ? Math.round(n/1e3)+"k" : Math.round(n);
+
+// coefficient of variation (spiky reach = authentic; flat = suspicious)
+function coeffVar(arr){
+  if(arr.length<2) return null;
+  const mean = arr.reduce((s,v)=>s+v,0)/arr.length;
+  if(!mean) return null;
+  const variance = arr.reduce((s,v)=>s+(v-mean)**2,0)/arr.length;
+  return Math.sqrt(variance)/mean;
+}
+
+// ── Trust score: start at 100, deduct per red flag, list every reason ──
+function trustScore({views, totalViews, totalLikes, totalComments, followers, median}){
+  let score = 100;
+  const reasons = [];
+  const add = (cls,txt) => reasons.push({cls,txt});
+
+  // 1. Comments per 1k views
+  if(totalComments>0){
+    const c = (totalComments/totalViews)*1000;
+    if(c<0.1){ score-=35; add('no',`Comments far too low (${c.toFixed(2)}/1k) — classic bought-views signature`); }
+    else if(c<0.3){ score-=15; add('meh',`Low comment rate (${c.toFixed(2)}/1k)`); }
+    else if(c>8){ score-=10; add('meh',`Unusually high comment rate (${c.toFixed(1)}/1k) — possible comment pods`); }
+    else add('ok',`Healthy comment rate (${c.toFixed(2)}/1k)`);
+  } else add('na','No comment data — add it to validate the audience');
+
+  // 2. Like : comment ratio (real audiences ~10–50×)
+  if(totalLikes>0 && totalComments>0){
+    const r = totalLikes/totalComments;
+    if(r<5 || r>120){ score-=20; add('no',`Like:comment ratio unnatural (${r.toFixed(0)}:1)`); }
+    else if(r<8 || r>60){ score-=8; add('meh',`Like:comment ratio slightly off (${r.toFixed(0)}:1)`); }
+    else add('ok',`Natural like:comment ratio (${r.toFixed(0)}:1)`);
+  } else add('na','No like data — add total likes for ratio check');
+
+  // 3. View variance across posts (organic reach is spiky)
+  const cv = coeffVar(views);
+  if(cv!==null && views.length>=4){
+    if(cv<0.12){ score-=25; add('no',`Views suspiciously uniform (CV ${cv.toFixed(2)}) — real reach is spiky`); }
+    else if(cv<0.25){ score-=10; add('meh',`Low view variance (CV ${cv.toFixed(2)})`); }
+    else add('ok',`Natural, spiky reach (CV ${cv.toFixed(2)})`);
+  } else add('na','Add ~4+ posts to check view variance');
+
+  // 4. View : follower ratio
+  if(followers>0){
+    const vf = median/followers;
+    if(vf<0.15){ score-=20; add('no',`Followers aren't watching (${vf.toFixed(2)}× reach) — likely inactive/bought followers`); }
+    else if(vf<0.5){ score-=8; add('meh',`Below-average reach vs following (${vf.toFixed(2)}×)`); }
+    else if(vf>40){ score-=5; add('meh',`Very high views vs followers (${vf.toFixed(0)}×) — verify it's real virality`); }
+    else add('ok',`Healthy reach vs following (${vf.toFixed(1)}×)`);
+  } else add('na','Add follower count for reach check');
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  let band, cls;
+  if(score>=75){ band="Trusted — pay full rate"; cls="t-good"; }
+  else if(score>=50){ band="Caution — use 50/50 split + makegood"; cls="t-warn"; }
+  else { band="High risk — verify manually or pass"; cls="t-bad"; }
+  return {score, band, cls, reasons};
+}
+
+// ── In-house OCR (Tesseract.js, runs locally) ───────────
+function abbrevToNum(tok){
+  let s = tok.trim().toLowerCase().replace(/,/g,'');
+  let mult = 1;
+  if(s.endsWith('k')){ mult=1e3; s=s.slice(0,-1); }
+  else if(s.endsWith('m')){ mult=1e6; s=s.slice(0,-1); }
+  const n = parseFloat(s);
+  return isNaN(n)?null:Math.round(n*mult);
+}
+
+async function runOCR(files){
+  if(!files || !files.length) return;
+  const status = document.getElementById('ocrStatus');
+  if(typeof Tesseract==='undefined'){ status.textContent="OCR library still loading — try again in a second."; return; }
+  status.textContent = `Reading ${files.length} image(s) locally…`;
+  let allText = "";
+  try{
+    for(const f of files){
+      const { data:{ text } } = await Tesseract.recognize(f, 'eng');
+      allText += text + "\n";
+    }
+  }catch(e){ status.textContent="OCR failed: "+e.message; return; }
+
+  document.getElementById('ocrTextWrap').style.display='block';
+  document.getElementById('ocrText').textContent = allText.trim();
+
+  // followers: "<num>K followers" / "<num> followers"
+  const fMatch = allText.match(/([\d.,]+\s*[KkMm]?)\s*followers/i);
+  if(fMatch){ const n=abbrevToNum(fMatch[1]); if(n) document.getElementById('followers').value = n; }
+
+  // candidate view numbers: tokens with K/M, or plain numbers >= 1000
+  const tokens = allText.match(/[\d][\d.,]*\s*[KkMm]?/g) || [];
+  const candidates = tokens.map(abbrevToNum).filter(n => n && n>=1000);
+  // exclude an obvious follower value to avoid double-counting
+  const followerVal = fMatch ? abbrevToNum(fMatch[1]) : null;
+  const views = candidates.filter(n => n!==followerVal);
+  if(views.length){
+    document.getElementById('views').value = views.join(', ');
+    status.innerHTML = `Found ${views.length} number(s). <b style="color:var(--warn)">Verify against the screenshot</b> — OCR isn't perfect — then Calculate.`;
+  } else {
+    status.textContent = "Couldn't confidently read view counts. Check 'Detected text' and enter them manually.";
+  }
+}
+
+// ── Auto-fetch (Route 1) ────────────────────────────────
+async function fetchMetrics(){
+  const handle = document.getElementById('handle').value.trim().replace(/^@/,'');
+  const platform = document.getElementById('platform').value;
+  const status = document.getElementById('fetchStatus');
+  if(!handle){ status.textContent="Enter a handle first."; return; }
+  status.textContent = "Fetching @"+handle+" …";
+  try{
+    const res = await fetch(`${METRICS_ENDPOINT}?platform=${platform}&handle=${encodeURIComponent(handle)}`);
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    // Expected shape: { posts:[{views, comments}], ... }
+    const posts = data.posts || [];
+    if(!posts.length) throw new Error("no posts returned");
+    document.getElementById('views').value = posts.map(p=>p.views).join(', ');
+    const totalComments = posts.reduce((s,p)=>s+(p.comments||0),0);
+    const totalLikes = posts.reduce((s,p)=>s+(p.likes||0),0);
+    if(totalComments) document.getElementById('comments').value = totalComments;
+    if(totalLikes) document.getElementById('likes').value = totalLikes;
+    if(data.followers || data.followerCount) document.getElementById('followers').value = data.followers || data.followerCount;
+    status.textContent = `Loaded ${posts.length} posts for @${handle}. Review niche, then Calculate.`;
+    calc();
+  }catch(e){
+    status.textContent = "Auto-fetch unavailable ("+e.message+"). Paste numbers manually below.";
+  }
+}
+
+// ── Core calculation ────────────────────────────────────
+function calc(){
+  const views = parseViews(document.getElementById('views').value);
+  if(!views.length){ document.getElementById('fetchStatus').textContent="Enter at least one view count."; return; }
+
+  const totalComments = parseFloat(document.getElementById('comments').value) || 0;
+  const totalLikes = parseFloat(document.getElementById('likes').value) || 0;
+  const followers = parseFloat(document.getElementById('followers').value) || 0;
+  const niche = parseFloat(document.getElementById('niche').value);
+  const cpm   = parseFloat(document.getElementById('cpm').value)   || 40;
+  const price = parseFloat(document.getElementById('price').value) || 2499;
+  const margin= (parseFloat(document.getElementById('margin').value)||80)/100;
+
+  const med = trimmedMedian(views);
+  const totalViews = views.reduce((s,v)=>s+v,0);
+  const cper1k = totalComments>0 ? (totalComments/totalViews)*1000 : null;
+  const eng = cper1k!==null ? engagementMultiplier(cper1k) : {m:1.0,label:"No data",cls:"p-warn"};
+
+  let fee = (med/1000) * cpm * niche * eng.m;
+  fee = Math.round(fee/250)*250; // round to nearest ₹250
+
+  const effCpm = (fee/med)*1000;
+  const breakEven = Math.ceil(fee/(price*margin));
+
+  // trust score
+  const trust = trustScore({views, totalViews, totalLikes, totalComments, followers, median:med});
+
+  // render
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('result').style.display='block';
+  document.getElementById('feeVal').textContent = fmt(fee);
+  document.getElementById('feeNote').innerHTML =
+    `Fee = (median ${fmtViews(med)} ÷ 1000) × ₹${cpm} × ${niche} niche × ${eng.m} engagement`;
+
+  // trust ring + reasons
+  const ring = document.getElementById('trustRing');
+  ring.className = "ring " + trust.cls;
+  ring.textContent = trust.score;
+  document.getElementById('trustLabel').textContent = "Trust score · " + trust.band;
+  document.getElementById('reasons').innerHTML = trust.reasons.map(r=>{
+    const icon = r.cls==='ok'?'✓':r.cls==='no'?'✕':r.cls==='meh'?'!':'·';
+    return `<li><span class="${r.cls}">${icon}</span><span>${r.txt}</span></li>`;
+  }).join('');
+
+  // fee gate based on trust
+  const gate = document.getElementById('feeGate');
+  if(trust.score>=75){ gate.style.color='var(--good)'; gate.textContent="✓ Safe to pay this as a flat fee."; }
+  else if(trust.score>=50){ gate.style.color='var(--warn)'; gate.innerHTML=`⚠ Don't pay full flat — use the 50/50 split below (${fmt(Math.round(fee*0.5/100)*100)} now).`; }
+  else { gate.style.color='var(--bad)'; gate.textContent="✕ High risk — verify manually or pass. Do not pay the full fee upfront."; }
+
+  document.getElementById('rMedian').textContent = fmtViews(med) + ` (${views.length} posts)`;
+  document.getElementById('rEng').innerHTML = cper1k!==null
+      ? cper1k.toFixed(2)+` <span class="pill ${eng.cls}">${eng.label}</span>`
+      : `<span class="pill p-warn">no comment data</span>`;
+  document.getElementById('rNiche').textContent = "×"+niche;
+  document.getElementById('rEngMult').textContent = "×"+eng.m;
+  document.getElementById('rCpm').textContent = "₹"+effCpm.toFixed(1);
+  document.getElementById('rBreak').textContent = breakEven + (breakEven===1?" sale":" sales");
+
+  // fraud / caution flag
+  const flag = document.getElementById('flag');
+  flag.className="flag";
+  if(cper1k!==null && cper1k<0.1){
+    flag.classList.add('show','flag-bad');
+    flag.innerHTML="⚠ Very low comments for the view count — likely bought/inflated views. Pay the reduced rate or pass, and verify with your own conversion tracking.";
+  } else if(cper1k===null){
+    flag.classList.add('show','flag-warn');
+    flag.innerHTML="Add comment count to validate the audience is real. High views + dead comments = inflated reach.";
+  }
+
+  // payout split
+  const now = Math.round(fee*0.5/100)*100;
+  document.getElementById('splitNow').textContent = fmt(now);
+  document.getElementById('splitLater').textContent = fmt(fee-now);
+  document.getElementById('splitThresh').textContent = fmtViews(med*0.7);
+}
+</script>
+</body>
+</html>

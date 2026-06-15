@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Partner with Whis-AI · Creator Collab</title>
+<meta name="description" content="Get paid to collaborate with Whis-AI. Flat cash, paid fast.">
+<style>
+  :root{
+    --bg:#08080b; --panel:#101016; --panel2:#17171f; --line:rgba(255,255,255,0.09);
+    --txt:#f2f2f7; --mut:#9a9aa8; --dim:#62626f; --accent:#38bdf8; --good:#34d399; --bad:#f87171;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100vh;color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.5;
+    background:radial-gradient(700px 420px at 50% -10%, rgba(56,189,248,.10), transparent 60%), var(--bg)}
+  .wrap{max-width:440px;margin:0 auto;padding:40px 20px 60px}
+
+  .brand{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:30px}
+  .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#38bdf8,#0284c7);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .brand b{font-size:14px;font-weight:800}
+
+  h1{font-size:28px;font-weight:800;letter-spacing:-.7px;text-align:center;margin:0 0 10px;line-height:1.12}
+  .lede{text-align:center;color:var(--mut);font-size:15px;margin:0 0 32px}
+  .lede b{color:var(--txt)}
+
+  label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin:0 0 8px}
+  .field{margin-bottom:18px}
+  input,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:13px;padding:15px;font-size:16px;outline:none;transition:border-color .15s;font-family:inherit}
+  input:focus,select:focus{border-color:var(--accent)}
+  input.bad,select.bad{border-color:var(--bad)}
+  .handle-row{display:flex;gap:10px}
+  .handle-row select{flex:0 0 124px}
+  .handle-row input{flex:1}
+
+  /* optional toggle */
+  .more{display:block;text-align:center;color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;
+    padding:10px;margin:4px 0 8px;user-select:none}
+  .more:hover{color:var(--mut)}
+  #extra{display:none}
+  .file{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px dashed var(--line);border-radius:13px;padding:15px;cursor:pointer;transition:.15s}
+  .file:hover{border-color:var(--accent)}
+  .file input{display:none}
+  .file .t{font-size:13.5px;font-weight:600}
+  .file .s{font-size:11px;color:var(--dim);margin-top:1px}
+  #ocrStatus{font-size:12px;margin-top:8px;color:var(--mut);min-height:14px;text-align:center}
+  .two{display:flex;gap:12px}.two>*{flex:1}
+
+  .btn{width:100%;margin-top:10px;background:#fff;color:#000;border:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;transition:.15s}
+  .btn:hover{background:#eee}.btn:disabled{opacity:.55;cursor:not-allowed}
+  .formErr{color:var(--bad);font-size:13px;text-align:center;margin-top:14px;min-height:16px}
+  .priv{text-align:center;font-size:11.5px;color:var(--dim);margin-top:14px}
+
+  .done{text-align:center;padding:30px 6px}
+  .check{width:68px;height:68px;border-radius:50%;background:rgba(52,211,153,.12);border:2px solid var(--good);display:flex;align-items:center;justify-content:center;font-size:31px;margin:0 auto 20px}
+  .done h2{font-size:22px;font-weight:800;margin:0 0 10px}
+  .done p{color:var(--mut);font-size:15px;margin:0 auto;max-width:340px}
+  .spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes s{to{transform:rotate(360deg)}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="logo">🦉</span><b>Whis-AI</b></div>
+
+  <div id="formView">
+    <h1>Get paid to collab</h1>
+    <p class="lede">We pay creators <b>flat cash</b> for one reel.<br>Apply in 30 seconds.</p>
+
+    <div class="field"><input id="name" placeholder="Your name" /></div>
+    <div class="field"><input id="email" type="email" placeholder="Email" inputmode="email" /></div>
+    <div class="field">
+      <div class="handle-row">
+        <select id="platform">
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+          <option value="tiktok">TikTok</option>
+        </select>
+        <input id="handle" placeholder="@yourhandle" />
+      </div>
+    </div>
+    <div class="field">
+      <select id="niche">
+        <option value="">What's your content about?</option>
+        <option value="1.0">Coding / Tech careers / Jobs</option>
+        <option value="0.75">Tech / Gadgets / AI</option>
+        <option value="0.5">Lifestyle / Comedy / Other</option>
+      </select>
+    </div>
+    <div class="field"><input id="views" placeholder="Avg views per reel (e.g. 100k)" inputmode="numeric" /></div>
+
+    <span class="more" id="moreToggle" onclick="toggleMore()">+ Add more for faster review (optional)</span>
+
+    <div id="extra">
+      <div class="field two">
+        <input id="followers" type="number" inputmode="numeric" placeholder="Followers" />
+        <input id="likes" type="number" inputmode="numeric" placeholder="Total likes" />
+      </div>
+      <div class="field"><input id="comments" type="number" inputmode="numeric" placeholder="Total comments" /></div>
+      <div class="field">
+        <label class="file">
+          <span style="font-size:20px">📸</span>
+          <div><div class="t" id="fileT">Upload Insights screenshot</div><div class="s">Read on your device — never uploaded.</div></div>
+          <input type="file" accept="image/*" multiple onchange="runOCR(this.files)" />
+        </label>
+        <div id="ocrStatus"></div>
+      </div>
+    </div>
+
+    <button class="btn" id="submitBtn" onclick="submitForm()">Apply for a collab →</button>
+    <div class="formErr" id="formErr"></div>
+    <div class="priv">No spam, ever. We only use this to review your collab.</div>
+  </div>
+
+  <div id="doneView" class="done" style="display:none">
+    <div class="check">✓</div>
+    <h2>Application received!</h2>
+    <p>Thanks <b id="doneName">there</b> — if it's a fit, you'll get a collab offer by email within <b>24–48 hours</b>.</p>
+  </div>
+</div>
+
+<script>
+const API = "https://api.whis-ai.com";
+const $ = id => document.getElementById(id);
+
+function toggleMore(){
+  const e=$('extra'), t=$('moreToggle');
+  if(e.style.display==='block'){ e.style.display='none'; t.textContent='+ Add more for faster review (optional)'; }
+  else { e.style.display='block'; t.textContent='– Hide extra details'; }
+}
+
+function abbrevToNum(tok){
+  let s=String(tok).trim().toLowerCase().replace(/,/g,''); let m=1;
+  if(s.endsWith('k')){ m=1e3; s=s.slice(0,-1); } else if(s.endsWith('m')){ m=1e6; s=s.slice(0,-1); }
+  const n=parseFloat(s); return isNaN(n)?null:Math.round(n*m);
+}
+
+async function runOCR(files){
+  if(!files||!files.length) return;
+  const st=$('ocrStatus'); $('fileT').textContent=files.length+" image(s) selected";
+  if(typeof Tesseract==='undefined'){ st.textContent="Reader still loading — try again in a second."; return; }
+  st.textContent="📸 Reading your screenshot…"; st.style.color="var(--mut)";
+  let text="";
+  try{ for(const f of files){ const {data}=await Tesseract.recognize(f,'eng'); text+=data.text+"\n"; } }
+  catch(e){ st.textContent="Couldn't read it — please type your numbers."; return; }
+  const fm=text.match(/([\d.,]+\s*[KkMm]?)\s*followers/i);
+  if(fm){ const n=abbrevToNum(fm[1]); if(n && !$('followers').value) $('followers').value=n; }
+  const toks=text.match(/[\d][\d.,]*\s*[KkMm]?/g)||[]; const fVal=fm?abbrevToNum(fm[1]):null;
+  const vs=toks.map(abbrevToNum).filter(n=>n&&n>=1000&&n!==fVal);
+  if(vs.length){ if(!$('views').value.trim()) $('views').value=vs.join(', '); st.style.color="var(--good)"; st.innerHTML="✓ Numbers filled — please double-check them."; }
+  else st.textContent="Couldn't find views — please type them.";
+}
+
+const validEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+async function submitForm(){
+  const name=$('name').value.trim(), email=$('email').value.trim(), handle=$('handle').value.trim();
+  const niche=$('niche').value, views=$('views').value.trim(), err=$('formErr');
+  ['name','email','handle','niche','views'].forEach(id=>$(id).classList.remove('bad'));
+
+  if(!name){ err.textContent="Please add your name."; $('name').classList.add('bad'); return; }
+  if(!validEmail(email)){ err.textContent="Please enter a valid email."; $('email').classList.add('bad'); return; }
+  if(!handle){ err.textContent="Please add your handle."; $('handle').classList.add('bad'); return; }
+  if(!niche){ err.textContent="Please pick your content category."; $('niche').classList.add('bad'); return; }
+  const viewArr=views.split(/[\s,]+/).map(abbrevToNum).filter(n=>n&&n>0);
+  if(!viewArr.length){ err.textContent="Please add your average views."; $('views').classList.add('bad'); return; }
+
+  err.textContent="";
+  const btn=$('submitBtn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span>Submitting…';
+  try{
+    const res=await fetch(`${API}/api/collab/submit`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ name, email, platform:$('platform').value, handle, niche:parseFloat(niche),
+        followers:+$('followers').value||0, views:viewArr, totalLikes:+$('likes').value||0, totalComments:+$('comments').value||0 })
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||("Error "+res.status));
+    $('doneName').textContent=name; $('formView').style.display='none'; $('doneView').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){
+    // Server sends friendly full-sentence errors (e.g. already applied); show them as-is.
+    err.textContent = /[a-z]\s[a-z]/i.test(e.message) ? e.message : "Couldn't submit — please try again.";
+    btn.disabled=false; btn.textContent="Apply for a collab →";
+  }
+}
+</script>
+</body>
+</html>
