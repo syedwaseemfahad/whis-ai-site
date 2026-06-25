@@ -2399,7 +2399,7 @@ body { overscroll-behavior-y:none; }
             </div>
             <div class="space-y-2.5 text-xs mb-6 flex-grow">
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Screen-share invisible</span></div>
-              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200">10 hrs usage / mo</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
@@ -2428,7 +2428,7 @@ body { overscroll-behavior-y:none; }
             </div>
             <div class="space-y-2.5 text-xs mb-6 flex-grow relative z-10">
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Screen-share invisible</span></div>
-              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200">10 hrs usage / mo</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
@@ -2457,7 +2457,7 @@ body { overscroll-behavior-y:none; }
             </div>
             <div class="space-y-2.5 text-xs mb-6 flex-grow">
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Screen-share invisible</span></div>
-              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200">10 hrs usage / mo</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
@@ -2474,7 +2474,7 @@ body { overscroll-behavior-y:none; }
           <div>
             <h4 class="text-xs md:text-sm font-bold text-white mb-2 uppercase tracking-wide">Smart Usage Credit System</h4>
             <p class="text-[11px] md:text-xs text-slate-400 leading-relaxed">
-              Paid plans include <span class="text-white font-semibold"><span id="usage-hours">10</span> hours / month</span> of app usage. The Ghost Timer only counts while you're actively in an interview — prep time and breaks never touch your balance.
+              Paid plans include <span class="text-white font-semibold"><span id="usage-hours">10</span>–20 hours / month</span> of app usage, scaling up on the Quarterly and 6-Month plans. The Ghost Timer only counts while you're actively in an interview, so prep time and breaks never touch your balance.
             </p>
           </div>
         </div>
@@ -3518,6 +3518,7 @@ body { overscroll-behavior-y:none; }
 
                 applyConfig(data);
                 renderPricingCards();   // fills all four pricing cards from live config
+                renderPlanHours();      // per-plan usage hours (10 / 15 / 20) from micHours
                 const _bp = document.getElementById('btnPro'); if (_bp) _bp.disabled = false;
                 const _be = document.getElementById('btnElite'); if (_be) _be.disabled = false;
             }
@@ -3637,6 +3638,17 @@ body { overscroll-behavior-y:none; }
             // "save X% vs monthly" only when there's a real saving (skips Monthly itself)
             show(o.pre + 'Save', save > 0);
             if (save > 0) set(o.pre + 'Save', `save ${save}% vs monthly`);
+        });
+    }
+
+    // Fill the per-plan "X hrs usage / mo" rows from /api/config (micHours). The three
+    // .js-hours rows appear in DOM order: Monthly, Quarterly, 6-Month.
+    function renderPlanHours(){
+        const mh = (SITE_CONFIG && SITE_CONFIG.micHours) || { monthly:10, quarterly:15, semiannual:20 };
+        const order = ['monthly','quarterly','semiannual'];
+        document.querySelectorAll('.js-hours').forEach((el, i) => {
+            const cyc = order[i];
+            if (cyc && mh[cyc] != null) el.textContent = `${mh[cyc]} hrs usage / mo`;
         });
     }
 
