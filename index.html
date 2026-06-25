@@ -3625,7 +3625,10 @@ body { overscroll-behavior-y:none; }
             const save  = Math.round((1 - perMo / monthlyPerMo) * 100);
 
             set(o.pre + 'Total', `${sym}${fmt(final)}`);
-            set(o.pre + 'PerMo', `${sym}${fmt(perMo)}`);
+            // Show the effective monthly rounded DOWN so it reads as charm pricing
+            // (₹4,499/3 = ₹1,499.67 → ₹1,499 ; ₹5,999/6 = ₹999.83 → ₹999). Billed total stays exact.
+            const perMoShown = IS_INDIA ? Math.floor(perMo).toLocaleString('en-IN') : fmt(perMo);
+            set(o.pre + 'PerMo', `${sym}${perMoShown}`);
 
             // Struck original (only when a discount/anchor is active)
             show(o.pre + 'Orig', disc > 0);
