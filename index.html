@@ -4275,13 +4275,14 @@ body { overscroll-behavior-y:none; }
 
     async function sendChatMessage() {
         const input = document.getElementById('chatInput'); const text = input.value.trim();
-        if (!text || !chatEmail) return;
+        if (!text) return;
+        if (!chatEmail) { initChat(); return; }   // no email yet → show the email-capture screen instead of silently doing nothing
         input.value = '';
         
         const area = document.getElementById('chatMessagesArea');
         const tempDiv = document.createElement('div');
-        tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed relative text-white self-end rounded-tr-sm`;
-        tempDiv.style.cssText = 'background:linear-gradient(135deg,#0ea5e9,#0284c7);box-shadow:0 4px 14px rgba(14,165,233,0.25);opacity:0.75;';
+        tempDiv.className = `max-w-[85%] p-3 md:p-3.5 rounded-2xl text-[13px] md:text-sm leading-relaxed relative self-end rounded-tr-sm`;
+        tempDiv.style.cssText = 'background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#ffffff;box-shadow:0 4px 14px rgba(14,165,233,0.25);opacity:0.75;';
         const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         tempDiv.innerHTML = `<div class="message-content">${formatMessage(text)}</div><span class="text-[9px] mt-1.5 block text-right" style="color:rgba(255,255,255,0.5);"><i class="fa-regular fa-clock"></i></span>`;
         area.appendChild(tempDiv); area.scrollTop = area.scrollHeight; lastChatCount++; 
@@ -4664,4 +4665,3 @@ body { overscroll-behavior-y:none; }
   </script>
 </body>
 </html>
-
