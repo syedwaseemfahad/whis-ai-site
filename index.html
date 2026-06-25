@@ -2406,9 +2406,9 @@ body { overscroll-behavior-y:none; }
             <button onclick="buyElite('monthly')" class="w-full py-3 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
           </div>
 
-          <!-- ELITE · QUARTERLY (MOST POPULAR) -->
-          <div class="pricing-elite p-6 md:p-7 flex flex-col relative overflow-hidden transition-transform duration-300 hover:-translate-y-1.5" style="box-shadow:0 0 0 1.5px rgba(34,211,238,0.45), 0 28px 75px -22px rgba(14,165,233,0.55);">
-            <div class="h-7 mb-3 relative z-10 flex items-center">
+          <!-- ELITE · QUARTERLY (hero for India; demoted to "Best Value" for non-India) -->
+          <div id="cardQuarterly" class="pricing-elite p-6 md:p-7 flex flex-col relative overflow-hidden transition-transform duration-300 hover:-translate-y-1.5" style="box-shadow:0 0 0 1.5px rgba(34,211,238,0.45), 0 28px 75px -22px rgba(14,165,233,0.55);">
+            <div id="badgeQuarterly" class="h-7 mb-3 relative z-10 flex items-center">
               <span class="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 4px 14px -4px rgba(14,165,233,0.6);"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>Most Popular</span>
             </div>
             <div class="flex items-center gap-2 mb-4 relative z-10">
@@ -2432,12 +2432,12 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
-            <button onclick="buyElite('quarterly')" class="btn-elite-cta relative z-10">Get Started →</button>
+            <button id="ctaQuarterly" onclick="buyElite('quarterly')" class="btn-elite-cta relative z-10">Get Started →</button>
           </div>
 
-          <!-- ELITE · 6-MONTH (BEST VALUE) -->
-          <div class="pricing-card-glass p-6 md:p-7 flex flex-col transition-transform duration-300 hover:-translate-y-1.5" style="border-color:rgba(16,185,129,0.45);box-shadow:0 0 0 1.5px rgba(16,185,129,0.4), 0 28px 75px -24px rgba(16,185,129,0.42);">
-            <div class="h-7 mb-3 flex items-center">
+          <!-- ELITE · 6-MONTH ("Best Value" for India; promoted to "Most Popular" hero for non-India) -->
+          <div id="cardSemiannual" class="pricing-card-glass p-6 md:p-7 flex flex-col transition-transform duration-300 hover:-translate-y-1.5" style="border-color:rgba(16,185,129,0.45);box-shadow:0 0 0 1.5px rgba(16,185,129,0.4), 0 28px 75px -24px rgba(16,185,129,0.42);">
+            <div id="badgeSemiannual" class="h-7 mb-3 flex items-center">
               <span class="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px -4px rgba(16,185,129,0.6);">Best Value</span>
             </div>
             <div class="flex items-center gap-2 mb-4">
@@ -2461,7 +2461,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
-            <button onclick="buyElite('semiannual')" class="w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
+            <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
           </div>
 
         </div>
@@ -3519,6 +3519,7 @@ body { overscroll-behavior-y:none; }
                 applyConfig(data);
                 renderPricingCards();   // fills all four pricing cards from live config
                 renderPlanHours();      // per-plan usage hours (10 / 15 / 20) from micHours
+                applyGeoHero();         // India → Quarterly hero; non-India → 6-Month hero
                 const _bp = document.getElementById('btnPro'); if (_bp) _bp.disabled = false;
                 const _be = document.getElementById('btnElite'); if (_be) _be.disabled = false;
             }
@@ -3650,6 +3651,31 @@ body { overscroll-behavior-y:none; }
             const cyc = order[i];
             if (cyc && mh[cyc] != null) el.textContent = `${mh[cyc]} hrs usage / mo`;
         });
+    }
+
+    // Geo-aware hero: India keeps Quarterly as "Most Popular" (price-sensitive → safe converter).
+    // Non-India promotes 6-Month to the hero (higher willingness to pay → maximize AOV).
+    function applyGeoHero(){
+        if (IS_INDIA) return;  // default markup already makes Quarterly the hero
+
+        const HERO_BADGE  = '<span class="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 4px 14px -4px rgba(14,165,233,0.6);"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>Most Popular</span>';
+        const VALUE_BADGE = '<span class="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px -4px rgba(16,185,129,0.6);">Best Value</span>';
+        const HERO_GLOW   = '0 0 0 1.5px rgba(34,211,238,0.45), 0 28px 75px -22px rgba(14,165,233,0.55)';
+        const VALUE_GLOW  = '0 0 0 1.5px rgba(16,185,129,0.4), 0 28px 75px -24px rgba(16,185,129,0.42)';
+
+        const cardS = document.getElementById('cardSemiannual'), cardQ = document.getElementById('cardQuarterly');
+        const badgeS = document.getElementById('badgeSemiannual'), badgeQ = document.getElementById('badgeQuarterly');
+        const ctaS = document.getElementById('ctaSemiannual'), ctaQ = document.getElementById('ctaQuarterly');
+
+        // 6-Month → the hero
+        if (badgeS) badgeS.innerHTML = HERO_BADGE;
+        if (cardS)  { cardS.style.boxShadow = HERO_GLOW; cardS.style.borderColor = ''; }
+        if (ctaS)   { ctaS.className = 'btn-elite-cta'; ctaS.removeAttribute('style'); }
+
+        // Quarterly → demoted to the "Best Value" secondary
+        if (badgeQ) badgeQ.innerHTML = VALUE_BADGE;
+        if (cardQ)  { cardQ.classList.remove('pricing-elite'); cardQ.classList.add('pricing-card-glass'); cardQ.style.boxShadow = VALUE_GLOW; cardQ.style.borderColor = 'rgba(16,185,129,0.45)'; }
+        if (ctaQ)   { ctaQ.className = 'w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white relative z-10'; ctaQ.style.background = 'linear-gradient(135deg,#10b981,#0ea5e9)'; }
     }
 
     // Per-card CTA → lock in that billing length, then open checkout.
