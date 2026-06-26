@@ -2932,15 +2932,19 @@ body { overscroll-behavior-y:none; }
               <div class="surprise-gift mx-auto mb-3 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl" style="background:linear-gradient(145deg,rgba(16,185,129,0.18),rgba(14,165,233,0.12));border:1px solid rgba(16,185,129,0.4);box-shadow:0 0 28px rgba(16,185,129,0.35);">🎁</div>
               <div class="text-[10px] font-extrabold uppercase tracking-[0.22em] mb-2" style="color:#34d399;">A gift, just for you</div>
               <h3 class="text-[26px] md:text-3xl font-extrabold text-white leading-tight mb-2" style="font-family:'Plus Jakarta Sans',sans-serif;">Extra <span id="surprisePct" style="color:#34d399;">15</span>% off<br><span id="surprisePlan">6-Month</span></h3>
-              <p class="text-[12.5px] text-slate-300 mb-1 leading-relaxed">Stacked on the price you already see — applied automatically at checkout.</p>
-              <p class="text-[12px] text-slate-400 mb-5">Expires in <span id="surpriseTimer" class="font-bold text-white tabular-nums">5:00</span></p>
+              <p class="text-[12.5px] text-slate-300 mb-4 leading-relaxed">Stacked on the price you already see.</p>
+
+              <!-- BIG, unmissable countdown -->
+              <div class="text-[10px] font-extrabold uppercase tracking-[0.2em] mb-1" style="color:#fbbf24;">⏳ Hurry — offer ends in</div>
+              <div id="surpriseTimer" class="text-[46px] md:text-5xl font-extrabold tabular-nums tracking-wider mb-5 leading-none" style="color:#ffffff;font-family:'Plus Jakarta Sans',sans-serif;text-shadow:0 0 26px rgba(251,191,36,0.3);">5:00</div>
 
               <!-- copy-able code -->
               <div class="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-1.5">Your code</div>
-              <button onclick="copyCoupon(event)" class="group w-full rounded-2xl px-4 py-3.5 mb-5 flex items-center justify-between gap-2 transition active:scale-[0.99]" style="background:rgba(16,185,129,0.1);border:1.5px dashed rgba(16,185,129,0.55);">
+              <button onclick="copyCoupon(event)" class="group w-full rounded-2xl px-4 py-3.5 mb-2 flex items-center justify-between gap-2 transition active:scale-[0.99]" style="background:rgba(16,185,129,0.1);border:1.5px dashed rgba(16,185,129,0.55);">
                   <code id="surpriseCode" class="text-lg md:text-xl font-extrabold tracking-[0.12em] text-white truncate">—</code>
                   <span id="copyBtn" class="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-lg transition" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-regular fa-copy"></i> Copy</span>
               </button>
+              <p class="text-[11px] mb-5 flex items-center justify-center gap-1.5 font-semibold" style="color:#fbbf24;"><i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Copy your code now — you'll lose it when the timer ends.</p>
 
               <button onclick="claimSurprise()" class="w-full py-4 rounded-2xl font-extrabold text-[12px] uppercase tracking-[0.12em] text-white transition active:scale-[0.98]" style="background:linear-gradient(135deg,#10b981,#0ea5e9);box-shadow:0 10px 30px -8px rgba(16,185,129,0.7),0 0 0 1px rgba(255,255,255,0.06) inset;">Apply &amp; Get Started →</button>
               <button onclick="dismissSurprise()" class="mt-3.5 text-[11px] text-slate-500 hover:text-slate-300 transition">No thanks, maybe later</button>
@@ -3759,14 +3763,17 @@ body { overscroll-behavior-y:none; }
         document.getElementById('surpriseCode').textContent = info.code;
         const popup = document.getElementById('surprisePopup');
         popup.classList.remove('hidden'); popup.classList.add('flex');
-        // 5-minute urgency countdown
+        // 5-minute urgency countdown — turns red in the final minute
         let t = 300; const el = document.getElementById('surpriseTimer');
-        el.textContent = '5:00';
+        const paint = () => {
+            el.textContent = Math.floor(t/60) + ':' + String(t%60).padStart(2,'0');
+            const low = t <= 60;
+            el.style.color = low ? '#ef4444' : '#ffffff';
+            el.style.textShadow = low ? '0 0 26px rgba(239,68,68,0.45)' : '0 0 26px rgba(251,191,36,0.3)';
+        };
+        paint();
         if (_surpriseTimer) clearInterval(_surpriseTimer);
-        _surpriseTimer = setInterval(() => {
-            t--; el.textContent = Math.floor(t/60) + ':' + String(t%60).padStart(2,'0');
-            if (t <= 0) dismissSurprise();
-        }, 1000);
+        _surpriseTimer = setInterval(() => { t--; paint(); if (t <= 0) dismissSurprise(); }, 1000);
     }
     function _hideSurprise(){
         const popup = document.getElementById('surprisePopup');
