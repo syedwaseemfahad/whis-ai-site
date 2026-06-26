@@ -2350,83 +2350,51 @@ body { overscroll-behavior-y:none; }
           </div>
         </div>
 
-        <!-- Pricing cards — Free + three Elite billing lengths, each its own tile. Prices fill from /api/config. -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-7xl mx-auto items-stretch">
-
-          <!-- FREE -->
-          <div class="pricing-card-glass p-6 md:p-7 flex flex-col">
-            <div class="h-7 mb-3"></div>
-            <div class="flex items-center gap-2 mb-4">
-              <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-[0.18em] px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);">Free</span>
-              <span class="text-xl md:text-2xl font-extrabold text-white">Trial</span>
-            </div>
-            <div class="rounded-2xl px-4 py-3.5 mb-3" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);">
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-4xl font-extrabold leading-none whitespace-nowrap text-white">₹0</span>
-                <span class="text-sm font-bold text-slate-400 whitespace-nowrap">/mo</span>
-              </div>
-              <div class="text-[9px] text-slate-500 mt-1.5 font-bold uppercase tracking-wider">Just to test it</div>
-            </div>
-            <div class="min-h-[2.75rem] mb-5">
-              <p class="text-[11px] text-slate-400">A quick taste, not for real interviews. No card needed.</p>
-            </div>
-            <div class="space-y-2.5 text-xs mb-6 flex-grow">
-              <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-300">2 × 5-min trials daily</span></div>
-              <div class="feat-row"><div class="feat-row-icon bg-slate-800 text-slate-400"><i class="fa-solid fa-check text-[9px]"></i></div><span class="text-slate-300">Full Elite access in trial</span></div>
-              <div class="feat-row" style="opacity:0.4;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Stealth Mode</span></div>
-              <div class="feat-row" style="opacity:0.4;"><div class="feat-row-icon bg-slate-800 text-slate-600"><i class="fa-solid fa-xmark text-[9px]"></i></div><span class="text-slate-600 line-through">Screen reading + solving</span></div>
-            </div>
-            <button onclick="openDownloadModal()" class="w-full py-3 rounded-xl border border-white/10 text-slate-300 font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 hover:bg-white/5">Try Free</button>
-          </div>
+        <!-- Pricing cards — 3 Elite billing lengths. HONEST: the big number is what you actually pay. -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 max-w-5xl mx-auto items-stretch">
 
           <!-- ELITE · MONTHLY -->
-          <div class="pricing-card-glass p-6 md:p-7 flex flex-col">
+          <div class="pricing-card-glass p-7 md:p-8 flex flex-col">
             <div class="h-7 mb-3"></div>
-            <div class="flex items-center gap-2 mb-4">
+            <div class="flex items-center gap-2 mb-5">
               <span class="text-[9px] font-extrabold text-sky-400 uppercase tracking-[0.18em] px-2 py-0.5 rounded-full" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);">Elite</span>
               <span class="text-xl md:text-2xl font-extrabold text-white">Monthly</span>
             </div>
-            <div class="rounded-2xl px-4 py-3.5 mb-3" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.28);">
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-4xl font-extrabold leading-none whitespace-nowrap" style="color:#34d399;" id="pmPerMo">—</span>
-                <span class="text-sm font-bold text-slate-300 whitespace-nowrap">/mo</span>
+            <div class="mb-2">
+              <div class="flex items-baseline gap-2.5 flex-wrap">
+                <span class="text-[40px] md:text-5xl font-extrabold leading-none whitespace-nowrap text-white" id="pmTotal">—</span>
+                <span class="text-base text-slate-500 line-through" id="pmOrig"></span>
               </div>
-              <div class="text-[9px] text-slate-400 mt-1.5 font-bold uppercase tracking-wider">Effective monthly cost</div>
+              <div class="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider">per month</div>
             </div>
-            <div class="min-h-[2.75rem] mb-5">
-              <p class="text-[11px] text-slate-400">Billed <span class="font-bold text-white" id="pmTotal"></span> monthly <span class="line-through text-slate-600 ml-1" id="pmOrig"></span></p>
-              <p class="text-[10px] mt-1 font-bold" style="color:#34d399;" id="pmSave"></p>
-            </div>
-            <div class="space-y-2.5 text-xs mb-6 flex-grow">
+            <div class="min-h-[1.4rem] mb-6"><p class="text-[11.5px] font-semibold text-slate-400" id="pmSupport"></p></div>
+            <div class="space-y-3 text-xs mb-7 flex-grow">
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Screen-share invisible</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
-            <button onclick="buyElite('monthly')" class="w-full py-3 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
+            <button onclick="buyElite('monthly')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
           </div>
 
           <!-- ELITE · QUARTERLY (hero for India; demoted to "Best Value" for non-India) -->
-          <div id="cardQuarterly" class="pricing-elite p-6 md:p-7 flex flex-col relative overflow-hidden transition-transform duration-300 hover:-translate-y-1.5" style="box-shadow:0 0 0 1.5px rgba(34,211,238,0.45), 0 28px 75px -22px rgba(14,165,233,0.55);">
+          <div id="cardQuarterly" class="pricing-elite p-7 md:p-8 flex flex-col relative overflow-hidden transition-transform duration-300 hover:-translate-y-1.5" style="box-shadow:0 0 0 1.5px rgba(34,211,238,0.45), 0 28px 75px -22px rgba(14,165,233,0.55);">
             <div id="badgeQuarterly" class="h-7 mb-3 relative z-10 flex items-center">
               <span class="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 4px 14px -4px rgba(14,165,233,0.6);"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>Most Popular</span>
             </div>
-            <div class="flex items-center gap-2 mb-4 relative z-10">
+            <div class="flex items-center gap-2 mb-5 relative z-10">
               <span class="text-[9px] font-extrabold text-sky-400 uppercase tracking-[0.18em] px-2 py-0.5 rounded-full" style="background:rgba(56,189,248,0.16);border:1px solid rgba(56,189,248,0.4);">Elite</span>
               <span class="text-xl md:text-2xl font-extrabold text-white">Quarterly</span>
             </div>
-            <div class="rounded-2xl px-4 py-3.5 mb-3 relative z-10" style="background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.45);box-shadow:0 0 22px -6px rgba(16,185,129,0.5);">
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-4xl font-extrabold leading-none whitespace-nowrap" style="color:#34d399;" id="pqPerMo">—</span>
-                <span class="text-sm font-bold text-slate-200 whitespace-nowrap">/mo</span>
+            <div class="mb-2 relative z-10">
+              <div class="flex items-baseline gap-2.5 flex-wrap">
+                <span class="text-[40px] md:text-5xl font-extrabold leading-none whitespace-nowrap text-white" id="pqTotal">—</span>
+                <span class="text-base text-slate-500 line-through" id="pqOrig"></span>
               </div>
-              <div class="text-[9px] text-slate-300 mt-1.5 font-bold uppercase tracking-wider">Effective monthly cost</div>
+              <div class="text-[10px] text-slate-300 mt-2 font-bold uppercase tracking-wider">one payment · 3 months</div>
             </div>
-            <div class="min-h-[2.75rem] mb-5 relative z-10">
-              <p class="text-[11px] text-slate-300">Billed <span class="font-bold text-white" id="pqTotal"></span> quarterly <span class="line-through text-slate-500 ml-1" id="pqOrig"></span></p>
-              <p class="text-[10px] mt-1 font-bold" style="color:#34d399;" id="pqSave"></p>
-            </div>
-            <div class="space-y-2.5 text-xs mb-6 flex-grow relative z-10">
+            <div class="min-h-[1.4rem] mb-6 relative z-10"><p class="text-[11.5px] font-semibold text-slate-300" id="pqSupport"></p></div>
+            <div class="space-y-3 text-xs mb-7 flex-grow relative z-10">
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Screen-share invisible</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
@@ -2436,35 +2404,33 @@ body { overscroll-behavior-y:none; }
           </div>
 
           <!-- ELITE · 6-MONTH ("Best Value" for India; promoted to "Most Popular" hero for non-India) -->
-          <div id="cardSemiannual" class="pricing-card-glass p-6 md:p-7 flex flex-col transition-transform duration-300 hover:-translate-y-1.5" style="border-color:rgba(16,185,129,0.45);box-shadow:0 0 0 1.5px rgba(16,185,129,0.4), 0 28px 75px -24px rgba(16,185,129,0.42);">
+          <div id="cardSemiannual" class="pricing-card-glass p-7 md:p-8 flex flex-col transition-transform duration-300 hover:-translate-y-1.5" style="border-color:rgba(16,185,129,0.45);box-shadow:0 0 0 1.5px rgba(16,185,129,0.4), 0 28px 75px -24px rgba(16,185,129,0.42);">
             <div id="badgeSemiannual" class="h-7 mb-3 flex items-center">
               <span class="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px -4px rgba(16,185,129,0.6);">Best Value</span>
             </div>
-            <div class="flex items-center gap-2 mb-4">
+            <div class="flex items-center gap-2 mb-5">
               <span class="text-[9px] font-extrabold uppercase tracking-[0.18em] px-2 py-0.5 rounded-full" style="color:#34d399;background:rgba(16,185,129,0.16);border:1px solid rgba(16,185,129,0.4);">Elite</span>
               <span class="text-xl md:text-2xl font-extrabold text-white">6-Month</span>
             </div>
-            <div class="rounded-2xl px-4 py-3.5 mb-3" style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);box-shadow:0 0 22px -6px rgba(16,185,129,0.55);">
-              <div class="flex items-baseline gap-1.5">
-                <span class="text-4xl font-extrabold leading-none whitespace-nowrap" style="color:#34d399;" id="psPerMo">—</span>
-                <span class="text-sm font-bold text-slate-200 whitespace-nowrap">/mo</span>
+            <div class="mb-2">
+              <div class="flex items-baseline gap-2.5 flex-wrap">
+                <span class="text-[40px] md:text-5xl font-extrabold leading-none whitespace-nowrap text-white" id="psTotal">—</span>
+                <span class="text-base text-slate-500 line-through" id="psOrig"></span>
               </div>
-              <div class="text-[9px] text-slate-300 mt-1.5 font-bold uppercase tracking-wider">Lowest monthly cost</div>
+              <div class="text-[10px] text-slate-300 mt-2 font-bold uppercase tracking-wider">one payment · 6 months</div>
             </div>
-            <div class="min-h-[2.75rem] mb-5">
-              <p class="text-[11px] text-slate-400">Billed <span class="font-bold text-white" id="psTotal"></span> every 6 months <span class="line-through text-slate-600 ml-1" id="psOrig"></span></p>
-              <p class="text-[10px] mt-1 font-bold" style="color:#34d399;" id="psSave"></p>
-            </div>
-            <div class="space-y-2.5 text-xs mb-6 flex-grow">
+            <div class="min-h-[1.4rem] mb-6"><p class="text-[11.5px] font-semibold text-slate-400" id="psSupport"></p></div>
+            <div class="space-y-3 text-xs mb-7 flex-grow">
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Screen-share invisible</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-shield-halved text-[9px]"></i></div><span class="text-slate-200">100% undetectable</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Screen reading + solving</span></div>
             </div>
-            <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
+            <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="w-full py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
           </div>
 
         </div>
+        <p class="text-center text-[12.5px] text-slate-500 mt-7">Not ready to commit? <a href="#" onclick="event.preventDefault();openDownloadModal()" class="font-semibold transition hover:text-white" style="color:#38bdf8;">Start a free trial</a> — full Elite access, no card needed.</p>
 
         <!-- Ghost Timer info (dark glass) -->
         <div class="max-w-3xl mx-auto mt-12 md:mt-16 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8 text-center md:text-left group hover:border-sky-500/20 transition-all duration-500" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(20px);">
@@ -3679,23 +3645,26 @@ body { overscroll-behavior-y:none; }
 
         cards.forEach(o => {
             if (o.total == null) return;
-            const final = fin(o.total);
+            const final = fin(o.total);                         // the HONEST total they actually pay
             const perMo = final / o.months;
             const save  = Math.round((1 - perMo / monthlyPerMo) * 100);
-
-            set(o.pre + 'Total', `${sym}${fmt(final)}`);
-            // Show the effective monthly rounded DOWN so it reads as charm pricing
-            // (₹4,499/3 = ₹1,499.67 → ₹1,499 ; ₹5,999/6 = ₹999.83 → ₹999). Billed total stays exact.
+            // Per-month rounded DOWN for charm (₹5,999/6 = ₹999.83 → ₹999). Shown only as support text.
             const perMoShown = IS_INDIA ? Math.floor(perMo).toLocaleString('en-IN') : fmt(perMo);
-            set(o.pre + 'PerMo', `${sym}${perMoShown}`);
+
+            // HERO = the real total charged
+            set(o.pre + 'Total', `${sym}${fmt(final)}`);
 
             // Struck original (only when a discount/anchor is active)
             show(o.pre + 'Orig', disc > 0);
             if (disc > 0) set(o.pre + 'Orig', `${sym}${fmt(o.total)}`);
 
-            // "save X% vs monthly" only when there's a real saving (skips Monthly itself)
-            show(o.pre + 'Save', save > 0);
-            if (save > 0) set(o.pre + 'Save', `save ${save}% vs monthly`);
+            // Honest support line: monthly gets reassurance; longer plans show the per-month equivalent + savings
+            const supEl = document.getElementById(o.pre + 'Support');
+            if (supEl) {
+                supEl.innerHTML = (o.months === 1)
+                    ? 'Billed monthly · cancel anytime'
+                    : `Just ${sym}${perMoShown}/mo · <span style="color:#34d399;font-weight:800;">save ${save}% vs monthly</span>`;
+            }
         });
     }
 
