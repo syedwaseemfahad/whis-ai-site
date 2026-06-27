@@ -925,7 +925,14 @@ section { border-color: rgba(255,255,255,0.05) !important; }
 
 /* ALL SECTIONS → transparent so aurora canvas shows through */
 section, section.bg-white, section.bg-slate-50, section.bg-slate-100 { background: transparent !important; }
-section#how-to, section.section-pricing-ultra, section.section-cta-final { background: transparent !important; }
+section#how-to, section.section-cta-final { background: transparent !important; }
+/* Pricing section → soft ambient depth so the cards float on color, not flat black (blurred, no hard edges) */
+section.section-pricing-ultra {
+    background:
+        radial-gradient(ellipse 85% 45% at 50% 2%, rgba(14,165,233,0.13) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 38% at 82% 64%, rgba(16,185,129,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 35% at 14% 78%, rgba(139,92,246,0.07) 0%, transparent 62%) !important;
+}
 /* Override Tailwind custom-color classes on sections */
 section#how-to.py-24 { background-color: transparent !important; }
 div.bg-white\/60, div.bg-white\/80, div.bg-white\/70 { background: rgba(255,255,255,0.02) !important; border-color: rgba(255,255,255,0.05) !important; }
@@ -3608,17 +3615,6 @@ body { overscroll-behavior-y:none; }
                 applyGeoPlans();        // India → Free+Monthly+Quarterly; non-India → Monthly+Quarterly+6-Month
                 applyGeoHero();         // India → Quarterly hero; non-India → 6-Month hero
 
-                // Dwell trigger: linger ~35s → surprise them on the plan that's actually shown for their
-                // region (India = Quarterly, since 6-Month is hidden there; elsewhere = 6-Month).
-                const _sd = SITE_CONFIG && SITE_CONFIG.surpriseDiscount;
-                if (_sd) {
-                    setTimeout(() => {
-                        if (sessionStorage.getItem('surpriseShown')) return;
-                        const pref = IS_INDIA ? ['quarterly','semiannual'] : ['semiannual','quarterly'];
-                        const cyc = pref.find(c => _sd[c] && _sd[c].code) || null;
-                        if (cyc) showSurprise(cyc);
-                    }, 35000);
-                }
                 const _bp = document.getElementById('btnPro'); if (_bp) _bp.disabled = false;
                 const _be = document.getElementById('btnElite'); if (_be) _be.disabled = false;
             }
@@ -3727,12 +3723,10 @@ body { overscroll-behavior-y:none; }
             // Per-month rounded DOWN for charm (₹5,999/6 = ₹999.83 → ₹999). Shown only as support text.
             const perMoShown = IS_INDIA ? Math.floor(perMo).toLocaleString('en-IN') : fmt(perMo);
 
-            // HERO = the real total charged
+            // HERO = the real total charged. No struck "was" price / %-off anchor — a fake
+            // discount theatre erodes trust for a premium product. The number is just the number.
             set(o.pre + 'Total', `${sym}${fmt(final)}`);
-
-            // Struck original (only when a discount/anchor is active)
-            show(o.pre + 'Orig', disc > 0);
-            if (disc > 0) set(o.pre + 'Orig', `${sym}${fmt(o.total)}`);
+            show(o.pre + 'Orig', false);
 
             // Honest support line: monthly gets reassurance; longer plans show the per-month equivalent + savings
             const supEl = document.getElementById(o.pre + 'Support');
@@ -3797,16 +3791,9 @@ body { overscroll-behavior-y:none; }
         if (ctaQ)   { ctaQ.className = 'w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white relative z-10'; ctaQ.style.background = 'linear-gradient(135deg,#10b981,#0ea5e9)'; }
     }
 
-    // Per-card CTA → lock in that billing length, then open checkout.
+    // Per-card CTA → lock in that billing length, then open checkout. Clean & direct —
+    // no surprise-discount interstitial (it read as a gimmick and hurt trust).
     function buyElite(cycle){
-        // First time someone opens a long plan, surprise them with an extra discount before checkout.
-        const sd = SITE_CONFIG && SITE_CONFIG.surpriseDiscount;
-        if (!sessionStorage.getItem('surpriseShown')
-            && (cycle === 'semiannual' || cycle === 'quarterly')
-            && sd && sd[cycle] && sd[cycle].code) {
-            showSurprise(cycle);
-            return;
-        }
         currentCycle = cycle;
         initiatePayment('pro_plus');
     }
