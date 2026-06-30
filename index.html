@@ -4000,7 +4000,9 @@ body { overscroll-behavior-y:none; }
                 if (msgEl) { msgEl.innerText = `✅ ${data.discount}% Discount Applied!`; msgEl.className = "text-xs text-green-600 mb-4 font-bold block"; }
             } else {
                 currentCoupon = ""; currentCouponDiscount = 0;
-                if (msgEl) { msgEl.innerText = `This code applies to the 3-month plan — pick it to use your discount.`; msgEl.className = "text-xs text-amber-600 mb-4 font-semibold block"; }
+                // Region-aware hint: India's reward is the 3-month plan; elsewhere it's 6-month.
+                const _planLabel = (typeof IS_INDIA !== 'undefined' && IS_INDIA) ? '3-month' : '6-month';
+                if (msgEl) { msgEl.innerText = `This code applies to the ${_planLabel} plan — pick it to use your discount.`; msgEl.className = "text-xs text-amber-600 mb-4 font-semibold block"; }
             }
         } catch (_) {}
     }
