@@ -3969,19 +3969,40 @@ body { overscroll-behavior-y:none; }
             }
         }
 
-        // Auto-apply a coupon passed via the app's deep link (?coupon=CODE), so the
-        // discount is applied without the user typing anything. The trial reward is for
-        // the 3-month (quarterly) plan, so select that cycle before validating.
-        if (_urlCoupon) {
-            currentCycle = 'quarterly';
-            const ci = document.getElementById('couponInput');
-            const cr = document.getElementById('couponRow');
-            const cl = document.getElementById('showCouponLink');
+        // Auto-apply a coupon passed via the app's deep link (?coupon=CODE) — WITHOUT
+        // changing the plan the user picked. It only discounts the cycle it's valid for.
+        if (_urlCoupon) _autoApplyUrlCoupon();
+    }
+
+    // Validate the deep-link coupon against the CURRENTLY selected cycle. Apply it only
+    // if valid for that cycle (so it never alters the price of a plan it doesn't cover);
+    // otherwise show a gentle hint instead of a scary "invalid" error.
+    async function _autoApplyUrlCoupon() {
+        if (!_urlCoupon) return;
+        const ci = document.getElementById('couponInput');
+        const cr = document.getElementById('couponRow');
+        const cl = document.getElementById('showCouponLink');
+        const msgEl = document.getElementById('couponMessage');
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/payment/validate-coupon`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ coupon: _urlCoupon, cycle: currentCycle })
+            });
+            const data = await res.json();
             if (ci) ci.value = _urlCoupon;
             if (cr) cr.style.display = 'block';
             if (cl) cl.style.display = 'none';
-            applyCoupon();
-        }
+            if (msgEl) msgEl.classList.remove('hidden');
+
+            if (data.success && data.discount > 0) {
+                currentCoupon = _urlCoupon; currentCouponDiscount = data.discount;
+                if (msgEl) { msgEl.innerText = `✅ ${data.discount}% Discount Applied!`; msgEl.className = "text-xs text-green-600 mb-4 font-bold block"; }
+            } else {
+                currentCoupon = ""; currentCouponDiscount = 0;
+                if (msgEl) { msgEl.innerText = `This code applies to the 3-month plan — pick it to use your discount.`; msgEl.className = "text-xs text-amber-600 mb-4 font-semibold block"; }
+            }
+        } catch (_) {}
     }
 
     function initPayPalButtons() {
@@ -4165,6 +4186,11 @@ body { overscroll-behavior-y:none; }
                 })
             });
             const data = await res.json();
+
+            // DIAGNOSTIC: prove exactly what cycle/coupon/amount is being charged.
+            // If this logs cycle:"quarterly" after clicking the MONTHLY card, the live
+            // site is serving a stale (pre-fix) bundle → redeploy + purge cache.
+            console.log('[whis checkout] build=2024-fix-cycle | cycle=', currentCycle, '| coupon=', currentCoupon || '(none)', '| amount=', data.amount);
 
             if(data.order_id){
                 const rzp1 = new Razorpay({
