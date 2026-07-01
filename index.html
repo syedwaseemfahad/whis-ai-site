@@ -1173,9 +1173,7 @@ html {
         radial-gradient(ellipse 90% 45% at 35% 42%,  rgba(14,165,233,0.14) 0%, transparent 55%),
         radial-gradient(ellipse 75% 40% at 72% 60%,  rgba(99,102,241,0.14) 0%, transparent 52%),
         radial-gradient(ellipse 80% 45% at 20% 76%,  rgba(14,165,233,0.12) 0%, transparent 55%),
-        radial-gradient(ellipse 70% 40% at 80% 90%,  rgba(99,102,241,0.12) 0%, transparent 52%),
-        radial-gradient(ellipse 90% 40% at 38% 98%,  rgba(14,165,233,0.13) 0%, transparent 55%),
-        radial-gradient(ellipse 80% 38% at 78% 100%, rgba(99,102,241,0.11) 0%, transparent 52%),
+        radial-gradient(ellipse 70% 40% at 80% 90%,  rgba(99,102,241,0.10) 0%, transparent 52%),
         #010c1a !important;
     min-height: 100%;
 }
@@ -1422,13 +1420,9 @@ th { font-size: 10px !important; letter-spacing: 0.12em !important; font-weight:
 td { padding: 14px 24px !important; color: #cccccc !important; font-size: 13px !important; }
 tbody tr:hover { background: rgba(255,255,255,0.025) !important; }
 
-/* FOOTER — ends the page with a soft aurora glow rising from the bottom, so it never reads
-   as a flat black band (the html ambient glow stops ~90% of page height). */
+/* FOOTER — ultra clean (match the page navy so it doesn't read as a black band) */
 footer {
-    background:
-        radial-gradient(ellipse 130% 280% at 50% 100%, rgba(40,120,220,0.16) 0%, transparent 55%),
-        radial-gradient(ellipse 80% 200% at 82% 100%, rgba(99,102,241,0.10) 0%, transparent 50%),
-        #010c1a !important;
+    background: #010c1a !important;
     border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
 
@@ -3451,7 +3445,6 @@ body { overscroll-behavior-y:none; }
     let EXCHANGE_RATE = 90;
     let currentCoupon = "";
     let currentCouponDiscount = 0;
-    let _urlCoupon = "";   // coupon passed via ?coupon= when the app opens the pricing page
     let SITE_CONFIG = {};
 
     // ── Charm pricing (client-side) ──────────────────────────────────────────
@@ -3968,54 +3961,6 @@ body { overscroll-behavior-y:none; }
                 infMsg.classList.add('hidden');
             }
         }
-
-        // Auto-apply a coupon passed via the app's deep link (?coupon=CODE) — WITHOUT
-        // changing the plan the user picked. It only discounts the cycle it's valid for.
-        if (_urlCoupon) _autoApplyUrlCoupon();
-    }
-
-    // Validate the deep-link coupon against the CURRENTLY selected cycle. Apply it only
-    // if valid for that cycle (so it never alters the price of a plan it doesn't cover);
-    // otherwise show a gentle hint instead of a scary "invalid" error.
-    // The trial reward code that matches THIS website's region (timezone), from config.
-    // This is the source of truth — it always matches the prices the site shows, so a
-    // region-mismatched deep-link code (server IP-geo ≠ website timezone) can't leak the
-    // wrong region's code. Falls back to whatever the deep link carried.
-    function _regionTrialCoupon() {
-        const tr = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG.trialReward : null;
-        if (tr) return IS_INDIA ? tr.quarterlyCoupon : tr.semiannualCoupon;
-        return _urlCoupon;
-    }
-
-    async function _autoApplyUrlCoupon() {
-        if (!_urlCoupon) return;
-        const codeToApply = _regionTrialCoupon() || _urlCoupon;
-        const ci = document.getElementById('couponInput');
-        const cr = document.getElementById('couponRow');
-        const cl = document.getElementById('showCouponLink');
-        const msgEl = document.getElementById('couponMessage');
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/validate-coupon`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ coupon: codeToApply, cycle: currentCycle })
-            });
-            const data = await res.json();
-            if (ci) ci.value = codeToApply;
-            if (cr) cr.style.display = 'block';
-            if (cl) cl.style.display = 'none';
-            if (msgEl) msgEl.classList.remove('hidden');
-
-            if (data.success && data.discount > 0) {
-                currentCoupon = codeToApply; currentCouponDiscount = data.discount;
-                if (msgEl) { msgEl.innerText = `✅ ${data.discount}% Discount Applied!`; msgEl.className = "text-xs text-green-600 mb-4 font-bold block"; }
-            } else {
-                currentCoupon = ""; currentCouponDiscount = 0;
-                // Region-aware hint: India's reward is the 3-month plan; elsewhere it's 6-month.
-                const _planLabel = (typeof IS_INDIA !== 'undefined' && IS_INDIA) ? '3-month' : '6-month';
-                if (msgEl) { msgEl.innerText = `This code applies to the ${_planLabel} plan — pick it to use your discount.`; msgEl.className = "text-xs text-amber-600 mb-4 font-semibold block"; }
-            }
-        } catch (_) {}
     }
 
     function initPayPalButtons() {
@@ -4199,11 +4144,6 @@ body { overscroll-behavior-y:none; }
                 })
             });
             const data = await res.json();
-
-            // DIAGNOSTIC: prove exactly what cycle/coupon/amount is being charged.
-            // If this logs cycle:"quarterly" after clicking the MONTHLY card, the live
-            // site is serving a stale (pre-fix) bundle → redeploy + purge cache.
-            console.log('[whis checkout] build=2024-fix-cycle | cycle=', currentCycle, '| coupon=', currentCoupon || '(none)', '| amount=', data.amount);
 
             if(data.order_id){
                 const rzp1 = new Razorpay({
@@ -4498,19 +4438,6 @@ body { overscroll-behavior-y:none; }
     })();
 
     document.addEventListener("DOMContentLoaded", () => {
-
-        // --- Deep-link coupon: if the app opened us with ?coupon=CODE, remember it so
-        // the payment modal auto-applies it (discounted prices shown automatically). ---
-        (function initUrlCoupon() {
-            try {
-                const code = new URLSearchParams(window.location.search).get('coupon');
-                if (code) {
-                    _urlCoupon = code.trim().toUpperCase();
-                    const sd = document.getElementById('showCouponLink'); // hint the field exists
-                    if (sd) sd.style.display = 'inline';
-                }
-            } catch (_) {}
-        })();
 
         // --- World-class polish: interactions & performance ---
         (function initRipple() {
