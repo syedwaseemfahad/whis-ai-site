@@ -3977,8 +3977,19 @@ body { overscroll-behavior-y:none; }
     // Validate the deep-link coupon against the CURRENTLY selected cycle. Apply it only
     // if valid for that cycle (so it never alters the price of a plan it doesn't cover);
     // otherwise show a gentle hint instead of a scary "invalid" error.
+    // The trial reward code that matches THIS website's region (timezone), from config.
+    // This is the source of truth — it always matches the prices the site shows, so a
+    // region-mismatched deep-link code (server IP-geo ≠ website timezone) can't leak the
+    // wrong region's code. Falls back to whatever the deep link carried.
+    function _regionTrialCoupon() {
+        const tr = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG.trialReward : null;
+        if (tr) return IS_INDIA ? tr.quarterlyCoupon : tr.semiannualCoupon;
+        return _urlCoupon;
+    }
+
     async function _autoApplyUrlCoupon() {
         if (!_urlCoupon) return;
+        const codeToApply = _regionTrialCoupon() || _urlCoupon;
         const ci = document.getElementById('couponInput');
         const cr = document.getElementById('couponRow');
         const cl = document.getElementById('showCouponLink');
@@ -3987,16 +3998,16 @@ body { overscroll-behavior-y:none; }
             const res = await fetch(`${BACKEND_URL}/api/payment/validate-coupon`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ coupon: _urlCoupon, cycle: currentCycle })
+                body: JSON.stringify({ coupon: codeToApply, cycle: currentCycle })
             });
             const data = await res.json();
-            if (ci) ci.value = _urlCoupon;
+            if (ci) ci.value = codeToApply;
             if (cr) cr.style.display = 'block';
             if (cl) cl.style.display = 'none';
             if (msgEl) msgEl.classList.remove('hidden');
 
             if (data.success && data.discount > 0) {
-                currentCoupon = _urlCoupon; currentCouponDiscount = data.discount;
+                currentCoupon = codeToApply; currentCouponDiscount = data.discount;
                 if (msgEl) { msgEl.innerText = `✅ ${data.discount}% Discount Applied!`; msgEl.className = "text-xs text-green-600 mb-4 font-bold block"; }
             } else {
                 currentCoupon = ""; currentCouponDiscount = 0;
