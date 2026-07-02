@@ -4557,10 +4557,23 @@ body { overscroll-behavior-y:none; }
         const authSuccess = urlParams.get('auth_success');
         const userStr = urlParams.get('user');
 
+        // --- STABLE VISITOR ID (for unique click/reach tracking) ---
+        let whisVisitorId = localStorage.getItem('whisVisitorId');
+        if (!whisVisitorId) {
+            whisVisitorId = (crypto.randomUUID ? crypto.randomUUID() : 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2));
+            localStorage.setItem('whisVisitorId', whisVisitorId);
+        }
+
         // --- AFFILIATE LINK CAPTURE ---
         const refCode = urlParams.get('ref');
         if (refCode) {
             localStorage.setItem('whisRef', refCode);
+            // Record a unique visitor·day click for this creator (top of funnel).
+            fetch(`${BACKEND_URL}/api/influencer/click`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ref: refCode, visitorId: whisVisitorId, source: urlParams.get('source') || urlParams.get('utm_source') || null })
+            }).catch(e => console.log('Click tracking failed', e));
         }
         
         // --- NEW: MARKETING SOURCE CAPTURE AND HIT TRACKING ---
