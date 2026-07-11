@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whis-AI · Campaign ROI</title>
+<style>
+  :root{
+    --bg:#08080b; --panel:#101015; --panel2:#16161d; --line:rgba(255,255,255,0.07);
+    --txt:#ececf2; --mut:#8a8a99; --dim:#5a5a68; --accent:#38bdf8;
+    --good:#34d399; --warn:#fbbf24; --bad:#f87171;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:
+      radial-gradient(900px 500px at 80% -10%, rgba(56,189,248,.06), transparent 60%),
+      var(--bg);color:var(--txt);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.5;min-height:100vh}
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 18px 90px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px}
+  .top h1{font-size:21px;font-weight:800;letter-spacing:-.4px;margin:0;display:flex;align-items:center;gap:9px}
+  .logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#38bdf8,#0284c7);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .sub{color:var(--mut);font-size:13px;margin:0 0 22px}
+  .nav{font-size:12px;color:var(--dim);cursor:pointer;text-decoration:none}
+  .nav:hover{color:var(--mut)}
+  .lock{font-size:12px;color:var(--dim);cursor:pointer}
+  .lock:hover{color:var(--mut)}
+
+  /* gate */
+  .gate{max-width:360px;margin:14vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 26px;text-align:center}
+  .gate h2{margin:0 0 6px;font-size:17px}
+  .gate p{color:var(--mut);font-size:13px;margin:0 0 18px}
+  .gate input{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:14px;margin-bottom:12px;outline:none}
+  .gate input:focus{border-color:var(--accent)}
+  .gate button{width:100%;padding:11px;border-radius:10px;border:0;background:#fff;color:#000;font-weight:700;font-size:14px;cursor:pointer}
+  .gerr{color:var(--bad);font-size:12px;min-height:16px;margin-top:8px}
+
+  /* new-deal card */
+  .card{background:linear-gradient(180deg,var(--panel),#0d0d12);border:1px solid var(--line);border-radius:16px;padding:18px 18px;margin-bottom:22px}
+  .card h3{margin:0 0 4px;font-size:14px;font-weight:800}
+  .card .hint{color:var(--mut);font-size:12px;margin:0 0 14px}
+  .form{display:grid;grid-template-columns:1.1fr .8fr .9fr 1.4fr;gap:10px}
+  @media(max-width:860px){.form{grid-template-columns:1fr 1fr}}
+  .field label{display:block;font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:5px}
+  .field input{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:13px;outline:none}
+  .field input:focus{border-color:var(--accent)}
+  .actions{display:flex;align-items:flex-end;gap:8px;margin-top:12px}
+  .btn{padding:9px 16px;border-radius:9px;border:0;background:#fff;color:#000;font-weight:700;font-size:13px;cursor:pointer}
+  .btn.ghost{background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+  .ferr{color:var(--bad);font-size:12px;align-self:center}
+  .linkout{margin-top:14px;padding:13px 14px;border:1px dashed rgba(56,189,248,.3);border-radius:11px;background:rgba(56,189,248,.04);display:none}
+  .linkout.show{display:block}
+  .linkrow{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .linkrow .lbl{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:700;width:74px;flex:none}
+  .linkrow code{flex:1;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);background:var(--panel2);padding:7px 10px;border-radius:8px;overflow:auto;white-space:nowrap}
+  .coderow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:12px 13px;border-radius:11px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.28);flex-wrap:wrap}
+  .lbl2{font-size:11px;font-weight:800;color:var(--good);letter-spacing:.02em}
+  .bigcode{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;letter-spacing:.04em;color:var(--good);background:var(--panel2);padding:8px 14px;border-radius:9px}
+  .codechip{display:inline-block;margin-top:3px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--good);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);padding:1px 7px;border-radius:6px;cursor:pointer}
+  .codechip:hover{background:rgba(52,211,153,.2)}
+  .cpy{padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:12px;font-weight:700;cursor:pointer;flex:none}
+  .cpy:hover{border-color:var(--accent)}
+
+  /* summary */
+  .summary{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px}
+  @media(max-width:900px){.summary{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.summary{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:linear-gradient(180deg,var(--panel),#0d0d12);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .kpi .k{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+  .kpi .v{font-size:20px;font-weight:800;margin-top:5px;letter-spacing:-.5px}
+  .kpi .v small{font-size:11px;color:var(--mut);font-weight:600}
+
+  /* table */
+  .tablewrap{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:auto}
+  table{width:100%;border-collapse:collapse;min-width:1080px}
+  th,td{padding:11px 13px;text-align:right;font-size:13px;white-space:nowrap;vertical-align:middle}
+  th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
+  thead th{color:var(--dim);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-bottom:1px solid var(--line)}
+  tbody tr{border-bottom:1px solid rgba(255,255,255,.04)}
+  tbody tr:hover{background:rgba(255,255,255,.02)}
+  .who .n{font-weight:700;font-size:13px}
+  .who .c{font-size:11px;color:var(--dim);font-family:'JetBrains Mono',monospace}
+  .rev{font-weight:800;color:var(--good)}
+  .neg{color:var(--bad)}
+  .rec{font-weight:800;font-size:14px}
+  .rec.g{color:var(--good)} .rec.w{color:var(--warn)} .rec.d{color:var(--bad)}
+  .recsub{font-size:10.5px;color:var(--dim);font-weight:600}
+  .verdict{display:inline-flex;gap:4px}
+  .vbtn{padding:4px 8px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--dim);font-size:11px;font-weight:700;cursor:pointer}
+  .vbtn.g.on{background:rgba(52,211,153,.15);color:var(--good);border-color:transparent}
+  .vbtn.w.on{background:rgba(251,191,36,.15);color:var(--warn);border-color:transparent}
+  .vbtn.d.on{background:rgba(248,113,113,.15);color:var(--bad);border-color:transparent}
+  .vbtn:hover{color:var(--txt)}
+  .auto{font-size:9.5px;color:var(--dim);font-style:italic}
+  a.social{color:var(--accent);text-decoration:none;font-size:12px}
+  a.social:hover{text-decoration:underline}
+  .minicpy{cursor:pointer;color:var(--dim);font-size:11px}
+  .minicpy:hover{color:var(--accent)}
+  .loading,.empty{padding:40px;text-align:center;color:var(--mut);font-size:14px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:200}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate" class="gate">
+  <h2>Campaign ROI</h2>
+  <p>Enter your dashboard password to continue.</p>
+  <input id="pw" type="password" placeholder="Dashboard password" onkeydown="if(event.key==='Enter')unlock()" autofocus />
+  <button onclick="unlock()">Unlock</button>
+  <div id="gerr" class="gerr"></div>
+</div>
+
+<!-- APP -->
+<div id="app" class="wrap" style="display:none">
+  <div class="top">
+    <h1><span class="logo">💸</span> Campaign ROI</h1>
+    <div style="display:flex;gap:14px;align-items:center">
+      <a class="nav" href="influencer-analytics.html">Creators →</a>
+      <span id="refreshHint" class="lock" onclick="load()">↻ Refresh</span>
+      <span class="lock" onclick="lockOut()">Lock ↩</span>
+    </div>
+  </div>
+  <p class="sub">One reel = one deal. Recovery% = revenue recovered per rupee of flat fee — recomputed live from the sales ledger, so it never lies.</p>
+
+  <!-- NEW DEAL -->
+  <div class="card">
+    <h3>New reel deal</h3>
+    <p class="hint">Mints this reel's tracking <b>link</b> + spoken <b>code</b>. The link captures same-device sales; the code catches the phone→desktop switch. Every click, signup, trial &amp; sale rolls up to this deal. Leave code blank to auto-generate (e.g. RAHUL28).</p>
+    <div class="form">
+      <div class="field"><label>Creator code</label><input id="f_inf" placeholder="RAHUL" autocomplete="off"></div>
+      <div class="field"><label>Flat fee ₹</label><input id="f_cost" type="number" min="0" placeholder="15000"></div>
+      <div class="field"><label>Week</label><input id="f_week" placeholder="2026-W28"></div>
+      <div class="field"><label>Reel code (optional)</label><input id="f_code" placeholder="auto: RAHUL28" autocomplete="off"></div>
+      <div class="field"><label>Code discount % (0 = track only)</label><input id="f_disc" type="number" min="0" max="20" placeholder="10"></div>
+      <div class="field"><label>Reel URL (optional)</label><input id="f_reel" placeholder="https://instagram.com/reel/…"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="createDeal()">Create deal + link</button>
+      <span id="ferr" class="ferr"></span>
+    </div>
+    <div id="linkout" class="linkout">
+      <div style="font-size:12px;font-weight:700;color:var(--good)">✓ Deal created. Give the creator BOTH of these:</div>
+      <div class="coderow">
+        <div>
+          <div class="lbl2">📣 Say this code in the reel</div>
+          <div id="lk_codehint" style="font-size:10.5px;color:var(--dim);margin-top:2px;max-width:340px">Survives the phone→desktop switch. Whoever types it at checkout (any device) credits this reel.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px"><code id="lk_code" class="bigcode"></code><button class="cpy" onclick="copyEl('lk_code')">Copy</button></div>
+      </div>
+      <div class="linkrow"><span class="lbl">DM link</span><code id="lk_direct"></code><button class="cpy" onclick="copyEl('lk_direct')">Copy</button></div>
+      <div class="linkrow"><span class="lbl">Short link</span><code id="lk_short"></code><button class="cpy" onclick="copyEl('lk_short')">Copy</button></div>
+      <div style="font-size:11px;color:var(--dim);margin-top:9px">The <b>link</b> captures same-device clicks &amp; sales; the <b>code</b> is the cross-device safety net. Push both in every reel. Prefer the <b>short link</b> for DM tools that mangle query strings.</div>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="tablewrap">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th>Reel / deal</th>
+          <th>Fee</th>
+          <th>Clicks</th>
+          <th>Signups</th>
+          <th>Trials</th>
+          <th>Sales</th>
+          <th>Revenue</th>
+          <th>Recovery</th>
+          <th>CAC</th>
+          <th>Net</th>
+          <th>Verdict</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="12" class="loading">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API = "https://api.whis-ai.com";
+let PW = sessionStorage.getItem('whisDashPw') || "";
+let DEALS = [];
+let LTV = 1;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inr = n => "₹"+Math.round(n||0).toLocaleString('en-IN');
+const num = n => Math.round(n||0).toLocaleString('en-IN');
+function toast(m){ const t=$('toast'); t.textContent=m; t.className='toast show'; setTimeout(()=>t.className='toast',2200); }
+function copyText(t){ navigator.clipboard.writeText(t).then(()=>toast('Copied ✓')).catch(()=>toast('Copy failed')); }
+function copyEl(id){ copyText($(id).textContent); }
+
+async function unlock(){
+  const v = $('pw').value.trim();
+  if(!v){ $('gerr').textContent="Enter your password."; return; }
+  $('gerr').textContent="Checking…"; PW = v;
+  const ok = await load(true);
+  if(ok){ sessionStorage.setItem('whisDashPw', v); $('gate').style.display='none'; $('app').style.display='block'; }
+  else { $('gerr').textContent="Wrong password or server unreachable."; PW=""; }
+}
+function lockOut(){ sessionStorage.removeItem('whisDashPw'); location.reload(); }
+
+async function load(silent){
+  if(!silent) $('rows').innerHTML='<tr><td colspan="12" class="loading">Loading…</td></tr>';
+  try{
+    const res = await fetch(`${API}/api/dashboard/deal-roi`, { headers:{ 'x-dashboard-password': PW } });
+    if(res.status===401) return false;
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    DEALS = data.deals || []; LTV = data.ltvMultiple || 1;
+    renderSummary(data.totals || {});
+    renderRows();
+    return true;
+  }catch(e){
+    if(!silent){ $('rows').innerHTML='<tr><td colspan="12" class="empty">Could not load. '+esc(e.message)+'</td></tr>'; }
+    return false;
+  }
+}
+
+function recClass(p){ return p==null?'d':p>=100?'g':p>=60?'w':'d'; }
+
+function renderSummary(t){
+  const rp = t.recoveryPct;
+  const cards = [
+    ['Spend', inr(t.spendINR), `${num(t.deals)} deals`],
+    ['Attributed revenue', inr(t.revenueINR), ''],
+    ['Recovery', rp==null?'—':rp+'%', LTV>1&&t.projectedRecoveryPct!=null?`${t.projectedRecoveryPct}% projected`:'day-0 cash'],
+    ['Net', inr(t.netINR), t.netINR>=0?'in profit':'in the red'],
+    ['Trials', num(t.trials), `${num(t.signups)} signups`],
+    ['Sales', num(t.sales), `${num(t.clicks)} clicks`]
+  ];
+  $('summary').innerHTML = cards.map((c,i)=>`
+    <div class="kpi"><div class="k">${c[0]}</div>
+      <div class="v" ${i===2?`style="color:var(--${recClass(rp)==='g'?'good':recClass(rp)==='w'?'warn':'bad'})"`:''}>${c[1]} <small>${c[2]?'· '+esc(c[2]):''}</small></div></div>`).join('');
+}
+
+function verdictBtns(d){
+  const cur = d.verdictSet ? d.verdict : null;
+  const mk = (v,cls,lbl)=>`<button class="vbtn ${cls} ${cur===v?'on':''}" onclick="setVerdict('${d.dealTag}','${v}')">${lbl}</button>`;
+  return `<div class="verdict">${mk('repeat','g','Repeat')}${mk('watch','w','Watch')}${mk('drop','d','Drop')}</div>`
+    + (!d.verdictSet && d.verdict?`<div class="auto">auto: ${d.verdict}</div>`:'');
+}
+
+function renderRows(){
+  if(!DEALS.length){ $('rows').innerHTML='<tr><td colspan="12" class="empty">No deals yet. Create one above to mint its tracking link.</td></tr>'; return; }
+  $('rows').innerHTML = DEALS.map(d=>{
+    const rc = recClass(d.recoveryPct);
+    const proj = (LTV>1 && d.projectedRecoveryPct!=null) ? `<div class="recsub">${d.projectedRecoveryPct}% proj</div>` : '';
+    return `<tr>
+      <td class="who">
+        <div class="n">${esc(d.label||d.dealTag)}${d.reelUrl?` · <a class="social" href="${esc(d.reelUrl)}" target="_blank">reel</a>`:''}</div>
+        <div class="c">${esc(d.creatorName)} · ${esc(d.dealTag)}${d.week?' · '+esc(d.week):''}</div>
+        ${d.code?`<span class="codechip" onclick="copyText('${esc(d.code)}')" title="Announce code — click to copy">📣 ${esc(d.code)}${d.discountPct>0?` · ${d.discountPct}% off`:' · track only'}</span>`:''}
+      </td>
+      <td>${inr(d.costINR)}</td>
+      <td>${num(d.clicks)}</td>
+      <td>${num(d.signups)}</td>
+      <td>${num(d.trials)}</td>
+      <td><strong>${num(d.sales)}</strong></td>
+      <td class="rev">${inr(d.revenueINR)}</td>
+      <td><span class="rec ${rc}">${d.recoveryPct==null?'—':d.recoveryPct+'%'}</span>${proj}</td>
+      <td>${d.cacINR==null?'—':inr(d.cacINR)}</td>
+      <td class="${d.netINR<0?'neg':''}">${inr(d.netINR)}</td>
+      <td>${verdictBtns(d)}</td>
+      <td><span class="minicpy" onclick="copyText('${d.shortLink}')">copy link</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function createDeal(){
+  const influencerId = $('f_inf').value.trim();
+  const costINR = $('f_cost').value.trim();
+  const week = $('f_week').value.trim();
+  const reelUrl = $('f_reel').value.trim();
+  const code = $('f_code').value.trim();
+  const discountPct = $('f_disc').value.trim();
+  $('ferr').textContent='';
+  if(!influencerId){ $('ferr').textContent='Creator code required'; return; }
+  try{
+    const res = await fetch(`${API}/api/dashboard/deals`, {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-dashboard-password': PW },
+      body: JSON.stringify({ influencerId, costINR, week, reelUrl, code, discountPct: discountPct===''?undefined:discountPct })
+    });
+    const data = await res.json();
+    if(!res.ok){ $('ferr').textContent = data.error || 'Failed'; return; }
+    $('lk_code').textContent = data.deal.code || '—';
+    const dp = data.deal.discountPct;
+    $('lk_codehint').textContent = (dp>0)
+      ? `Survives the phone→desktop switch. Whoever types it at checkout (any device) credits this reel + gets ${dp}% off.`
+      : `Survives the phone→desktop switch. Whoever types it credits this reel — tracking only, no discount.`;
+    $('lk_direct').textContent = data.deal.directLink;
+    $('lk_short').textContent = data.deal.shortLink;
+    $('linkout').classList.add('show');
+    $('f_cost').value=''; $('f_reel').value=''; $('f_code').value=''; $('f_disc').value='';
+    toast('Deal created ✓');
+    load(true);
+  }catch(e){ $('ferr').textContent = e.message; }
+}
+
+async function setVerdict(dealTag, verdict){
+  const d = DEALS.find(x=>x.dealTag===dealTag);
+  const next = (d && d.verdictSet && d.verdict===verdict) ? null : verdict; // toggle off
+  try{
+    const res = await fetch(`${API}/api/dashboard/deals/verdict`, {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-dashboard-password': PW },
+      body: JSON.stringify({ dealTag, verdict: next })
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    if(d){ d.verdict = next; d.verdictSet = !!next; }
+    renderRows();
+    toast(next?('Marked '+next):'Verdict cleared');
+  }catch(e){ toast('Failed: '+e.message); }
+}
+
+if(PW){ load(true).then(ok=>{ if(ok){ $('gate').style.display='none'; $('app').style.display='block'; } }); }
+</script>
+</body>
+</html>
