@@ -3469,6 +3469,31 @@ body { overscroll-behavior-y:none; }
         return Math.round(n / 100) * 100 - 1;
     }
 
+    // ── TEMP: PayPal disabled (Nov 2026) ─────────────────────────────────────
+    // PayPal is failing for non-India customers, so EVERYONE now pays via
+    // Razorpay in INR. Non-India ("US") users are still Indian and can pay in
+    // INR, but at HIGHER prices than the India tariff. We take the India INR
+    // base and lift it ~1.5× to a clean ₹_499 / ₹_999 charm value:
+    //   ₹2,499 → ₹3,999   ·   ₹3,999 → ₹5,999   (matches the requested anchors)
+    // FRONTEND DISPLAY ONLY — the amount actually charged is decided by the
+    // backend /api/payment/create-order. Revert this block when PayPal returns.
+    function intlUpliftINR(inr) {
+        if (!inr || inr <= 0) return inr;
+        return Math.ceil((inr * 1.5) / 500) * 500 - 1;   // ×1.5, up to nearest ₹500, charm to _499/_999
+    }
+    function upliftPricingINR(cfg) {
+        if (!cfg) return cfg;
+        const out = JSON.parse(JSON.stringify(cfg));
+        Object.keys(out).forEach(tier => {
+            const t = out[tier];
+            if (!t || typeof t !== 'object') return;
+            ['monthly', 'quarterly', 'semiannual'].forEach(cyc => {
+                if (typeof t[cyc] === 'number') t[cyc] = intlUpliftINR(t[cyc]);
+            });
+        });
+        return out;
+    }
+
     function _loadScript(src, defer) {
         const s = document.createElement('script');
         s.src = src;
@@ -3547,9 +3572,11 @@ body { overscroll-behavior-y:none; }
                 SITE_CONFIG = data;
                 // Server returns prices already multiplied by geo + city + device factors.
                 // Client renders directly — zero pricing math on the frontend.
+                // TEMP (PayPal down): non-India now shows the India INR base lifted
+                // to the higher "US" INR tariff, and pays via Razorpay in INR.
                 PRICING_CONFIG = IS_INDIA
                     ? (data.pricingINR || data.pricing)
-                    : (data.pricingUSD || data.pricing);
+                    : upliftPricingINR(data.pricingINR || data.pricing || data.pricingUSD);
 
                 // Store geo metadata for cycle-default logic (Band 3 → quarterly, etc.)
                 if (data.geoBand)       window._geoBand       = data.geoBand;
@@ -3584,17 +3611,15 @@ body { overscroll-behavior-y:none; }
      
     function formatPrice(amount, discount, isAffiliate, isEliteCard = false) {
         if (!amount) return "...";
-        const currencySymbol = IS_INDIA ? "₹" : "$";
+        const currencySymbol = "₹";   // TEMP: everyone pays INR (PayPal down)
 
-        // Prices already in correct currency from pricingINR / pricingUSD — no EXCHANGE_RATE conversion
-        const baseNum = IS_INDIA ? amount : parseFloat(amount);
+        // Prices already in INR from pricingINR (non-India lifted via upliftPricingINR)
+        const baseNum = amount;
         // Apply discount then charm-round to align with server prices
-        const discountAmount = IS_INDIA
-            ? charmINR(amount * (1 - discount / 100))
-            : charmUSD(amount * (1 - discount / 100));
+        const discountAmount = charmINR(amount * (1 - discount / 100));
 
-        const displayAmount      = IS_INDIA ? baseNum : baseNum.toFixed(2);
-        const standardDiscounted = IS_INDIA ? discountAmount : discountAmount.toFixed(2);
+        const displayAmount      = baseNum;
+        const standardDiscounted = discountAmount;
 
         // Honest badge: the % actually shown after charm-rounding, not the nominal
         // discount. Keeps "X% OFF" in sync with the real (base → charmed) drop.
@@ -3603,9 +3628,7 @@ body { overscroll-behavior-y:none; }
             : discount;
 
         if (isAffiliate) {
-            const finalAffiliatePrice = IS_INDIA
-                ? charmINR(discountAmount * 0.9)
-                : charmUSD(discountAmount * 0.9);
+            const finalAffiliatePrice = charmINR(discountAmount * 0.9);
 
             const strikeColor    = isEliteCard ? "text-slate-500" : "text-slate-400";
             const highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
@@ -3649,11 +3672,11 @@ body { overscroll-behavior-y:none; }
     function renderPricingCards(){
         if (!PRICING_CONFIG) return;
         const p    = PRICING_CONFIG.pro_plus;
-        const sym  = IS_INDIA ? '₹' : '$';
+        const sym  = '₹';                                       // TEMP: everyone pays INR (PayPal down)
         const disc = p.discount || 0;
-        const charm = IS_INDIA ? charmINR : charmUSD;
+        const charm = charmINR;
         const fin  = (n) => charm(n * (1 - disc/100));          // final price, charm-rounded == server charge
-        const fmt  = (n) => IS_INDIA ? Math.round(n).toLocaleString('en-IN') : n.toFixed(2);
+        const fmt  = (n) => Math.round(n).toLocaleString('en-IN');
         const set  = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
         const show = (id, on)  => { const e = document.getElementById(id); if (e) e.style.display = on ? '' : 'none'; };
 
@@ -3670,7 +3693,7 @@ body { overscroll-behavior-y:none; }
             const perMo = final / o.months;
             const save  = Math.round((1 - perMo / monthlyPerMo) * 100);
             // Per-month rounded DOWN for charm (₹5,999/6 = ₹999.83 → ₹999). Shown only as support text.
-            const perMoShown = IS_INDIA ? Math.floor(perMo).toLocaleString('en-IN') : fmt(perMo);
+            const perMoShown = Math.floor(perMo).toLocaleString('en-IN');
 
             // HERO = the real total charged. No struck "was" price / %-off anchor — a fake
             // discount theatre erodes trust for a premium product. The number is just the number.
@@ -3947,21 +3970,16 @@ body { overscroll-behavior-y:none; }
         const rzWrapper = document.getElementById('razorpayWrapper');
         const ppWrapper = document.getElementById('paypalWrapper');
         
-        if (IS_INDIA) {
-            if(rzWrapper) { rzWrapper.classList.remove('hidden'); rzWrapper.style.display = ''; }
-            if(ppWrapper) { ppWrapper.classList.add('hidden'); ppWrapper.style.display = 'none'; }
-        } else {
-            if(rzWrapper) { rzWrapper.classList.add('hidden'); rzWrapper.style.display = 'none'; }
-            if(ppWrapper) { ppWrapper.classList.remove('hidden'); ppWrapper.style.display = 'flex'; }
-            initPayPalButtons();
-        }
+        // TEMP (PayPal down): everyone — India AND non-India — pays via Razorpay.
+        if(rzWrapper) { rzWrapper.classList.remove('hidden'); rzWrapper.style.display = ''; }
+        if(ppWrapper) { ppWrapper.classList.add('hidden'); ppWrapper.style.display = 'none'; }
 
         const infMsg = document.getElementById('influencerDiscountMsg');
         if (infMsg) {
             const activeRef = localStorage.getItem('whisRef');
             const activeRefName = localStorage.getItem('whisRefName') || activeRef;
             if (activeRef) {
-                const gatewayText = IS_INDIA ? "Razorpay" : "PayPal";
+                const gatewayText = "Razorpay";
                 infMsg.innerHTML = `<span class="font-bold flex items-center gap-1.5 mb-1 text-emerald-600"><i class="fa-solid fa-tags"></i> ${activeRefName} Link Active</span>Your 10% discount is being automatically applied securely via ${gatewayText}.`;
                 infMsg.classList.remove('hidden');
             } else {
@@ -4151,7 +4169,8 @@ body { overscroll-behavior-y:none; }
 
     async function triggerCardPayment(event) {
         if (!currentUser) { openLoginModal(); return; }
-        if (IS_INDIA) { triggerRazorpayFlow(event); return; }
+        // TEMP (PayPal down): route everyone through Razorpay.
+        triggerRazorpayFlow(event); return;
 
         // Non-India: PayPal checkout — show spinner on whichever button was clicked
         const btn = event.currentTarget;
