@@ -3436,9 +3436,16 @@ body { overscroll-behavior-y:none; }
     const BACKEND_URL="https://api.whis-ai.com";
     let currentUser = null;
 
-    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
+    // PayPal is temporarily disabled, so EVERYONE checks out through the Indian
+    // Razorpay flow (INR pricing + Razorpay gateway). The backend create-order
+    // already charges INR for all users, so this keeps the displayed price and the
+    // charged amount perfectly in sync. To restore geo-based routing (₹/Razorpay for
+    // India, $/PayPal for everyone else) once PayPal is back, set this to false.
+    const FORCE_RAZORPAY_FOR_ALL = true;
+    const _tzIsIndia = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
+    const IS_INDIA = FORCE_RAZORPAY_FOR_ALL ? true : _tzIsIndia;
 
     // Geo band/multiplier — set by server via /api/config response.
     // Defaults to Band 1 (1.0×) until config loads; overwritten in fetchPricingConfig.
