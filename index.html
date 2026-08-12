@@ -3069,20 +3069,8 @@ body { overscroll-behavior-y:none; }
             </button>
         </div>
 
-        <!-- Non-India: PayPal + Card -->
+        <!-- International: Credit / Debit Card (USD) — powered by Razorpay -->
         <div id="paypalWrapper" class="hidden" style="flex-direction:column;gap:10px;">
-
-            <!-- PayPal -->
-            <button onclick="triggerCardPayment(event)" class="pm-pay-btn">
-                <div class="pm-icon-wrap">
-                    <img src="https://cdn.simpleicons.org/paypal/5b9bd5" width="20" height="20" alt="PayPal" draggable="false"/>
-                </div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:14px;font-weight:700;color:#fff;">PayPal</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">Fast &amp; secure checkout</div>
-                </div>
-                <i class="fa-solid fa-chevron-right pay-btn-icon" style="color:rgba(255,255,255,0.2);font-size:11px;flex-shrink:0;"></i>
-            </button>
 
             <!-- Credit / Debit Card -->
             <button onclick="triggerCardPayment(event)" class="pm-pay-btn">
@@ -3436,16 +3424,9 @@ body { overscroll-behavior-y:none; }
     const BACKEND_URL="https://api.whis-ai.com";
     let currentUser = null;
 
-    // PayPal is temporarily disabled, so EVERYONE checks out through the Indian
-    // Razorpay flow (INR pricing + Razorpay gateway). The backend create-order
-    // already charges INR for all users, so this keeps the displayed price and the
-    // charged amount perfectly in sync. To restore geo-based routing (₹/Razorpay for
-    // India, $/PayPal for everyone else) once PayPal is back, set this to false.
-    const FORCE_RAZORPAY_FOR_ALL = true;
-    const _tzIsIndia = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
+    const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
                   || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
                   || new Date().getTimezoneOffset() === -330;
-    const IS_INDIA = FORCE_RAZORPAY_FOR_ALL ? true : _tzIsIndia;
 
     // Geo band/multiplier — set by server via /api/config response.
     // Defaults to Band 1 (1.0×) until config loads; overwritten in fetchPricingConfig.
@@ -3953,14 +3934,16 @@ body { overscroll-behavior-y:none; }
         
         const rzWrapper = document.getElementById('razorpayWrapper');
         const ppWrapper = document.getElementById('paypalWrapper');
-        
+
+        // Same layout as the PayPal era: India sees Razorpay's full ₹ method sheet
+        // (UPI/cards/netbanking); international sees the familiar Credit/Debit Card
+        // checkout in USD — now powered by Razorpay international cards, not PayPal.
         if (IS_INDIA) {
             if(rzWrapper) { rzWrapper.classList.remove('hidden'); rzWrapper.style.display = ''; }
             if(ppWrapper) { ppWrapper.classList.add('hidden'); ppWrapper.style.display = 'none'; }
         } else {
             if(rzWrapper) { rzWrapper.classList.add('hidden'); rzWrapper.style.display = 'none'; }
             if(ppWrapper) { ppWrapper.classList.remove('hidden'); ppWrapper.style.display = 'flex'; }
-            initPayPalButtons();
         }
 
         const infMsg = document.getElementById('influencerDiscountMsg');
@@ -3968,7 +3951,7 @@ body { overscroll-behavior-y:none; }
             const activeRef = localStorage.getItem('whisRef');
             const activeRefName = localStorage.getItem('whisRefName') || activeRef;
             if (activeRef) {
-                const gatewayText = IS_INDIA ? "Razorpay" : "PayPal";
+                const gatewayText = "Razorpay";
                 infMsg.innerHTML = `<span class="font-bold flex items-center gap-1.5 mb-1 text-emerald-600"><i class="fa-solid fa-tags"></i> ${activeRefName} Link Active</span>Your 10% discount is being automatically applied securely via ${gatewayText}.`;
                 infMsg.classList.remove('hidden');
             } else {
@@ -4156,36 +4139,11 @@ body { overscroll-behavior-y:none; }
         }
     }
 
+    // PayPal is retired — all card/checkout paths (India ₹ and international $) now go
+    // through Razorpay. Kept as a thin alias so any older button still works.
     async function triggerCardPayment(event) {
         if (!currentUser) { openLoginModal(); return; }
-        if (IS_INDIA) { triggerRazorpayFlow(event); return; }
-
-        // Non-India: PayPal checkout — show spinner on whichever button was clicked
-        const btn = event.currentTarget;
-        const icon = btn.querySelector('.pay-btn-icon');
-        const origIcon = icon ? icon.className : '';
-        btn.disabled = true;
-        if (icon) icon.className = 'fa-solid fa-circle-notch fa-spin text-slate-400 pay-btn-icon';
-
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    googleId: currentUser.googleId, tier: selectedTierForPayment,
-                    cycle: currentCycle, couponCode: currentCoupon,
-                    refCode: localStorage.getItem('whisRef'),
-                    utmSource: localStorage.getItem('whisSource')
-                })
-            });
-            const data = await res.json();
-            if (!data.approveUrl) throw new Error('No approval URL');
-            window.location.href = data.approveUrl; // same tab — PayPal redirects back after payment
-        } catch(err) {
-            console.error('Checkout error', err);
-            alert('Could not start checkout. Please try again.');
-            btn.disabled = false;
-            if (icon) icon.className = origIcon;
-        }
+        return triggerRazorpayFlow(event);
     }
 
     async function triggerRazorpayFlow(event) {
@@ -4202,7 +4160,11 @@ body { overscroll-behavior-y:none; }
                     cycle: currentCycle,
                     couponCode: currentCoupon,
                     refCode: localStorage.getItem('whisRef'),
-                    utmSource: localStorage.getItem('whisSource')
+                    utmSource: localStorage.getItem('whisSource'),
+                    // India pays in ₹, everyone else in $ — both via Razorpay. The server
+                    // recomputes the amount from its own price table; this only picks the
+                    // currency the customer was shown, so display always equals the charge.
+                    currency: IS_INDIA ? 'INR' : 'USD'
                 })
             });
             const data = await res.json();
