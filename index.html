@@ -4146,6 +4146,22 @@ body { overscroll-behavior-y:none; }
         return triggerRazorpayFlow(event);
     }
 
+    // Tell the backend a checkout was opened but not completed (dismissed or failed).
+    // Fire-and-forget; the server runs the once-ever grace-close (temp access + email).
+    let _incompleteNotified = null;
+    function notifyCheckoutIncomplete(orderId) {
+        if (!orderId || !currentUser) return;
+        if (_incompleteNotified === orderId) return;  // avoid double-firing per order
+        _incompleteNotified = orderId;
+        try {
+            fetch(`${BACKEND_URL}/api/payment/checkout-incomplete`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                keepalive: true,  // still sends if the tab is closing
+                body: JSON.stringify({ googleId: currentUser.googleId, orderId })
+            }).catch(function(){});
+        } catch (_) {}
+    }
+
     async function triggerRazorpayFlow(event) {
         const targetTier = selectedTierForPayment;
         const btn = event.currentTarget; const orig = btn.innerHTML;
@@ -4204,8 +4220,13 @@ body { overscroll-behavior-y:none; }
                             else { alert("Verification Failed. Contact Support."); }
                         } catch(e) { alert("Network Error during verification."); }
                     },
-                    "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
+                    "theme": { "color": "#0284c7" },
+                    // Popup closed without completing → tell the backend so the grace-close
+                    // flow (temp access + discount email) fires on abandonment, not just declines.
+                    "modal": { "ondismiss": function(){ btn.innerHTML = orig; notifyCheckoutIncomplete(data.order_id); } }
                 });
+                // Hard failure inside the popup (card declined etc.) → same grace trigger.
+                rzp1.on('payment.failed', function(){ notifyCheckoutIncomplete(data.order_id); });
                 rzp1.open();
             } else {
                 alert(data.error || "Could not start checkout. Please try again.");
