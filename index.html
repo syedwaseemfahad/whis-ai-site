@@ -313,22 +313,6 @@ input[type="text"],input[type="email"],input[type="tel"],textarea{font-size:16px
     letter-spacing:-.01em;
 }
 
-/* HERO TRUST BAR — cohesive glass strip, matches the live-counter pill */
-.trust-bar{
-    background:linear-gradient(135deg,rgba(255,255,255,.055),rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.08);
-    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-    box-shadow:0 8px 30px -12px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06);
-    transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .35s ease,box-shadow .35s ease;
-}
-.trust-bar:hover{
-    transform:translateY(-1px);
-    border-color:rgba(56,189,248,.28);
-    box-shadow:0 14px 40px -14px rgba(14,165,233,.35),inset 0 1px 0 rgba(255,255,255,.08);
-}
-.trust-bar .trust-verify span{transition:color .2s ease;}
-.trust-bar .trust-verify:hover span{color:#fff;}
-
 /* STAT CARD */
 .stat-card{
     background:rgba(255,255,255,.85);
@@ -2054,7 +2038,8 @@ body { overscroll-behavior-y:none; }
         <span class="w-2 h-2 rounded-full" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
         <span class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping opacity-60"></span>
       </div>
-      <span><strong><span id="hero-rounds-count" data-count="62402">62,402</span></strong> interviews aced &nbsp;·&nbsp; <strong>4.9<i class="fa-solid fa-star text-[7px]" style="color:#fbbf24;margin:0 1px 0 2px;"></i></strong> from 2,000+ reviews</span>
+      <span><span id="hero-eng-count">7,000+</span> engineers hired &nbsp;·&nbsp; <strong>Live & trusted</strong></span>
+      <i class="fa-solid fa-star text-[8px]" style="color:#fbbf24;margin-left:2px;"></i>
     </div>
   </div>
 
@@ -2136,30 +2121,6 @@ body { overscroll-behavior-y:none; }
             <i class="fa-solid fa-lock text-[9px]" style="color:#38bdf8;"></i>
             <span class="text-[10px] font-bold tracking-wide" style="color:#7dd3fc;">No Data Stored</span>
           </div>
-        </div>
-        <!-- Premium trust bar — one cohesive glass strip (matches the live-counter pill).
-             Rating + guarantee are REAL. The "Verified reviews" slot is a PLACEHOLDER:
-             wire it to a real Trustpilot / G2 / Product Hunt embed before relying on it —
-             never fake an external verification. -->
-        <div class="trust-bar inline-flex flex-wrap items-center justify-center lg:justify-start gap-x-3.5 gap-y-2 px-4 py-2.5 rounded-2xl">
-          <!-- Rating (real) -->
-          <div class="inline-flex items-baseline gap-1.5">
-            <span class="text-[12px] leading-none" style="color:#fbbf24;letter-spacing:1.5px;">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-            <span class="text-[12px] font-extrabold text-white leading-none">4.9</span>
-            <span class="text-[10px] font-semibold text-slate-400 leading-none">/ 5 · 2,000+ reviews</span>
-          </div>
-          <span class="hidden sm:inline-block w-px h-4" style="background:rgba(255,255,255,0.12);"></span>
-          <!-- Guarantee (real) -->
-          <div class="inline-flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-[11px]" style="color:#34d399;"></i>
-            <span class="text-[10px] font-bold text-slate-300 tracking-wide">7-day money-back</span>
-          </div>
-          <span class="hidden sm:inline-block w-px h-4" style="background:rgba(255,255,255,0.12);"></span>
-          <!-- Verification slot — REPLACE href/label with your real review-platform badge -->
-          <a href="#reviews" class="trust-verify inline-flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-check text-[11px]" style="color:#38bdf8;"></i>
-            <span class="text-[10px] font-bold text-slate-300 tracking-wide">Verified reviews</span>
-          </a>
         </div>
       </div>
 
@@ -4736,7 +4697,6 @@ body { overscroll-behavior-y:none; }
         fetchPricingConfig();
         initStatsCountUp();
         initLiveCounter();
-        animateHeroCount();
 
         // Monthly default for everyone
         renderPricingCards();
@@ -4771,28 +4731,6 @@ body { overscroll-behavior-y:none; }
             }
         }, { threshold: 0.4 });
         observer.observe(strip);
-    }
-
-    // Hero scale number — smooth count-up on load (same cubic easing as the stats strip).
-    // Honors reduced-motion and leaves the static number intact for no-JS.
-    function animateHeroCount() {
-        const el = document.getElementById('hero-rounds-count');
-        if (!el) return;
-        const target = parseInt((el.dataset.count || el.textContent).replace(/[^0-9]/g, ''), 10) || 0;
-        if (!target) return;
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            el.textContent = target.toLocaleString();
-            return;
-        }
-        const duration = 1600, startTs = performance.now();
-        function tick(ts) {
-            const p = Math.min((ts - startTs) / duration, 1);
-            const ease = 1 - Math.pow(1 - p, 3);
-            el.textContent = Math.round(ease * target).toLocaleString();
-            if (p < 1) requestAnimationFrame(tick);
-            else el.textContent = target.toLocaleString();
-        }
-        requestAnimationFrame(tick);
     }
 
     function initLiveCounter() {
