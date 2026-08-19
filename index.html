@@ -2435,6 +2435,18 @@ body { overscroll-behavior-y:none; }
     <i class="fa-solid fa-gift text-emerald-400 text-lg"></i>
     <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
 </div>
+        <!-- ── PLAN-MODE TOGGLE — Standard (10h) vs Unlimited (∞) ── -->
+        <style>
+          .plan-mode-btn { color:#93a4c3; background:transparent; border:0; cursor:pointer; }
+          .plan-mode-btn.plan-mode-active { color:#0b1120; background:linear-gradient(135deg,#38bdf8,#22d3ee); box-shadow:0 6px 18px -6px rgba(14,165,233,0.6); }
+        </style>
+        <div class="flex justify-center mb-6 md:mb-8 px-4">
+          <div class="inline-flex p-1 rounded-full bg-white/5 border border-white/10">
+            <button id="modeStandardBtn" onclick="setPlanMode('standard')" class="plan-mode-btn plan-mode-active px-5 md:px-7 py-2.5 rounded-full text-[12px] md:text-[13px] font-bold transition-all">Standard · 10 hrs</button>
+            <button id="modeUnlimitedBtn" onclick="setPlanMode('unlimited')" class="plan-mode-btn px-5 md:px-7 py-2.5 rounded-full text-[12px] md:text-[13px] font-bold transition-all flex items-center gap-1.5">Unlimited <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;">∞</span></button>
+          </div>
+        </div>
+
         <!-- ── UPSELL NUDGE — pushes Quarterly / 6-Month ── -->
         <div class="max-w-2xl mx-auto mb-8 md:mb-10 px-4">
           <div class="relative overflow-hidden rounded-2xl px-5 py-4 md:px-7 md:py-5 text-center" style="background:linear-gradient(120deg,rgba(14,165,233,0.14),rgba(16,185,129,0.12));border:1px solid rgba(16,185,129,0.35);box-shadow:0 12px 45px -12px rgba(14,165,233,0.45);">
@@ -2442,7 +2454,7 @@ body { overscroll-behavior-y:none; }
             <div class="relative z-10 flex items-center justify-center gap-3 flex-wrap">
               <span class="inline-flex items-center justify-center w-8 h-8 rounded-full shrink-0" style="background:rgba(16,185,129,0.22);box-shadow:0 0 14px rgba(16,185,129,0.4);"><i class="fa-solid fa-gem" style="color:#34d399;font-size:13px;"></i></span>
               <span id="smartPickText" class="text-[12.5px] md:text-[15px] font-semibold text-white leading-snug">
-                Smart pick: go <span style="color:#34d399;font-weight:800;">Quarterly</span> or <span style="color:#38bdf8;font-weight:800;">6-Month</span>. A job search rarely ends in 30 days, so pay once, stay covered, and <span class="font-extrabold text-white">save up to 60%</span>.
+                Smart pick: go <span style="color:#34d399;font-weight:800;">Quarterly</span> or <span style="color:#38bdf8;font-weight:800;">6-Month</span>. A job search rarely ends in 30 days, so pay once, stay covered, and <span class="font-extrabold text-white">save up to 67%</span>.
               </span>
             </div>
           </div>
@@ -2557,6 +2569,64 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
             <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="w-full py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
+          </div>
+
+        </div>
+
+        <!-- ── UNLIMITED GRID — shown only when the Unlimited toggle is active (Monthly + 6-Month) ── -->
+        <div id="pricing-unlimited" class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 max-w-3xl mx-auto items-stretch" style="display:none;">
+
+          <!-- ELITE UNLIMITED · MONTHLY -->
+          <div class="pricing-card-glass p-7 md:p-8 flex flex-col">
+            <div class="h-7 mb-3 flex items-center">
+              <span class="text-[9px] font-extrabold uppercase tracking-[0.18em] px-2 py-0.5 rounded-full" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;">Elite Unlimited</span>
+            </div>
+            <div class="flex items-center gap-2 mb-5">
+              <span class="text-xl md:text-2xl font-extrabold text-white">Monthly</span>
+            </div>
+            <div class="mb-2">
+              <div class="flex items-baseline gap-2.5 flex-wrap">
+                <span class="text-[40px] md:text-5xl font-extrabold leading-none whitespace-nowrap text-white" id="umTotal">—</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider">per month</div>
+            </div>
+            <div class="min-h-[1.4rem] mb-6"><p class="text-[11.5px] font-semibold text-slate-400" id="umSupport">Billed monthly · cancel anytime</p></div>
+            <div class="space-y-3 text-xs mb-7 flex-grow">
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Invisible on Zoom, Teams &amp; proctoring</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-microphone-lines text-[9px]"></i></div><span class="text-slate-200">Hears the interviewer — real-time answers</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Reads your screen — solves coding instantly</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(251,146,60,0.2);color:#fb923c;"><i class="fa-solid fa-file-lines text-[9px]"></i></div><span class="text-slate-200">Resume-aware behavioral (STAR) answers</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-infinity text-[9px]"></i></div><span class="text-white font-semibold">Unlimited usage — no monthly cap</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
+            </div>
+            <button onclick="buyUnlimited('monthly')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
+          </div>
+
+          <!-- ELITE UNLIMITED · 6-MONTH (hero) -->
+          <div class="pricing-elite p-7 md:p-8 flex flex-col relative overflow-hidden" style="box-shadow:0 0 0 1.5px rgba(34,211,238,0.45), 0 28px 75px -22px rgba(14,165,233,0.55);">
+            <div class="h-7 mb-3 relative z-10 flex items-center">
+              <span class="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full text-white" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee);box-shadow:0 4px 14px -4px rgba(14,165,233,0.6);"><span class="w-1.5 h-1.5 rounded-full bg-white"></span>Best Value</span>
+            </div>
+            <div class="flex items-center gap-2 mb-5 relative z-10">
+              <span class="text-[9px] font-extrabold uppercase tracking-[0.18em] px-2 py-0.5 rounded-full" style="background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.3);color:#38bdf8;">Elite Unlimited</span>
+              <span class="text-xl md:text-2xl font-extrabold text-white">6-Month</span>
+            </div>
+            <div class="mb-2 relative z-10">
+              <div class="flex items-baseline gap-2.5 flex-wrap">
+                <span class="text-[40px] md:text-5xl font-extrabold leading-none whitespace-nowrap text-white" id="usTotal">—</span>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wider">one payment · 6 months</div>
+            </div>
+            <div class="min-h-[1.4rem] mb-6 relative z-10"><p class="text-[11.5px] font-semibold text-slate-400" id="usSupport"></p></div>
+            <div class="space-y-3 text-xs mb-7 flex-grow relative z-10">
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-eye-slash text-[9px]"></i></div><span class="text-white font-semibold">Invisible on Zoom, Teams &amp; proctoring</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-microphone-lines text-[9px]"></i></div><span class="text-slate-200">Hears the interviewer — real-time answers</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Reads your screen — solves coding instantly</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(251,146,60,0.2);color:#fb923c;"><i class="fa-solid fa-file-lines text-[9px]"></i></div><span class="text-slate-200">Resume-aware behavioral (STAR) answers</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(16,185,129,0.2);color:#34d399;"><i class="fa-solid fa-infinity text-[9px]"></i></div><span class="text-white font-semibold">Unlimited usage — no monthly cap</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
+            </div>
+            <button onclick="buyUnlimited('semiannual')" class="btn-elite-cta relative z-10">Get Started →</button>
           </div>
 
         </div>
@@ -3607,6 +3677,7 @@ body { overscroll-behavior-y:none; }
 
                 applyConfig(data);
                 renderPricingCards();   // fills all four pricing cards from live config
+                renderUnlimitedCards(); // pre-fills the Unlimited grid so the toggle is instant
                 renderPlanHours();      // per-plan usage hours (10 / 15 / 20) from micHours
                 applyGeoPlans();        // India → Free+Monthly+Quarterly; non-India → Monthly+Quarterly+6-Month
                 applyGeoHero();         // India → Quarterly hero; non-India → 6-Month hero
@@ -3737,7 +3808,7 @@ body { overscroll-behavior-y:none; }
     // Fill the per-plan "X hrs usage / mo" rows from /api/config (micHours). The three
     // .js-hours rows appear in DOM order: Monthly, Quarterly, 6-Month.
     function renderPlanHours(){
-        const mh = (SITE_CONFIG && SITE_CONFIG.micHours) || { monthly:10, quarterly:15, semiannual:20 };
+        const mh = (SITE_CONFIG && SITE_CONFIG.micHours) || { monthly:10, quarterly:10, semiannual:10 };
         const order = ['monthly','quarterly','semiannual'];
         document.querySelectorAll('.js-hours').forEach((el, i) => {
             const cyc = order[i];
@@ -3752,11 +3823,19 @@ body { overscroll-behavior-y:none; }
         const free  = document.getElementById('cardFree');
         const six   = document.getElementById('cardSemiannual');
         const nudge = document.getElementById('smartPickText');
+        const grid  = document.getElementById('pricing-anchor');
         if (IS_INDIA) {
+            // India now sees the full ladder: Free + Monthly + Quarterly + 6-Month (4 cards).
+            // Quarterly stays the hero (applyGeoHero leaves India's default markup); 6-Month is Best Value.
             if (free) free.style.display = '';
-            if (six)  six.style.display  = 'none';
-            if (nudge) nudge.innerHTML = 'Smart pick: go <span style="color:#34d399;font-weight:800;">Quarterly</span>. A job search rarely wraps up in 30 days — pay once, stay covered, and <span class="font-extrabold text-white">save 40% vs monthly</span>.';
+            if (six)  six.style.display  = '';
+            if (grid) {
+                grid.classList.remove('md:grid-cols-3','max-w-5xl');
+                grid.classList.add('md:grid-cols-2','lg:grid-cols-4','max-w-6xl');
+            }
+            if (nudge) nudge.innerHTML = 'Smart pick: go <span style="color:#34d399;font-weight:800;">Quarterly</span> or <span style="color:#10b981;font-weight:800;">6-Month</span>. A job search rarely wraps up in 30 days — pay once, stay covered, and <span class="font-extrabold text-white">save up to 60%</span>.';
         } else {
+            // Non-India: Monthly + Quarterly + 6-Month (3 cards) — keep the default grid.
             if (free) free.style.display = 'none';
             if (six)  six.style.display  = '';
         }
@@ -3792,6 +3871,67 @@ body { overscroll-behavior-y:none; }
     function buyElite(cycle){
         currentCycle = cycle;
         initiatePayment('pro_plus');
+    }
+
+    // ── Standard / Unlimited plan-mode toggle ───────────────────────────────────
+    // Standard = the capped 10h plans (#pricing-anchor). Unlimited = truly-unlimited
+    // premium plans (#pricing-unlimited: Monthly + 6-Month only). We swap whole grids
+    // rather than restyle shared cards — safer on a live-payments page.
+    let PLAN_MODE = 'standard';
+    let STD_NUDGE_HTML = null;   // region-correct standard nudge, captured on first toggle
+
+    function renderUnlimitedCards(){
+        if (!PRICING_CONFIG) return;
+        const p = PRICING_CONFIG.pro_plus_unlimited;
+        if (!p) return;
+        const sym  = IS_INDIA ? '₹' : '$';
+        const disc = p.discount || 0;
+        const charm = IS_INDIA ? charmINR : charmUSD;
+        const fin  = (n) => disc > 0 ? charm(n * (1 - disc/100)) : n;
+        const fmt  = (n) => IS_INDIA ? Math.round(n).toLocaleString('en-IN') : n.toFixed(2);
+        const set  = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+
+        const mMo = fin(p.monthly);
+        set('umTotal', `${sym}${fmt(mMo)}`);
+
+        if (p.semiannual != null) {
+            const sTot   = fin(p.semiannual);
+            const sPerMo = sTot / 6;
+            const save   = Math.round((1 - sPerMo / mMo) * 100);
+            const perMoShown = IS_INDIA ? Math.floor(sPerMo).toLocaleString('en-IN') : fmt(sPerMo);
+            set('usTotal', `${sym}${fmt(sTot)}`);
+            const supEl = document.getElementById('usSupport');
+            if (supEl) supEl.innerHTML = `Just ${sym}${perMoShown}/mo · <span style="color:#34d399;font-weight:800;">save ${save}% vs monthly</span>`;
+        }
+    }
+
+    function setPlanMode(mode){
+        PLAN_MODE = (mode === 'unlimited') ? 'unlimited' : 'standard';
+        const unlimited = PLAN_MODE === 'unlimited';
+
+        const stdGrid = document.getElementById('pricing-anchor');
+        const unlGrid = document.getElementById('pricing-unlimited');
+        const nudge   = document.getElementById('smartPickText');
+        const stdBtn  = document.getElementById('modeStandardBtn');
+        const unlBtn  = document.getElementById('modeUnlimitedBtn');
+
+        if (nudge && STD_NUDGE_HTML === null) STD_NUDGE_HTML = nudge.innerHTML;  // capture region-correct copy
+
+        if (stdGrid) stdGrid.style.display = unlimited ? 'none' : '';
+        if (unlGrid) unlGrid.style.display = unlimited ? '' : 'none';
+        if (stdBtn)  stdBtn.classList.toggle('plan-mode-active', !unlimited);
+        if (unlBtn)  unlBtn.classList.toggle('plan-mode-active', unlimited);
+
+        if (nudge) nudge.innerHTML = unlimited
+            ? 'Never run out mid-interview. <span style="color:#34d399;font-weight:800;">Truly unlimited</span> answers, fully undetectable — still less than Parakeet charges.'
+            : (STD_NUDGE_HTML || nudge.innerHTML);
+
+        if (unlimited) renderUnlimitedCards();
+    }
+
+    function buyUnlimited(cycle){
+        currentCycle = cycle;
+        initiatePayment('pro_plus_unlimited');
     }
 
     // ── Surprise discount popup (website only) ──────────────────────────────────
@@ -3967,7 +4107,8 @@ body { overscroll-behavior-y:none; }
 
     function initiatePayment(targetTier) {
         if(!currentUser){ openLoginModal(); return; }
-        if(currentTier === 'pro_plus') return;
+        if(currentTier === 'pro_plus_unlimited') return;                               // already on the top tier
+        if(currentTier === 'pro_plus' && targetTier !== 'pro_plus_unlimited') return;   // Elite can still upgrade to Unlimited
         if(currentTier === 'pro' && targetTier === 'pro') return;
         selectedTierForPayment = targetTier;
         openPaymentModal();
