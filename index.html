@@ -2006,9 +2006,14 @@ body { overscroll-behavior-y:none; }
   </nav>
 
   <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/97 backdrop-blur-2xl border-t border-slate-100 p-3 pb-safe shadow-[0_-8px_40px_rgba(0,0,0,0.08)]">
-      <button onclick="openDownloadModal()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 text-white text-[13px] font-bold text-center shadow-lg flex items-center justify-center gap-2 active:scale-[.98] transition-transform">
-          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get Whis-AI Free — No Credit Card
+    <div class="flex items-center gap-2">
+      <a href="#pricing-anchor" class="shrink-0 py-3.5 px-4 rounded-xl border border-slate-300 text-slate-800 text-[13px] font-extrabold text-center active:scale-[.98] transition-transform flex items-center gap-1.5">
+          <i class="fa-solid fa-tag text-[11px]"></i> Plans
+      </a>
+      <button onclick="openDownloadModal()" class="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 text-white text-[13px] font-bold text-center shadow-lg flex items-center justify-center gap-2 active:scale-[.98] transition-transform">
+          <i class="fa-brands fa-windows"></i> <i class="fa-brands fa-apple"></i> Get Whis-AI Free
       </button>
+    </div>
   </div>
 
   <div class="fixed bottom-[90px] right-4 md:bottom-8 md:right-8 z-40 flex flex-col items-end gap-3">
@@ -2065,9 +2070,19 @@ body { overscroll-behavior-y:none; }
         Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong> &amp; more.<br>Completely invisible. Your silent co-pilot.
       </p>
       <!-- Desktop subtitle — full version -->
-      <p class="hidden md:block text-lg lg:text-xl text-slate-500 max-w-xl mb-7 md:mb-8 leading-relaxed font-normal fh3">
+      <p class="hidden md:block text-lg lg:text-xl text-slate-500 max-w-xl mb-5 md:mb-6 leading-relaxed font-normal fh3">
         Works on <strong class="plat-zoom">Zoom</strong>, <strong class="plat-teams">Teams</strong>, <strong class="plat-meet">Meet</strong>, <strong class="plat-chime">Chime</strong> &amp; <strong class="plat-hackerrank">HackerRank</strong>.<br>Completely invisible. Your silent co-pilot in every interview.
       </p>
+
+      <!-- Urgency + guarantee (conversion) -->
+      <div class="flex flex-col items-center lg:items-start gap-2.5 mb-6 fh3">
+        <span class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[12px] md:text-[13px] font-bold text-amber-200" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.32);">
+          <i class="fa-solid fa-bolt text-amber-400 text-[11px]"></i> Interview this week? You'll be ready in 2 minutes.
+        </span>
+        <span class="inline-flex items-center gap-2 text-[11.5px] md:text-xs text-slate-400 font-semibold">
+          <i class="fa-solid fa-shield-halved text-emerald-400"></i> <span id="refund-days-hero">7</span>-day money-back · No credit card · Cancel anytime
+        </span>
+      </div>
 
       <!-- Flow pill — 3-step pipeline -->
       <div class="flex flex-wrap justify-center lg:justify-start items-center gap-1.5 md:gap-2 mb-6 fh4">
@@ -2093,6 +2108,10 @@ body { overscroll-behavior-y:none; }
           <span><i class="fa-solid fa-download mr-1"></i> Try Free — No Credit Card. No Setup.</span>
         </button>
       </div>
+      <!-- Mobile-only quick jump to pricing (the hero button above is desktop-only; sticky bar carries the download CTA) -->
+      <a href="#pricing-anchor" class="md:hidden mt-5 inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-[13px] font-bold text-white/90 border border-white/15 bg-white/5 active:scale-95 transition backdrop-blur-sm">
+        <i class="fa-solid fa-tag text-[11px] text-sky-300"></i> See plans &amp; pricing <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </a>
 
       <!-- Trust — live counter + security chips -->
       <div class="mt-7 md:mt-8 flex flex-col items-center lg:items-start gap-3 fh6">
@@ -2291,6 +2310,85 @@ body { overscroll-behavior-y:none; }
   </div>
 </div>
 <div class="section-divider"></div>
+
+  <!-- ── UNDETECTABILITY PROOF — drag slider: interviewer view (invisible) vs your view (Whis) ── -->
+  <style>
+    .vcompare{position:relative;width:100%;aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);box-shadow:0 30px 80px -30px rgba(14,165,233,0.55);background:#0b1120;user-select:none;touch-action:pan-y;}
+    .vcv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+    .vcv-top{clip-path:inset(0 50% 0 0);}
+    .vclabel{position:absolute;top:12px;z-index:6;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#fff;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);padding:5px 10px;border-radius:999px;pointer-events:none;letter-spacing:.02em;}
+    .vclabel-l{left:12px;} .vclabel-r{right:12px;}
+    .vcdot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+    .vchandle{position:absolute;top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);z-index:7;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(14,165,233,0.6);}
+    .vchandle-line{flex:1;width:2px;background:rgba(255,255,255,0.9);}
+    .vchandle-grip{width:40px;height:40px;border-radius:50%;background:#fff;color:#0b1120;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,0.45);flex-shrink:0;}
+    .vcrange{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:ew-resize;z-index:8;-webkit-appearance:none;appearance:none;background:transparent;}
+    .vcrange::-webkit-slider-thumb{-webkit-appearance:none;width:44px;height:100%;cursor:ew-resize;}
+    .vcrange::-moz-range-thumb{width:44px;height:100%;border:0;background:transparent;cursor:ew-resize;}
+  </style>
+  <section class="py-16 md:py-28 relative overflow-hidden bg-[#050814]">
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent"></div>
+    <div class="max-w-3xl mx-auto px-5 md:px-6 relative z-10">
+      <div class="text-center mb-8 md:mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);">
+          <span class="w-1.5 h-1.5 rounded-full" style="background:#34d399;"></span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.2em]" style="color:#34d399;">See it yourself · Live proof</span>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-extrabold text-white leading-[1.12] tracking-tight" style="font-family:'Plus Jakarta Sans',sans-serif;">The interviewer sees <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">nothing.</span></h2>
+        <p class="text-slate-400 text-[15px] md:text-lg mt-3 max-w-xl mx-auto">Same moment, two screens. Drag the slider — you're the only one who can see Whis.</p>
+      </div>
+
+      <div class="vcompare" id="vcompare">
+        <video id="vcBottom" class="vcv" src="videos/interviewee_view_best.mp4" muted loop autoplay playsinline preload="auto"></video>
+        <video id="vcTop" class="vcv vcv-top" src="videos/interviewer_view_best.mp4" muted loop autoplay playsinline preload="auto"></video>
+        <span class="vclabel vclabel-l"><span class="vcdot" style="background:#f87171;"></span> Interviewer's screen</span>
+        <span class="vclabel vclabel-r"><span class="vcdot" style="background:#34d399;"></span> Your screen</span>
+        <div class="vchandle" id="vchandle"><div class="vchandle-line"></div><div class="vchandle-grip"><i class="fa-solid fa-arrows-left-right"></i></div><div class="vchandle-line"></div></div>
+        <input type="range" min="0" max="100" value="50" id="vcrange" class="vcrange" aria-label="Drag to compare the two screens" />
+      </div>
+      <p class="text-center text-[12px] text-slate-500 mt-4"><i class="fa-solid fa-eye-slash text-emerald-400 mr-1"></i> Invisible to Zoom, Teams, Meet &amp; proctoring — we verify it every release.</p>
+    </div>
+  </section>
+  <script>
+    (function(){
+      var range=document.getElementById('vcrange'),top=document.getElementById('vcTop'),handle=document.getElementById('vchandle'),
+          bottom=document.getElementById('vcBottom'),root=document.getElementById('vcompare');
+      if(!range||!top||!handle||!root)return;
+      function set(v){ v=Math.max(0,Math.min(100,v)); top.style.clipPath='inset(0 '+(100-v)+'% 0 0)'; handle.style.left=v+'%'; }
+      range.addEventListener('input',function(){ set(parseFloat(range.value)); });
+      set(50);
+      // Keep the two 16s loops on the same frame so it's genuinely the same moment.
+      if(bottom&&top){ bottom.addEventListener('timeupdate',function(){ if(Math.abs((top.currentTime||0)-(bottom.currentTime||0))>0.15){ try{top.currentTime=bottom.currentTime;}catch(e){} } }); }
+      // Some mobiles block autoplay until interaction — nudge both on first touch / when tab returns.
+      function kick(){ [top,bottom].forEach(function(v){ if(v&&v.paused){ v.play().catch(function(){}); } }); }
+      root.addEventListener('pointerdown',kick,{once:true});
+      document.addEventListener('visibilitychange',function(){ if(!document.hidden) kick(); });
+    })();
+  </script>
+
+  <!-- ── HEARS & ANSWERS — audio-capture demo (interviewer question → your answer) ── -->
+  <section class="py-14 md:py-24 relative overflow-hidden bg-[#050814]">
+    <div class="max-w-4xl mx-auto px-5 md:px-6 relative z-10">
+      <div class="text-center mb-8 md:mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5" style="background:rgba(14,165,233,0.1);border:1px solid rgba(56,189,248,0.25);">
+          <span class="w-1.5 h-1.5 rounded-full" style="background:#38bdf8;"></span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.2em]" style="color:#38bdf8;">Real-time</span>
+        </div>
+        <h2 class="text-3xl md:text-5xl font-extrabold text-white leading-[1.12] tracking-tight" style="font-family:'Plus Jakarta Sans',sans-serif;">Hears the question. <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">Answers instantly.</span></h2>
+        <p class="text-slate-400 text-[15px] md:text-lg mt-3 max-w-xl mx-auto">Whis listens to the interviewer and fires a structured answer before you finish reading it.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-stretch">
+        <div class="rounded-2xl overflow-hidden border border-white/10 bg-[#0b1120] relative">
+          <div class="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 text-[11px] font-extrabold text-white px-2.5 py-1 rounded-full" style="background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);"><i class="fa-solid fa-microphone-lines text-[10px] text-sky-300"></i> The interviewer asks</div>
+          <video class="w-full h-full object-cover block" src="videos/interviewer_audio.mp4" muted loop autoplay playsinline preload="auto"></video>
+        </div>
+        <div class="rounded-2xl overflow-hidden border border-emerald-500/30 bg-[#0b1120] relative" style="box-shadow:0 20px 60px -28px rgba(16,185,129,0.5);">
+          <div class="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 text-[11px] font-extrabold text-white px-2.5 py-1 rounded-full" style="background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);"><i class="fa-solid fa-bolt text-[10px] text-emerald-300"></i> Whis answers — only you see it</div>
+          <video class="w-full h-full object-cover block" src="videos/interviewee_audio.mp4" muted loop autoplay playsinline preload="auto"></video>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ── THE STORY — the user is the hero: their interview, their future ── -->
   <section class="py-24 md:py-32 relative overflow-hidden bg-[#050814]">
@@ -2877,7 +2975,7 @@ body { overscroll-behavior-y:none; }
                       <i class="fa-solid fa-chevron-down text-slate-500 faq-icon transition-transform duration-300 text-xs md:text-sm"></i>
                   </div>
                   <div class="faq-answer">
-                      <p class="pt-3 pb-1 text-slate-600 text-[13px] md:text-sm leading-relaxed">Absolutely. We offer a <span id="refund-days-faq">2</span>-day money-back guarantee. The refunds are valid as long as you haven't exceeded your monthly usage quota by more than 5% (i.e. by 30 minutes).</p>
+                      <p class="pt-3 pb-1 text-slate-600 text-[13px] md:text-sm leading-relaxed">Absolutely. We offer a <span id="refund-days-faq">7</span>-day money-back guarantee. The refunds are valid as long as you haven't exceeded your monthly usage quota by more than 5% (i.e. by 30 minutes).</p>
                   </div>
               </div>
                <div class="group border border-slate-100 rounded-2xl overflow-hidden p-5 md:p-7 shadow-sm bg-white hover:border-slate-200 transition-colors cursor-pointer" onclick="this.classList.toggle('active')">
@@ -3165,8 +3263,8 @@ body { overscroll-behavior-y:none; }
   <div id="downloadModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60">
     <div class="perf-card p-6 md:p-8 max-w-sm w-full border border-slate-200 bg-white shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
-        <h3 class="text-base md:text-lg font-medium text-slate-900 mb-5 md:mb-6 mt-2">Select Platform</h3>
-        <div class="space-y-3">
+        <h3 id="dlTitle" class="text-base md:text-lg font-medium text-slate-900 mb-5 md:mb-6 mt-2">Select Platform</h3>
+        <div id="dlPlatforms" class="space-y-3">
             <!-- Apple Silicon (M1/M2/M3/M4) — hidden by default, shown when chip detected or both shown on Safari -->
             <a id="download-mac-arm" href="#" class="flex items-center justify-between p-3.5 md:p-4 bg-slate-50 rounded-xl hover:bg-slate-100 border border-slate-200 transition group shadow-sm active:scale-95">
                 <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold">
@@ -3187,6 +3285,14 @@ body { overscroll-behavior-y:none; }
                 <span class="flex items-center gap-3 text-[13px] md:text-sm text-slate-900 font-bold"><i class="fa-brands fa-windows text-lg md:text-xl"></i> Windows</span>
                 <i class="fa-solid fa-arrow-right text-slate-400 group-hover:text-slate-900"></i>
             </a>
+        </div>
+        <!-- Mobile: Whis is a desktop app — capture email, send the link to open on their computer -->
+        <div id="dlMobileCapture" class="hidden">
+          <p class="text-[13px] text-slate-600 leading-relaxed mb-4">Whis runs on your <b>computer</b> (Mac / Windows). Drop your email and we'll send the download link to open there — set-up takes about 2 minutes, no credit card.</p>
+          <input id="dlEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" class="w-full mb-3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-[14px] outline-none focus:border-sky-400" />
+          <button id="dlSendBtn" onclick="sendDesktopLink()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 text-white text-[14px] font-bold active:scale-[.98] transition">Email me the link →</button>
+          <p id="dlSendMsg" class="hidden text-center text-[12.5px] font-semibold mt-3"></p>
+          <p class="text-center text-[11px] text-slate-400 mt-3">No spam — just your download link.</p>
         </div>
     </div>
   </div>
@@ -3579,7 +3685,7 @@ body { overscroll-behavior-y:none; }
             if (el) el.textContent = data.monthlyUsageHours;
         }
         if (data.refundWindowDays) {
-            ['refund-days-faq','refund-days-cta'].forEach(id => {
+            ['refund-days-faq','refund-days-cta','refund-days-hero'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.textContent = data.refundWindowDays;
             });
@@ -4367,12 +4473,48 @@ body { overscroll-behavior-y:none; }
     // the user ever taps the download button.
     _detectMacChip().then(_applyMacDownloadLinks);
 
+    const _isMobileUA = /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent || '');
     function openDownloadModal(){
         lockScroll();
         downloadModal.classList.remove('hidden');
         downloadModal.classList.add('flex');
-        // Re-run detection (no-op if already resolved) and refresh buttons.
-        _detectMacChip().then(_applyMacDownloadLinks);
+        const plat = document.getElementById('dlPlatforms');
+        const cap  = document.getElementById('dlMobileCapture');
+        const title = document.getElementById('dlTitle');
+        // Whis is a desktop app — a phone can't install it. On mobile, capture the email and
+        // send the link to open on their computer (also feeds the lead list) instead of dead-end links.
+        if (_isMobileUA) {
+            if (plat) plat.classList.add('hidden');
+            if (cap)  cap.classList.remove('hidden');
+            if (title) title.textContent = 'Get the link for your computer';
+        } else {
+            if (plat) plat.classList.remove('hidden');
+            if (cap)  cap.classList.add('hidden');
+            if (title) title.textContent = 'Select Platform';
+            // Re-run detection (no-op if already resolved) and refresh buttons.
+            _detectMacChip().then(_applyMacDownloadLinks);
+        }
+    }
+    async function sendDesktopLink(){
+        const emailEl = document.getElementById('dlEmail');
+        const btn = document.getElementById('dlSendBtn');
+        const msg = document.getElementById('dlSendMsg');
+        const email = ((emailEl && emailEl.value) || '').trim();
+        const showMsg = (text, ok) => { if(msg){ msg.textContent = text; msg.className = 'text-center text-[12.5px] font-semibold mt-3 ' + (ok ? 'text-emerald-600' : 'text-red-500'); msg.classList.remove('hidden'); } };
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showMsg('Please enter a valid email.', false); return; }
+        const orig = btn.textContent; btn.disabled = true; btn.textContent = 'Sending…';
+        try {
+            const r = await fetch(`${BACKEND_URL}/api/send-download-link`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ email })
+            });
+            const d = await r.json().catch(() => ({}));
+            if (r.ok && d.success) { showMsg('✓ Sent! Open the email on your computer to install.', true); btn.textContent = 'Link sent ✓'; }
+            else { throw new Error(d.error || 'fail'); }
+        } catch (e) {
+            showMsg('Could not send — please try again.', false);
+            btn.disabled = false; btn.textContent = orig;
+        }
     }
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');unlockScroll();}
     function openProfileModal(){lockScroll();if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
