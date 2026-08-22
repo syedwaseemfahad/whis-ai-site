@@ -2104,8 +2104,9 @@ body { overscroll-behavior-y:none; }
 
       <!-- CTA -->
       <div class="hidden md:flex flex-col w-full gap-3 md:flex-row md:justify-start md:w-auto fh5">
-        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="btn-premium w-full md:w-auto px-10 py-4 rounded-2xl text-sm font-bold flex justify-center items-center gap-2.5 shadow-xl">
-          <span><i class="fa-solid fa-download mr-1"></i> Try Free — No Credit Card. No Setup.</span>
+        <button id="heroDownloadBtn" onclick="openDownloadModal()" class="w-full md:w-auto px-10 py-4 rounded-2xl text-[15px] font-extrabold flex justify-center items-center gap-2.5 text-white transition hover:-translate-y-0.5 active:scale-95"
+          style="background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 12px 34px -8px rgba(34,197,94,0.6), inset 0 1px 0 rgba(255,255,255,0.2);">
+          <span><i class="fa-solid fa-bolt mr-1.5"></i> Try It Now for Free</span>
         </button>
       </div>
       <!-- Mobile-only quick jump to pricing (the hero button above is desktop-only; sticky bar carries the download CTA) -->
@@ -2569,7 +2570,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(139,92,246,0.2);color:#a78bfa;"><i class="fa-solid fa-desktop text-[9px]"></i></div><span class="text-slate-200">Reads your screen — solves coding instantly</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(251,146,60,0.2);color:#fb923c;"><i class="fa-solid fa-file-lines text-[9px]"></i></div><span class="text-slate-200">Resume-aware behavioral (STAR) answers</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(239,68,68,0.18);color:#f87171;"><i class="fa-solid fa-user-ninja text-[9px]"></i></div><span class="text-slate-200">Instant panic-hide hotkey</span></div>
-              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
+              <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,197,94,0.22);color:#4ade80;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="js-hours font-bold" style="color:#4ade80;">15 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
             <button id="ctaQuarterly" onclick="buyElite('quarterly')" class="btn-elite-cta relative z-10">Get Started →</button>
@@ -3680,8 +3681,55 @@ body { overscroll-behavior-y:none; }
         document.getElementById('navUserAvatar').src = u.avatarUrl; 
         document.getElementById('navPlanBadge').innerText = "FREE";
         document.getElementById('navPlanBadge').classList.add('text-slate-500');
+        loadReferralPanel(u);
     }
-     
+
+    // --- REFER A FRIEND, EARN ₹500 (logged-in users) -------------------------------
+    // Fetches the user's share link + stats and shows a dismissible card. Reward is a
+    // ₹500 Amazon voucher, paid to the referrer when a friend they invited subscribes.
+    let _referralPanelLoaded = false;
+    async function loadReferralPanel(u) {
+        if (_referralPanelLoaded || !u || !u.googleId) return;
+        _referralPanelLoaded = true;
+        try {
+            const q = new URLSearchParams({ gid: u.googleId, sid: u.currentSessionId || '' });
+            const r = await fetch(`${BACKEND_URL}/api/referral/status?${q.toString()}`);
+            const d = await r.json();
+            if (!d.ok || !d.enabled || !d.shareUrl) return;
+            renderReferralCard(d);
+        } catch (e) { /* non-fatal */ }
+    }
+
+    function renderReferralCard(d) {
+        if (document.getElementById('whisReferralCard')) return;
+        const card = document.createElement('div');
+        card.id = 'whisReferralCard';
+        card.style.cssText = 'position:fixed;left:20px;bottom:20px;z-index:9000;width:320px;max-width:calc(100vw - 40px);'
+            + 'background:#0b1120;border:1px solid #22314f;border-radius:16px;padding:18px 18px 16px;'
+            + 'box-shadow:0 24px 60px rgba(0,0,0,.5);color:#e6edf7;font-family:inherit;';
+        card.innerHTML = `
+            <button id="whisRefClose" style="position:absolute;top:10px;right:12px;background:none;border:0;color:#64748b;font-size:18px;cursor:pointer;line-height:1;">×</button>
+            <div style="font-weight:800;font-size:15px;letter-spacing:-.3px;margin-bottom:4px;">🎁 Refer a friend, earn ₹${d.rewardINR}</div>
+            <div style="color:#93a4c3;font-size:12.5px;line-height:1.5;margin-bottom:12px;">Share your link. When a friend subscribes, you get a ₹${d.rewardINR} Amazon voucher — no limit.</div>
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <input id="whisRefLink" readonly value="${d.shareUrl}" style="flex:1;min-width:0;background:#0e1730;border:1px solid #22314f;border-radius:10px;padding:9px 11px;color:#e6edf7;font-size:12px;" />
+                <button id="whisRefCopy" style="background:linear-gradient(135deg,#16a34a,#22c55e);border:0;border-radius:10px;color:#fff;font-weight:700;font-size:12.5px;padding:0 14px;cursor:pointer;">Copy</button>
+            </div>
+            <div style="display:flex;gap:16px;font-size:12px;color:#93a4c3;">
+                <span><b style="color:#e6edf7;">${d.qualifiedCount}</b> joined</span>
+                <span><b style="color:#22c55e;">₹${(d.rewardsEarned || 0) * d.rewardINR}</b> earned</span>
+            </div>`;
+        document.body.appendChild(card);
+        document.getElementById('whisRefClose').onclick = () => card.remove();
+        document.getElementById('whisRefCopy').onclick = () => {
+            const inp = document.getElementById('whisRefLink');
+            inp.select(); inp.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(d.shareUrl).catch(() => document.execCommand('copy'));
+            const btn = document.getElementById('whisRefCopy');
+            btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
+        };
+    }
+
     function formatPrice(amount, discount, isAffiliate, isEliteCard = false) {
         if (!amount) return "...";
         const currencySymbol = IS_INDIA ? "₹" : "$";
@@ -4344,7 +4392,8 @@ body { overscroll-behavior-y:none; }
             // so attribution survives sign-in and binds to the account server-side.
             const currentSource = localStorage.getItem('whisSource') || 'organic';
             const currentRef = localStorage.getItem('whisRef') || '';
-            const stateParam = encodeURIComponent(JSON.stringify({ s: currentSource, r: currentRef }));
+            const currentUref = localStorage.getItem('whisUref') || '';
+            const stateParam = encodeURIComponent(JSON.stringify({ s: currentSource, r: currentRef, u: currentUref }));
 
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=${stateParam}`;
 
@@ -4679,6 +4728,14 @@ body { overscroll-behavior-y:none; }
         if (!whisVisitorId) {
             whisVisitorId = (crypto.randomUUID ? crypto.randomUUID() : 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2));
             localStorage.setItem('whisVisitorId', whisVisitorId);
+        }
+
+        // --- USER "REFER A FRIEND" LINK CAPTURE (uref) ---
+        // Stored write-once so the earliest inviter gets the credit; bound to the
+        // account server-side at sign-in and rewarded (₹500) on the friend's payment.
+        const urefCode = urlParams.get('uref');
+        if (urefCode && !localStorage.getItem('whisUref')) {
+            localStorage.setItem('whisUref', urefCode);
         }
 
         // --- AFFILIATE LINK CAPTURE ---
