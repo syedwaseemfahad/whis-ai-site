@@ -3734,6 +3734,9 @@ section.py-24.md\:py-32 {
     let _referralPanelLoaded = false;
     async function loadReferralPanel(u) {
         if (_referralPanelLoaded || !u || !u.googleId) return;
+        // Don't show the floating card on mobile — it covers content and feels like a
+        // popup. Mobile users still see the "Refer a friend, earn ₹500" strip in pricing.
+        if (window.innerWidth < 768) return;
         _referralPanelLoaded = true;
         try {
             const q = new URLSearchParams({ gid: u.googleId, sid: u.currentSessionId || '' });
