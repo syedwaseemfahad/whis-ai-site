@@ -671,6 +671,12 @@
                         <input type="number" id="manage-months" value="1" min="1" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none font-mono">
                     </div>
                 </div>
+                <div class="mt-4">
+                    <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="manage-unlimited" class="accent-emerald-500 w-4 h-4">
+                        <span><b class="text-emerald-400">Unlimited</b> usage — no monthly hour cap (Elite only)</span>
+                    </label>
+                </div>
             </div>
 
             <div class="flex justify-between items-center mt-8 pt-4 border-t border-[#1e293b]">
@@ -1028,15 +1034,16 @@
 
             const tier = document.getElementById('manage-tier').value;
             const months = document.getElementById('manage-months').value;
+            const unlimited = document.getElementById('manage-unlimited').checked;
 
-            pendingAdminAction = { action: actionType, email, tier, months };
+            pendingAdminAction = { action: actionType, email, tier, months, unlimited };
 
             const msgContainer = document.getElementById('danger-msg');
-            
+
             if (actionType === 'upgrade') {
                 msgContainer.innerHTML = `You are about to provision or upgrade:<br><br>
                     <span class="text-brand-400 font-bold">${email}</span><br>
-                    Tier: <span class="text-emerald-400 font-bold uppercase">${tier}</span><br>
+                    Tier: <span class="text-emerald-400 font-bold uppercase">${tier}</span>${unlimited ? ' <span class="text-emerald-400 font-bold">(UNLIMITED)</span>' : ''}<br>
                     Duration: <span class="text-white font-bold">${months} Months</span>`;
                 document.getElementById('danger-execute-btn').innerText = "Execute Upgrade";
                 document.getElementById('danger-execute-btn').className = "px-4 py-2 bg-emerald-600 text-white rounded text-xs font-semibold hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
