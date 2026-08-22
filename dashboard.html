@@ -930,8 +930,8 @@
                 tbody.innerHTML = '';
                 data.users.forEach(u => {
                     const integrity = getLicenseIntegrity(u.subscription);
-                    const tierLabel = u.subscription?.tier === 'pro_plus' ? 'ELITE' : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
-                    const tierColor = tierLabel === 'ELITE' ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
+                    const tierLabel = u.subscription?.tier === 'pro_plus' ? (u.subscription?.unlimited ? 'ELITE ∞' : 'ELITE') : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
+                    const tierColor = tierLabel.startsWith('ELITE') ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
                     let statColor = 'bg-slate-600'; 
                     let statText = 'INACTIVE';
                     
@@ -990,7 +990,7 @@
                 const integrity = getLicenseIntegrity(u.subscription);
                 let barColor = integrity.isActive ? 'bg-emerald-500' : 'bg-red-500';
                 document.getElementById('mod-integrity-bar').className = `absolute right-0 top-0 h-full w-1 ${barColor}`;
-                document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold text-white uppercase">${u.subscription?.tier || 'FREE'}</span>`;
+                document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold text-white uppercase">${u.subscription?.tier || 'FREE'}</span>${u.subscription?.unlimited ? ' <span class="font-mono text-[10px] font-bold text-emerald-400 uppercase px-2 py-0.5 rounded" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);">∞ UNLIMITED</span>' : ''}`;
                 document.getElementById('mod-ttl-countdown').innerText = integrity.ttlStr;
 
                 document.getElementById('mod-free').innerHTML = `${u.freeUsage?.count || 0}<span class="text-[10px] text-slate-600">/10</span>`;
