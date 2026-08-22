@@ -71,6 +71,9 @@
                 <button onclick="switchTab('payouts')" id="nav-payouts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-emerald-400/70 hover:text-emerald-400 text-xs font-semibold tracking-wide border border-transparent transition mt-4">
                     <i class="fa-solid fa-hand-holding-dollar w-4"></i> Partner Payouts
                 </button>
+                <button onclick="switchTab('vouchers')" id="nav-vouchers" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-emerald-400/70 hover:text-emerald-400 text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-gift w-4"></i> Voucher Pool
+                </button>
                 <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-purple-400 text-xs font-semibold tracking-wide border border-transparent transition">
                     <i class="fa-solid fa-chart-bar w-4"></i> Revenue Intel
                 </button>
@@ -491,6 +494,67 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ================= VOUCHER POOL (₹500 Amazon referral reward) ================= -->
+                <div id="tab-vouchers" class="tab-content hidden-tab flex flex-col gap-6">
+                    <div class="glass-panel p-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-widest mb-1">Amazon Voucher Pool</h2>
+                            <p class="text-xs text-slate-500 font-mono">Pre-purchased ₹500 codes. One is auto-issued + emailed when a referred friend subscribes.</p>
+                        </div>
+                        <button onclick="fetchVouchers()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition flex items-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Refresh
+                        </button>
+                    </div>
+
+                    <!-- Stock counters -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="glass-panel p-4 rounded">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Available</p>
+                            <p class="text-2xl data-value text-emerald-400" id="vch-available">--</p>
+                        </div>
+                        <div class="glass-panel p-4 rounded">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Issued</p>
+                            <p class="text-2xl data-value text-slate-200" id="vch-issued">--</p>
+                        </div>
+                        <div class="glass-panel p-4 rounded">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Pending (pool was empty)</p>
+                            <p class="text-2xl data-value text-amber-400" id="vch-pending">--</p>
+                        </div>
+                    </div>
+
+                    <!-- Add codes -->
+                    <div class="glass-panel p-5 rounded">
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2"><i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Add codes to pool</h3>
+                        <p class="text-[11px] text-slate-500 font-mono mb-3">Paste one or more Amazon gift-card codes (separated by comma, space, or new line). Adding stock also auto-fulfills any pending rewards.</p>
+                        <textarea id="vch-codes-input" rows="4" placeholder="ABCD-1234-EF&#10;GHIJ-5678-KL" class="w-full bg-[#05080f] border border-[#1e293b] text-slate-200 text-xs font-mono rounded px-3 py-2 outline-none focus:border-emerald-500/50 resize-y"></textarea>
+                        <div class="flex items-center gap-3 mt-3">
+                            <button onclick="addVouchers()" id="vch-add-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded text-xs font-bold transition flex items-center gap-2">
+                                <i class="fa-solid fa-upload"></i> Add to Pool
+                            </button>
+                            <span id="vch-add-result" class="text-xs font-mono"></span>
+                        </div>
+                    </div>
+
+                    <!-- Recent issued / pending -->
+                    <div class="glass-panel rounded overflow-hidden flex flex-col">
+                        <div class="px-4 py-3 border-b border-[#1e293b] text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Recent rewards (issued &amp; pending)</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                                    <tr>
+                                        <th class="px-4 py-3">When</th>
+                                        <th class="px-4 py-3">Status</th>
+                                        <th class="px-4 py-3">Recipient</th>
+                                        <th class="px-4 py-3">Order Ref</th>
+                                        <th class="px-4 py-3">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-[#1e293b]" id="vouchers-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 </div>
         </div>
     </div>
@@ -717,16 +781,17 @@
             });
             const active = document.getElementById(`nav-${tab}`);
             active.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]";
-            if(tab !== 'payouts') active.querySelector('i').classList.add('text-brand-400');
+            if(tab !== 'payouts' && tab !== 'vouchers') active.querySelector('i').classList.add('text-brand-400');
             else active.querySelector('i').classList.add('text-emerald-400');
-            
-            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)', 'payouts': 'Partner Payouts', 'analytics': 'Revenue Intelligence' };
+
+            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)', 'payouts': 'Partner Payouts', 'analytics': 'Revenue Intelligence', 'vouchers': 'Voucher Pool' };
             document.getElementById('header-title').innerText = titles[tab] || 'Dashboard';
-            
+
             if(tab === 'users' && currentPage === 0) fetchUsersList();
             if(tab === 'ops') fetchOpsTelemetry();
             if(tab === 'payouts') fetchPayoutsList();
             if(tab === 'analytics') fetchAnalytics();
+            if(tab === 'vouchers') fetchVouchers();
         }
 
         function drillDownToDate(dateString) {
@@ -1114,6 +1179,82 @@
                 alert("Network error.");
                 btnElement.innerHTML = origHtml;
                 btnElement.disabled = false;
+            }
+        }
+
+        // --- Voucher Pool (₹500 Amazon referral reward) ---
+        async function fetchVouchers() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/vouchers`, {
+                    headers: { 'x-dashboard-password': adminPassword }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'failed');
+
+                const c = data.counts || {};
+                document.getElementById('vch-available').innerText = c.available ?? 0;
+                document.getElementById('vch-issued').innerText    = c.issued ?? 0;
+                document.getElementById('vch-pending').innerText   = c.pending ?? 0;
+
+                const body = document.getElementById('vouchers-table-body');
+                const rows = data.recent || [];
+                if (!rows.length) {
+                    body.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-600 font-mono text-[11px]">No rewards issued yet.</td></tr>`;
+                    return;
+                }
+                body.innerHTML = rows.map(v => {
+                    const when = v.issuedAt ? new Date(v.issuedAt).toLocaleString() : (v.createdAt ? new Date(v.createdAt).toLocaleString() : '--');
+                    const isPending = v.status === 'pending';
+                    const badge = isPending
+                        ? `<span class="text-amber-400"><i class="fa-solid fa-hourglass-half mr-1"></i>Pending</span>`
+                        : `<span class="text-emerald-400"><i class="fa-solid fa-check mr-1"></i>Issued</span>`;
+                    const who = v.issuedToEmail || v.issuedToUserId || v.issuedToInfluencerId || '--';
+                    return `<tr>
+                        <td class="px-4 py-3 text-slate-400 font-mono text-[11px]">${when}</td>
+                        <td class="px-4 py-3 font-semibold">${badge}</td>
+                        <td class="px-4 py-3 text-slate-300 font-mono text-[11px]">${who}</td>
+                        <td class="px-4 py-3 text-slate-500 font-mono text-[11px]">${v.orderId || '--'}</td>
+                        <td class="px-4 py-3 text-slate-300">₹${v.valueINR ?? 500}</td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                document.getElementById('vch-available').innerText = '!';
+                console.error('fetchVouchers failed', e);
+            }
+        }
+
+        async function addVouchers() {
+            const input = document.getElementById('vch-codes-input');
+            const btn = document.getElementById('vch-add-btn');
+            const result = document.getElementById('vch-add-result');
+            const raw = (input.value || '').trim();
+            if (!raw) { result.className = 'text-xs font-mono text-amber-400'; result.innerText = 'Paste at least one code.'; return; }
+
+            const codes = raw.split(/[\s,]+/).map(c => c.trim()).filter(Boolean);
+            const origHtml = btn.innerHTML;
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Adding…';
+            result.innerText = '';
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/vouchers/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-dashboard-password': adminPassword },
+                    body: JSON.stringify({ codes })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    input.value = '';
+                    result.className = 'text-xs font-mono text-emerald-400';
+                    result.innerText = `Added ${data.added} · fulfilled ${data.fulfilled} pending · ${data.available} now available.`;
+                    fetchVouchers();
+                } else {
+                    result.className = 'text-xs font-mono text-red-400';
+                    result.innerText = 'Error: ' + (data.error || 'failed');
+                }
+            } catch (e) {
+                result.className = 'text-xs font-mono text-red-400';
+                result.innerText = 'Network error.';
+            } finally {
+                btn.disabled = false; btn.innerHTML = origHtml;
             }
         }
 
