@@ -5104,20 +5104,39 @@ section {
   })();
 
   // --- In-page anchor scrolling (jump to Pricing / Features / etc.) -----------------
-  // content-visibility is disabled in CSS so section heights are known up front, so a
-  // single scrollIntoView lands exactly right (scroll-margin-top handles the nav gap).
+  // Smooth-scrolls to the target, then snaps exactly onto it after a moment. The snap
+  // corrects "landed a bit short" caused by images/videos above finishing loading and
+  // pushing the target down after the first scroll. scroll-margin-top handles nav gap.
   (function(){
+    function goTo(target, smooth){
+      target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+    }
+    function jump(hash){
+      let target = null;
+      try { target = document.querySelector(hash); } catch(_) { return false; }
+      if(!target) return false;
+      goTo(target, true);
+      // Two exact snaps as the page settles — no-ops if it's already in the right place.
+      setTimeout(() => goTo(target, false), 450);
+      setTimeout(() => goTo(target, false), 950);
+      return true;
+    }
     document.addEventListener('click', function(e){
       const a = e.target.closest && e.target.closest('a[href^="#"]');
       if(!a) return;
       const hash = a.getAttribute('href');
       if(!hash || hash === '#') return;
-      let target = null;
-      try { target = document.querySelector(hash); } catch(_) { return; }
-      if(!target) return;
+      if(!document.querySelector(hash)) return;
       e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      jump(hash);
       try { history.replaceState(null, '', hash); } catch(_){}
+    });
+    // If the page opens with a hash (e.g. shared link to whis-ai.com/#pricing-anchor),
+    // scroll to it once everything has loaded.
+    window.addEventListener('load', function(){
+      if(location.hash && location.hash.length > 1){
+        setTimeout(() => jump(location.hash), 200);
+      }
     });
   })();
 
