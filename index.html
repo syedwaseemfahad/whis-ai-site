@@ -3155,6 +3155,12 @@ section.py-24.md\:py-32 {
     background: transparent !important;
     background-image: none !important;
 }
+/* Stop lazily estimating section heights — that made "Pricing" (and other nav
+   links) jump to the wrong spot. Real heights = correct anchor scrolling. */
+section {
+    content-visibility: visible !important;
+    contain-intrinsic-size: auto !important;
+}
 
 </style>
 
@@ -5097,24 +5103,10 @@ section.py-24.md\:py-32 {
       update();
   })();
 
-  // --- Robust in-page anchor scrolling (fixes "#pricing" landing halfway) ---------
-  // Sections above pricing use content-visibility:auto, so their true heights aren't
-  // known until they render — a native #anchor jump uses the ESTIMATED layout and
-  // lands short. We scroll and re-target a few times until the position converges.
+  // --- In-page anchor scrolling (jump to Pricing / Features / etc.) -----------------
+  // content-visibility is disabled in CSS so section heights are known up front, so a
+  // single scrollIntoView lands exactly right (scroll-margin-top handles the nav gap).
   (function(){
-    const NAV_H = 90;
-    function smoothTo(hash){
-      const el = document.querySelector(hash);
-      if(!el) return;
-      let last = -1, tries = 0;
-      const step = () => {
-        const y = Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - NAV_H);
-        window.scrollTo({ top: y, behavior: 'smooth' });
-        if (Math.abs(y - last) > 2 && tries++ < 10) { last = y; setTimeout(step, 150); }
-      };
-      step();
-    }
-    // Bubble phase (not capture) so any element-specific handlers still win first.
     document.addEventListener('click', function(e){
       const a = e.target.closest && e.target.closest('a[href^="#"]');
       if(!a) return;
@@ -5124,7 +5116,7 @@ section.py-24.md\:py-32 {
       try { target = document.querySelector(hash); } catch(_) { return; }
       if(!target) return;
       e.preventDefault();
-      smoothTo(hash);
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       try { history.replaceState(null, '', hash); } catch(_){}
     });
   })();
