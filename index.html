@@ -1810,6 +1810,12 @@ section:not(:first-of-type):not(#pricing) {
     content-visibility: auto;
     contain-intrinsic-size: 0 560px;
 }
+/* While a nav-anchor scroll is running, force every section to lay out at its
+   real height so the target position is computed correctly (content-visibility
+   placeholders otherwise make the browser stop short of the target). */
+html.anchor-scrolling section {
+    content-visibility: visible !important;
+}
 /* Scroll-margin: offset by the fixed nav height so anchors land correctly */
 #pricing-anchor {
     scroll-margin-top: 110px; /* nav (80px) + room so the cards land cleanly, past the section header */
@@ -4986,6 +4992,37 @@ body { overscroll-behavior-y:none; }
       };
       window.addEventListener('scroll', update, { passive:true });
       update();
+  })();
+
+  /* Accurate in-page anchor scrolling.
+     Off-screen sections use `content-visibility: auto`, so their height is only
+     a placeholder until they render. That made the pure-CSS smooth scroll stop
+     short of the target (e.g. Pricing landed half a screen early). Here we force
+     all sections to lay out before scrolling, then use scrollIntoView (which
+     honours each anchor's scroll-margin-top for the fixed nav offset). */
+  (function initAnchorScroll() {
+      let clearTimer;
+      const scrollToTarget = (el, hash) => {
+          const html = document.documentElement;
+          html.classList.add('anchor-scrolling');
+          // Let the forced layout apply before measuring the target.
+          requestAnimationFrame(() => {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              if (hash) history.replaceState(null, '', hash);
+              clearTimeout(clearTimer);
+              clearTimer = setTimeout(() => html.classList.remove('anchor-scrolling'), 1200);
+          });
+      };
+      document.addEventListener('click', e => {
+          const link = e.target.closest('a[href^="#"]');
+          if (!link) return;
+          const hash = link.getAttribute('href');
+          if (!hash || hash === '#') return;
+          const el = document.getElementById(hash.slice(1));
+          if (!el) return;
+          e.preventDefault();
+          scrollToTarget(el, hash);
+      });
   })();
 
   </script>
