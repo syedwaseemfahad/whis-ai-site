@@ -5024,17 +5024,27 @@ body { overscroll-behavior-y:none; }
      all sections to lay out before scrolling, then use scrollIntoView (which
      honours each anchor's scroll-margin-top for the fixed nav offset). */
   (function initAnchorScroll() {
+      const html = document.documentElement;
       let clearTimer;
+      // Keep every section laid out (content-visibility forced visible) until the
+      // smooth scroll has FULLY settled. The old code cleared this after a fixed
+      // 1200ms — but on a long/slow (esp. mobile) page the animated scroll is still
+      // running, so off-screen sections ABOVE Pricing collapse back to their 560px
+      // placeholder mid-flight, the target's Y jumps, and the page lands short (e.g.
+      // on the Stats strip instead of the plans). Clear on `scrollend` instead, with
+      // a generous fallback for browsers/old Safari that don't fire it.
+      const settle = () => { clearTimeout(clearTimer); window.removeEventListener('scrollend', settle); html.classList.remove('anchor-scrolling'); };
       const scrollToTarget = (el, hash) => {
-          const html = document.documentElement;
           html.classList.add('anchor-scrolling');
-          // Let the forced layout apply before measuring the target.
-          requestAnimationFrame(() => {
+          // Two frames so the forced relayout is applied before we measure/scroll —
+          // one frame isn't enough for the content-visibility sections to reflow.
+          requestAnimationFrame(() => requestAnimationFrame(() => {
               el.scrollIntoView({ behavior: 'smooth', block: 'start' });
               if (hash) history.replaceState(null, '', hash);
               clearTimeout(clearTimer);
-              clearTimer = setTimeout(() => html.classList.remove('anchor-scrolling'), 1200);
-          });
+              clearTimer = setTimeout(settle, 3000);
+              window.addEventListener('scrollend', settle);
+          }));
       };
       document.addEventListener('click', e => {
           const link = e.target.closest('a[href^="#"]');
