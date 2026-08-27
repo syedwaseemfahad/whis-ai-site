@@ -3188,8 +3188,10 @@ body { overscroll-behavior-y:none; }
             </button>
 
             <!-- International: settle the USD price in ₹ via UPI (Indian bank account). Card
-                 keeps failing on 3DS/issuer risk for many; UPI clears near-instantly. -->
-            <button onclick="triggerUpiInrPayment(event)" class="pm-pay-btn">
+                 keeps failing on 3DS/issuer risk for many; UPI clears near-instantly.
+                 Hidden by default — revealed only after a failed card attempt (see
+                 _applyUpiVisibility) so non-India users first see just the USD card. -->
+            <button id="upiInrOption" onclick="triggerUpiInrPayment(event)" class="pm-pay-btn" style="display:none;">
                 <div class="pm-icon-wrap">
                     <i class="fa-solid fa-indian-rupee-sign" style="color:#4df4b1;font-size:16px;"></i>
                 </div>
@@ -3938,6 +3940,10 @@ body { overscroll-behavior-y:none; }
         try {
             const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
             const d = await r.json();
+            // International "Pay in ₹ via UPI" is a fallback shown ONLY after a failed card
+            // attempt — so non-India users first see just the USD card (no surprise ₹ option).
+            window._hasFailedPayment = !!d.hasFailedPayment;
+            _applyUpiVisibility();
             if(d.active) currentTier = d.tier; else currentTier = 'free';
             const badge = document.getElementById('navPlanBadge');
             const validityEl = document.getElementById('modalPlanValidity');
@@ -4054,6 +4060,16 @@ body { overscroll-behavior-y:none; }
         document.documentElement.style.overflow = '';
     }
 
+    // International "Pay in ₹ via UPI" is a FALLBACK: shown only to non-India visitors who
+    // have already hit ≥1 failed card payment. Before that they see just the USD card, so an
+    // unexpected ₹ option never worries them. India is unaffected (uses the ₹ Razorpay sheet).
+    window._hasFailedPayment = window._hasFailedPayment || false;
+    function _applyUpiVisibility() {
+        const upiBtn = document.getElementById('upiInrOption');
+        if (!upiBtn) return;
+        upiBtn.style.display = (!IS_INDIA && window._hasFailedPayment) ? '' : 'none';
+    }
+
     function openPaymentModal() {
         lockScroll();
         currentCoupon = ""; currentCouponDiscount = 0;
@@ -4075,6 +4091,7 @@ body { overscroll-behavior-y:none; }
         } else {
             if(rzWrapper) { rzWrapper.classList.add('hidden'); rzWrapper.style.display = 'none'; }
             if(ppWrapper) { ppWrapper.classList.remove('hidden'); ppWrapper.style.display = 'flex'; }
+            _applyUpiVisibility();   // reveal ₹/UPI only after a failed card attempt
         }
 
         const infMsg = document.getElementById('influencerDiscountMsg');
@@ -4347,6 +4364,9 @@ body { overscroll-behavior-y:none; }
                     },
                     "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
+                // Card declined → reveal the international "Pay in ₹ via UPI" fallback for the
+                // rest of this session (non-India only). Matches the "show ₹ after ≥1 failure" rule.
+                rzp1.on('payment.failed', function(){ window._hasFailedPayment = true; _applyUpiVisibility(); });
                 rzp1.open();
             } else {
                 alert(data.error || "Could not start checkout. Please try again.");
