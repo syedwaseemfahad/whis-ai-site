@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Secure Checkout · Whis-AI</title>
+  <link rel="preconnect" href="https://checkout.razorpay.com" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    :root { --bg:#070b1a; --card:#0e1730; --line:rgba(56,189,248,0.16); --ink:#eaf2ff; --sub:#93a7cc; --accent:#38bdf8; --accent2:#0ea5e9; --good:#4ade80; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(900px 480px at 50% -12%, rgba(56,189,248,0.20), transparent 60%), linear-gradient(160deg,#0a1024,#05070f); }
+    .wrap { width:100%; max-width:400px; }
+    .card { position:relative; background:linear-gradient(160deg, rgba(16,26,48,0.96), rgba(7,11,26,0.98)); border:1px solid var(--line); border-radius:22px; padding:26px 24px; box-shadow:0 40px 90px -20px rgba(0,0,0,.7), 0 0 60px -24px rgba(14,165,233,0.5); overflow:hidden; }
+    .card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, transparent, var(--accent), transparent); opacity:.7; }
+    .brand { display:flex; align-items:center; gap:9px; margin-bottom:4px; font-weight:800; letter-spacing:-.3px; font-size:14px; }
+    .brand .dot { width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 14px var(--accent); }
+    h1 { font-size:21px; margin:12px 0 4px; letter-spacing:-.5px; font-weight:800; }
+    .sub { color:var(--sub); font-size:13px; margin:0 0 18px; line-height:1.5; }
+    .sub b { color:var(--ink); }
+    .toggle { display:flex; gap:6px; margin:0 0 14px; padding:4px; background:rgba(0,0,0,0.28); border:1px solid var(--line); border-radius:14px; }
+    .toggle button { position:relative; flex:1; padding:9px 8px; border-radius:10px; border:0; background:transparent; color:var(--sub); font-weight:700; font-size:12.5px; cursor:pointer; transition:.18s; font-family:inherit; }
+    .toggle button.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#04121b; box-shadow:0 8px 20px -8px rgba(14,165,233,.6); }
+    .toggle button .save { display:block; font-size:9.5px; font-weight:600; opacity:.85; margin-top:2px; }
+    .plan { border:1px solid var(--line); border-radius:14px; padding:15px 16px; margin-bottom:16px; background:linear-gradient(180deg, rgba(56,189,248,0.08), rgba(255,255,255,0.015)); }
+    .plan .row { display:flex; align-items:baseline; justify-content:space-between; }
+    .plan .name { font-weight:700; font-size:14px; color:var(--ink); }
+    .plan .price { font-weight:800; font-size:27px; letter-spacing:-1px; }
+    .plan .price small { font-size:12px; color:var(--sub); font-weight:600; letter-spacing:0; }
+    .pay { width:100%; padding:15px; border:0; border-radius:13px; background:linear-gradient(135deg,#38bdf8 0%,#0ea5e9 50%,#0284c7 100%); color:#fff; font-weight:800; font-size:15px; cursor:pointer; box-shadow:0 14px 34px -8px rgba(14,165,233,.55), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .12s, filter .15s; font-family:inherit; }
+    .pay:hover { filter:brightness(1.06); transform:translateY(-1px); }
+    .pay:active { transform:scale(.99); }
+    .pay:disabled { opacity:.6; cursor:not-allowed; box-shadow:none; transform:none; }
+    .coupon { text-align:center; margin-top:12px; font-size:12px; color:var(--good); font-weight:700; }
+    .foot { text-align:center; margin-top:15px; font-size:11px; color:var(--sub); }
+    .foot b { color:var(--ink); }
+    #paypal-box { margin-top:6px; }
+    .state { text-align:center; padding:34px 8px; }
+    .state .big { font-size:42px; }
+    .spin { width:28px; height:28px; border:3px solid rgba(255,255,255,0.12); border-top-color:var(--accent); border-radius:50%; margin:0 auto 14px; animation:sp .9s linear infinite; }
+    @keyframes sp { to { transform:rotate(360deg); } }
+    .hidden { display:none !important; }
+    a.link { color:var(--accent); text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand"><span class="dot"></span> Whis-AI</div>
+
+      <!-- Loading -->
+      <div id="view-loading" class="state">
+        <div class="spin"></div>
+        <div class="sub" style="margin:0;">Opening secure payment…</div>
+      </div>
+
+      <!-- Error / expired session -->
+      <div id="view-error" class="state hidden">
+        <div class="big">🔒</div>
+        <h1 id="err-title">Session expired</h1>
+        <p class="sub" id="err-msg">Please reopen checkout from the Whis-AI app so we can verify your account securely.</p>
+      </div>
+
+      <!-- Checkout -->
+      <div id="view-pay" class="hidden">
+        <h1 id="pay-h">Complete your upgrade</h1>
+        <p class="sub" id="pay-sub">Signed in as <b id="who"></b>. No re-login needed — pick your plan and pay.</p>
+
+        <div class="toggle" id="cycle-toggle">
+          <button data-cycle="monthly" class="active">Monthly<span class="save">flexible</span></button>
+          <button data-cycle="quarterly">3-Month<span class="save" id="q-save">save more</span></button>
+          <button data-cycle="semiannual" id="cyc-semi" class="hidden">6-Month<span class="save" id="s-save">best value</span></button>
+        </div>
+
+        <div class="plan">
+          <div class="row">
+            <span class="name" id="plan-name">Elite</span>
+            <span class="price"><span id="plan-cur">₹</span><span id="plan-price">—</span> <small id="plan-per">/mo</small></span>
+          </div>
+        </div>
+
+        <button id="pay-btn" class="pay">Proceed to secure payment</button>
+        <div id="upi-alt" class="hidden" style="text-align:center;margin-top:12px;font-size:12.5px;color:var(--sub);">Card failing? <a href="#" id="upi-link" class="link" style="font-weight:700;">Have an Indian bank? Pay <span id="upi-amt"></span> via UPI</a></div>
+        <div id="paypal-box" class="hidden"></div>
+        <div class="coupon hidden" id="coupon-line"></div>
+        <div class="foot">🔒 Encrypted checkout · <b id="gw-label">Razorpay</b></div>
+      </div>
+
+      <!-- Success -->
+      <div id="view-success" class="state hidden">
+        <div class="big">✅</div>
+        <h1>You're all set!</h1>
+        <p class="sub">Your <b id="ok-tier">Elite</b> access is active. <br><b>Return to the Whis-AI app and restart it</b> to sync your new license.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Same-origin API (this page is served by the backend), so relative paths work.
+    const API = 'https://whis-backend.onrender.com';
+    const qs  = new URLSearchParams(location.search);
+    const P = {
+      gid:    qs.get('gid'),
+      sid:    qs.get('sid'),
+      tier:   qs.get('tier')  || 'pro_plus',
+      cycle:  qs.get('cycle') || 'monthly',
+      coupon: qs.get('coupon') || '',
+      cur:    (qs.get('cur') || '').toUpperCase()
+    };
+
+    let CONF = null, USER = null, REGION = 'IN', CUR = 'INR', CUR_SYM = '₹';
+    const $ = id => document.getElementById(id);
+    const show = id => { ['view-loading','view-error','view-pay','view-success'].forEach(v => $(v).classList.add('hidden')); $(id).classList.remove('hidden'); };
+
+    function fmt(n) { return CUR === 'INR' ? Math.round(n).toLocaleString('en-IN') : n.toFixed(2); }
+    function tierKey() { return P.tier === 'pro' ? 'pro' : 'pro_plus'; }
+    // Charm-rounding — identical to the server so we show the exact charged price.
+    function charmINR(p){ const n=Math.round(p); return (n%100===99)?n:Math.round(n/100)*100-1; }
+    function charmUSD(p){ if(Math.round(p*100)%100===99) return +p.toFixed(2); return +Math.max(Math.round(p/5)*5-0.01,0.99).toFixed(2); }
+    function baseFor(cycle) {
+      const src = CUR === 'INR' ? CONF.pricingINR : CONF.pricingUSD;
+      return src[tierKey()][cycle] ?? src[tierKey()].monthly;
+    }
+    function discPct() {
+      const src = CUR === 'INR' ? CONF.pricingINR : CONF.pricingUSD;
+      return src[tierKey()].discount || 0;
+    }
+    function priceFor(cycle) {
+      const base = baseFor(cycle), d = discPct();
+      return d > 0 ? (CUR === 'INR' ? charmINR(base * (1 - d / 100)) : charmUSD(base * (1 - d / 100))) : base;
+    }
+    function perLabel(cycle) { return cycle === 'semiannual' ? '/6mo' : cycle === 'quarterly' ? '/3mo' : '/mo'; }
+
+    function renderPlan() {
+      $('plan-name').textContent = tierKey() === 'pro' ? 'Pro' : 'Elite';
+      $('ok-tier').textContent   = tierKey() === 'pro' ? 'Pro' : 'Elite';
+      $('plan-cur').textContent  = CUR_SYM;
+      $('plan-price').textContent = fmt(priceFor(P.cycle));
+      $('plan-per').textContent  = perLabel(P.cycle);
+      // active cycle button
+      document.querySelectorAll('#cycle-toggle button').forEach(b =>
+        b.classList.toggle('active', b.dataset.cycle === P.cycle));
+      // quarterly savings hint vs 3×monthly
+      const m = priceFor('monthly'), q = priceFor('quarterly');
+      const savePct = Math.max(0, Math.round((1 - q / (m * 3)) * 100));
+      $('q-save').textContent = savePct > 0 ? `save ${savePct}%` : 'best value';
+      var _s6 = priceFor('semiannual'); var _sPct = Math.max(0, Math.round((1 - _s6 / (m * 6)) * 100)); var _sEl = $('s-save'); if (_sEl) _sEl.textContent = _sPct > 0 ? `save ${_sPct}%` : 'best value';
+      if (P.coupon) { $('coupon-line').classList.remove('hidden'); $('coupon-line').textContent = `Coupon ${P.coupon} applies at payment`; }
+      // International UPI: show the ₹ the user would actually pay (USD price × UPI charge rate).
+      var _upiRate = (CONF && (CONF.upiInrRate || CONF.exchangeRate)) || 95;
+      if (CUR === 'USD' && CONF) { $('upi-amt').textContent = '₹' + Math.round(priceFor(P.cycle) * _upiRate).toLocaleString('en-IN'); }
+    }
+
+    async function boot() {
+      try {
+        if (!P.gid) return failSession();
+        // 1) validate session (auto-login, no website password)
+        const vr = await fetch(API + '/api/checkout/validate', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ gid: P.gid, sid: P.sid })
+        });
+        const v = await vr.json();
+        if (!v.ok) return failSession();
+        USER = v;
+        // Persist a website session so any later navigation stays logged in.
+        try { localStorage.setItem('whisUser', JSON.stringify({ googleId: v.googleId, name: v.name, email: v.email, picture: '' })); } catch(_) {}
+
+        // 2) config → region + prices + paypal
+        CONF = await (await fetch(API + '/api/config')).json();
+        REGION = (CONF.geoCountry || 'IN').toUpperCase();
+        if (REGION === 'IN') { CUR = 'INR'; CUR_SYM = '₹'; $('gw-label').textContent = 'Razorpay · UPI/Card'; }
+        else { CUR = 'USD'; CUR_SYM = '$'; $('gw-label').textContent = 'Razorpay · Intl Card'; $('upi-alt').classList.remove('hidden'); }
+
+        if (P.cur === 'USD' || P.cur === 'INR') { CUR = P.cur; CUR_SYM = (P.cur === 'INR' ? '₹' : '$'); if (P.cur === 'USD') { $('upi-alt').classList.remove('hidden'); var _cs0 = $('cyc-semi'); if (_cs0) _cs0.classList.remove('hidden'); } else { var _cs1 = $('cyc-semi'); if (_cs1) _cs1.classList.add('hidden'); } }
+        $('who').textContent = v.email || v.name || 'your account';
+        if (v.isActive) { $('pay-h').textContent = 'Upgrade / extend your plan'; }
+        renderPlan();
+        // Go straight to the secure payment sheet — no extra confirm page.
+        payRazorpay(false);
+
+        /* International now checks out via Razorpay USD — PayPal disabled. */
+      } catch (e) { failSession('Something went wrong', 'Please reopen checkout from the Whis-AI app.'); }
+    }
+
+    function failSession(t, m) {
+      if (t) $('err-title').textContent = t;
+      if (m) $('err-msg').textContent = m;
+      show('view-error');
+    }
+
+    // ── Razorpay (India / INR) — reuses the existing create-order + verify path ──
+    async function payRazorpay(payInInr) {
+      const btn = $('pay-btn'); const orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Starting secure payment…';
+      try {
+        const r = await fetch(API + '/api/payment/create-order', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ googleId: USER.googleId, tier: P.tier, cycle: P.cycle, couponCode: P.coupon || undefined, currency: CUR, payInInr: payInInr === true })
+        });
+        const d = await r.json();
+        if (!d.order_id) { show('view-pay'); btn.disabled=false; btn.textContent=orig; return alert(d.error || 'Could not start checkout. Please try again.'); }
+        const rzp = new Razorpay({
+          key: d.key_id, name: 'Whis AI', description: ($('plan-name').textContent) + ' ' + P.cycle,
+          order_id: d.order_id, amount: d.amount, currency: d.currency,
+          prefill: { name: d.user_name || USER.name || '', email: d.user_email || USER.email || '', contact: d.user_contact || USER.contact || '' },
+          theme: { color:'#0ea5e9' },
+          handler: async function (resp) {
+            try {
+              const vr = await fetch(API + '/api/payment/verify', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ razorpay_order_id: resp.razorpay_order_id, razorpay_payment_id: resp.razorpay_payment_id, razorpay_signature: resp.razorpay_signature })
+              });
+              const vd = await vr.json();
+              if (vd.success) return show('view-success');
+              alert('We received your payment and are confirming it. You will get a confirmation email shortly.');
+            } catch (_) { alert('Payment received — we are confirming it. You will get a confirmation email shortly.'); }
+          },
+          modal: { ondismiss: function(){ show('view-pay'); btn.disabled=false; btn.textContent=orig; } }
+        });
+        rzp.open();
+      } catch (e) { show('view-pay'); btn.disabled=false; btn.textContent=orig; alert('Network error. Please try again.'); }
+    }
+
+    // ── PayPal (International / USD) — reuses create-paypal-order + verify-paypal ──
+    function setupPaypal() {
+      $('pay-btn').classList.add('hidden');
+      $('paypal-box').classList.remove('hidden');
+      const s = document.createElement('script');
+      s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(CONF.paypalClientId)}&currency=USD`;
+      s.onload = renderPaypalButtons;
+      document.head.appendChild(s);
+    }
+    function renderPaypalButtons() {
+      paypal.Buttons({
+        style: { layout:'vertical', color:'blue', shape:'rect', label:'pay', height:45 },
+        createOrder: async function() {
+          const r = await fetch(API + '/api/payment/create-paypal-order', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ googleId: USER.googleId, tier: P.tier, cycle: P.cycle, couponCode: P.coupon || undefined, currency: CUR })
+          });
+          const d = await r.json();
+          if (d.id) return d.id;
+          throw new Error('No order ID');
+        },
+        onApprove: async function(data) {
+          try {
+            const vr = await fetch(API + '/api/payment/verify-paypal', {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ orderID: data.orderID, googleId: USER.googleId })
+            });
+            const vd = await vr.json();
+            if (vd.success) return show('view-success');
+            alert('Payment received — we are confirming it. You will get a confirmation email shortly.');
+          } catch (_) { alert('Payment received — we are confirming it. You will get a confirmation email shortly.'); }
+        }
+      }).render('#paypal-box');
+    }
+
+    // Cycle toggle
+    document.querySelectorAll('#cycle-toggle button').forEach(b =>
+      b.addEventListener('click', () => { P.cycle = b.dataset.cycle; renderPlan(); }));
+    $('pay-btn').addEventListener('click', () => { payRazorpay(false); });
+    $('upi-link').addEventListener('click', (e) => { e.preventDefault(); payRazorpay(true); });
+
+    boot();
+  </script>
+</body>
+</html>
