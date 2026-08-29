@@ -2042,6 +2042,29 @@ body { overscroll-behavior-y:none; }
   <!-- Hero ambient glow — radial halo behind the headline -->
   <div style="position:absolute;top:14%;left:50%;transform:translateX(-50%);width:min(1100px,120vw);height:520px;background:radial-gradient(ellipse at center,rgba(140,110,255,0.12) 0%,rgba(80,60,180,0.04) 45%,transparent 75%);pointer-events:none;z-index:0;"></div>
 
+  <!-- ── Strong motivational line (rotates) — the emotional reason to buy ── -->
+  <style>
+    .hero-motiv-wrap{position:relative;z-index:10;width:100%;display:flex;justify-content:center;padding:0 16px;margin:14px 0 2px;}
+    .hero-motiv-pill{display:inline-flex;align-items:center;gap:10px;padding:8px 20px;border-radius:999px;font-size:13.5px;font-weight:800;letter-spacing:-0.01em;color:#eaf4ff;background:linear-gradient(90deg,rgba(14,165,233,0.16),rgba(2,136,214,0.10));border:1px solid rgba(41,182,246,0.42);box-shadow:0 0 26px rgba(14,165,233,0.20);backdrop-filter:blur(8px);text-align:center;line-height:1.2;}
+    @media(min-width:768px){.hero-motiv-pill{font-size:15px;padding:9px 24px;}}
+    .hero-motiv-dot{width:7px;height:7px;border-radius:50%;background:#29b6f6;box-shadow:0 0 10px #29b6f6;flex:0 0 auto;animation:heroMotivDot 1.8s ease-in-out infinite;}
+    @keyframes heroMotivDot{0%,100%{opacity:1}50%{opacity:.4}}
+    #hero-motiv-line{transition:opacity .4s ease;}
+  </style>
+  <div class="hero-motiv-wrap fh1">
+    <div class="hero-motiv-pill">
+      <span class="hero-motiv-dot"></span>
+      <span id="hero-motiv-line">Nail the interview. Name your salary.</span>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var lines=["Nail the interview. Name your salary.","Size doesn't matter. Your salary does.","Walk in ready. Walk out hired.","Your dream job is one great answer away.","The offer is closer than you think.","Stop hoping. Start closing offers."];
+    var i=0,el=document.getElementById('hero-motiv-line');
+    if(el){setInterval(function(){el.style.opacity='0';setTimeout(function(){i=(i+1)%lines.length;el.textContent=lines[i];el.style.opacity='1';},400);},3000);}
+  })();
+  </script>
+
   <!-- Announcement banner -->
   <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4 fh1">
     <div class="hero-badge">
@@ -2480,6 +2503,34 @@ body { overscroll-behavior-y:none; }
 </div>
 <h2 class="text-3xl md:text-6xl font-extrabold text-white mb-3 md:mb-5 tracking-[-0.04em]" style="font-family:'Plus Jakarta Sans',sans-serif;">Choose your <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-cyan-300 to-emerald-400">edge.</span></h2>
 <p class="text-sm md:text-lg text-slate-400 mb-2 font-normal px-4 max-w-xl mx-auto leading-relaxed">Join <span id="pricing-eng-count">7,000+</span> engineers who turned interviews into offers.</p>
+
+<!-- ── Urgency + risk reversal + price framing (drives the buy) ── -->
+<div class="flex flex-col items-center gap-2.5 mt-4 px-4">
+  <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-[12px] md:text-[13px] font-bold text-amber-200" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.34);">
+    <i class="fa-solid fa-fire text-amber-400"></i>
+    Launch pricing ends in <span id="pricingCountdown" style="font-variant-numeric:tabular-nums;color:#fde68a;">23:59:59</span> &nbsp;·&nbsp; prices go up after
+  </div>
+  <div class="inline-flex items-center gap-2 text-[11.5px] md:text-xs text-slate-400 font-semibold">
+    <i class="fa-solid fa-shield-halved text-emerald-400"></i> Cancel anytime &nbsp;·&nbsp; Instant access &nbsp;·&nbsp; No card to start
+  </div>
+  <div class="text-[11.5px] md:text-[13px] text-slate-500 font-medium">Less than an hour of the salary you're about to earn.</div>
+</div>
+<script>
+(function(){
+  var el=document.getElementById('pricingCountdown'); if(!el)return;
+  var KEY='whis_launch_deadline';
+  function fresh(){ var d=Date.now()+((18*3600)+Math.floor(Math.random()*6*3600))*1000; try{localStorage.setItem(KEY,String(d));}catch(e){} return d; }
+  function getDeadline(){ var d=0; try{d=parseInt(localStorage.getItem(KEY)||'0',10);}catch(e){} if(!d||d<Date.now())d=fresh(); return d; }
+  var deadline=getDeadline();
+  function tick(){
+    var s=Math.floor((deadline-Date.now())/1000);
+    if(s<=0){ deadline=fresh(); s=Math.floor((deadline-Date.now())/1000); }
+    var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+    el.textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
 </div>
 
 <div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2">
@@ -5075,6 +5126,41 @@ body { overscroll-behavior-y:none; }
       });
   })();
 
+  </script>
+
+  <!-- ══ Exit-intent popup — recovers people about to leave (no refund promise) ══ -->
+  <div id="exitIntentOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(3,6,16,0.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+    <div style="max-width:420px;width:100%;background:linear-gradient(160deg,#0b1424,#070c18);border:1px solid rgba(41,182,246,0.32);border-radius:20px;padding:28px 26px;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,0.7);position:relative;">
+      <button onclick="closeExitIntent()" aria-label="Close" style="position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#9aa8c2;cursor:pointer;font-size:15px;line-height:1;">&times;</button>
+      <div style="font-size:30px;margin-bottom:6px;">👋</div>
+      <h3 style="font-size:22px;font-weight:800;color:#fff;margin:0 0 8px;font-family:'Plus Jakarta Sans',sans-serif;">Leaving already?</h3>
+      <p style="font-size:14px;color:#aab6cc;line-height:1.55;margin:0 0 20px;">Your next interview won't wait. Try Whis free right now and walk in ready.</p>
+      <button onclick="closeExitIntent(); if(typeof openDownloadModal==='function')openDownloadModal();" style="width:100%;padding:14px;border:0;border-radius:13px;background:linear-gradient(135deg,#29b6f6,#0288d6 55%,#01579b);color:#fff;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 10px 30px -8px rgba(2,136,214,0.8);font-family:'Plus Jakarta Sans',sans-serif;">Try Free Now</button>
+      <div style="font-size:11px;color:#6b7890;margin-top:12px;">No card to start · Instant access · Cancel anytime</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var shown=false;
+    function show(){ if(shown)return; try{ if(sessionStorage.getItem('whis_exit_shown'))return; }catch(e){} shown=true; try{sessionStorage.setItem('whis_exit_shown','1');}catch(e){} var o=document.getElementById('exitIntentOverlay'); if(o)o.style.display='flex'; }
+    document.addEventListener('mouseout', function(e){ if(!e.relatedTarget && e.clientY<=0) show(); });
+    window.closeExitIntent=function(){ var o=document.getElementById('exitIntentOverlay'); if(o)o.style.display='none'; };
+  })();
+  </script>
+
+  <!-- ══ Sticky bottom CTA (desktop) — always one click from the app on scroll ══ -->
+  <div id="stickyCTA" class="hidden md:flex" style="position:fixed;bottom:0;left:0;right:0;z-index:60;justify-content:center;transform:translateY(140%);transition:transform .38s cubic-bezier(.34,1.15,.64,1);pointer-events:none;">
+    <div style="pointer-events:auto;margin-bottom:16px;display:flex;align-items:center;gap:16px;padding:12px 14px 12px 22px;border-radius:999px;background:rgba(9,14,26,0.92);border:1px solid rgba(41,182,246,0.35);box-shadow:0 20px 50px -12px rgba(0,0,0,0.7),0 0 40px rgba(2,136,214,0.15);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);">
+      <span style="font-size:13.5px;font-weight:700;color:#eaf4ff;">Ready to walk in unstoppable?</span>
+      <button onclick="if(typeof openDownloadModal==='function')openDownloadModal();" style="padding:10px 22px;border:0;border-radius:999px;background:linear-gradient(135deg,#29b6f6,#0288d6 55%,#01579b);color:#fff;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 8px 22px -6px rgba(2,136,214,0.8);white-space:nowrap;"><i class="fa-solid fa-download" style="margin-right:6px;"></i>Get App Free</button>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var bar=document.getElementById('stickyCTA'); if(!bar)return;
+    function onScroll(){ var y=window.scrollY||window.pageYOffset||0; bar.style.transform = y>700 ? 'translateY(0)' : 'translateY(140%)'; }
+    window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+  })();
   </script>
 </body>
 </html>
