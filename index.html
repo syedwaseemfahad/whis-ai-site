@@ -5141,8 +5141,13 @@ body { overscroll-behavior-y:none; }
   </div>
   <script>
   (function(){
-    var shown=false;
-    function show(){ if(shown)return; try{ if(sessionStorage.getItem('whis_exit_shown'))return; }catch(e){} shown=true; try{sessionStorage.setItem('whis_exit_shown','1');}catch(e){} var o=document.getElementById('exitIntentOverlay'); if(o)o.style.display='flex'; }
+    var shown=false, armed=false, engaged=false;
+    function show(){ if(shown||!armed||!engaged)return; try{ if(sessionStorage.getItem('whis_exit_shown'))return; }catch(e){} shown=true; try{sessionStorage.setItem('whis_exit_shown','1');}catch(e){} var o=document.getElementById('exitIntentOverlay'); if(o)o.style.display='flex'; }
+    // Only count as "engaged" once the cursor has actually moved inside the page — stops
+    // a stray mouseout from firing the instant you land (e.g. cursor coming from a tab above).
+    document.addEventListener('mousemove', function(){ engaged=true; }, {once:true});
+    // And only arm the exit-intent after a few seconds on the page.
+    setTimeout(function(){ armed=true; }, 7000);
     document.addEventListener('mouseout', function(e){ if(!e.relatedTarget && e.clientY<=0) show(); });
     window.closeExitIntent=function(){ var o=document.getElementById('exitIntentOverlay'); if(o)o.style.display='none'; };
   })();
