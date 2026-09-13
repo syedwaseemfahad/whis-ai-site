@@ -149,10 +149,10 @@
   .stat .l{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
   @media(max-width:720px){.stats{grid-template-columns:1fr 1fr;gap:28px}}
 
-  section{padding:104px 0}
+  section{padding:88px 0}
   .sec-head{text-align:center;max-width:22ch;margin:0 auto 16px}
   .sec-head h2{font-size:clamp(34px,5vw,56px);line-height:1.03;letter-spacing:-.025em}
-  .sec-sub{text-align:center;max-width:52ch;margin:0 auto 52px;color:var(--ink-soft);font-size:17.5px}
+  .sec-sub{text-align:center;max-width:52ch;margin:0 auto 44px;color:var(--ink-soft);font-size:17.5px}
 
   /* green block */
   .green{background:var(--green);color:var(--green-ink);border-radius:40px;margin:0 24px;padding:78px 0 84px;overflow:hidden}
@@ -172,7 +172,9 @@
   .screen.yours .whis-pill{position:absolute;bottom:14px;left:14px;right:14px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(217,199,247,.4);color:#fff;border-radius:12px;padding:11px 14px;font-size:12.5px;line-height:1.5}
   .screen.yours .mini-wave{color:#c3a9ef;position:absolute;top:14px;left:14px}
   /* real demo video panels */
-  .screen .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0c2c1e}
+  .screen .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent}
+  .screen .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:18px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.78));color:#fff;font-size:12.5px;line-height:1.55}
+  .screen .cap b{color:#fff;font-weight:700}
   .scr-badge{position:absolute;bottom:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
   .scr-badge.lav{border-color:rgba(217,199,247,.55);color:#efeaf7}
   .screen .lbl-tl{position:absolute;top:12px;left:12px;z-index:2;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.75);background:rgba(0,0,0,.4);border-radius:8px;padding:4px 9px}
@@ -493,18 +495,20 @@
       <div class="compare">
         <div class="card-cmp">
           <div class="tag">Their screen · screen-share</div><div class="big serif">Nothing</div>
-          <div class="screen">
+          <div class="screen theirs">
             <video class="vid" src="videos/interviewer_view_best.mp4" poster="videos/interviewer_view_best.jpg" autoplay loop muted playsinline preload="auto" aria-label="Interviewer's shared screen showing no overlay"></video>
+            <div class="scanline"></div>
             <span class="lbl-tl">Interviewer view</span>
             <span class="scr-badge"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> no overlay found</span>
           </div>
         </div>
         <div class="card-cmp">
           <div class="tag">Your screen · Ghost Mode</div><div class="big serif">Whis-AI</div>
-          <div class="screen">
+          <div class="screen yours">
             <video class="vid" src="videos/interviewee_view_best.mp4" poster="videos/interviewee_view_best.jpg" autoplay loop muted playsinline preload="auto" aria-label="Your screen with Whis-AI answering live"></video>
             <span class="lbl-tl">Your view</span>
-            <span class="scr-badge lav"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> only you can see this</span>
+            <span class="scr-badge lav" style="top:12px;left:auto;right:12px;bottom:auto"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> only you</span>
+            <div class="cap">“Design a rate limiter.” → <b>Token bucket</b>: refill R tokens/sec, cap B. If tokens ≥ 1, decrement &amp; allow; else reject. O(1) per request.</div>
           </div>
         </div>
       </div>
@@ -515,7 +519,7 @@
 
   <!-- HOW IT WORKS -->
   <section id="how"><div class="wrap">
-    <div class="sec-head" style="max-width:22ch"><h2 class="serif">Question in. <span class="it">Perfect answer out.</span></h2></div>
+    <div class="sec-head" style="max-width:34ch"><h2 class="serif" style="text-wrap:pretty">Question in.<br><span class="it">Perfect answer out.</span></h2></div>
     <p class="sec-sub">Four keystrokes, start to finish — your hands never leave the keyboard. Share a single window or your whole screen; Whis stays invisible to Zoom, Teams and browser proctoring.</p>
     <div class="panel tint">
     <div class="steps">
@@ -569,22 +573,14 @@
       <div><div class="n serif">₹300Cr+</div><div class="l">In offers unlocked</div></div>
       <div><div class="n serif">40+</div><div class="l">Top companies</div></div>
     </div>
-    <div class="marquee tmarquee" style="margin-bottom:18px"><div class="track">
+    <div class="tgrid">
       <div class="tcard"><span class="badge">Verified · Deloitte</span><span class="pkg">7 → 19 LPA</span><q>I was stuck in a service company for 3 years. Whis read the coding question off my screen and walked me through the optimal solution, live. Cleared Deloitte and nearly tripled my package.</q><div class="who"><span class="av">RS</span><div><div class="nm">Rahul S.</div><div class="rl">Software Engineer · Deloitte</div></div></div></div>
       <div class="tcard"><span class="badge">Verified · Product co.</span><span class="pkg">₹24 LPA</span><q>The screen reading is unreal. It caught the system-design diagram and fed me the caching and sharding points on the spot. Cleared the exact round I was dreading.</q><div class="who"><span class="av">SP</span><div><div class="nm">Sneha P.</div><div class="rl">Full-Stack Developer</div></div></div></div>
       <div class="tcard"><span class="badge">Verified</span><span class="pkg">₹16 LPA</span><q>English isn’t my first language, and it always cost me in interviews. Whis turned my rough thoughts into clean, professional answers in real time. That confidence changed everything.</q><div class="who"><span class="av">AL</span><div><div class="nm">Arjun L.</div><div class="rl">Backend Developer</div></div></div></div>
-      <div class="tcard"><span class="badge">Verified · Deloitte</span><span class="pkg">7 → 19 LPA</span><q>I was stuck in a service company for 3 years. Whis read the coding question off my screen and walked me through the optimal solution, live. Cleared Deloitte and nearly tripled my package.</q><div class="who"><span class="av">RS</span><div><div class="nm">Rahul S.</div><div class="rl">Software Engineer · Deloitte</div></div></div></div>
-      <div class="tcard"><span class="badge">Verified · Product co.</span><span class="pkg">₹24 LPA</span><q>The screen reading is unreal. It caught the system-design diagram and fed me the caching and sharding points on the spot. Cleared the exact round I was dreading.</q><div class="who"><span class="av">SP</span><div><div class="nm">Sneha P.</div><div class="rl">Full-Stack Developer</div></div></div></div>
-      <div class="tcard"><span class="badge">Verified</span><span class="pkg">₹16 LPA</span><q>English isn’t my first language, and it always cost me in interviews. Whis turned my rough thoughts into clean, professional answers in real time. That confidence changed everything.</q><div class="who"><span class="av">AL</span><div><div class="nm">Arjun L.</div><div class="rl">Backend Developer</div></div></div></div>
-    </div></div>
-    <div class="marquee tmarquee rev"><div class="track">
       <div class="tcard"><span class="badge">Verified · 3 offers</span><span class="pkg">₹28 LPA</span><q>Had 3 final rounds in one week. Whis handled DSA and system-design questions I’d never seen before. All three sent offers — I took the ₹28 LPA one at a fintech.</q><div class="who"><span class="av">KM</span><div><div class="nm">Karthik M.</div><div class="rl">SDE · Fintech startup</div></div></div></div>
       <div class="tcard"><span class="badge">Verified · Cognizant</span><span class="pkg">₹22 LPA</span><q>My first interview after an 8-month career gap. Whis kept me calm and gave me the exact points to say when my mind went blank. From unemployed to a ₹22 LPA offer.</q><div class="who"><span class="av">PR</span><div><div class="nm">Priya R.</div><div class="rl">Software Engineer</div></div></div></div>
       <div class="tcard"><span class="badge">Placement mentor · 500+ coached</span><q>I’ve helped hundreds of engineers escape service-company salaries for real product roles. Whis is the most unfair advantage I’ve seen — like a senior engineer quietly feeding you the perfect answer.</q><div class="who"><span class="av">MV</span><div><div class="nm">Manish V.</div><div class="rl">Career Mentor</div></div></div></div>
-      <div class="tcard"><span class="badge">Verified · 3 offers</span><span class="pkg">₹28 LPA</span><q>Had 3 final rounds in one week. Whis handled DSA and system-design questions I’d never seen before. All three sent offers — I took the ₹28 LPA one at a fintech.</q><div class="who"><span class="av">KM</span><div><div class="nm">Karthik M.</div><div class="rl">SDE · Fintech startup</div></div></div></div>
-      <div class="tcard"><span class="badge">Verified · Cognizant</span><span class="pkg">₹22 LPA</span><q>My first interview after an 8-month career gap. Whis kept me calm and gave me the exact points to say when my mind went blank. From unemployed to a ₹22 LPA offer.</q><div class="who"><span class="av">PR</span><div><div class="nm">Priya R.</div><div class="rl">Software Engineer</div></div></div></div>
-      <div class="tcard"><span class="badge">Placement mentor · 500+ coached</span><q>I’ve helped hundreds of engineers escape service-company salaries for real product roles. Whis is the most unfair advantage I’ve seen — like a senior engineer quietly feeding you the perfect answer.</q><div class="who"><span class="av">MV</span><div><div class="nm">Manish V.</div><div class="rl">Career Mentor</div></div></div></div>
-    </div></div>
+    </div>
   </div></section>
 
   <!-- PRICING -->
@@ -713,7 +709,7 @@
       <span>© Whis-AI · Ready to walk in unstoppable?</span>
       <div class="socials">
         <a href="https://x.com/whis_ai" aria-label="X (Twitter)" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.8l-5.3-6.9L4.8 22H1.7l7.8-8.9L1 2h6.9l4.8 6.3L18.9 2zm-2.4 18h1.9L7.6 4H5.6l10.9 16z"/></svg></a>
-        <a href="https://linkedin.com/company/whis-ai" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21H21v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9V21H13z"/></svg></a>
+        <a href="https://linkedin.com/company/whis-ai" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 110-4.13 2.07 2.07 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg></a>
         <a href="https://youtube.com/@whis-ai" aria-label="YouTube" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M23 12s0-3.3-.4-4.8a2.5 2.5 0 00-1.8-1.8C19.3 5 12 5 12 5s-7.3 0-8.8.4A2.5 2.5 0 001.4 7.2C1 8.7 1 12 1 12s0 3.3.4 4.8a2.5 2.5 0 001.8 1.8C4.7 19 12 19 12 19s7.3 0 8.8-.4a2.5 2.5 0 001.8-1.8C23 15.3 23 12 23 12zm-13 3.1V8.9l5.2 3.1z"/></svg></a>
       </div>
     </div>
