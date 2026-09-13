@@ -172,9 +172,19 @@
   .screen.yours .whis-pill{position:absolute;bottom:14px;left:14px;right:14px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(217,199,247,.4);color:#fff;border-radius:12px;padding:11px 14px;font-size:12.5px;line-height:1.5}
   .screen.yours .mini-wave{color:#c3a9ef;position:absolute;top:14px;left:14px}
   /* real demo video panels */
-  .screen .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent}
+  .screen .vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:transparent;z-index:1}
   .screen .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:18px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.78));color:#fff;font-size:12.5px;line-height:1.55}
   .screen .cap b{color:#fff;font-weight:700}
+  /* self-contained "code screen" mock — always renders (video covers it when it loads) */
+  .screen .mock{position:absolute;inset:0;z-index:0;background:linear-gradient(160deg,#0f1b16,#0a1310);padding:14px;display:flex;flex-direction:column;gap:11px}
+  .screen .mock .top{display:flex;align-items:center;gap:6px}
+  .screen .mock .top i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.22)}
+  .screen .mock .top span{margin-left:8px;font-size:10px;letter-spacing:.04em;color:rgba(255,255,255,.34);font-family:"JetBrains Mono",monospace}
+  .screen .mock .lines{display:flex;flex-direction:column;gap:9px;padding:8px 6px}
+  .screen .mock .lines b{height:7px;border-radius:3px;background:rgba(255,255,255,.11);display:block}
+  .screen .mock .lines b.k{background:rgba(147,197,253,.32)}
+  .screen .mock .lines b.s{background:rgba(134,239,172,.28)}
+  .screen .mock .lines b.p{background:rgba(217,199,247,.32)}
   .scr-badge{position:absolute;bottom:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
   .scr-badge.lav{border-color:rgba(217,199,247,.55);color:#efeaf7}
   .screen .lbl-tl{position:absolute;top:12px;left:12px;z-index:2;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.75);background:rgba(0,0,0,.4);border-radius:8px;padding:4px 9px}
@@ -496,7 +506,8 @@
         <div class="card-cmp">
           <div class="tag">Their screen · screen-share</div><div class="big serif">Nothing</div>
           <div class="screen theirs">
-            <video class="vid" src="videos/interviewer_view_best.mp4" poster="videos/interviewer_view_best.jpg" autoplay loop muted playsinline preload="auto" aria-label="Interviewer's shared screen showing no overlay"></video>
+            <div class="mock" aria-hidden="true"><div class="top"><i></i><i></i><i></i><span>main.py — shared</span></div><div class="lines"><b class="k" style="width:38%"></b><b style="width:64%"></b><b class="s" style="width:52%"></b><b style="width:30%"></b><b class="k" style="width:58%"></b><b style="width:44%"></b><b class="s" style="width:70%"></b><b style="width:34%"></b></div></div>
+            <video class="vid" autoplay loop muted playsinline preload="auto" aria-label="Interviewer's shared screen showing no overlay"><source src="videos/interviewer_view_best.mp4" type="video/mp4"><source src="interviewer_view_best.mp4" type="video/mp4"></video>
             <div class="scanline"></div>
             <span class="lbl-tl">Interviewer view</span>
             <span class="scr-badge"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> no overlay found</span>
@@ -505,7 +516,8 @@
         <div class="card-cmp">
           <div class="tag">Your screen · Ghost Mode</div><div class="big serif">Whis-AI</div>
           <div class="screen yours">
-            <video class="vid" src="videos/interviewee_view_best.mp4" poster="videos/interviewee_view_best.jpg" autoplay loop muted playsinline preload="auto" aria-label="Your screen with Whis-AI answering live"></video>
+            <div class="mock" aria-hidden="true"><div class="top"><i></i><i></i><i></i><span>main.py — shared</span></div><div class="lines"><b class="k" style="width:38%"></b><b style="width:64%"></b><b class="s" style="width:52%"></b><b style="width:30%"></b><b class="p" style="width:58%"></b><b style="width:44%"></b><b class="s" style="width:70%"></b><b style="width:34%"></b></div></div>
+            <video class="vid" autoplay loop muted playsinline preload="auto" aria-label="Your screen with Whis-AI answering live"><source src="videos/interviewee_view_best.mp4" type="video/mp4"><source src="interviewee_view_best.mp4" type="video/mp4"></video>
             <span class="lbl-tl">Your view</span>
             <span class="scr-badge lav" style="top:12px;left:auto;right:12px;bottom:auto"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> only you</span>
             <div class="cap">“Design a rate limiter.” → <b>Token bucket</b>: refill R tokens/sec, cap B. If tokens ≥ 1, decrement &amp; allow; else reject. O(1) per request.</div>
