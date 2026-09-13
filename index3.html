@@ -397,16 +397,56 @@
   .socials a{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:.15s}
   .socials a:hover{color:var(--ink);background:var(--cream-2);transform:translateY(-2px)}
 
+  /* ============ COMPLETE MOTION LAYER ============ */
+  /* scroll progress bar */
+  .progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:100;background:linear-gradient(90deg,var(--lav),var(--lav-deep));box-shadow:0 0 12px rgba(195,169,239,.6);transition:width .12s ease-out}
+
+  /* hero entrance — staggered fade/rise on load */
+  .hero .eyebrow,.hero h1,.hero .sub,.hero .cta,.hero .avail,.hero .proof,.hero .demo{opacity:0;transform:translateY(22px);animation:heroIn .95s cubic-bezier(.2,.75,.2,1) forwards}
+  .hero h1{animation-delay:.06s} .hero .sub{animation-delay:.16s} .hero .cta{animation-delay:.24s}
+  .hero .avail{animation-delay:.30s} .hero .proof{animation-delay:.36s} .hero .demo{animation-delay:.44s}
+  @keyframes heroIn{to{opacity:1;transform:none}}
+
+  /* animated aura behind hero (subtle, slow) */
+  .hero::before{animation:aura 13s ease-in-out infinite alternate}
+  @keyframes aura{0%{opacity:.65;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:1;transform:translateX(-50%) translateY(26px) scale(1.06)}}
+
+  /* richer reveal (adds a touch of scale + blur) */
+  .reveal{transform:translateY(28px) scale(.985);filter:blur(2px)}
+  .reveal.in{filter:none}
+
+  /* active nav link */
+  .nav .links a[href^="#"]{position:relative}
+  .nav .links a[href^="#"].active{color:var(--ink)}
+  .nav .links a[href^="#"].active::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:2px;border-radius:2px;background:var(--lav-deep)}
+
+  /* primary button sheen on hover */
+  .btn-primary{position:relative;overflow:hidden}
+  .btn-primary>*{position:relative;z-index:1}
+  .btn-primary::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);opacity:0}
+  .btn-primary:hover::after{opacity:1;animation:sheen .85s ease}
+  @keyframes sheen{from{left:-70%}to{left:140%}}
+
+  /* cursor spotlight on cards */
+  .spot{position:relative}
+  .spot::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+    background:radial-gradient(220px circle at var(--mx,50%) var(--my,50%), rgba(195,169,239,.16), transparent 62%)}
+  .spot:hover::after{opacity:1}
+
   @media (prefers-reduced-motion: reduce){
-    .ring-a,.ring-b,.ring-c,.wave i,.demo .live .rec,.invis::after,.scanline,.verdict b,.caret,.livenow .d,.ribbon-wrap svg *,.mic-widget .ring,.mic-widget .bars i,.marquee .track,.sk{animation:none!important}
+    .ring-a,.ring-b,.ring-c,.wave i,.demo .live .rec,.invis::after,.scanline,.verdict b,.caret,.livenow .d,.ribbon-wrap svg *,.mic-widget .ring,.mic-widget .bars i,.marquee .track,.sk,.hero::before{animation:none!important}
     .invis::after{display:none}
-    .reveal{opacity:1;transform:none}
+    .reveal{opacity:1;transform:none;filter:none}
     .rings,.demo{transition:none!important}
+    .hero .eyebrow,.hero h1,.hero .sub,.hero .cta,.hero .avail,.hero .proof,.hero .demo{opacity:1;transform:none;animation:none}
+    .btn-primary::after,.spot::after{display:none}
+    .progress{display:none}
   }
 </style>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
 
   <!-- NAV -->
   <div class="nav-shell"><nav class="nav">
@@ -713,17 +753,13 @@
         <p style="color:var(--ink-soft);font-size:14px;margin-top:12px;max-width:26ch">Built for those who refuse to lose. Your silent interview partner.</p>
       </div>
       <div><h4>Product</h4><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a onclick="openDownloadModal()" style="cursor:pointer">Download</a><a onclick="openEnterpriseModal()" style="cursor:pointer">Enterprise / teams</a></div>
-      <div><h4>Support</h4><a href="mailto:support@whis-ai.com">Contact</a><a href="mailto:support@whis-ai.com">Troubleshoot</a><a href="#faq">FAQ</a></div>
+      <div><h4>Support</h4><a href="/contact">Contact</a><a href="/troubleshoot">Troubleshoot</a><a href="/support">Support</a><a href="#faq">FAQ</a></div>
       <div><h4>Legal</h4><a href="/terms">Terms</a><a href="/refund-policy">Refund Policy</a><a href="/privacy">Privacy</a><a href="/shipping-policy">Shipping Policy</a></div>
     </div>
     <div class="wordmark">Whis</div>
     <div class="fbot">
-      <span>© Whis-AI · Ready to walk in unstoppable?</span>
-      <div class="socials">
-        <a href="https://x.com/whis_ai" aria-label="X (Twitter)" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.8l-5.3-6.9L4.8 22H1.7l7.8-8.9L1 2h6.9l4.8 6.3L18.9 2zm-2.4 18h1.9L7.6 4H5.6l10.9 16z"/></svg></a>
-        <a href="https://linkedin.com/company/whis-ai" aria-label="LinkedIn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 110-4.13 2.07 2.07 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg></a>
-        <a href="https://youtube.com/@whis-ai" aria-label="YouTube" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M23 12s0-3.3-.4-4.8a2.5 2.5 0 00-1.8-1.8C19.3 5 12 5 12 5s-7.3 0-8.8.4A2.5 2.5 0 001.4 7.2C1 8.7 1 12 1 12s0 3.3.4 4.8a2.5 2.5 0 001.8 1.8C4.7 19 12 19 12 19s7.3 0 8.8-.4a2.5 2.5 0 001.8-1.8C23 15.3 23 12 23 12zm-13 3.1V8.9l5.2 3.1z"/></svg></a>
-      </div>
+      <span>© Whis-AI · Your silent interview partner.</span>
+      <span>Built for those who refuse to lose.</span>
     </div>
   </div></footer>
 
@@ -865,6 +901,28 @@
   }
   const numIO=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting){ if(!RM)countUp(e.target); numIO.unobserve(e.target);} }); },{threshold:.6});
   document.querySelectorAll('.stat .n, .tstats .n').forEach(n=>numIO.observe(n));
+
+  // scroll progress bar
+  const prog=document.getElementById('progress');
+  addEventListener('scroll',()=>{ const h=document.documentElement; const max=h.scrollHeight-h.clientHeight; if(prog)prog.style.width=(max>0?(h.scrollTop/max*100):0)+'%'; },{passive:true});
+
+  // active nav link highlighting as sections scroll by
+  (function activeNav(){
+    const links=[...document.querySelectorAll('.nav .links a[href^="#"]')];
+    const map=new Map();
+    links.forEach(a=>{ const s=document.querySelector(a.getAttribute('href')); if(s) map.set(s,a); });
+    if(!map.size) return;
+    const io=new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ const a=map.get(e.target); if(a){ links.forEach(x=>x.classList.remove('active')); a.classList.add('active'); } } }); },{rootMargin:'-45% 0px -50% 0px'});
+    map.forEach((a,s)=>io.observe(s));
+  })();
+
+  // cursor spotlight on cards (fine pointer + motion allowed)
+  if(!RM && matchMedia('(pointer:fine)').matches){
+    document.querySelectorAll('.fcard,.plan,.tcard,.step').forEach(c=>{
+      c.classList.add('spot');
+      c.addEventListener('pointermove',e=>{ const r=c.getBoundingClientRect(); c.style.setProperty('--mx',(e.clientX-r.left)+'px'); c.style.setProperty('--my',(e.clientY-r.top)+'px'); });
+    });
+  }
 
   /* ============================================================
      LIVE BACKEND INTEGRATION — https://api.whis-ai.com
