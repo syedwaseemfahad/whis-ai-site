@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Whis-AI — Your Silent Interview Partner</title>
 <!--
-  Whis-AI landing — Wispr-Flow-inspired warm/editorial theme + custom motion,
-  now CONTENT-COMPLETE for conversion: stats, how-it-works, ChatGPT comparison,
-  testimonials, real pricing + usage credit + trust badges, founder note, FAQ.
-  Standalone mockup. Prices are indicative — wire to your /api/config at integration.
+  Whis-AI production landing — Wispr-Flow-inspired theme + custom motion, FULLY
+  WIRED to the live backend (https://api.whis-ai.com): geo pricing from /api/config,
+  Google OAuth login, coupon validation, Razorpay checkout (₹/$ + UPI fallback),
+  download-link flow, user status + cancel, enterprise inquiry, attribution capture.
+  Deploy as index.html. Same endpoints/payloads as the existing site.
 -->
+<meta name="description" content="Whis-AI — the invisible interview copilot. Hears the interviewer and puts perfect answers on your screen. Undetectable on Zoom, Teams, Meet & HackerRank.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
   :root{
     --cream:#faf6e9; --cream-2:#f3eeda; --ink:#1a1712; --ink-soft:#5b554a;
@@ -269,6 +272,39 @@
   .btn .arw{display:inline-block;transition:transform .2s} .btn:hover .arw{transform:translateX(4px)}
   .nav{transition:box-shadow .25s} .nav.scrolled{box-shadow:0 18px 44px -22px rgba(26,23,18,.65)}
 
+  /* nav auth */
+  .nav .signin{color:var(--ink-soft);font-weight:600;cursor:pointer}
+  .nav .signin:hover{color:var(--ink)}
+  .profile-trigger{display:none;align-items:center;gap:8px;cursor:pointer}
+  .profile-trigger.show{display:flex}
+  .profile-trigger img{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);object-fit:cover}
+  .profile-trigger .pill{font-size:10px;font-weight:700;letter-spacing:.1em;background:var(--cream-2);border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--ink-soft)}
+
+  /* modals */
+  .modal{position:fixed;inset:0;z-index:200;background:rgba(26,23,18,.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:22px}
+  .modal.flex{display:flex}
+  .modal .box{background:var(--cream);border:1px solid var(--line);border-radius:24px;max-width:460px;width:100%;padding:30px 28px;box-shadow:0 40px 100px -30px rgba(0,0,0,.6);position:relative;max-height:92vh;overflow:auto}
+  .modal .x{position:absolute;top:13px;right:15px;width:30px;height:30px;border-radius:50%;background:var(--cream-2);border:1px solid var(--line);font-size:16px;color:var(--ink-soft);cursor:pointer;line-height:1}
+  .modal h3{font-family:"Fraunces",serif;font-size:27px;letter-spacing:-.02em;margin-bottom:6px}
+  .modal p.mut{color:var(--ink-soft);font-size:14.5px;margin-bottom:18px}
+  .field{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-family:inherit;font-size:15px;background:#fff;color:var(--ink);margin-top:10px;outline:none;transition:border .15s}
+  .field:focus{border-color:var(--lav-deep)}
+  .hidden{display:none!important}
+  .pay-summary{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+  .pay-summary .pn{font-weight:700} .pay-summary .pc{font-size:12.5px;color:var(--ink-soft)}
+  .pay-summary .pp{font-family:"Fraunces",serif;font-size:30px;letter-spacing:-.02em}
+  .coupon-link{font-size:13px;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .coupon-row{display:flex;gap:8px;margin-top:10px}
+  .coupon-row input{flex:1;text-transform:uppercase;letter-spacing:.05em}
+  .inf-msg{background:rgba(18,67,47,.06);border:1px solid rgba(18,67,47,.18);color:var(--green);border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:12px}
+  .pay-secure{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:14px}
+  .dl-plats{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .dl-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:#fff;font-weight:600;color:var(--ink);transition:.15s}
+  .dl-btn:hover{border-color:var(--lav-deep);background:var(--cream-2)}
+  .dl-btn .sub{font-size:12px;color:var(--ink-soft);font-weight:400}
+  .prof-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .prof-row img{width:46px;height:46px;border-radius:50%}
+
   @media (prefers-reduced-motion: reduce){
     .ring-a,.ring-b,.ring-c,.wave i,.demo .live .rec,.invis::after,.scanline,.verdict b,.caret,.livenow .d,.ribbon-wrap svg *,.mic-widget .ring,.mic-widget .bars i,.marquee .track{animation:none!important}
     .invis::after{display:none}
@@ -285,7 +321,12 @@
     <div class="seg"><a class="on">Interview</a><a>Meetings</a></div>
     <div class="links">
       <a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a>
-      <a class="btn btn-dark" href="#pricing">Get App Free</a>
+      <a class="signin" id="signInBtn" onclick="openLoginModal()">Sign In</a>
+      <div class="profile-trigger" id="userProfileTrigger" onclick="openProfileModal()">
+        <span class="pill" id="navPlanBadge">FREE</span>
+        <img id="navUserAvatar" alt="account" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Crect width='30' height='30' fill='%23d9c7f7'/%3E%3C/svg%3E">
+      </div>
+      <a class="btn btn-dark" onclick="openDownloadModal()">Get App Free</a>
     </div>
   </nav></div>
 
@@ -313,8 +354,8 @@
       <h1 class="serif">Nail the interview.<br><span class="it">Name your salary.</span></h1>
       <p class="sub">The invisible partner that hears the interviewer and puts a perfect, structured answer on your screen — in real time. Works on Zoom, Teams, Meet, Chime &amp; HackerRank. Completely undetectable.</p>
       <div class="cta">
-        <a class="btn btn-primary btn-lg" href="#pricing">Try Free — No Credit Card <span class="arw">→</span></a>
-        <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+        <a class="btn btn-primary btn-lg" onclick="openDownloadModal()">Try Free — No Credit Card <span class="arw">→</span></a>
+        <a class="btn btn-ghost btn-lg" href="#pricing">See plans &amp; pricing</a>
       </div>
       <div class="avail">Free to try · No credit card · 100% undetectable · Mac &amp; Windows</div>
       <div style="margin-top:14px"><span class="livenow"><span class="d"></span> 847 engineers using Whis right now</span></div>
@@ -465,17 +506,15 @@
     <div class="sec-head" style="max-width:16ch"><h2 class="serif">Choose your <span class="it">edge.</span></h2></div>
     <p class="sec-sub">Join 7,000+ engineers who turned interviews into offers. Less than an hour of the salary you’re about to earn.</p>
     <div class="urgency">⏳ Launch pricing ends soon · prices go up after</div>
-    <div class="toggle" id="billing">
-      <button data-cy="monthly" class="on">Monthly</button>
-      <button data-cy="quarterly">3-Month <span class="save">Most Popular</span></button>
-      <button data-cy="semiannual">6-Month <span class="save">save 60%</span></button>
-    </div>
+    <p id="smartPickText" class="sec-sub" style="margin:-22px auto 30px;max-width:62ch">Smart pick: go <span style="color:var(--green);font-weight:800;">Quarterly</span>. A job search rarely wraps up in 30 days — pay once, stay covered, and <span style="color:var(--ink);font-weight:800;">save vs monthly</span>.</p>
     <div class="plans">
-      <div class="plan">
+
+      <!-- FREE -->
+      <div class="plan" id="cardFree">
         <span class="sticker free">Free Trial</span>
         <div class="who">Test it in 2 minutes</div>
         <div class="price">₹0</div><div class="sub2">No card needed</div>
-        <a class="btn btn-ghost" href="#">Try Free</a>
+        <a class="btn btn-ghost" onclick="openDownloadModal()">Try Free</a>
         <ul>
           <li><span class="ck">✓</span> 2 × 5-min trials daily</li>
           <li><span class="ck">✓</span> Full Elite access in trial</li>
@@ -483,34 +522,61 @@
           <li><span class="ck">✓</span> macOS &amp; Windows</li>
         </ul>
       </div>
-      <div class="plan featured">
-        <span class="sticker elite">Elite · Most Popular</span>
-        <div class="who">For the real interview</div>
-        <div class="price" data-m="₹1,499" data-q="₹3,599" data-s="₹5,399">₹1,499<small>/mo</small></div>
-        <div class="sub2" data-sub2>billed monthly</div>
-        <a class="btn btn-primary" href="#">Get Started →</a>
+
+      <!-- ELITE MONTHLY -->
+      <div class="plan" id="cardMonthly">
+        <span class="sticker elite" id="badgeMonthly">Elite</span>
+        <div class="who">Flexible</div>
+        <div class="price" id="pmTotal">…</div>
+        <div class="sub2" id="pmSupport">Billed monthly</div>
+        <a class="btn btn-dark" id="ctaMonthly" onclick="buyElite('monthly')">Get Started →</a>
         <ul>
           <li><span class="ck">✓</span> Invisible on Zoom, Teams &amp; proctoring</li>
           <li><span class="ck">✓</span> Hears the interviewer — real-time answers</li>
           <li><span class="ck">✓</span> Reads your screen — solves coding instantly</li>
           <li><span class="ck">✓</span> Résumé-aware behavioral (STAR) answers</li>
           <li><span class="ck">✓</span> Instant panic-hide hotkey</li>
-          <li><span class="ck">✓</span> 10 hrs usage / mo · GPT-4o + Gemini 2.0</li>
+          <li><span class="ck">✓</span> <span class="js-hours">10 hrs usage / mo</span></li>
+          <li><span class="ck">✓</span> Powered by GPT-4o + Gemini 2.0</li>
         </ul>
       </div>
-      <div class="plan">
-        <span class="sticker team">Unlimited</span>
-        <div class="who">Back-to-back loops</div>
-        <div class="price" data-m="₹2,299" data-q="₹5,499" data-s="₹8,299">₹2,299<small>/mo</small></div>
-        <div class="sub2" data-sub2>billed monthly</div>
-        <a class="btn btn-dark" href="#">Go Unlimited</a>
+
+      <!-- ELITE QUARTERLY (hero) -->
+      <div class="plan featured" id="cardQuarterly">
+        <span class="sticker elite" id="badgeQuarterly">Elite · Most Popular</span>
+        <div class="who">Best for a job hunt</div>
+        <div class="price" id="pqTotal">…</div>
+        <div class="sub2" id="pqSupport">one payment · 3 months</div>
+        <a class="btn btn-primary" id="ctaQuarterly" onclick="buyElite('quarterly')">Get Started →</a>
         <ul>
-          <li><span class="ck">✓</span> Everything in Elite</li>
-          <li><span class="ck">✓</span> Unlimited live-audio hours</li>
-          <li><span class="ck">✓</span> Earliest access to new models</li>
-          <li><span class="ck">✓</span> Priority human support</li>
+          <li><span class="ck">✓</span> Invisible on Zoom, Teams &amp; proctoring</li>
+          <li><span class="ck">✓</span> Hears the interviewer — real-time answers</li>
+          <li><span class="ck">✓</span> Reads your screen — solves coding instantly</li>
+          <li><span class="ck">✓</span> Résumé-aware behavioral (STAR) answers</li>
+          <li><span class="ck">✓</span> Instant panic-hide hotkey</li>
+          <li><span class="ck">✓</span> <span class="js-hours">15 hrs usage / mo</span></li>
+          <li><span class="ck">✓</span> Powered by GPT-4o + Gemini 2.0</li>
         </ul>
       </div>
+
+      <!-- ELITE 6-MONTH (shown outside India) -->
+      <div class="plan" id="cardSemiannual" style="display:none">
+        <span class="sticker team" id="badgeSemiannual">Best Value</span>
+        <div class="who">Maximum coverage</div>
+        <div class="price" id="psTotal">…</div>
+        <div class="sub2" id="psSupport">one payment · 6 months</div>
+        <a class="btn btn-dark" id="ctaSemiannual" onclick="buyElite('semiannual')">Get Started →</a>
+        <ul>
+          <li><span class="ck">✓</span> Invisible on Zoom, Teams &amp; proctoring</li>
+          <li><span class="ck">✓</span> Hears the interviewer — real-time answers</li>
+          <li><span class="ck">✓</span> Reads your screen — solves coding instantly</li>
+          <li><span class="ck">✓</span> Résumé-aware behavioral (STAR) answers</li>
+          <li><span class="ck">✓</span> Instant panic-hide hotkey</li>
+          <li><span class="ck">✓</span> <span class="js-hours">20 hrs usage / mo</span></li>
+          <li><span class="ck">✓</span> Powered by GPT-4o + Gemini 2.0</li>
+        </ul>
+      </div>
+
     </div>
     <div class="credit">💡 <b>Smart Usage Credit:</b> paid plans include 10 hours / month of app usage. The Ghost Timer only counts while you’re <b>actively in an interview</b> — prep time and breaks never touch your balance.</div>
     <div class="badges">
@@ -541,7 +607,7 @@
   <section class="band"><div class="wrap">
     <h2 class="serif">Your next offer is <span class="it">one interview away.</span></h2>
     <p class="sec-sub" style="margin-top:18px">Stop leaving offers on the table. Join 7,000+ engineers who used Whis to land the role. First session is free. No card needed.</p>
-    <div class="cta" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a class="btn btn-primary btn-lg" href="#pricing">Download Free — Mac &amp; Windows <span class="arw">→</span></a></div>
+    <div class="cta" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a class="btn btn-primary btn-lg" onclick="openDownloadModal()">Download Free — Mac &amp; Windows <span class="arw">→</span></a></div>
     <div class="badges"><span>✓ First session free</span><span>✓ 100% undetectable</span><span>✓ Mac &amp; Windows</span></div>
   </div></section>
 
@@ -552,80 +618,328 @@
         <span class="brand" style="margin-bottom:12px"><span class="mark">W</span> Whis-AI</span>
         <p style="color:var(--ink-soft);font-size:14px;margin-top:12px;max-width:26ch">Built for those who refuse to lose. Your silent interview partner.</p>
       </div>
-      <div><h4>Product</h4><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#">Download</a></div>
-      <div><h4>Support</h4><a href="#">Contact</a><a href="#">Troubleshoot</a><a href="#">Live support</a><a href="#faq">FAQ</a></div>
-      <div><h4>Legal</h4><a href="#">Terms</a><a href="#">Refund Policy</a><a href="#">Privacy</a><a href="#">Shipping Policy</a></div>
+      <div><h4>Product</h4><a href="#how">How it works</a><a href="#features">Features</a><a href="#pricing">Pricing</a><a onclick="openDownloadModal()" style="cursor:pointer">Download</a><a onclick="openEnterpriseModal()" style="cursor:pointer">Enterprise / teams</a></div>
+      <div><h4>Support</h4><a href="mailto:support@whis-ai.com">Contact</a><a href="mailto:support@whis-ai.com">Troubleshoot</a><a href="#faq">FAQ</a></div>
+      <div><h4>Legal</h4><a href="/terms">Terms</a><a href="/refund-policy">Refund Policy</a><a href="/privacy">Privacy</a><a href="/shipping-policy">Shipping Policy</a></div>
     </div>
     <div class="wordmark">Whis</div>
     <div class="fbot"><span>© Whis-AI</span><span>Ready to walk in unstoppable?</span></div>
   </div></footer>
 
+  <!-- ============ MODALS ============ -->
+  <div class="modal" id="loginModal">
+    <div class="box" style="text-align:center">
+      <button class="x" onclick="closeLoginModal()">×</button>
+      <h3>Sign in to continue</h3>
+      <p class="mut">Use your Google account — no password, takes a second.</p>
+      <div id="googleBtnContainer"></div>
+      <p class="mut" style="margin-top:16px;font-size:12px">By continuing you agree to our <a href="/terms" style="text-decoration:underline">Terms</a> &amp; <a href="/privacy" style="text-decoration:underline">Privacy</a>.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="paymentModal">
+    <div class="box">
+      <button class="x" onclick="closePaymentModal()">×</button>
+      <h3>Complete your upgrade</h3>
+      <p class="mut">Encrypted checkout — cancel anytime.</p>
+      <div class="inf-msg hidden" id="influencerDiscountMsg"></div>
+      <div class="pay-summary">
+        <div><div class="pn" id="payPlanName">Elite</div><div class="pc" id="payPlanCycle">Elite · 3-Month</div></div>
+        <div class="pp" id="payPlanPrice">…</div>
+      </div>
+      <div><span class="coupon-link" id="showCouponLink" onclick="document.getElementById('couponRow').style.display='flex';this.style.display='none';">Have a coupon code?</span></div>
+      <div class="coupon-row" id="couponRow" style="display:none">
+        <input class="field" id="couponInput" placeholder="ENTER CODE" style="margin-top:0">
+        <button class="btn btn-ghost" id="couponApplyBtn" onclick="applyCoupon()">Apply</button>
+      </div>
+      <div id="couponMessage" class="hidden" style="font-size:13px;font-weight:700;margin-top:8px"></div>
+      <button class="btn btn-primary" id="payBtn" style="width:100%;justify-content:center;margin-top:16px" onclick="triggerRazorpayFlow(event)">Proceed to secure payment</button>
+      <div id="upiInrOption" style="display:none;text-align:center;margin-top:12px"><a class="coupon-link" onclick="triggerUpiInrPayment(event)">Card failing? Have an Indian bank? Pay in ₹ via UPI</a></div>
+      <div class="pay-secure">🔒 Encrypted · <b id="payGateway">Razorpay</b> · UPI · Cards · Net-banking · Wallets</div>
+    </div>
+  </div>
+
+  <div class="modal" id="successModal">
+    <div class="box" style="text-align:center">
+      <div style="font-size:46px">✅</div>
+      <h3>You’re all set!</h3>
+      <p class="mut">Your Elite access is now active. <b>Open the Whis-AI app and restart it</b> to sync your license.</p>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closeSuccessModal()">Done</button>
+    </div>
+  </div>
+
+  <div class="modal" id="downloadModal">
+    <div class="box">
+      <button class="x" onclick="closeDownloadModal()">×</button>
+      <h3 id="dlTitle">Select platform</h3>
+      <p class="mut">Whis runs on your computer — set-up takes ~2 minutes, no credit card.</p>
+      <div id="dlPlatforms" class="dl-plats">
+        <a class="dl-btn" id="download-mac-arm" href="#"><span style="font-size:20px"></span><div>Download for macOS<div class="sub">Apple Silicon (M1/M2/M3)</div></div></a>
+        <a class="dl-btn" id="download-mac-intel" href="#" style="display:none"><span style="font-size:20px"></span><div>Download for macOS<div class="sub">Intel</div></div></a>
+        <a class="dl-btn" id="download-windows-link" href="#"><span style="font-size:20px">⊞</span><div>Download for Windows<div class="sub">Windows 10 / 11</div></div></a>
+      </div>
+      <div id="dlMobileCapture" class="hidden">
+        <input class="field" id="dlEmail" type="email" placeholder="you@email.com">
+        <button class="btn btn-primary" id="dlSendBtn" style="width:100%;justify-content:center;margin-top:10px" onclick="sendDesktopLink()">Email me the link →</button>
+        <div id="dlSendMsg" class="hidden"></div>
+        <p class="mut" style="margin-top:10px;font-size:12px">No spam — just your download link.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="enterpriseModal">
+    <div class="box">
+      <button class="x" onclick="closeEnterpriseModal()">×</button>
+      <h3>Enterprise inquiry</h3>
+      <p class="mut">Let’s build a custom plan for your team.</p>
+      <form id="entForm" onsubmit="submitEnterpriseForm(event)">
+        <input class="field" id="entEmail" type="email" placeholder="Work email" required>
+        <input class="field" id="entMobile" type="tel" placeholder="Phone" required>
+        <textarea class="field" id="entQuery" rows="3" placeholder="Tell us about your team & needs" required></textarea>
+        <button class="btn btn-primary" id="entSubmitBtn" style="width:100%;justify-content:center;margin-top:12px" type="submit">Submit inquiry</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="box">
+      <button class="x" onclick="closeProfileModal()">×</button>
+      <div class="prof-row">
+        <img id="modalUserAvatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3Crect width='46' height='46' fill='%23d9c7f7'/%3E%3C/svg%3E" alt="">
+        <div><div style="font-weight:700" id="modalUserName">—</div><div class="mut" id="modalPlanName" style="margin:0">Free Tier</div></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between"><span class="mut" style="margin:0">Status</span><b id="modalPlanStatus">ACTIVE</b></div>
+        <div id="modalPlanValidity" class="mut" style="margin:8px 0 0"></div>
+        <div id="modalRenewInfo" style="font-size:12px;margin-top:4px"></div>
+      </div>
+      <button class="btn btn-ghost hidden" id="cancelSubBtn" style="width:100%;justify-content:center;margin-bottom:10px" onclick="cancelSubscription()">Cancel Auto-Renew</button>
+      <button class="btn btn-dark" style="width:100%;justify-content:center" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
 <script>
+  /* ============================================================
+     UI MOTION (reveal, count-up, nav, seg, faq, live demo)
+     ============================================================ */
   document.querySelectorAll('.qa button').forEach(b=>b.addEventListener('click',()=>b.parentElement.classList.toggle('open')));
-  // segmented nav control
   document.querySelectorAll('.seg a').forEach(a=>a.addEventListener('click',()=>{a.parentElement.querySelectorAll('a').forEach(x=>x.classList.remove('on'));a.classList.add('on');}));
 
   const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // nav shadow on scroll
   const navEl=document.querySelector('.nav');
   addEventListener('scroll',()=>navEl.classList.toggle('scrolled',scrollY>12),{passive:true});
 
-  // scroll-reveal choreography (auto-applied, staggered per section)
   if(!RM){
-    const sel='.sec-head,.sec-sub,.stat,.step,.fcard,.plan,.cmp-tbl,.cmp-note,.founder,.qa,.compare,.invis3,.credit,.badges,.urgency,.toggle,.rating,.tstats,.hotkeys';
+    const sel='.sec-head,.sec-sub,.stat,.step,.fcard,.cmp-tbl,.cmp-note,.founder,.qa,.compare,.invis3,.credit,.badges,.rating,.tstats,.hotkeys';
     const groups=new Map();
-    document.querySelectorAll(sel).forEach(el=>{
-      el.classList.add('reveal');
-      const p=el.closest('section')||document.body;
-      if(!groups.has(p))groups.set(p,0);
-    });
-    const io=new IntersectionObserver((ents)=>{
-      ents.forEach(e=>{
-        if(!e.isIntersecting)return;
-        const p=e.target.closest('section')||document.body;
-        const i=groups.get(p)||0; groups.set(p,i+1);
-        e.target.style.transitionDelay=Math.min(i*70,420)+'ms';
-        e.target.classList.add('in'); io.unobserve(e.target);
-      });
+    document.querySelectorAll(sel).forEach(el=>{ el.classList.add('reveal'); const p=el.closest('section')||document.body; if(!groups.has(p))groups.set(p,0); });
+    const io=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(!e.isIntersecting)return;
+      const p=e.target.closest('section')||document.body; const i=groups.get(p)||0; groups.set(p,i+1);
+      e.target.style.transitionDelay=Math.min(i*70,420)+'ms'; e.target.classList.add('in'); io.unobserve(e.target); });
     },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
     document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
   }
 
-  // count-up numbers (preserves prefixes/suffixes like ₹, +, %, Cr, <, s)
   function countUp(el){
-    const raw=el.textContent.trim();
-    const m=raw.match(/^([^\d]*)([\d,.]+)(.*)$/);
-    if(!m){return;}
-    const pre=m[1], suf=m[3], target=parseFloat(m[2].replace(/,/g,'')); if(isNaN(target))return;
-    const dur=1100, t0=performance.now(), fmt=n=>Math.round(n).toLocaleString('en-IN');
-    function tick(t){
-      const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
-      el.textContent=pre+fmt(target*e)+suf;
-      if(k<1)requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+    const m=el.textContent.trim().match(/^([^\d]*)([\d,.]+)(.*)$/); if(!m)return;
+    const pre=m[1],suf=m[3],target=parseFloat(m[2].replace(/,/g,'')); if(isNaN(target))return;
+    const dur=1100,t0=performance.now(),fmt=n=>Math.round(n).toLocaleString('en-IN');
+    (function tick(t){ const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3); el.textContent=pre+fmt(target*e)+suf; if(k<1)requestAnimationFrame(tick); })(t0);
   }
-  const numIO=new IntersectionObserver((ents)=>{
-    ents.forEach(e=>{ if(e.isIntersecting){ if(!RM)countUp(e.target); numIO.unobserve(e.target);}});
-  },{threshold:.6});
+  const numIO=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting){ if(!RM)countUp(e.target); numIO.unobserve(e.target);} }); },{threshold:.6});
   document.querySelectorAll('.stat .n, .tstats .n').forEach(n=>numIO.observe(n));
 
-  // billing toggle → swaps Elite/Unlimited prices + subline
-  const bill=document.getElementById('billing');
-  const subFor={monthly:'billed monthly',quarterly:'one payment · 3 months',semiannual:'one payment · 6 months'};
-  const perFor={monthly:'/mo',quarterly:'/3mo',semiannual:'/6mo'};
-  bill.addEventListener('click',e=>{const btn=e.target.closest('button');if(!btn)return;
-    const cy=btn.dataset.cy;
-    bill.querySelectorAll('button').forEach(x=>x.classList.remove('on'));btn.classList.add('on');
-    document.querySelectorAll('.price[data-m]').forEach(p=>{
-      const val=cy==='monthly'?p.dataset.m:cy==='quarterly'?p.dataset.q:p.dataset.s;
-      p.innerHTML=val+'<small>'+perFor[cy]+'</small>';
-    });
-    document.querySelectorAll('[data-sub2]').forEach(s=>s.textContent=subFor[cy]);
-  });
+  /* ============================================================
+     LIVE BACKEND INTEGRATION — https://api.whis-ai.com
+     Same endpoints/payloads as the production site.
+     ============================================================ */
+  const BACKEND_URL="https://api.whis-ai.com";
+  const IS_INDIA=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").includes('Kolkata')
+              ||(Intl.DateTimeFormat().resolvedOptions().timeZone||"").includes('Calcutta')
+              ||new Date().getTimezoneOffset()===-330;
+  let currentUser=null,currentTier='free',currentCycle='quarterly';
+  let PRICING=null,GOOGLE_CLIENT_ID=null,SITE_CONFIG={},EXCHANGE_RATE=90;
+  let currentCoupon="",currentCouponDiscount=0,_urlCoupon="";
+  let selectedTierForPayment='pro_plus';
+  window._hasFailedPayment=false; window._dlMacArm=''; window._dlMacIntel='';
 
-  // live demo sequencer
+  function charmUSD(p){ if(Math.round(p*100)%100===99) return +p.toFixed(2); const b=Math.round(p/5)*5; return +Math.max(b-0.01,0.99).toFixed(2); }
+  function charmINR(p){ const n=Math.round(p); if(n%100===99) return n; return Math.round(n/100)*100-1; }
+  const sym=()=>IS_INDIA?'₹':'$';
+  const money=n=>IS_INDIA?Math.round(n).toLocaleString('en-IN'):Number(n).toFixed(2);
+  function elitePrice(cycle,withCoupon){ if(!PRICING||!PRICING.pro_plus)return null; const p=PRICING.pro_plus,base=p[cycle]; if(base==null)return null;
+    const disc=p.discount||0,charm=IS_INDIA?charmINR:charmUSD; let v=charm(base*(1-disc/100));
+    if(withCoupon&&currentCouponDiscount>0) v=charm(v*(1-currentCouponDiscount/100)); return v; }
+
+  async function fetchConfig(){
+    try{ const r=await fetch(`${BACKEND_URL}/api/config`); if(!r.ok)return; const d=await r.json(); SITE_CONFIG=d;
+      PRICING=IS_INDIA?(d.pricingINR||d.pricing):(d.pricingUSD||d.pricing);
+      GOOGLE_CLIENT_ID=d.googleClientId; if(d.exchangeRate)EXCHANGE_RATE=d.exchangeRate;
+      window._dlMacArm=d.downloadMacUrl||''; window._dlMacIntel=d.downloadMacIntelUrl||'';
+      const win=document.getElementById('download-windows-link'); if(win&&d.downloadWindowsUrl) win.href=d.downloadWindowsUrl;
+      applyMacLinks(); renderPricing(); renderHours(); applyGeo();
+    }catch(e){ console.error('config',e); }
+  }
+  function renderPricing(){ if(!PRICING)return;
+    [['monthly','pm'],['quarterly','pq'],['semiannual','ps']].forEach(([cyc,pre])=>{
+      const v=elitePrice(cyc,false); if(v==null)return;
+      const per=cyc==='monthly'?'/mo':cyc==='quarterly'?'/3mo':'/6mo';
+      const tot=document.getElementById(pre+'Total'); if(tot) tot.innerHTML=`${sym()}${money(v)}<small>${per}</small>`;
+      const sup=document.getElementById(pre+'Support');
+      if(sup){ if(cyc==='monthly'){ sup.textContent='Billed monthly'; }
+        else{ const months=cyc==='quarterly'?3:6,m=elitePrice('monthly',false),perMo=v/months,save=m?Math.round((1-perMo/m)*100):0;
+          const shown=IS_INDIA?Math.floor(perMo).toLocaleString('en-IN'):perMo.toFixed(2);
+          sup.innerHTML=`Just ${sym()}${shown}/mo · <span style="color:#0a7f4f;font-weight:800">save ${save}% vs monthly</span>`; } }
+    });
+  }
+  function renderHours(){ const mh=(SITE_CONFIG&&SITE_CONFIG.micHours)||{monthly:10,quarterly:15,semiannual:20},order=['monthly','quarterly','semiannual'];
+    document.querySelectorAll('.js-hours').forEach((el,i)=>{ const c=order[i]; if(c&&mh[c]!=null) el.textContent=`${mh[c]} hrs usage / mo`; }); }
+  function applyGeo(){ const free=document.getElementById('cardFree'),six=document.getElementById('cardSemiannual'),nudge=document.getElementById('smartPickText');
+    if(IS_INDIA){ if(free)free.style.display=''; if(six)six.style.display='none';
+      if(nudge)nudge.innerHTML='Smart pick: go <span style="color:var(--green);font-weight:800">Quarterly</span>. A job search rarely wraps up in 30 days — pay once, stay covered.'; }
+    else{ if(free)free.style.display='none'; if(six)six.style.display='';
+      const cq=document.getElementById('cardQuarterly'),cs=document.getElementById('cardSemiannual'),bq=document.getElementById('badgeQuarterly'),bs=document.getElementById('badgeSemiannual'),cqa=document.getElementById('ctaQuarterly'),csa=document.getElementById('ctaSemiannual');
+      if(cq)cq.classList.remove('featured'); if(cs)cs.classList.add('featured');
+      if(bq){bq.className='sticker team';bq.textContent='Best Value';} if(bs){bs.className='sticker elite';bs.textContent='Elite · Most Popular';}
+      if(cqa)cqa.className='btn btn-dark'; if(csa)csa.className='btn btn-primary';
+      if(nudge)nudge.innerHTML='Smart pick: go <span style="color:var(--green);font-weight:800">6-Month</span> — pay once and stay covered through your entire search.'; }
+  }
+
+  function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(); fetchUserStatus(); }catch(e){ localStorage.removeItem('whisUser'); } } }
+  function updateNavUI(){ const si=document.getElementById('signInBtn'),pt=document.getElementById('userProfileTrigger');
+    if(si)si.style.display='none'; if(pt)pt.classList.add('show');
+    const av=document.getElementById('navUserAvatar'); if(av&&currentUser)av.src=currentUser.avatarUrl||currentUser.picture||av.src; }
+  async function fetchUserStatus(){ if(!currentUser)return;
+    try{ const r=await fetch(`${BACKEND_URL}/api/user/status`,{headers:{'x-google-id':currentUser.googleId}}); const d=await r.json();
+      window._hasFailedPayment=!!d.hasFailedPayment; applyUpiVisibility();
+      currentTier=d.active?d.tier:'free';
+      const badge=document.getElementById('navPlanBadge'); if(badge)badge.textContent=d.active?(d.tier==='pro_plus'?'ELITE':'PRO'):'FREE';
+      const nm=document.getElementById('modalUserName'); if(nm)nm.textContent=currentUser.name||currentUser.email||'Account';
+      const av=document.getElementById('modalUserAvatar'); if(av)av.src=currentUser.avatarUrl||currentUser.picture||av.src;
+      const pn=document.getElementById('modalPlanName'),ps=document.getElementById('modalPlanStatus'),pv=document.getElementById('modalPlanValidity'),ri=document.getElementById('modalRenewInfo'),cb=document.getElementById('cancelSubBtn');
+      if(d.active){ if(pn)pn.textContent=d.tier==='pro_plus'?'Elite License':'Pro License'; if(ps)ps.textContent='ACTIVE';
+        const until=d.validUntil||d.expiry; if(pv)pv.textContent=until?('Valid until: '+new Date(until).toLocaleDateString()):'Active subscription';
+        if(ri&&cb){ if(d.cancelledAt){ ri.textContent=`Auto-renew cancelled — access until ${new Date(d.validUntil).toLocaleDateString()}`; cb.classList.add('hidden'); }
+          else if(d.autoRenew){ const nx=d.nextBillingDate||d.validUntil; ri.textContent=nx?`🔄 Auto-renews on ${new Date(nx).toLocaleDateString()}`:''; cb.classList.remove('hidden'); }
+          else { ri.textContent=''; cb.classList.add('hidden'); } }
+      } else { if(pn)pn.textContent='Free Tier'; if(ps)ps.textContent='ACTIVE'; if(pv)pv.textContent='Lifetime free access'; if(ri)ri.textContent=''; if(cb)cb.classList.add('hidden'); }
+    }catch(e){}
+  }
+  async function cancelSubscription(){ if(!currentUser)return; if(!confirm("Cancel auto-renewal?\n\nYour access continues until the end of your current billing period."))return;
+    const btn=document.getElementById('cancelSubBtn'),o=btn.textContent; btn.disabled=true; btn.textContent='Cancelling…';
+    try{ const r=await fetch(`${BACKEND_URL}/api/subscription/cancel`,{method:'POST',headers:{'Content-Type':'application/json','x-google-id':currentUser.googleId},body:JSON.stringify({googleId:currentUser.googleId})}); const d=await r.json();
+      if(d.success){ alert(`Auto-renew cancelled. Access until ${new Date(d.accessUntil).toLocaleDateString()}.`); fetchUserStatus(); } else alert(d.error||'Could not cancel.'); }
+    catch(e){ alert('Network error.'); } btn.disabled=false; btn.textContent=o; }
+  function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
+
+  const showM=id=>{const m=document.getElementById(id); if(m){m.classList.add('flex');document.documentElement.style.overflow='hidden';}};
+  const hideM=id=>{const m=document.getElementById(id); if(m){m.classList.remove('flex');document.documentElement.style.overflow='';}};
+  function openLoginModal(){ showM('loginModal'); const c=document.getElementById('googleBtnContainer'); c.innerHTML='';
+    const src=localStorage.getItem('whisSource')||'organic',ref=localStorage.getItem('whisRef')||'',state=encodeURIComponent(JSON.stringify({s:src,r:ref})),redirect=encodeURIComponent(`${BACKEND_URL}/api/auth/google/callback`);
+    if(GOOGLE_CLIENT_ID){ const url=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirect}&response_type=code&scope=email%20profile&state=${state}`;
+      c.innerHTML=`<a href="${url}" class="btn btn-dark" style="width:100%;justify-content:center;border-radius:999px"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/></svg> Continue with Google</a>`;
+    } else c.innerHTML='<p class="mut">Login is temporarily unavailable. Please try again shortly.</p>'; }
+  function closeLoginModal(){hideM('loginModal');}
+  function openProfileModal(){ if(currentUser)fetchUserStatus(); showM('profileModal'); }
+  function closeProfileModal(){hideM('profileModal');}
+  function closeSuccessModal(){hideM('successModal');}
+  function openEnterpriseModal(){showM('enterpriseModal');}
+  function closeEnterpriseModal(){hideM('enterpriseModal');}
+
+  function buyElite(cycle){ currentCycle=cycle; if(!currentUser){ openLoginModal(); return; } openPaymentModal(); }
+  function openPaymentModal(){ currentCoupon=''; currentCouponDiscount=0;
+    const ci=document.getElementById('couponInput'); if(ci)ci.value='';
+    const cm=document.getElementById('couponMessage'); if(cm)cm.classList.add('hidden');
+    const cr=document.getElementById('couponRow'); if(cr)cr.style.display='none';
+    const cl=document.getElementById('showCouponLink'); if(cl)cl.style.display='inline';
+    const lbl=currentCycle==='monthly'?'Monthly':currentCycle==='quarterly'?'3-Month':'6-Month';
+    document.getElementById('payPlanCycle').textContent='Elite · '+lbl; refreshPayPrice();
+    const inf=document.getElementById('influencerDiscountMsg'),ref=localStorage.getItem('whisRef'),refName=localStorage.getItem('whisRefName')||ref;
+    if(inf){ if(ref){ inf.innerHTML=`<b>🏷️ ${refName} link active</b><br>Your 10% partner discount is applied automatically at checkout.`; inf.classList.remove('hidden'); } else inf.classList.add('hidden'); }
+    applyUpiVisibility(); showM('paymentModal'); if(_urlCoupon) autoApplyUrlCoupon(); }
+  function refreshPayPrice(){ const v=elitePrice(currentCycle,true),el=document.getElementById('payPlanPrice'); if(el)el.textContent=v!=null?`${sym()}${money(v)}`:'…'; }
+  function closePaymentModal(){hideM('paymentModal');}
+  function applyUpiVisibility(){ const u=document.getElementById('upiInrOption'); if(u)u.style.display=(!IS_INDIA&&window._hasFailedPayment)?'block':'none'; }
+
+  async function applyCoupon(){ const code=(document.getElementById('couponInput').value||'').trim().toUpperCase(); if(!code)return;
+    try{ const r=await fetch(`${BACKEND_URL}/api/payment/validate-coupon`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coupon:code,cycle:currentCycle})}); const d=await r.json();
+      const m=document.getElementById('couponMessage'); m.classList.remove('hidden');
+      if(d.success){ currentCoupon=code; currentCouponDiscount=d.discount||0; m.textContent=`✅ ${d.discount}% discount applied!`; m.style.color='#0a7f4f'; }
+      else { currentCoupon=''; currentCouponDiscount=0; m.textContent=`❌ ${d.error||'Invalid coupon'}`; m.style.color='#c0392b'; }
+      refreshPayPrice(); }catch(e){} }
+  async function autoApplyUrlCoupon(){ if(!_urlCoupon)return; const code=_urlCoupon;
+    try{ const r=await fetch(`${BACKEND_URL}/api/payment/validate-coupon`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coupon:code,cycle:currentCycle})}); const d=await r.json();
+      const ci=document.getElementById('couponInput'),cr=document.getElementById('couponRow'),cl=document.getElementById('showCouponLink'),m=document.getElementById('couponMessage');
+      if(ci)ci.value=code; if(cr)cr.style.display='flex'; if(cl)cl.style.display='none'; if(m)m.classList.remove('hidden');
+      if(d.success&&d.discount>0){ currentCoupon=code; currentCouponDiscount=d.discount; if(m){m.textContent=`✅ ${d.discount}% discount applied!`;m.style.color='#0a7f4f';} }
+      else { currentCoupon=''; currentCouponDiscount=0; const pl=IS_INDIA?'3-month':'6-month'; if(m){m.textContent=`This code applies to the ${pl} plan — pick it to use your discount.`;m.style.color='#b8860b';} }
+      refreshPayPrice(); }catch(e){} }
+
+  async function triggerRazorpayFlow(event,payInInr){ if(!currentUser){ openLoginModal(); return; }
+    const btn=(event&&event.currentTarget)?event.currentTarget:document.getElementById('payBtn'),orig=btn?btn.innerHTML:'';
+    if(btn){ btn.disabled=true; btn.innerHTML='Processing…'; }
+    try{ const res=await fetch(`${BACKEND_URL}/api/payment/create-order`,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ googleId:currentUser.googleId, tier:selectedTierForPayment, cycle:currentCycle, couponCode:currentCoupon, refCode:localStorage.getItem('whisRef'), utmSource:localStorage.getItem('whisSource'), currency:IS_INDIA?'INR':'USD', payInInr:payInInr===true })});
+      const data=await res.json();
+      if(data.order_id){ const rzp=new Razorpay({ key:data.key_id, name:'Whis AI', description:(selectedTierForPayment==='pro_plus'?'Elite':'Pro')+' '+currentCycle, order_id:data.order_id, amount:data.amount, currency:data.currency,
+          prefill:{ name:data.user_name||currentUser.name||'', email:data.user_email||currentUser.email||'', contact:data.user_contact||'' }, theme:{color:'#12432f'},
+          handler:async function(response){ try{ const vr=await fetch(`${BACKEND_URL}/api/payment/verify`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({razorpay_order_id:response.razorpay_order_id,razorpay_payment_id:response.razorpay_payment_id,razorpay_signature:response.razorpay_signature})}); const vd=await vr.json();
+              if(vd.success){ closePaymentModal(); showM('successModal'); checkUser(); } else alert('Verification failed. Please contact support.'); }
+            catch(e){ alert('Payment received — confirming. You will get an email shortly.'); } },
+          modal:{ ondismiss:function(){ if(btn){btn.disabled=false;btn.innerHTML=orig;} } } });
+        rzp.on('payment.failed',function(){ window._hasFailedPayment=true; applyUpiVisibility(); }); rzp.open();
+        if(btn){ btn.disabled=false; btn.innerHTML=orig; }
+      } else { alert(data.error||'Could not start checkout. Please try again.'); if(btn){btn.disabled=false;btn.innerHTML=orig;} }
+    }catch(e){ if(btn){btn.disabled=false;btn.innerHTML=orig;} alert('Network error. Please try again.'); } }
+  function triggerUpiInrPayment(event){ triggerRazorpayFlow(event,true); }
+
+  const _isMobileUA=/Android|iPhone|iPad|iPod|Mobile|Silk|Kindle|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent||'');
+  let _macChip=undefined;
+  async function detectMacChip(){ if(_macChip!==undefined)return _macChip; try{ if(navigator.userAgentData){ const ua=await navigator.userAgentData.getHighEntropyValues(['architecture']); _macChip=ua.architecture==='arm'?'apple_silicon':'intel'; } else _macChip=null; }catch(_){ _macChip=null; } return _macChip; }
+  function applyMacLinks(){ const arm=document.getElementById('download-mac-arm'),intel=document.getElementById('download-mac-intel'); if(!arm||!intel)return;
+    if(window._dlMacArm)arm.href=window._dlMacArm; if(window._dlMacIntel)intel.href=window._dlMacIntel;
+    if(!window._dlMacIntel){ arm.style.display=''; intel.style.display='none'; return; }
+    if(_macChip==='apple_silicon'){arm.style.display='';intel.style.display='none';} else if(_macChip==='intel'){arm.style.display='none';intel.style.display='';} else {arm.style.display='';intel.style.display='';} }
+  function openDownloadModal(){ showM('downloadModal'); const plat=document.getElementById('dlPlatforms'),cap=document.getElementById('dlMobileCapture'),title=document.getElementById('dlTitle');
+    if(_isMobileUA){ if(plat)plat.classList.add('hidden'); if(cap)cap.classList.remove('hidden'); if(title)title.textContent='Get the link for your computer'; }
+    else { if(plat)plat.classList.remove('hidden'); if(cap)cap.classList.add('hidden'); if(title)title.textContent='Select platform'; detectMacChip().then(applyMacLinks); } }
+  function closeDownloadModal(){hideM('downloadModal');}
+  async function sendDesktopLink(){ const emailEl=document.getElementById('dlEmail'),btn=document.getElementById('dlSendBtn'),msg=document.getElementById('dlSendMsg'),email=((emailEl&&emailEl.value)||'').trim();
+    const show=(t,ok)=>{ if(msg){msg.textContent=t;msg.style.color=ok?'#0a7f4f':'#c0392b';msg.classList.remove('hidden');msg.style.marginTop='10px';msg.style.fontSize='13px';msg.style.fontWeight='600';msg.style.textAlign='center';} };
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ show('Please enter a valid email.',false); return; }
+    const o=btn.textContent; btn.disabled=true; btn.textContent='Sending…';
+    try{ const r=await fetch(`${BACKEND_URL}/api/send-download-link`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}); const d=await r.json().catch(()=>({}));
+      if(r.ok&&d.success){ show('✓ Sent! Open the email on your computer to install.',true); btn.textContent='Link sent ✓'; } else throw new Error(d.error||'fail'); }
+    catch(e){ show('Could not send — please try again.',false); btn.disabled=false; btn.textContent=o; } }
+
+  async function submitEnterpriseForm(e){ e.preventDefault(); const btn=document.getElementById('entSubmitBtn'),o=btn.innerHTML; btn.innerHTML='Sending…'; btn.disabled=true;
+    try{ const r=await fetch(`${BACKEND_URL}/api/enterprise-query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ email:document.getElementById('entEmail').value, mobile:document.getElementById('entMobile').value, query:document.getElementById('entQuery').value })});
+      if(r.ok){ btn.innerHTML='Sent successfully!'; setTimeout(()=>{ closeEnterpriseModal(); document.getElementById('entForm').reset(); btn.innerHTML=o; btn.disabled=false; },1500); } else { alert('Failed to send. Try again.'); btn.innerHTML=o; btn.disabled=false; } }
+    catch(e){ alert('Network error.'); btn.innerHTML=o; btn.disabled=false; } }
+
+  document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m){ m.classList.remove('flex'); document.documentElement.style.overflow=''; } }));
+  addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal.flex').forEach(m=>{m.classList.remove('flex');document.documentElement.style.overflow='';}); });
+
+  // expose handlers used by inline onclick
+  Object.assign(window,{openLoginModal,closeLoginModal,openProfileModal,closeProfileModal,closeSuccessModal,openEnterpriseModal,closeEnterpriseModal,submitEnterpriseForm,buyElite,openPaymentModal,closePaymentModal,applyCoupon,triggerRazorpayFlow,triggerUpiInrPayment,openDownloadModal,closeDownloadModal,sendDesktopLink,cancelSubscription,logout});
+
+  (function initAttribution(){
+    const params=new URLSearchParams(location.search);
+    const cp=params.get('coupon'); if(cp)_urlCoupon=cp.trim().toUpperCase();
+    let vid=localStorage.getItem('whisVisitorId'); if(!vid){ vid=(crypto.randomUUID?crypto.randomUUID():'v_'+Date.now()); localStorage.setItem('whisVisitorId',vid); }
+    const ref=params.get('ref'); if(ref){ localStorage.setItem('whisRef',ref);
+      fetch(`${BACKEND_URL}/api/influencer/click`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ref,visitorId:vid,source:params.get('source')||params.get('utm_source')||null})}).catch(()=>{});
+      fetch(`${BACKEND_URL}/api/influencer/${ref}`).then(r=>r.json()).then(d=>{ if(d.success&&d.name) localStorage.setItem('whisRefName',d.name); }).catch(()=>{}); }
+    const utm=params.get('source')||params.get('utm_source'); if(utm){ localStorage.setItem('whisSource',utm);
+      fetch(`${BACKEND_URL}/api/marketing/hit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:utm})}).catch(()=>{}); }
+    if(params.get('auth_success')==='true'&&params.get('user')){ try{ localStorage.setItem('whisUser',decodeURIComponent(params.get('user'))); history.replaceState({},document.title,location.pathname); }catch(e){} }
+    if(params.get('paypal_success')==='true'||params.get('paid')==='1'){ history.replaceState({},document.title,location.pathname); setTimeout(()=>{ showM('successModal'); checkUser(); },400); }
+    detectMacChip().then(applyMacLinks); checkUser(); fetchConfig();
+  })();
+
+  /* ============================================================
+     LIVE DEMO SEQUENCER (hero card)
+     ============================================================ */
   const scenes=[
     {q:"How would you design a URL shortener that scales to 100M links?",a:"Encode an auto-increment ID as base62 → the short slug. Store id↔url in a KV store.\nAdd a read cache for hot links and a bloom filter to skip lookups on misses. Shard by slug range; async analytics off the write path."},
     {q:"Tell me about a time you disagreed with your manager.",a:"Situation — we were about to ship without tests.\nTask — I owned reliability.\nAction — I proposed a 2-day spike and paired to add coverage.\nResult — cut prod incidents ~40% that quarter."},
