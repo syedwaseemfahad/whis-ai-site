@@ -4923,6 +4923,23 @@ body { overscroll-behavior-y:none; }
             }).catch(() => {});
         }
 
+        // Page view → analytics timeline. Deduped per path per session so browsing many
+        // pages is captured once each (not per refresh). Includes googleId when signed in
+        // (shows on their timeline) and aid when anonymous (folds in at signup).
+        try {
+            var _pvKey = 'pv_' + location.pathname;
+            if (!sessionStorage.getItem(_pvKey)) {
+                sessionStorage.setItem(_pvKey, '1');
+                var _pvU = JSON.parse(localStorage.getItem('whisUser') || 'null');
+                fetch(`${BACKEND_URL}/api/track`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+                    body: JSON.stringify({ event: 'page_view', googleId: (_pvU && _pvU.googleId) || null, aid: whisAid, surface: 'web',
+                        metadata: { path: location.pathname, title: (document.title || '').slice(0, 90),
+                            ref: document.referrer ? (function(){ try { return new URL(document.referrer).hostname; } catch(e){ return null; } })() : null } })
+                }).catch(() => {});
+            }
+        } catch(e){}
+
         // Clean the ref/source params out of the URL so they don't linger, get
         // re-shared, or confuse analytics — fully seamless to the visitor.
         if (refCode || utmSource) {

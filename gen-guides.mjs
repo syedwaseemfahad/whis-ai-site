@@ -108,6 +108,9 @@ ${compSection(c)}
 <script>
 document.querySelectorAll('#tabs .tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#tabs .tab').forEach(x=>{x.style.background='';x.classList.add('text-slate-400');x.classList.remove('text-[#04121b]')});b.style.background='var(--accent)';b.classList.remove('text-slate-400');b.classList.add('text-[#04121b]');document.getElementById('pane-w2').classList.toggle('hidden',b.dataset.t!=='w2');document.getElementById('pane-crash').classList.toggle('hidden',b.dataset.t!=='crash')}));
 const ls=[...document.querySelectorAll('#toc a')];const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)ls.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-25% 0px -65% 0px'});['process','rounds','master','comp','plan','faq','related'].forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el)});
+/* Page-view → analytics timeline (deduped per path per session). Reuses the shared
+   same-origin aid/whisUser so a guide visit joins the visitor's journey. */
+(function(){try{var A=localStorage.getItem('whisVisitorId');if(!A){A=(crypto.randomUUID?crypto.randomUUID():'v_'+Date.now()+'_'+Math.random().toString(36).slice(2));localStorage.setItem('whisVisitorId',A);}var K='pv_'+location.pathname;if(!sessionStorage.getItem(K)){sessionStorage.setItem(K,'1');var U=JSON.parse(localStorage.getItem('whisUser')||'null');fetch('https://api.whis-ai.com/api/track',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({event:'page_view',googleId:(U&&U.googleId)||null,aid:A,surface:'web',metadata:{path:location.pathname,title:(document.title||'').slice(0,90),guide:${JSON.stringify(c.slug)}}})}).catch(function(){});}}catch(e){}})();
 </script>
 </body></html>`;
 }
