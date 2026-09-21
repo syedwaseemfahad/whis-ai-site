@@ -4680,7 +4680,15 @@ body { overscroll-behavior-y:none; }
         try {
             const r = await fetch(`${BACKEND_URL}/api/send-download-link`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ email })
+                // Carry the creator + visitor id so this email is bound to the
+                // influencer on mobile — the bridge that survives the jump to desktop.
+                body: JSON.stringify({
+                    email,
+                    ref: localStorage.getItem('whisRef') || null,
+                    aid: localStorage.getItem('whisVisitorId') || null,
+                    source: localStorage.getItem('whisSource') || null,
+                    landing: location.pathname + (location.search || '')
+                })
             });
             const d = await r.json().catch(() => ({}));
             if (r.ok && d.success) { showMsg('✓ Sent! Open the email on your computer to install.', true); btn.textContent = 'Link sent ✓'; }
