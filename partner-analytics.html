@@ -90,6 +90,7 @@
         <button data-d="90">90d</button><button data-d="0">All</button>
       </div>
       <button class="btn ghost" onclick="openMint()">+ Mint link</button>
+      <button class="btn ghost" onclick="exportCSV()" title="Download all creator stats as a CSV">⬇ CSV</button>
       <button class="btn ghost" onclick="verify()" id="verifyBtn" title="Recompute every number from the immutable ledgers and check for drift/orphans">✓ Verify numbers</button>
       <button class="btn ghost" onclick="load()">↻</button>
     </div>
@@ -165,6 +166,18 @@ async function load(){
   catch(e){ if(String(e.message)==='unauth'){ location.reload(); } }
 }
 
+// One-click CSV of everything currently loaded (respects the date range).
+function exportCSV(){
+  if(!DATA || !DATA.influencers || !DATA.influencers.length){ return; }
+  const cols = ['influencerId','name','uniqueVisits','rawVisits','signups','paidCustomers','sales','activePaidNow','grossINR','commissionINR','commissionPaidINR','commissionUnpaidINR','epcINR','arpuINR','visitToSignup','signupToPaid','visitToPaid','link','statsUrl'];
+  const cell = v => { v = v==null?'':String(v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+  const csv = [cols.join(',')].concat(DATA.influencers.map(r=>cols.map(c=>cell(r[c])).join(','))).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = `whis-influencers-${RANGE?RANGE+'d':'all'}-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+}
+
 // Recompute every number from the immutable ledgers and report drift/orphans.
 // Pass fix=1 to heal any cached-counter drift in place.
 async function verify(fix){
@@ -217,7 +230,8 @@ function render(){
       <td>
         <div class="cname">${esc(r.name)} ${r.payoutReady?'':'<span class="pill w">no UPI</span>'}</div>
         <div><span class="code">${esc(r.influencerId)}</span>
-          <span class="copy" onclick="event.stopPropagation();copy('${r.link}',this)">copy link</span></div>
+          <span class="copy" onclick="event.stopPropagation();copy('${r.link}',this)">tracking link</span>
+          <span class="copy" onclick="event.stopPropagation();copy('${r.statsUrl}',this)">their stats link</span></div>
       </td>
       <td>${r.uniqueVisits.toLocaleString()}<div class="muted" style="font-size:10.5px">${r.rawVisits.toLocaleString()} total</div></td>
       <td>${r.signups}<div class="muted" style="font-size:10.5px">${r.visitToSignup}%</div></td>

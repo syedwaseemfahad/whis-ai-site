@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Your Whis-AI creator stats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#070b16;--card:#0f1626;--line:rgba(255,255,255,.08);--txt:#e6ecf7;--mut:#8a97ad;--acc:#29b6f6;--good:#34d399}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(900px 500px at 50% -10%,rgba(41,182,246,.14),transparent 60%),var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:640px;margin:0 auto;padding:34px 20px 70px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.02em}
+  .brand .dot{width:9px;height:9px;border-radius:99px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+  h1{font-size:26px;font-weight:800;letter-spacing:-.03em;margin:22px 0 4px}
+  h1 .nm{color:var(--acc)}
+  .sub{color:var(--mut);font-size:13.5px;margin:0 0 22px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px 18px}
+  .card.big{grid-column:1/-1;background:linear-gradient(160deg,rgba(52,211,153,.12),rgba(15,22,38,.9));border-color:rgba(52,211,153,.25)}
+  .k{color:var(--mut);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .v{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:8px}
+  .card.big .v{font-size:40px;color:var(--good)}
+  .v small{font-size:13px;color:var(--mut);font-weight:600}
+  .split{display:flex;gap:18px;margin-top:8px;color:var(--mut);font-size:12.5px}
+  .split b{color:var(--txt)}
+  .trend{margin-top:14px}
+  .foot{color:var(--mut);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
+  .foot a{color:var(--acc);text-decoration:none}
+  .state{text-align:center;padding:22vh 20px;color:var(--mut)}
+  .spin{width:26px;height:26px;border:3px solid rgba(255,255,255,.12);border-top-color:var(--acc);border-radius:50%;margin:0 auto 14px;animation:sp .9s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="loading" class="state"><div class="spin"></div>Loading your stats…</div>
+<div id="err" class="state" style="display:none">This stats link is invalid or expired. Please ask for a fresh link.</div>
+
+<div id="app" class="wrap" style="display:none">
+  <div class="brand"><span class="dot"></span> Whis-AI · Creator</div>
+  <h1>Hey <span class="nm" id="name"></span> 👋</h1>
+  <p class="sub">Here's how your link is performing. Updated live.</p>
+
+  <div class="grid">
+    <div class="card big">
+      <div class="k">Commission earned</div>
+      <div class="v" id="earned">₹0</div>
+      <div class="split"><span>Paid out: <b id="paid">₹0</b></span><span>Pending: <b id="pending">₹0</b></span></div>
+    </div>
+    <div class="card"><div class="k">People reached</div><div class="v" id="reach">0</div></div>
+    <div class="card"><div class="k">Signed up</div><div class="v" id="signups">0</div></div>
+    <div class="card"><div class="k">Paid customers</div><div class="v" id="customers">0</div></div>
+    <div class="card"><div class="k">Sales</div><div class="v" id="sales">0</div></div>
+    <div class="card big trend">
+      <div class="k">Last 14 days · reach</div>
+      <div id="spark" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <p class="foot">Your unique link: <span class="mono" id="reflink" style="color:var(--acc)"></span><br>
+    Numbers are computed live from confirmed activity. Questions? Just reply to us.</p>
+</div>
+
+<script>
+const API = "https://api.whis-ai.com";
+const $ = id => document.getElementById(id);
+const inr = n => '₹' + Math.round(n||0).toLocaleString('en-IN');
+const q = new URLSearchParams(location.search);
+const CODE = (q.get('c') || q.get('code') || '').toUpperCase();
+const TOK  = q.get('t') || '';
+
+function spark(vals){
+  const w=560,h=70,max=Math.max(1,...vals),step=vals.length>1?w/(vals.length-1):w;
+  const pts=vals.map((v,i)=>`${(i*step).toFixed(1)},${(h-(v/max)*(h-8)-4).toFixed(1)}`).join(' ');
+  return `<svg width="100%" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="display:block">
+    <polyline points="0,${h} ${pts} ${w},${h}" fill="rgba(52,211,153,.15)" stroke="none"/>
+    <polyline points="${pts}" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+
+async function boot(){
+  if(!CODE || !TOK){ $('loading').style.display='none'; $('err').style.display='block'; return; }
+  try {
+    const r = await fetch(`${API}/api/creator/stats?c=${encodeURIComponent(CODE)}&t=${encodeURIComponent(TOK)}`);
+    const d = await r.json();
+    if(!r.ok || !d.success) throw 0;
+    $('name').textContent = d.name || d.code;
+    $('earned').textContent = inr(d.earnedINR);
+    $('paid').textContent = inr(d.paidINR);
+    $('pending').textContent = inr(d.pendingINR);
+    $('reach').textContent = (d.reach||0).toLocaleString();
+    $('signups').textContent = (d.signups||0).toLocaleString();
+    $('customers').textContent = (d.customers||0).toLocaleString();
+    $('sales').textContent = (d.sales||0).toLocaleString();
+    $('spark').innerHTML = spark(d.spark||[]);
+    $('reflink').textContent = `whis-ai.com/?ref=${d.code}`;
+    $('loading').style.display='none'; $('app').style.display='block';
+  } catch(e){ $('loading').style.display='none'; $('err').style.display='block'; }
+}
+boot();
+</script>
+</body>
+</html>
