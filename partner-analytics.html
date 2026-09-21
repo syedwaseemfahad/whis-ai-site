@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Partner Attribution — Whis-AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#070b16;--card:#0f1626;--line:rgba(255,255,255,.07);--txt:#e6ecf7;--mut:#8a97ad;--acc:#29b6f6;--acc2:#0ea5e9;--good:#34d399;--warn:#fbbf24;--bad:#f87171}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--acc)}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1280px;margin:0 auto;padding:22px 20px 80px}
+  header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;margin-bottom:22px}
+  h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em}
+  h1 .dot{display:inline-block;width:9px;height:9px;border-radius:99px;background:var(--acc);box-shadow:0 0 12px var(--acc);margin-right:8px;vertical-align:middle}
+  .sub{color:var(--mut);font-size:13px;margin-top:3px}
+  .btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04121b;border:0;border-radius:99px;font-weight:800;padding:9px 16px;cursor:pointer;font-size:13px;transition:transform .15s}
+  .btn:hover{transform:translateY(-1px)}
+  .btn.ghost{background:rgba(255,255,255,.05);color:var(--txt);border:1px solid var(--line)}
+  .seg{display:inline-flex;background:#131c2e;border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{background:none;border:0;color:var(--mut);font-weight:700;font-size:12.5px;padding:6px 12px;border-radius:7px;cursor:pointer}
+  .seg button.on{background:var(--acc);color:#04121b}
+  /* gate */
+  #gate{max-width:380px;margin:16vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;text-align:center}
+  #gate h2{margin:0 0 6px;font-size:18px}
+  #gate p{color:var(--mut);font-size:13px;margin:0 0 18px}
+  #gate input{width:100%;background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:12px}
+  #gerr{color:var(--bad);font-size:12.5px;min-height:16px;margin-bottom:8px}
+  /* kpis */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
+  .kpi .k{color:var(--mut);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .kpi .v{font-size:23px;font-weight:800;margin-top:7px;letter-spacing:-.02em}
+  .kpi .v small{font-size:13px;color:var(--mut);font-weight:600}
+  /* table */
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .panel .ph{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .panel .ph b{font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{position:sticky;top:0;background:#101a2c;color:var(--mut);text-align:right;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:11px 12px;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:11px 12px;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
+  tr.row{cursor:pointer}
+  tr.row:hover td{background:rgba(41,182,246,.05)}
+  .cname{font-weight:700}
+  .code{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--acc)}
+  .pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px}
+  .pill.g{background:rgba(52,211,153,.14);color:var(--good)}
+  .pill.w{background:rgba(251,191,36,.14);color:var(--warn)}
+  .muted{color:var(--mut)}
+  .copy{cursor:pointer;color:var(--mut);font-size:11px;margin-left:6px;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .copy:hover{color:var(--acc)}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(3,7,15,.72);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+  .modal.show{display:flex}
+  .sheet{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:920px;width:100%;padding:24px}
+  .sheet h3{margin:0;font-size:18px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  .box{background:#0a1120;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .box .t{color:var(--mut);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+  .frow{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+  .close{float:right;cursor:pointer;color:var(--mut);font-size:20px;line-height:1}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}.hide-sm{display:none}}
+  .empty{padding:44px;text-align:center;color:var(--mut)}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h2>Partner Attribution</h2>
+  <p>Enter the dashboard password.</p>
+  <input id="pw" type="password" placeholder="Dashboard password" autofocus onkeydown="if(event.key==='Enter')unlock()" />
+  <div id="gerr"></div>
+  <button class="btn" style="width:100%" onclick="unlock()">Unlock</button>
+</div>
+
+<div id="app" class="wrap" style="display:none">
+  <header>
+    <div>
+      <h1><span class="dot"></span>Partner Attribution</h1>
+      <div class="sub">Which creator drives your visits, signups & revenue — attribution that never breaks.</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="seg" id="range">
+        <button data-d="7">7d</button><button data-d="30" class="on">30d</button>
+        <button data-d="90">90d</button><button data-d="0">All</button>
+      </div>
+      <button class="btn ghost" onclick="openMint()">+ Mint link</button>
+      <button class="btn ghost" onclick="load()">↻</button>
+    </div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="panel">
+    <div class="ph"><b>Creators</b><span class="muted" id="rowcount" style="font-size:12px"></span></div>
+    <div style="overflow:auto;max-height:70vh">
+      <table id="tbl">
+        <thead><tr>
+          <th>Creator</th><th>Visits</th><th>Signups</th><th>Paid</th><th class="hide-sm">Active now</th>
+          <th>Revenue</th><th>EPC</th><th class="hide-sm">ARPU</th><th class="hide-sm">Visit→Paid</th>
+          <th class="hide-sm">14-day</th><th>Owed</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" style="display:none">No creators yet. Mint your first tracked link →</div>
+  </div>
+</div>
+
+<!-- Mint modal -->
+<div class="modal" id="mint">
+  <div class="sheet" style="max-width:440px">
+    <span class="close" onclick="closeModal('mint')">×</span>
+    <h3>Mint a tracked link</h3>
+    <p class="muted" style="font-size:13px">The link works instantly. Payout details are optional and can be added later.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+      <input id="m_code" placeholder="Code e.g. ALEXDEV (2–40, A–Z 0–9 _ -)" style="background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:11px 13px" />
+      <input id="m_name" placeholder="Creator name (optional)" style="background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:11px 13px" />
+      <input id="m_social" placeholder="Social link (optional)" style="background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:11px 13px" />
+      <input id="m_upi" placeholder="UPI ID for payouts (optional)" style="background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:11px 13px" />
+      <div id="m_err" style="color:var(--bad);font-size:12.5px;min-height:16px"></div>
+      <button class="btn" onclick="mint()">Create link</button>
+      <div id="m_out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Drilldown modal -->
+<div class="modal" id="drill"><div class="sheet"><div id="drillBody"></div></div></div>
+
+<script>
+const API = "https://api.whis-ai.com";
+let PW = "", RANGE = 30, DATA = null;
+const $ = id => document.getElementById(id);
+const inr = n => '₹' + (Math.round(n||0)).toLocaleString('en-IN');
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function api(path, opts={}) {
+  const r = await fetch(API + path, { ...opts, headers: { 'Content-Type':'application/json', 'x-dashboard-password': PW, ...(opts.headers||{}) } });
+  if (r.status === 401) throw new Error('unauth');
+  return r.json();
+}
+
+async function unlock(){
+  PW = $('pw').value.trim();
+  if(!PW){ $('gerr').textContent = 'Enter your password.'; return; }
+  $('gerr').textContent = 'Checking…';
+  try {
+    const d = await api(`/api/admin/ref/overview?days=30`);
+    if (d && d.success){ sessionStorage.setItem('whisPW', PW); DATA = d; $('gate').style.display='none'; $('app').style.display='block'; render(); }
+    else { $('gerr').textContent = 'Wrong password or server error.'; }
+  } catch(e){ $('gerr').textContent = 'Wrong password or server unreachable.'; PW=''; }
+}
+
+async function load(){
+  try { DATA = await api(`/api/admin/ref/overview?days=${RANGE}`); render(); }
+  catch(e){ if(String(e.message)==='unauth'){ location.reload(); } }
+}
+
+function spark(vals, w=90, h=24, color='#29b6f6'){
+  const max = Math.max(1, ...vals);
+  const step = vals.length>1 ? w/(vals.length-1) : w;
+  const pts = vals.map((v,i)=>`${(i*step).toFixed(1)},${(h - (v/max)*(h-3) - 1.5).toFixed(1)}`).join(' ');
+  const area = `0,${h} ${pts} ${w},${h}`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
+    <polyline points="${area}" fill="${color}22" stroke="none"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+}
+
+function kpi(k,v,sub){ return `<div class="kpi"><div class="k">${k}</div><div class="v">${v}${sub?` <small>${sub}</small>`:''}</div></div>`; }
+
+function render(){
+  const t = DATA.totals;
+  $('kpis').innerHTML =
+    kpi('Unique visits', (t.uniqueVisits||0).toLocaleString()) +
+    kpi('Signups', (t.signups||0).toLocaleString()) +
+    kpi('Paid customers', (t.paidCustomers||0).toLocaleString()) +
+    kpi('Active paid now', (t.activePaidNow||0).toLocaleString()) +
+    kpi('Attributed revenue', inr(t.grossINR)) +
+    kpi('Commission owed', inr(t.commissionUnpaidINR));
+
+  const rows = DATA.influencers || [];
+  $('rowcount').textContent = rows.length + ' creators · ' + (RANGE? RANGE+'d':'all-time');
+  $('empty').style.display = rows.length ? 'none':'block';
+  $('tbody').innerHTML = rows.map(r=>`
+    <tr class="row" onclick="drill('${r.influencerId}')">
+      <td>
+        <div class="cname">${esc(r.name)} ${r.payoutReady?'':'<span class="pill w">no UPI</span>'}</div>
+        <div><span class="code">${esc(r.influencerId)}</span>
+          <span class="copy" onclick="event.stopPropagation();copy('${r.link}',this)">copy link</span></div>
+      </td>
+      <td>${r.uniqueVisits.toLocaleString()}<div class="muted" style="font-size:10.5px">${r.rawVisits.toLocaleString()} total</div></td>
+      <td>${r.signups}<div class="muted" style="font-size:10.5px">${r.visitToSignup}%</div></td>
+      <td>${r.paidCustomers}<div class="muted" style="font-size:10.5px">${r.signupToPaid}%</div></td>
+      <td class="hide-sm">${r.activePaidNow}</td>
+      <td><b>${inr(r.grossINR)}</b><div class="muted" style="font-size:10.5px">${r.sales} sales</div></td>
+      <td>${inr(r.epcINR)}</td>
+      <td class="hide-sm">${inr(r.arpuINR)}</td>
+      <td class="hide-sm">${r.visitToPaid}%</td>
+      <td class="hide-sm">${spark(r.sparkVisits)}</td>
+      <td>${r.commissionUnpaidINR?('<span class="pill g">'+inr(r.commissionUnpaidINR)+'</span>'):'<span class="muted">—</span>'}</td>
+    </tr>`).join('');
+}
+
+function copy(txt,el){ navigator.clipboard.writeText(txt); const o=el.textContent; el.textContent='copied ✓'; setTimeout(()=>el.textContent=o,1200); }
+
+async function drill(code){
+  $('drill').classList.add('show');
+  $('drillBody').innerHTML = '<div class="empty">Loading '+esc(code)+'…</div>';
+  try {
+    const d = await api(`/api/admin/ref/influencer/${code}`);
+    if(!d.success) throw 0;
+    const inf=d.influencer, m=d.money, f=d.funnel;
+    const maxV = Math.max(1,...d.series.map(s=>s.visits));
+    const chart = `<svg width="100%" height="120" viewBox="0 0 600 120" preserveAspectRatio="none" style="display:block">
+      ${d.series.map((s,i)=>{const x=i*(600/(d.series.length-1||1));const h=(s.visits/maxV)*100;return `<rect x="${(x-2).toFixed(1)}" y="${(110-h).toFixed(1)}" width="5" height="${h.toFixed(1)}" fill="#29b6f6" opacity=".8"/>`}).join('')}
+      <polyline points="${d.series.map((s,i)=>`${(i*(600/(d.series.length-1||1))).toFixed(1)},${(110-(s.sales/Math.max(1,...d.series.map(x=>x.sales)))*100).toFixed(1)}`).join(' ')}" fill="none" stroke="#34d399" stroke-width="2"/>
+    </svg>`;
+    const dev = (d.devices||[]).map(x=>`<div class="frow"><span class="muted">${x._id.device||'?'}${x._id.inApp?' · in-app':''}</span><b>${x.n}</b></div>`).join('')||'<div class="muted">—</div>';
+    const geo = (d.geo||[]).map(x=>`<div class="frow"><span class="muted">${esc(x._id||'?')}</span><b>${x.n}</b></div>`).join('')||'<div class="muted">—</div>';
+    const camp = (d.campaigns||[]).filter(x=>x._id).map(x=>`<div class="frow"><span class="muted">${esc(x._id)}</span><b>${x.n}</b></div>`).join('')||'<div class="muted">no sub-tags</div>';
+    const recent = (d.recentConversions||[]).map(c=>`<div class="frow"><span class="muted">${new Date(c.createdAt).toLocaleDateString()} · ${esc(c.tier||'')}/${esc(c.cycle||'')} <span class="pill ${c.attributionType==='link'?'g':'w'}">${esc(c.attributionType)}</span></span><b>${inr(c.grossAmountINR)}</b></div>`).join('')||'<div class="muted">No sales yet</div>';
+    $('drillBody').innerHTML = `
+      <span class="close" onclick="closeModal('drill')">×</span>
+      <h3>${esc(inf.name)} <span class="code">${esc(inf.influencerId)}</span></h3>
+      <div class="muted" style="font-size:12.5px;margin-top:4px">${esc(inf.link)} <span class="copy" onclick="copy('${inf.link}',this)">copy</span> · UPI: ${esc(inf.upiId)}</div>
+      <div class="kpis" style="margin-top:16px">
+        ${kpi('Signups', f.signups||0)}${kpi('Active paid', f.activePaid||0)}
+        ${kpi('Paid customers', m.buyers||0)}${kpi('Revenue', inr(m.grossINR))}
+        ${kpi('Commission', inr(m.commissionINR))}
+      </div>
+      <div class="box" style="margin-top:14px"><div class="t">Last 30 days · bars = visits, green line = sales</div>${chart}</div>
+      <div class="grid2">
+        <div class="box"><div class="t">Top geographies</div>${geo}</div>
+        <div class="box"><div class="t">Devices</div>${dev}</div>
+        <div class="box"><div class="t">Sub-tags (source)</div>${camp}</div>
+        <div class="box"><div class="t">Recent conversions</div>${recent}</div>
+      </div>`;
+  } catch(e){ $('drillBody').innerHTML='<span class="close" onclick="closeModal(\'drill\')">×</span><div class="empty">Could not load.</div>'; }
+}
+
+function openMint(){ $('mint').classList.add('show'); $('m_out').innerHTML=''; $('m_err').textContent=''; }
+function closeModal(id){ $(id).classList.remove('show'); }
+async function mint(){
+  const code=$('m_code').value.trim();
+  $('m_err').textContent='';
+  if(!/^[A-Za-z0-9_-]{2,40}$/.test(code)){ $('m_err').textContent='Code must be 2–40 chars: letters, numbers, _ or -'; return; }
+  try {
+    const d = await api('/api/admin/ref/create', { method:'POST', body: JSON.stringify({
+      code, name:$('m_name').value.trim()||null, socialLink:$('m_social').value.trim()||null, upiId:$('m_upi').value.trim()||null }) });
+    if(d.success){
+      $('m_out').innerHTML = `<div class="box" style="margin-top:12px"><div class="t">Link is live</div>
+        <div class="mono" style="font-size:12.5px;word-break:break-all">${esc(d.link)}</div>
+        <button class="btn" style="margin-top:10px" onclick="copy('${d.link}',this)">Copy link</button></div>`;
+      ['m_code','m_name','m_social','m_upi'].forEach(i=>$(i).value='');
+      load();
+    } else { $('m_err').textContent = d.error || 'Failed.'; if(d.link) $('m_out').innerHTML=`<div class="muted mono" style="margin-top:10px;font-size:12px">${esc(d.link)}</div>`; }
+  } catch(e){ $('m_err').textContent='Server error.'; }
+}
+
+document.querySelectorAll('#range button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#range button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); RANGE=parseInt(b.dataset.d); load();
+});
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('show'); }));
+
+// auto-unlock if password cached this session
+(function(){ const p=sessionStorage.getItem('whisPW'); if(p){ PW=p; $('pw').value=p; unlock(); } })();
+</script>
+</body>
+</html>

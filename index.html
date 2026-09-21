@@ -4568,7 +4568,10 @@ body { overscroll-behavior-y:none; }
             // so attribution survives sign-in and binds to the account server-side.
             const currentSource = localStorage.getItem('whisSource') || 'organic';
             const currentRef = localStorage.getItem('whisRef') || '';
-            const stateParam = encodeURIComponent(JSON.stringify({ s: currentSource, r: currentRef }));
+            const currentAid = localStorage.getItem('whisVisitorId') || '';
+            // Carry the aid too: even if ref was never stored client-side, the server
+            // resolves the creator from its durable aid→creator memory at signup.
+            const stateParam = encodeURIComponent(JSON.stringify({ s: currentSource, r: currentRef, a: currentAid }));
 
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=${stateParam}`;
 
@@ -4898,36 +4901,60 @@ body { overscroll-behavior-y:none; }
         const authSuccess = urlParams.get('auth_success');
         const userStr = urlParams.get('user');
 
-        // --- STABLE VISITOR ID (for unique click/reach tracking) ---
-        let whisVisitorId = localStorage.getItem('whisVisitorId');
-        if (!whisVisitorId) {
-            whisVisitorId = (crypto.randomUUID ? crypto.randomUUID() : 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2));
-            localStorage.setItem('whisVisitorId', whisVisitorId);
+        // ── DURABLE ANONYMOUS ID (aid) ────────────────────────────────────────
+        // Stored in BOTH localStorage and a first-party .whis-ai.com cookie so it
+        // survives localStorage wipes and is shared across every whis-ai.com page.
+        // This aid is the spine of attribution: the server remembers which creator
+        // first sent it, so the link is never lost even after a Google sign-in on a
+        // different day or device.
+        function _readCookie(n){ const m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : null; }
+        let whisAid = localStorage.getItem('whisVisitorId') || _readCookie('whis_aid');
+        if (!whisAid) { whisAid = (crypto.randomUUID ? crypto.randomUUID() : 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2)); }
+        localStorage.setItem('whisVisitorId', whisAid);
+        try { document.cookie = `whis_aid=${encodeURIComponent(whisAid)}; domain=.whis-ai.com; path=/; max-age=31536000; SameSite=Lax; Secure`; } catch(e){}
+        const whisVisitorId = whisAid; // back-compat alias for downstream code
+
+        // ── ATTRIBUTION CAPTURE (first-touch wins, always remembered server-side) ─
+        const refCode = urlParams.get('ref');
+        const utmSource = urlParams.get('source') || urlParams.get('utm_source');
+        if (refCode) {
+            if (!localStorage.getItem('whisRef')) localStorage.setItem('whisRef', refCode); // first-touch is canonical
+            localStorage.setItem('whisRefLast', refCode);
+        }
+        if (utmSource) localStorage.setItem('whisSource', utmSource);
+
+        // ONE rich visit ping — seeds the durable aid→creator memory and powers the
+        // deep per-creator analytics (geo, device, in-app browser, landing page).
+        // Sent on every load, even with no ref, so the visitor is known for later binding.
+        try {
+            fetch(`${BACKEND_URL}/api/ref/visit`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+                body: JSON.stringify({
+                    aid: whisAid,
+                    ref: refCode || localStorage.getItem('whisRef') || null,
+                    source: utmSource || localStorage.getItem('whisSource') || null,
+                    landing: location.pathname + (location.search || ''),
+                    referrer: document.referrer || null
+                })
+            }).catch(() => {});
+        } catch(e){}
+
+        // Keep the legacy campaign-hit ping (marketing dashboard) working.
+        if (utmSource) {
+            fetch(`${BACKEND_URL}/api/marketing/hit`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source: utmSource })
+            }).catch(() => {});
         }
 
-        // --- AFFILIATE LINK CAPTURE ---
-        const refCode = urlParams.get('ref');
-        if (refCode) {
-            localStorage.setItem('whisRef', refCode);
-            // Record a unique visitor·day click for this creator (top of funnel).
-            fetch(`${BACKEND_URL}/api/influencer/click`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ref: refCode, visitorId: whisVisitorId, source: urlParams.get('source') || urlParams.get('utm_source') || null })
-            }).catch(e => console.log('Click tracking failed', e));
-        }
-        
-        // --- NEW: MARKETING SOURCE CAPTURE AND HIT TRACKING ---
-        const utmSource = urlParams.get('source') || urlParams.get('utm_source');
-        if (utmSource) {
-            localStorage.setItem('whisSource', utmSource);
-            
-            // Fire the hit ping to the backend immediately
-            fetch(`${BACKEND_URL}/api/marketing/hit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ source: utmSource })
-            }).catch(e => console.log('Hit tracking failed', e));
+        // Clean the ref/source params out of the URL so they don't linger, get
+        // re-shared, or confuse analytics — fully seamless to the visitor.
+        if (refCode || utmSource) {
+            try {
+                const u = new URL(location.href);
+                ['ref', 'source', 'utm_source', 'utm_medium', 'utm_campaign'].forEach(k => u.searchParams.delete(k));
+                history.replaceState({}, '', u.pathname + (u.search || '') + (u.hash || ''));
+            } catch(e){}
         }
         // ------------------------------------------------------
 
