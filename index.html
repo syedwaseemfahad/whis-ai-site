@@ -3853,7 +3853,8 @@ body { overscroll-behavior-y:none; }
 
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
-                try { maybeOneTap(); } catch(e){}
+                // (One Tap intentionally NOT auto-prompted — referred visitors must see
+                //  nothing different from a normal visitor. Tracking stays fully silent.)
 
                 applyConfig(data);
                 renderPricingCards();   // fills all four pricing cards from live config
@@ -4305,18 +4306,10 @@ body { overscroll-behavior-y:none; }
             _applyUpiVisibility();   // reveal ₹/UPI only after a failed card attempt
         }
 
+        // Influencer links are pure tracking — never surface any "link active" or
+        // discount message to the buyer. Keep this checkout hint permanently hidden.
         const infMsg = document.getElementById('influencerDiscountMsg');
-        if (infMsg) {
-            const activeRef = localStorage.getItem('whisRef');
-            const activeRefName = localStorage.getItem('whisRefName') || activeRef;
-            if (activeRef) {
-                const gatewayText = "Razorpay";
-                infMsg.innerHTML = `<span class="font-bold flex items-center gap-1.5 mb-1 text-emerald-600"><i class="fa-solid fa-tags"></i> ${activeRefName} Link Active</span>Your 10% discount is being automatically applied securely via ${gatewayText}.`;
-                infMsg.classList.remove('hidden');
-            } else {
-                infMsg.classList.add('hidden');
-            }
-        }
+        if (infMsg) infMsg.classList.add('hidden');
 
         // Auto-apply a coupon passed via the app's deep link (?coupon=CODE) — WITHOUT
         // changing the plan the user picked. It only discounts the cycle it's valid for.
@@ -5002,49 +4995,12 @@ body { overscroll-behavior-y:none; }
         }
         // ------------------------------------------------------
 
-        // --- VISUAL BANNER FOR AFFILIATE USERS ONLY ---
-        const activeRef = localStorage.getItem('whisRef');
-        if (activeRef) {
-            // 1. Show Default Banner immediately so it never "goes missing"
-            const banner = document.createElement('div');
-            banner.id = "global-influencer-banner";
-            banner.className = "bg-emerald-500 text-slate-900 text-[11px] md:text-xs font-bold text-center py-2 px-4 fixed top-0 w-full z-[100] shadow-md flex justify-center items-center gap-2 transition-all";
-            banner.innerHTML = `<i class="fa-solid fa-gift text-sm"></i> <span id="banner-text-content">Influencer Link Active! 10% discount applied.</span>`;
-            document.body.prepend(banner);
-            
-            const nav = document.querySelector('nav');
-            if (nav) nav.style.top = '32px'; 
-
-            // 2. Fetch the influencer name from the backend using the ID
-            fetch(`${BACKEND_URL}/api/influencer/${activeRef}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.name) {
-                        localStorage.setItem('whisRefName', data.name);
-
-                        // Swap the text smoothly once loaded
-                        document.getElementById('banner-text-content').innerHTML = `<span class="uppercase tracking-wider px-1.5 py-0.5 bg-white/30 rounded mr-1">${data.name}</span> Link Active! 10% discount applied.`;
-                        
-                        const pName = document.getElementById('pricingInfluencerName');
-                        if(pName) pName.innerText = data.name;
-                    }
-                })
-                .catch(err => console.log("Failed to fetch influencer details. Using default banner.", err));
-
-            // 3. Make sure pricing section banner is visible instantly
-            const pBanner = document.getElementById('pricingInfluencerBanner');
-            if(pBanner) pBanner.classList.remove('hidden');
-
-            // 4. Cross-device bridge nudge: a referred visitor on mobile must jump to a
-            //    computer to use Whis. Surface the "email me the desktop link" capture
-            //    once — that email is what carries the influencer credit to the desktop
-            //    app. Only mobile, only if not signed in, only once per session.
-            const _isMob = /Android|iPhone|iPad|iPod|Mobile|Silk|BlackBerry|IEMobile/i.test(navigator.userAgent || '');
-            if (_isMob && !localStorage.getItem('whisUser') && !sessionStorage.getItem('dlNudged')) {
-                sessionStorage.setItem('dlNudged', '1');
-                setTimeout(() => { try { if (typeof openDownloadModal === 'function') openDownloadModal(); } catch(e){} }, 3200);
-            }
-        }
+        // --- INFLUENCER LINKS ARE PURE, SILENT TRACKING ---
+        // No banner, no discount, no special prompts. The visitor's experience is
+        // IDENTICAL to a normal visitor. Attribution was already captured silently
+        // above (the /api/ref/visit ping + whisRef stored for OAuth binding). Nothing
+        // about the influencer is ever shown to the user — it's only for us, in the
+        // partner dashboard.
         // ------------------------------------------
 
         if (authSuccess === 'true' && userStr) {
