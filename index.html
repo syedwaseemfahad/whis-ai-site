@@ -3853,6 +3853,7 @@ body { overscroll-behavior-y:none; }
 
                 GOOGLE_CLIENT_ID = data.googleClientId;
                 if(data.exchangeRate) EXCHANGE_RATE = data.exchangeRate;
+                try { maybeOneTap(); } catch(e){}
 
                 applyConfig(data);
                 renderPricingCards();   // fills all four pricing cards from live config
@@ -3867,6 +3868,41 @@ body { overscroll-behavior-y:none; }
     }
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
+
+    // ── Google One Tap for INFLUENCER-REFERRED visitors ───────────────────────
+    // One tap captures their Google account → we bind email→creator instantly, the
+    // strongest cross-device bridge. Only prompts referred, not-signed-in visitors,
+    // and fails silently if the client isn't configured (never breaks the page).
+    function maybeOneTap(){
+        if (!GOOGLE_CLIENT_ID) return;
+        if (localStorage.getItem('whisUser')) return;       // already signed in
+        if (!localStorage.getItem('whisRef')) return;       // only referred traffic
+        if (sessionStorage.getItem('otShown')) return;      // once per session
+        if (!(window.google && google.accounts && google.accounts.id)) return;
+        sessionStorage.setItem('otShown', '1');
+        try {
+            google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: async (resp) => {
+                    if (!resp || !resp.credential) return;
+                    try {
+                        const r = await fetch(`${BACKEND_URL}/api/auth/google`, {
+                            method:'POST', headers:{'Content-Type':'application/json'},
+                            body: JSON.stringify({
+                                token: resp.credential,
+                                ref: localStorage.getItem('whisRef') || null,
+                                aid: localStorage.getItem('whisVisitorId') || null,
+                                source: localStorage.getItem('whisSource') || 'organic'
+                            })
+                        });
+                        const d = await r.json().catch(() => ({}));
+                        if (d && d.success && d.user) { localStorage.setItem('whisUser', JSON.stringify(d.user)); location.reload(); }
+                    } catch(e){}
+                }
+            });
+            google.accounts.id.prompt();
+        } catch(e){}
+    }
      
     function updateNavUI(u){ 
         document.getElementById('signInBtn').style.display='none'; 
@@ -4998,6 +5034,16 @@ body { overscroll-behavior-y:none; }
             // 3. Make sure pricing section banner is visible instantly
             const pBanner = document.getElementById('pricingInfluencerBanner');
             if(pBanner) pBanner.classList.remove('hidden');
+
+            // 4. Cross-device bridge nudge: a referred visitor on mobile must jump to a
+            //    computer to use Whis. Surface the "email me the desktop link" capture
+            //    once — that email is what carries the influencer credit to the desktop
+            //    app. Only mobile, only if not signed in, only once per session.
+            const _isMob = /Android|iPhone|iPad|iPod|Mobile|Silk|BlackBerry|IEMobile/i.test(navigator.userAgent || '');
+            if (_isMob && !localStorage.getItem('whisUser') && !sessionStorage.getItem('dlNudged')) {
+                sessionStorage.setItem('dlNudged', '1');
+                setTimeout(() => { try { if (typeof openDownloadModal === 'function') openDownloadModal(); } catch(e){} }, 3200);
+            }
         }
         // ------------------------------------------
 
