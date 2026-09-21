@@ -2627,10 +2627,6 @@ body { overscroll-behavior-y:none; }
 </script>
 </div>
 
-<div id="pricingInfluencerBanner" class="hidden max-w-md mx-auto mb-8 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl p-3 text-[13px] md:text-sm flex flex-col md:flex-row items-center justify-center gap-2">
-    <i class="fa-solid fa-gift text-emerald-400 text-lg"></i>
-    <span><span id="pricingInfluencerName" class="font-bold uppercase tracking-wide"></span>'s 10% discount is automatically applied below!</span>
-</div>
         <!-- ── UPSELL NUDGE — pushes Quarterly / 6-Month ── -->
         <div class="max-w-2xl mx-auto mb-8 md:mb-10 px-4">
           <div class="relative overflow-hidden rounded-2xl px-5 py-4 md:px-7 md:py-5 text-center" style="background:linear-gradient(120deg,rgba(14,165,233,0.14),rgba(16,185,129,0.12));border:1px solid rgba(16,185,129,0.35);box-shadow:0 12px 45px -12px rgba(14,165,233,0.45);">
@@ -3870,42 +3866,7 @@ body { overscroll-behavior-y:none; }
 
     function checkUser(){ const s=localStorage.getItem('whisUser'); if(s){ try{ currentUser=JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){localStorage.removeItem('whisUser');} } }
 
-    // ── Google One Tap for INFLUENCER-REFERRED visitors ───────────────────────
-    // One tap captures their Google account → we bind email→creator instantly, the
-    // strongest cross-device bridge. Only prompts referred, not-signed-in visitors,
-    // and fails silently if the client isn't configured (never breaks the page).
-    function maybeOneTap(){
-        if (!GOOGLE_CLIENT_ID) return;
-        if (localStorage.getItem('whisUser')) return;       // already signed in
-        if (!localStorage.getItem('whisRef')) return;       // only referred traffic
-        if (sessionStorage.getItem('otShown')) return;      // once per session
-        if (!(window.google && google.accounts && google.accounts.id)) return;
-        sessionStorage.setItem('otShown', '1');
-        try {
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: async (resp) => {
-                    if (!resp || !resp.credential) return;
-                    try {
-                        const r = await fetch(`${BACKEND_URL}/api/auth/google`, {
-                            method:'POST', headers:{'Content-Type':'application/json'},
-                            body: JSON.stringify({
-                                token: resp.credential,
-                                ref: localStorage.getItem('whisRef') || null,
-                                aid: localStorage.getItem('whisVisitorId') || null,
-                                source: localStorage.getItem('whisSource') || 'organic'
-                            })
-                        });
-                        const d = await r.json().catch(() => ({}));
-                        if (d && d.success && d.user) { localStorage.setItem('whisUser', JSON.stringify(d.user)); location.reload(); }
-                    } catch(e){}
-                }
-            });
-            google.accounts.id.prompt();
-        } catch(e){}
-    }
-     
-    function updateNavUI(u){ 
+    function updateNavUI(u){
         document.getElementById('signInBtn').style.display='none'; 
         const profileTrigger = document.getElementById('userProfileTrigger');
         profileTrigger.classList.remove('hidden'); 
