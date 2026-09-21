@@ -224,7 +224,11 @@ async function drill(code){
     const dev = (d.devices||[]).map(x=>`<div class="frow"><span class="muted">${x._id.device||'?'}${x._id.inApp?' · in-app':''}</span><b>${x.n}</b></div>`).join('')||'<div class="muted">—</div>';
     const geo = (d.geo||[]).map(x=>`<div class="frow"><span class="muted">${esc(x._id||'?')}</span><b>${x.n}</b></div>`).join('')||'<div class="muted">—</div>';
     const camp = (d.campaigns||[]).filter(x=>x._id).map(x=>`<div class="frow"><span class="muted">${esc(x._id)}</span><b>${x.n}</b></div>`).join('')||'<div class="muted">no sub-tags</div>';
-    const recent = (d.recentConversions||[]).map(c=>`<div class="frow"><span class="muted">${new Date(c.createdAt).toLocaleDateString()} · ${esc(c.tier||'')}/${esc(c.cycle||'')} <span class="pill ${c.attributionType==='link'?'g':'w'}">${esc(c.attributionType)}</span></span><b>${inr(c.grossAmountINR)}</b></div>`).join('')||'<div class="muted">No sales yet</div>';
+    const recent = (d.recentConversions||[]).map(c=>{
+      const okAttr = c.attributionType && c.attributionType!=='none';
+      const amt = c.reversed ? `<b style="text-decoration:line-through;color:var(--bad)">${inr(c.grossAmountINR)}</b> <span class="pill" style="background:rgba(248,113,113,.14);color:var(--bad)">refunded</span>` : `<b>${inr(c.grossAmountINR)}</b>`;
+      return `<div class="frow"><span class="muted">${new Date(c.createdAt).toLocaleDateString()} · ${esc(c.tier||'')}/${esc(c.cycle||'')} <span class="pill ${okAttr?'g':'w'}">${esc(c.attributionType||'none')}</span></span>${amt}</div>`;
+    }).join('')||'<div class="muted">No sales yet</div>';
     $('drillBody').innerHTML = `
       <span class="close" onclick="closeModal('drill')">×</span>
       <h3>${esc(inf.name)} <span class="code">${esc(inf.influencerId)}</span></h3>
