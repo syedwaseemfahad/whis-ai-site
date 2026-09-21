@@ -90,9 +90,12 @@
         <button data-d="90">90d</button><button data-d="0">All</button>
       </div>
       <button class="btn ghost" onclick="openMint()">+ Mint link</button>
+      <button class="btn ghost" onclick="verify()" id="verifyBtn" title="Recompute every number from the immutable ledgers and check for drift/orphans">✓ Verify numbers</button>
       <button class="btn ghost" onclick="load()">↻</button>
     </div>
   </header>
+
+  <div id="auditBar" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600"></div>
 
   <div class="kpis" id="kpis"></div>
 
@@ -160,6 +163,28 @@ async function unlock(){
 async function load(){
   try { DATA = await api(`/api/admin/ref/overview?days=${RANGE}`); render(); }
   catch(e){ if(String(e.message)==='unauth'){ location.reload(); } }
+}
+
+// Recompute every number from the immutable ledgers and report drift/orphans.
+// Pass fix=1 to heal any cached-counter drift in place.
+async function verify(fix){
+  const bar = $('auditBar'), btn = $('verifyBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Checking…';
+  try {
+    const d = await api(`/api/admin/ref/audit${fix?'?fix=1':''}`);
+    bar.style.display = 'block';
+    if (d.healthy){
+      bar.style.background = 'rgba(52,211,153,.12)'; bar.style.color = 'var(--good)';
+      bar.innerHTML = `✓ 100% precise — all ${d.influencers} creators reconcile exactly against the ledgers, no orphaned records.`;
+    } else {
+      bar.style.background = 'rgba(251,191,36,.12)'; bar.style.color = 'var(--warn)';
+      const drift = d.drift.map(x=>`${esc(x.name)} (${esc(x.influencerId)}): ${Object.keys(x.mismatches).join(', ')}`).join(' · ');
+      bar.innerHTML = `${d.driftCount} counter mismatch(es)${d.orphanTotal?`, ${d.orphanTotal} orphaned record(s)`:''}. ${drift?('<span style="font-weight:500">'+drift+'</span> · '):''}`
+        + (fix ? 'Healed ✓' : '<span class="copy" style="margin-left:4px" onclick="verify(1)">heal now</span>');
+      if (fix) load();
+    }
+  } catch(e){ bar.style.display='block'; bar.style.background='rgba(248,113,113,.12)'; bar.style.color='var(--bad)'; bar.textContent='Audit failed.'; }
+  btn.disabled = false; btn.textContent = orig;
 }
 
 function spark(vals, w=90, h=24, color='#29b6f6'){
