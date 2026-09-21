@@ -3896,29 +3896,7 @@ body { overscroll-behavior-y:none; }
             ? Math.round((baseNum - parseFloat(standardDiscounted)) / baseNum * 100)
             : discount;
 
-        if (isAffiliate) {
-            const finalAffiliatePrice = IS_INDIA
-                ? charmINR(discountAmount * 0.9)
-                : charmUSD(discountAmount * 0.9);
-
-            const strikeColor    = isEliteCard ? "text-slate-500" : "text-slate-400";
-            const highlightColor = isEliteCard ? "text-emerald-400" : "text-emerald-600";
-            const standardBadge  = isEliteCard ? "bg-slate-700 text-white" : "bg-slate-800 text-white";
-
-            return `
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-sm line-through ${strikeColor} opacity-70">${currencySymbol}${displayAmount}</span>
-                        <span class="text-lg line-through ${strikeColor}">${currencySymbol}${standardDiscounted}</span>
-                    </div>
-                    <span class="text-4xl ${highlightColor} font-extrabold tracking-tight">${currencySymbol}${finalAffiliatePrice}</span>
-                    <div class="mt-2 flex gap-1 items-center flex-wrap">
-                        <span class="text-[9px] font-bold ${standardBadge} px-2 py-0.5 rounded uppercase">${realDiscount}% OFF</span>
-                        <span class="text-[9px] font-bold text-emerald-900 bg-emerald-300 px-2 py-0.5 rounded shadow-sm uppercase">+10% PARTNER</span>
-                    </div>
-                </div>
-            `;
-        } else if (discount > 0) {
+        if (discount > 0) {
             return `<span>${currencySymbol}${standardDiscounted}</span> <span class="text-sm line-through text-slate-400 opacity-60 mx-1">${currencySymbol}${displayAmount}</span> <span class="text-[10px] font-bold text-white bg-accent px-1.5 py-0.5 rounded align-middle">${realDiscount}% OFF</span>`;
         }
 
