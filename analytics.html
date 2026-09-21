@@ -283,13 +283,14 @@ function exportUsers(){
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`whis-users-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
 }
 
-const LBL={visit:'Came to the site',page_view:'Viewed a page',signup:'Signed up',login:'Logged in',app_open:'Opened the app',trial_start:'Started a trial',trial_end:'Trial ended',usage:'Used the app',question:'Asked a question',paywall_shown:'Saw the paywall',checkout_start:'Opened checkout',checkout_opened:'Opened checkout',paid:'Paid',refund:'Refund',interview_saved:'Saved their interview',context_saved:'Added context/resume',context_toggled:'Switched context',context_deleted:'Deleted a context',support_message:'Messaged support',download_link_sent:'Requested download link',interview_onboard_shown:'Saw onboarding',peak_nudge_shown:'Saw peak nudge',peak_nudge_clicked:'Clicked peak nudge',trial_active:'Trial active',context_quick_upload:'Uploaded resume'};
+const LBL={visit:'Came to the site',page_view:'Viewed a page',signup:'Signed up',login:'Logged in',app_open:'Opened the app',trial_start:'Started a trial',trial_end:'Trial ended',usage:'Used the app',question:'Asked a question',paywall_shown:'Saw the paywall',checkout_start:'Opened checkout',checkout_opened:'Opened checkout',paid:'Paid',refund:'Refund',interview_saved:'Saved their interview',context_saved:'Added context/resume',context_toggled:'Switched context',context_deleted:'Deleted a context',support_message:'Messaged support',download_link_sent:'Requested download link',interview_onboard_shown:'Saw onboarding',peak_nudge_shown:'Saw peak nudge',peak_nudge_clicked:'Clicked peak nudge',trial_active:'Trial active',context_quick_upload:'Uploaded resume',subscription_expired:'Subscription expired (churn)',enterprise_query:'Enterprise enquiry',free_request:'Requested free access'};
 function evLabel(e){
   let l=LBL[e.type]||e.type;
   if(e.type==='page_view'&&e.meta){ const p=e.meta.guide?('guide: '+e.meta.guide):(e.meta.path||''); l='Viewed '+(p||'a page'); }
   if(e.type==='paid') l='Paid '+inr(e.amountINR)+(e.meta&&e.meta.tier?` · ${e.meta.tier} ${e.meta.cycle||''}`:'');
   if(e.type==='usage'&&e.meta&&e.meta.totalSec!=null) l=`Used the app (${e.meta.totalSec}s total)`;
   if(e.type==='trial_start'&&e.meta&&e.meta.durationMin) l=`Started a trial (${e.meta.durationMin} min)`;
+  if(e.type==='question'&&e.meta&&e.meta.screenshot) l='Asked a question (with screenshot)';
   return l;
 }
 async function openTL(gid){
