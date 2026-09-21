@@ -91,6 +91,8 @@
     <div><h1><span class="dot"></span>Product Analytics</h1><div class="sub">Every user, every action — from first touch to paid, and the whole cohort compiled.</div></div>
     <div style="display:flex;gap:10px;align-items:center">
       <div class="seg" id="range"><button data-d="7">7d</button><button data-d="30" class="on">30d</button><button data-d="90">90d</button></div>
+      <button class="btn ghost" id="liveBtn" onclick="toggleLive()">● Live</button>
+      <span id="liveTs" class="muted" style="font-size:11px"></span>
       <button class="btn ghost" onclick="refresh()">↻ Refresh</button>
     </div>
   </header>
@@ -156,6 +158,20 @@ async function unlock(){
 }
 function showTab(t){ $('overview').style.display=t==='overview'?'block':'none'; $('users').style.display=t==='users'?'block':'none'; $('tabO').classList.toggle('on',t==='overview'); $('tabU').classList.toggle('on',t==='users'); }
 async function refresh(){ try{ const d=await api(`/api/admin/analytics/overview?days=${RANGE}${segQS()}`); FILTERS=d.filters||FILTERS; renderOverview(d); loadCohorts(); loadUsers(0); }catch(e){ if(e.message==='unauth')location.reload(); } }
+let LIVE=false,LIVEIV=null;
+function toggleLive(){
+  LIVE=!LIVE; const b=$('liveBtn');
+  if(LIVE){ b.classList.remove('ghost'); b.textContent='● Live · on'; b.style.background='var(--good)'; b.style.color='#04121b';
+    liveTick(); LIVEIV=setInterval(liveTick,15000); }
+  else { b.classList.add('ghost'); b.textContent='● Live'; b.style.background=''; b.style.color=''; clearInterval(LIVEIV); $('liveTs').textContent=''; }
+}
+async function liveTick(){
+  try{
+    if($('overview').style.display!=='none'){ const d=await api(`/api/admin/analytics/overview?days=${RANGE}${segQS()}`); FILTERS=d.filters||FILTERS; renderOverview(d); }
+    else { loadUsers(UPAGE); }
+    $('liveTs').textContent='updated '+new Date().toLocaleTimeString();
+  }catch(e){ if(e.message==='unauth'){ clearInterval(LIVEIV); location.reload(); } }
+}
 function setSeg(k,v){ if(v)SEG[k]=v; else delete SEG[k]; refresh(); }
 function clearSeg(){ SEG={}; refresh(); }
 function drill(cohort,label){ COHORT=cohort; $('cohortLabel').textContent=label; document.querySelectorAll('#stage button').forEach(x=>x.classList.remove('on')); showTab('users'); loadUsers(0); }
