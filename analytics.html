@@ -6,14 +6,14 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>Product Analytics — Whis-AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#070b16;--card:#0f1626;--line:rgba(255,255,255,.07);--txt:#e6ecf7;--mut:#8a97ad;--acc:#29b6f6;--acc2:#0ea5e9;--good:#34d399;--warn:#fbbf24;--bad:#f87171;--purple:#a78bfa}
+  :root{--bg:#070b16;--card:#0f1626;--card2:#0b1322;--line:rgba(255,255,255,.07);--txt:#e6ecf7;--mut:#8a97ad;--acc:#29b6f6;--acc2:#0ea5e9;--good:#34d399;--warn:#fbbf24;--bad:#f87171;--purple:#a78bfa}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
   .mono{font-family:'JetBrains Mono',monospace}
-  .wrap{max-width:1240px;margin:0 auto;padding:22px 20px 80px}
-  header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;margin-bottom:20px}
+  .wrap{max-width:1300px;margin:0 auto;padding:22px 20px 90px}
+  header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;margin-bottom:18px}
   h1{font-size:20px;font-weight:800;margin:0}
   h1 .dot{display:inline-block;width:9px;height:9px;border-radius:99px;background:var(--acc);box-shadow:0 0 12px var(--acc);margin-right:8px;vertical-align:middle}
   .sub{color:var(--mut);font-size:13px;margin-top:3px}
@@ -28,27 +28,38 @@
   #gate{max-width:380px;margin:16vh auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;text-align:center}
   #gate input{width:100%;background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:12px 14px;font-size:14px;margin:14px 0 12px}
   #gerr{color:var(--bad);font-size:12.5px;min-height:16px}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px}
-  .kpi .k{color:var(--mut);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-  .kpi .v{font-size:24px;font-weight:800;margin-top:7px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:11px;margin-bottom:16px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .kpi .k{color:var(--mut);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .kpi .v{font-size:23px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
   .kpi .v small{font-size:12px;color:var(--mut);font-weight:600}
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
-  .panel h3{margin:0 0 14px;font-size:14px}
-  .funnel .step{display:flex;align-items:center;gap:12px;margin-bottom:9px}
-  .funnel .lbl{width:130px;font-size:13px;color:var(--mut)}
-  .funnel .bar{height:26px;border-radius:7px;background:linear-gradient(90deg,var(--acc),var(--acc2));min-width:2px;display:flex;align-items:center;padding:0 10px;color:#04121b;font-weight:800;font-size:12.5px}
-  .funnel .rate{font-size:12px;color:var(--good);font-weight:700;margin-left:4px}
+  .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+  .panel h3{margin:0 0 14px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center}
+  .panel h3 .leg{font-size:11px;font-weight:600;color:var(--mut)}
+  .dotc{display:inline-block;width:8px;height:8px;border-radius:99px;margin:0 3px 0 8px;vertical-align:middle}
+  .funnel .step{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .funnel .lbl{width:120px;font-size:12.5px;color:var(--mut)}
+  .funnel .barwrap{flex:1;display:flex;align-items:center;gap:8px}
+  .funnel .bar{height:24px;border-radius:6px;background:linear-gradient(90deg,var(--acc),var(--acc2));min-width:2px;display:flex;align-items:center;padding:0 9px;color:#04121b;font-weight:800;font-size:12px}
+  .funnel .drop{font-size:11px;color:var(--mut)} .funnel .drop b{color:var(--good)}
+  .seglist .row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12.5px}
+  .seglist .nm{width:120px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .seglist .sb{flex:1;height:16px;border-radius:5px;background:rgba(41,182,246,.2);min-width:2px}
+  .seglist .vv{width:70px;text-align:right;font-weight:700}
   table{width:100%;border-collapse:collapse;font-size:13px}
-  th{position:sticky;top:0;background:#101a2c;color:var(--mut);text-align:right;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;white-space:nowrap}
+  th{position:sticky;top:0;background:#101a2c;color:var(--mut);text-align:right;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:10px 12px;white-space:nowrap;cursor:pointer;user-select:none}
   th:first-child,td:first-child{text-align:left}
   td{padding:10px 12px;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
   tr.row{cursor:pointer} tr.row:hover td{background:rgba(41,182,246,.05)}
-  input.search{background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 14px;font-size:13px;width:280px;max-width:60vw}
+  input.search{background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 14px;font-size:13px;width:280px;max-width:55vw}
   .badge{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:99px}
   .b-paid{background:rgba(52,211,153,.16);color:var(--good)} .b-trial{background:rgba(41,182,246,.16);color:var(--acc)}
   .b-signup{background:rgba(148,163,184,.16);color:var(--mut)} .b-churned{background:rgba(248,113,113,.16);color:var(--bad)}
   .muted{color:var(--mut)}
+  .heat td{text-align:center;border:1px solid var(--line);font-weight:700;font-size:12px}
+  .heat th{position:static;text-align:center;cursor:default}
   .modal{position:fixed;inset:0;background:rgba(3,7,15,.75);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;padding:34px 16px;z-index:50;overflow:auto}
   .modal.show{display:flex}
   .sheet{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:820px;width:100%;padding:24px}
@@ -59,12 +70,13 @@
   .ev.k-paid::before{background:var(--good)} .ev.k-signup::before{background:var(--purple)} .ev.k-trial_start::before{background:var(--warn)}
   .ev .t{font-size:13.5px} .ev .ts{font-size:11px;color:var(--mut)}
   .gap{margin:14px 0;color:var(--warn);font-size:12px;font-weight:700;text-align:center}
-  .sess{margin:16px 0}
-  .sess .sh{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:4px}
-  .empty{padding:44px;text-align:center;color:var(--mut)}
+  .sess{margin:16px 0} .sess .sh{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:4px}
+  .empty{padding:40px;text-align:center;color:var(--mut)}
+  #chartTip{position:fixed;pointer-events:none;background:#0a1120;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;display:none;z-index:60}
 </style>
 </head>
 <body>
+<div id="chartTip"></div>
 
 <div id="gate">
   <h2 style="margin:0;font-size:18px">Product Analytics</h2>
@@ -76,29 +88,45 @@
 
 <div id="app" class="wrap" style="display:none">
   <header>
-    <div><h1><span class="dot"></span>Product Analytics</h1><div class="sub">Every user, every action — from first visit to paid, and the whole group compiled.</div></div>
+    <div><h1><span class="dot"></span>Product Analytics</h1><div class="sub">Every user, every action — from first touch to paid, and the whole cohort compiled.</div></div>
     <div style="display:flex;gap:10px;align-items:center">
       <div class="seg" id="range"><button data-d="7">7d</button><button data-d="30" class="on">30d</button><button data-d="90">90d</button></div>
-      <button class="btn ghost" onclick="refresh()">↻</button>
+      <button class="btn ghost" onclick="refresh()">↻ Refresh</button>
     </div>
   </header>
   <div class="tabs"><button id="tabO" class="on" onclick="showTab('overview')">Overview</button><button id="tabU" onclick="showTab('users')">Users</button></div>
 
   <div id="overview">
     <div class="kpis" id="kpis"></div>
-    <div class="panel"><h3>Acquisition funnel</h3><div class="funnel" id="funnel"></div></div>
-    <div class="panel"><h3>Daily trend · signups / trials / paid</h3><div id="trend"></div></div>
+    <div class="grid2">
+      <div class="panel"><h3>Daily trend <span class="leg"><span class="dotc" style="background:#8a97ad"></span>signups<span class="dotc" style="background:#29b6f6"></span>trials<span class="dotc" style="background:#34d399"></span>paid</span></h3><div id="trend"></div></div>
+      <div class="panel"><h3>Acquisition funnel</h3><div class="funnel" id="funnel"></div></div>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Revenue <span class="leg" id="revLeg"></span></h3><div id="revChart"></div></div>
+      <div class="panel"><h3>Top acquisition sources <span class="leg">signups</span></h3><div class="seglist" id="segSrc"></div></div>
+    </div>
+    <div class="panel"><h3>Retention cohorts <span class="leg">% of each weekly signup cohort still active on day N</span></h3><div id="cohorts" style="overflow:auto"></div></div>
+    <div class="grid2">
+      <div class="panel"><h3>Revenue by source</h3><div class="seglist" id="segPaid"></div></div>
+      <div class="panel"><h3>Top countries <span class="leg">signups</span></h3><div class="seglist" id="segGeo"></div></div>
+    </div>
   </div>
 
   <div id="users" style="display:none">
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
       <input class="search" id="q" placeholder="Search email or name…" onkeydown="if(event.key==='Enter')loadUsers(0)" />
       <div class="seg" id="stage"><button data-s="" class="on">All</button><button data-s="signup">Signed up</button><button data-s="trial">Trial</button><button data-s="paid">Paid</button></div>
+      <button class="btn ghost" onclick="exportUsers()">⬇ CSV</button>
       <span class="muted" id="ucount" style="font-size:12px"></span>
+      <span style="margin-left:auto;display:flex;gap:6px" id="pager"></span>
     </div>
     <div class="panel" style="padding:0;overflow:auto;max-height:72vh">
-      <table><thead><tr><th>User</th><th>Stage</th><th>Trial s</th><th>Orders</th><th>LTV</th><th>Country</th><th>Source</th><th>Last seen</th></tr></thead>
-      <tbody id="ubody"></tbody></table>
+      <table><thead><tr>
+        <th onclick="setSort('last')">User</th><th>Stage</th>
+        <th onclick="setSort('trial')">Trial s</th><th>Questions</th><th>Days active</th>
+        <th>Orders</th><th>LTV</th><th>Country</th><th>Source</th><th onclick="setSort('last')">Last seen</th>
+      </tr></thead><tbody id="ubody"></tbody></table>
       <div class="empty" id="uempty" style="display:none">No users.</div>
     </div>
   </div>
@@ -108,9 +136,10 @@
 
 <script>
 const API="https://api.whis-ai.com";
-let PW="",RANGE=30,STAGE="",UPAGE=0;
+let PW="",RANGE=30,STAGE="",SORT="last",UPAGE=0,UROWS=[];
 const $=id=>document.getElementById(id);
 const inr=n=>'₹'+Math.round(n||0).toLocaleString('en-IN');
+const kfmt=n=>n>=1000?(n/1000).toFixed(n>=10000?0:1)+'k':(''+n);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ago=d=>{ if(!d)return'—'; const s=(Date.now()-new Date(d))/1000; if(s<3600)return Math.round(s/60)+'m'; if(s<86400)return Math.round(s/3600)+'h'; return Math.round(s/86400)+'d'; };
 const dt=d=>new Date(d).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -119,37 +148,100 @@ async function api(p){ const r=await fetch(API+p,{headers:{'x-dashboard-password
 async function unlock(){
   PW=$('pw').value.trim(); if(!PW){$('gerr').textContent='Enter your password.';return;}
   $('gerr').textContent='Checking…';
-  try{ const d=await api('/api/admin/analytics/overview?days=30'); if(d&&d.success){ sessionStorage.setItem('whisPW',PW); $('gate').style.display='none'; $('app').style.display='block'; renderOverview(d); loadUsers(0); } else $('gerr').textContent='Wrong password.'; }
+  try{ const d=await api('/api/admin/analytics/overview?days=30'); if(d&&d.success){ sessionStorage.setItem('whisPW',PW); $('gate').style.display='none'; $('app').style.display='block'; renderOverview(d); loadCohorts(); loadUsers(0); } else $('gerr').textContent='Wrong password.'; }
   catch(e){ $('gerr').textContent='Wrong password or server unreachable.'; PW=''; }
 }
 function showTab(t){ $('overview').style.display=t==='overview'?'block':'none'; $('users').style.display=t==='users'?'block':'none'; $('tabO').classList.toggle('on',t==='overview'); $('tabU').classList.toggle('on',t==='users'); }
-async function refresh(){ try{ renderOverview(await api(`/api/admin/analytics/overview?days=${RANGE}`)); loadUsers(0); }catch(e){ if(e.message==='unauth')location.reload(); } }
+async function refresh(){ try{ renderOverview(await api(`/api/admin/analytics/overview?days=${RANGE}`)); loadCohorts(); loadUsers(0); }catch(e){ if(e.message==='unauth')location.reload(); } }
 
 function kpi(k,v,s){ return `<div class="kpi"><div class="k">${k}</div><div class="v">${v}${s?` <small>${s}</small>`:''}</div></div>`; }
+
+// ── Multi-series line chart with axes + hover ──────────────────────────────
+let CHART={};
+function lineChart(elId,series,cfg){
+  const el=$(elId), W=el.clientWidth||560, H=cfg.h||150, PL=38,PR=8,PT=10,PB=20;
+  const days=series[0].data.length, iw=W-PL-PR, ih=H-PT-PB;
+  const max=Math.max(1,...series.flatMap(s=>s.data));
+  const nY=4, ylab=[]; for(let i=0;i<=nY;i++){ ylab.push(Math.round(max*i/nY)); }
+  const X=i=>PL+(days<=1?iw/2:iw*i/(days-1)), Y=v=>PT+ih-(v/max)*ih;
+  let svg=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block" id="${elId}_svg">`;
+  ylab.forEach(v=>{ const y=Y(v); svg+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,.06)"/><text x="${PL-6}" y="${y+3}" text-anchor="end" fill="#8a97ad" font-size="10">${kfmt(v)}</text>`; });
+  const xs=[0,Math.floor(days/2),days-1]; xs.forEach(i=>{ if(i<0||i>=days)return; svg+=`<text x="${X(i)}" y="${H-6}" text-anchor="middle" fill="#8a97ad" font-size="9.5">${(cfg.labels[i]||'').slice(5)}</text>`; });
+  series.forEach(s=>{ const pts=s.data.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    if(s.fill) svg+=`<polyline points="${X(0)},${Y(0)} ${pts} ${X(days-1)},${Y(0)}" fill="${s.color}22" stroke="none"/>`;
+    svg+=`<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round"/>`; });
+  svg+=`<rect id="${elId}_hit" x="${PL}" y="${PT}" width="${iw}" height="${ih}" fill="transparent"/></svg>`;
+  el.innerHTML=svg;
+  CHART[elId]={series,days,X,PL,iw,labels:cfg.labels,fmt:cfg.fmt||(v=>v)};
+  const hit=document.getElementById(elId+'_hit');
+  hit.addEventListener('mousemove',ev=>{ const r=hit.getBoundingClientRect(); const rel=(ev.clientX-r.left)/r.width; const i=Math.max(0,Math.min(days-1,Math.round(rel*(days-1)))); const c=CHART[elId];
+    const tip=$('chartTip'); tip.style.display='block'; tip.style.left=(ev.clientX+12)+'px'; tip.style.top=(ev.clientY-10)+'px';
+    tip.innerHTML=`<div style="color:#8a97ad;margin-bottom:3px">${c.labels[i]}</div>`+c.series.map(s=>`<div><span class="dotc" style="background:${s.color};margin-left:0"></span>${s.name}: <b>${c.fmt(s.data[i])}</b></div>`).join(''); });
+  hit.addEventListener('mouseleave',()=>{ $('chartTip').style.display='none'; });
+}
+
 function renderOverview(d){
-  const f=d.funnel,a=d.active,r=d.revenue,t=d.trial;
-  $('kpis').innerHTML=kpi('Signups',f.signups)+kpi('Trials',f.trials)+kpi('Paid',f.paid)+kpi('DAU',a.dau)+kpi('WAU',a.wau)+kpi('MAU',a.mau)+kpi('Revenue',inr(r.grossINR),`${r.sales} sales`)+kpi('Avg trial use',Math.round(t.avgSeconds)+'s');
-  const steps=[['Signed up',f.signups,null],['Started trial',f.trials,f.signupToTrial+'% of signups'],['Engaged (asked Q)',f.engaged,null],['Paid',f.paid,f.trialToPaid+'% of trials']];
+  const f=d.funnel,a=d.active,r=d.revenue,t=d.trial,e=d.engagement||{};
+  $('kpis').innerHTML=kpi('Signups',f.signups)+kpi('Trials',f.trials,f.signupToTrial+'%')+kpi('Paid',f.paid,f.trialToPaid+'% of trials')
+    +kpi('Revenue',inr(r.grossINR),`${r.sales} sales`)+kpi('ARPU',inr(r.arpuINR))+kpi('New rev',inr(r.newINR))+kpi('Recurring',inr(r.recurringINR))
+    +kpi('DAU',a.dau)+kpi('WAU',a.wau)+kpi('MAU',a.mau)+kpi('Stickiness',a.stickiness+'%')
+    +kpi('Q / user',e.avgQuestionsPerUser)+kpi('Avg trial use',Math.round(t.avgSeconds)+'s');
+  // funnel with drop-off
+  const steps=[['Signed up',f.signups],['Started trial',f.trials],['Engaged',f.engaged],['Paid',f.paid]];
   const max=Math.max(1,f.signups);
-  $('funnel').innerHTML=steps.map(([l,n,rate])=>`<div class="step"><div class="lbl">${l}</div><div class="bar" style="width:${Math.max(2,n/max*100)}%">${n}</div>${rate?`<span class="rate">${rate}</span>`:''}</div>`).join('');
-  const max2=Math.max(1,...d.series.map(s=>Math.max(s.signups,s.trials,s.paid)));
-  const bar=(v,c)=>`<div title="${v}" style="flex:1;height:${Math.max(1,v/max2*90)}px;background:${c};border-radius:2px 2px 0 0"></div>`;
-  $('trend').innerHTML=`<div style="display:flex;align-items:flex-end;gap:3px;height:100px">${d.series.map(s=>`<div style="flex:1;display:flex;gap:1px;align-items:flex-end">${bar(s.signups,'#8a97ad')}${bar(s.trials,'#29b6f6')}${bar(s.paid,'#34d399')}</div>`).join('')}</div><div class="muted" style="font-size:11px;margin-top:8px">● signups &nbsp; <span style="color:#29b6f6">●</span> trials &nbsp; <span style="color:#34d399">●</span> paid &nbsp;·&nbsp; last ${d.series.length}d</div>`;
+  $('funnel').innerHTML=steps.map((s,i)=>{ const [l,n]=s; const prev=i?steps[i-1][1]:n; const conv=prev?Math.round(n/prev*100):0;
+    return `<div class="step"><div class="lbl">${l}</div><div class="barwrap"><div class="bar" style="width:${Math.max(3,n/max*100)}%">${n}</div>${i?`<span class="drop">→ <b>${conv}%</b></span>`:''}</div></div>`; }).join('');
+  // trend + revenue charts
+  const labels=d.series.map(s=>s.day);
+  lineChart('trend',[
+    {name:'signups',color:'#8a97ad',data:d.series.map(s=>s.signups)},
+    {name:'trials',color:'#29b6f6',data:d.series.map(s=>s.trials)},
+    {name:'paid',color:'#34d399',data:d.series.map(s=>s.paid)}
+  ],{labels,h:150});
+  const totRev=d.series.reduce((n,s)=>n+s.revenueINR,0);
+  $('revLeg').textContent=inr(totRev)+' in range';
+  lineChart('revChart',[{name:'revenue',color:'#34d399',fill:true,data:d.series.map(s=>s.revenueINR)}],{labels,h:150,fmt:v=>inr(v)});
+  // segments
+  const segBar=(items,valKey,fmt)=>{ const mx=Math.max(1,...items.map(x=>x[valKey])); return items.map(x=>`<div class="row"><span class="nm">${esc(x.name||x.code||'—')}</span><span class="sb" style="width:${Math.max(3,x[valKey]/mx*100)}%"></span><span class="vv">${fmt?fmt(x[valKey]):x[valKey]}</span></div>`).join('')||'<div class="muted" style="font-size:12px">No data yet</div>'; };
+  $('segSrc').innerHTML=segBar(d.segments.sources,'signups');
+  $('segPaid').innerHTML=segBar(d.segments.paidSources,'revINR',inr);
+  $('segGeo').innerHTML=segBar(d.segments.countries.map(c=>({name:c.code,signups:c.signups})),'signups');
+}
+
+async function loadCohorts(){
+  try{ const d=await api('/api/admin/analytics/cohorts?weeks=8'); if(!d.success)return;
+    if(!d.cohorts.length){ $('cohorts').innerHTML='<div class="muted" style="font-size:12px">Not enough signup history yet.</div>'; return; }
+    const cell=v=>{ const bg=`rgba(52,211,153,${(v/100*0.85+0.05).toFixed(2)})`; return `<td style="background:${v?bg:'transparent'};color:${v>45?'#04121b':'#e6ecf7'}">${v?v+'%':'·'}</td>`; };
+    $('cohorts').innerHTML=`<table class="heat"><thead><tr><th style="text-align:left">Cohort (week of)</th><th>Users</th><th>D1</th><th>D3</th><th>D7</th><th>D14</th><th>D30</th></tr></thead><tbody>`+
+      d.cohorts.map(c=>`<tr><td style="text-align:left">${c.week}</td><td>${c.size}</td>${cell(c.d1)}${cell(c.d3)}${cell(c.d7)}${cell(c.d14)}${cell(c.d30)}</tr>`).join('')+`</tbody></table>`;
+  }catch(e){}
 }
 
 const B={paid:'b-paid',trial:'b-trial',signup:'b-signup',churned:'b-churned'};
+function setSort(s){ SORT=s; loadUsers(0); }
 async function loadUsers(p){
   UPAGE=p;
   try{
-    const d=await api(`/api/admin/analytics/users?q=${encodeURIComponent($('q').value.trim())}&stage=${STAGE}&page=${p}&limit=100`);
-    $('ucount').textContent=`${d.total} users`;
+    const d=await api(`/api/admin/analytics/users?q=${encodeURIComponent($('q').value.trim())}&stage=${STAGE}&sort=${SORT}&page=${p}&limit=100`);
+    UROWS=d.users;
+    $('ucount').textContent=`${d.total} users · page ${p+1}`;
+    const pages=Math.ceil(d.total/100);
+    $('pager').innerHTML=(p>0?`<button class="btn ghost" onclick="loadUsers(${p-1})">←</button>`:'')+(p+1<pages?`<button class="btn ghost" onclick="loadUsers(${p+1})">→</button>`:'');
     $('uempty').style.display=d.users.length?'none':'block';
     $('ubody').innerHTML=d.users.map(u=>`<tr class="row" onclick="openTL('${u.googleId}')">
       <td><div style="font-weight:600">${esc(u.email||u.googleId)}</div><div class="muted" style="font-size:11px">${esc(u.name||'')}</div></td>
       <td><span class="badge ${B[u.stage]||'b-signup'}">${u.stage}</span></td>
-      <td>${u.trialSeconds||0}</td><td>${u.orders||0}</td><td>${u.ltv?inr(u.ltv):'—'}</td>
+      <td>${u.trialSeconds||0}</td><td>${u.questions||0}</td><td>${u.daysActive||0}</td>
+      <td>${u.orders||0}</td><td>${u.ltv?inr(u.ltv):'—'}</td>
       <td>${esc(u.country||'—')}</td><td class="muted">${esc(u.source||'—')}</td><td class="muted">${ago(u.lastSeen)} ago</td></tr>`).join('');
   }catch(e){ if(e.message==='unauth')location.reload(); }
+}
+function exportUsers(){
+  if(!UROWS.length)return;
+  const cols=['email','name','stage','trialSeconds','questions','daysActive','orders','ltv','country','source','influencerId','createdAt','lastSeen'];
+  const cell=v=>{v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const csv=[cols.join(',')].concat(UROWS.map(r=>cols.map(c=>cell(r[c])).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`whis-users-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
 }
 
 const LBL={visit:'Came to the site',page_view:'Viewed a page',signup:'Signed up',login:'Logged in',app_open:'Opened the app',trial_start:'Started a trial',trial_end:'Trial ended',usage:'Used the app',question:'Asked a question',paywall_shown:'Saw the paywall',checkout_start:'Opened checkout',checkout_opened:'Opened checkout',paid:'Paid',refund:'Refund',interview_saved:'Saved their interview',context_saved:'Added context/resume',context_toggled:'Switched context',context_deleted:'Deleted a context',support_message:'Messaged support',download_link_sent:'Requested download link',interview_onboard_shown:'Saw onboarding',peak_nudge_shown:'Saw peak nudge',peak_nudge_clicked:'Clicked peak nudge',trial_active:'Trial active',context_quick_upload:'Uploaded resume'};
@@ -158,7 +250,6 @@ function evLabel(e){
   if(e.type==='page_view'&&e.meta){ const p=e.meta.guide?('guide: '+e.meta.guide):(e.meta.path||''); l='Viewed '+(p||'a page'); }
   if(e.type==='paid') l='Paid '+inr(e.amountINR)+(e.meta&&e.meta.tier?` · ${e.meta.tier} ${e.meta.cycle||''}`:'');
   if(e.type==='usage'&&e.meta&&e.meta.totalSec!=null) l=`Used the app (${e.meta.totalSec}s total)`;
-  if(e.type==='question'&&e.meta&&e.meta.tier) l=`Asked a question (${e.meta.tier})`;
   if(e.type==='trial_start'&&e.meta&&e.meta.durationMin) l=`Started a trial (${e.meta.durationMin} min)`;
   return l;
 }
@@ -188,6 +279,7 @@ async function openTL(gid){
 document.querySelectorAll('#range button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#range button').forEach(x=>x.classList.remove('on'));b.classList.add('on');RANGE=parseInt(b.dataset.d);refresh();});
 document.querySelectorAll('#stage button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#stage button').forEach(x=>x.classList.remove('on'));b.classList.add('on');STAGE=b.dataset.s;loadUsers(0);});
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+window.addEventListener('resize',()=>{ if($('app').style.display!=='none'&&$('overview').style.display!=='none') refresh(); });
 (function(){ const p=sessionStorage.getItem('whisPW'); if(p){PW=p;$('pw').value=p;unlock();} })();
 </script>
 </body>
