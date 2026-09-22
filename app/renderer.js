@@ -5207,7 +5207,7 @@ function _renderWebWelcome(container) {
       <button type="button" class="web-session-enter web-session-enter-cta" id="web-session-enter-cta">
         <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
         Start Live Session
-        <span class="wsec-sub">Full two-pane view · live transcript + AI answers</span>
+        <span class="wsec-sub">Focus mode · tiny transcript, full-screen answers</span>
       </button>
       <div class="web-welcome-guidance">${guidance}</div>
       ${(typeof WhisLive !== 'undefined' && WhisLive.supported())
@@ -5959,7 +5959,7 @@ function _renderLiveTranscript() {
     el.innerHTML = html;
     el.scrollTop = el.scrollHeight;
 
-    // WEB two-pane session: mirror the same transcript into the left pane in real time.
+    // WEB focus session: stream the same transcript through the top ticker in real time.
     try { if (window.WHIS_WEB && typeof WhisSession !== 'undefined') WhisSession.mirrorTranscript(); } catch (_) {}
 }
 
@@ -6872,7 +6872,7 @@ function updateListeningUI(active) {
   }
   checkPillContainer();
   updateContextHint();
-  // WEB two-pane session: keep the left-pane Start/Stop button + listening dot in sync.
+  // WEB focus session: keep the top-bar mic button + ticker listening dot in sync.
   try { if (window.WHIS_WEB && typeof window._whisSessionSync === 'function') window._whisSessionSync(); } catch (_) {}
 }
 
@@ -7811,16 +7811,28 @@ const WhisLive = (() => {
 })();
 
 // ============================================================================
-// WEB TWO-PANE LIVE SESSION  (WHIS_WEB only; desktop Electron untouched)
+// WEB FOCUS-MODE LIVE SESSION  (WHIS_WEB only; desktop Electron untouched)
 // ----------------------------------------------------------------------------
-// A spacious, full-page split view modelled on ParakeetAI:
-//   LEFT  (#web-live-left) = live interviewer transcript + listening controls (input)
-//   RIGHT (#content-area / #messages) = AI answers + composer + primary actions (output)
-// It wraps the EXISTING app: on enter we add `whis-session-active` to <body>, which
-// (via app-web.css) turns the shell into a CSS grid with the injected left pane on the
-// left and the untouched #content-area on the right. Everything reuses the existing
-// systems — startListening/stopAndCommitAudio, liveTranscript/_renderLiveTranscript,
-// finalizeAndSend/sendMessage, handleScreenshotStage, and the trial timer element.
+// A space-optimized "90% output" layout. Owner's top priority: the AI answer/
+// code area should own almost the whole viewport, while the live transcript
+// steals ~zero vertical space. We beat ParakeetAI where reviewers say it's
+// weakest: their generated code overflows and can't scroll — here #messages and
+// every code <pre> scroll cleanly, never truncated.
+//
+// LAYOUT (vertical stack, all web-gated by body.whis-session-active):
+//   • Global header (reused) — trial timer + Exit live here (one thin row).
+//   • #web-focus-topbar (~thin) — live dot, mic Start/Stop, language, Answer,
+//                                 Screenshot, Exit fallback.
+//   • #web-focus-ticker (~32px) — single-line news-crawl of the live transcript,
+//                                 "Listening…" with a pulsing dot; hover/click
+//                                 drops #wf-overlay (last ~6 lines) that auto-
+//                                 collapses. An "expand" affordance is present.
+//   • #messages — ~90% of the view, full-width, generous type, scrollable code.
+//   • .input-row (reused) — slim manual message + Send + screenshot affordance.
+//
+// Everything reuses the EXISTING systems: startListening/stopAndCommitAudio,
+// liveTranscript/_rtPartialText/_renderLiveTranscript, finalizeAndSend,
+// handleScreenshotStage, and the trial timer element. No server changes.
 // ============================================================================
 const WhisSession = (() => {
   if (!window.WHIS_WEB) {
@@ -7830,12 +7842,14 @@ const WhisSession = (() => {
 
   let built = false;
   let active = false;
-  let leftEl = null;
-  let transcriptEl = null;
-  let startStopBtn = null;
-  let clearBtn = null;
+  let topbarEl = null;
+  let tickerEl = null;
+  let tickerTrackEl = null;
+  let overlayEl = null;
+  let micBtn = null;
   let langSelect = null;
   let dotEl = null;
+  let overlayTimer = null;
 
   const LANG_KEY = 'wh_session_lang';
 
@@ -7845,45 +7859,77 @@ const WhisSession = (() => {
     ['zh', 'Chinese'], ['ja', 'Japanese'], ['ar', 'Arabic'],
   ];
 
+  // Flatten liveTranscript (+ live partial) into a single running string for the
+  // ticker crawl. Newest words at the END so auto-scroll keeps them visible.
+  function _tickerString() {
+    const segs = (typeof liveTranscript !== 'undefined' && Array.isArray(liveTranscript)) ? liveTranscript : [];
+    const partial = (typeof _rtPartialText === 'string' && !isAutoMode) ? _rtPartialText.trim() : '';
+    const parts = segs.map(s => s.text.trim()).filter(Boolean);
+    if (partial) parts.push(partial);
+    return parts.join('  ·  ');
+  }
+
   function _build() {
     if (built) return;
     const content = document.getElementById('content-area');
     if (!content || !content.parentNode) return;
 
-    leftEl = document.createElement('aside');
-    leftEl.id = 'web-live-left';
-    leftEl.className = 'web-live-left no-drag';
-    leftEl.innerHTML = `
-      <div class="wll-head">
-        <div class="wll-title"><span class="wll-dot" id="wll-dot"></span> Live transcript</div>
-        <div class="wll-sub" id="wll-sub">Interviewer &amp; you, in real time</div>
-      </div>
-      <div class="wll-transcript" id="web-live-transcript">
-        <div class="wll-empty" id="wll-empty">
-          <div class="wll-empty-title">Not listening yet</div>
-          <div class="wll-empty-sub">Press <b>Start</b> — the mic hears you and your interviewer, and their words appear here.</div>
-        </div>
-      </div>
-      <div class="wll-controls">
-        <button type="button" id="wll-startstop" class="wll-btn wll-primary">
-          <i class="fa-solid fa-microphone" aria-hidden="true"></i><span>Start</span>
-        </button>
-        <button type="button" id="wll-clear" class="wll-btn wll-ghost" title="Clear transcript">
-          <i class="fa-solid fa-eraser" aria-hidden="true"></i><span>Clear</span>
-        </button>
-        <select id="wll-lang" class="wll-lang" title="Transcription language" aria-label="Transcription language">
-          ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
-        </select>
-      </div>`;
+    // ── Thin TOP BAR: mic Start/Stop, language, Answer, Screenshot, Exit ──────
+    // (Trial timer stays in the global header, which sits directly above this.)
+    topbarEl = document.createElement('div');
+    topbarEl.id = 'web-focus-topbar';
+    topbarEl.className = 'web-focus-topbar no-drag';
+    topbarEl.innerHTML = `
+      <button type="button" id="wf-mic" class="wf-btn wf-mic" title="Start / stop listening">
+        <i class="fa-solid fa-microphone" aria-hidden="true"></i><span class="wf-btn-label">Start</span>
+      </button>
+      <span id="wf-live" class="wf-live"><span class="wf-live-dot"></span><span class="wf-live-text">Idle</span></span>
+      <select id="wf-lang" class="wf-lang" title="Transcription language" aria-label="Transcription language">
+        ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+      </select>
+      <span class="wf-spacer"></span>
+      <button type="button" id="wf-answer" class="wf-btn wf-answer" title="Answer the current question">
+        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span class="wf-btn-label">Answer</span>
+      </button>
+      <button type="button" id="wf-shot" class="wf-btn wf-shot" title="Snap a coding/question screenshot for the AI">
+        <i class="fa-solid fa-crop-simple" aria-hidden="true"></i><span class="wf-btn-label">Screenshot</span>
+      </button>
+      <button type="button" id="wf-exit" class="wf-btn wf-exit" title="Exit live session">
+        <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span class="wf-btn-label">Exit</span>
+      </button>`;
 
-    // Insert the left pane as the FIRST child of the shell, before #content-area.
-    content.parentNode.insertBefore(leftEl, content);
+    // ── TICKER strip: single-line crawl of the live transcript ────────────────
+    tickerEl = document.createElement('div');
+    tickerEl.id = 'web-focus-ticker';
+    tickerEl.className = 'web-focus-ticker no-drag';
+    tickerEl.setAttribute('role', 'button');
+    tickerEl.setAttribute('tabindex', '0');
+    tickerEl.setAttribute('aria-label', 'Live transcript — click to expand recent lines');
+    tickerEl.innerHTML = `
+      <span class="wf-tick-dot" id="wf-tick-dot" aria-hidden="true"></span>
+      <div class="wf-tick-viewport">
+        <div class="wf-tick-track" id="wf-tick-track"></div>
+      </div>
+      <button type="button" class="wf-tick-expand" id="wf-tick-expand" title="Expand recent transcript" aria-label="Expand recent transcript">
+        <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
+      </button>`;
 
-    transcriptEl = leftEl.querySelector('#web-live-transcript');
-    startStopBtn = leftEl.querySelector('#wll-startstop');
-    clearBtn     = leftEl.querySelector('#wll-clear');
-    langSelect   = leftEl.querySelector('#wll-lang');
-    dotEl        = leftEl.querySelector('#wll-dot');
+    // ── OVERLAY: temporary drop of the last ~6 transcript lines ───────────────
+    overlayEl = document.createElement('div');
+    overlayEl.id = 'wf-overlay';
+    overlayEl.className = 'wf-overlay no-drag';
+    overlayEl.innerHTML = `<div class="wf-overlay-inner" id="wf-overlay-inner"></div>`;
+
+    // Insert ticker + topbar + overlay as the first children of #content-area so
+    // they sit above #messages; CSS stacks them (topbar, ticker, overlay, msgs).
+    content.insertBefore(overlayEl, content.firstChild);
+    content.insertBefore(tickerEl, content.firstChild);
+    content.insertBefore(topbarEl, content.firstChild);
+
+    tickerTrackEl = tickerEl.querySelector('#wf-tick-track');
+    micBtn        = topbarEl.querySelector('#wf-mic');
+    langSelect    = topbarEl.querySelector('#wf-lang');
+    dotEl         = tickerEl.querySelector('#wf-tick-dot');
 
     // Restore saved language choice (display-only preference; stored for continuity).
     try {
@@ -7895,139 +7941,132 @@ const WhisSession = (() => {
     });
 
     // Start/Stop mic → reuse the exact same capture pipeline as the desktop app.
-    startStopBtn.addEventListener('click', () => {
+    micBtn.addEventListener('click', () => {
       if (typeof isListening !== 'undefined' && isListening) {
         try { stopAndCommitAudio(); } catch (_) {}
       } else {
         try { startListening(); } catch (_) {}
       }
-      // UI refreshes on the next tick once isListening settles.
       setTimeout(_syncListenState, 60);
     });
 
-    // Clear empties BOTH the mirrored pane and the underlying liveTranscript buffer.
-    clearBtn.addEventListener('click', () => {
-      try { liveTranscript = []; _renderLiveTranscript(); } catch (_) {}
-      mirrorTranscript();
+    // Answer → send the current transcript (finalizeAndSend folds liveTranscript in).
+    topbarEl.querySelector('#wf-answer').addEventListener('click', () => {
+      try { finalizeAndSend(); } catch (_) {}
     });
+    // Screenshot → capture → OCR → answer (same path as the Snap btn).
+    topbarEl.querySelector('#wf-shot').addEventListener('click', () => {
+      try { handleScreenshotStage(); } catch (_) {}
+    });
+    // Exit → stop + leave focus mode → normal welcome.
+    topbarEl.querySelector('#wf-exit').addEventListener('click', () => exit());
 
-    // Inject the session header actions (Answer / Screenshot / Exit) into the right pane.
-    _buildRightActions();
+    // Ticker gestures: hover or click/keyboard drops the recent-lines overlay,
+    // which auto-collapses after a few seconds or on click-away.
+    const openOverlay = () => _showOverlay();
+    tickerEl.addEventListener('mouseenter', openOverlay);
+    tickerEl.addEventListener('click', openOverlay);
+    tickerEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(); }
+    });
+    tickerEl.querySelector('#wf-tick-expand').addEventListener('click', (e) => {
+      e.stopPropagation(); _showOverlay(true);
+    });
+    // Click-away collapses the overlay.
+    document.addEventListener('click', (e) => {
+      if (!overlayEl || !overlayEl.classList.contains('wf-overlay-open')) return;
+      if (tickerEl.contains(e.target) || overlayEl.contains(e.target)) return;
+      _hideOverlay();
+    });
 
     built = true;
   }
 
-  // Right-pane primary actions live in a compact bar pinned above the composer,
-  // plus an Exit button injected into the (full-width) global header. The global
-  // header already carries the product mark, profile menu, and the trial timer —
-  // we reuse it as the single top bar rather than stacking a second header.
-  function _buildRightActions() {
-    const content = document.getElementById('content-area');
-    if (!content || document.getElementById('web-session-actions')) return;
-
-    // Exit button → injected into the global header's right wrapper, shown only
-    // in session mode (CSS gates visibility on body.whis-session-active).
-    const hdrRight = document.querySelector('.header-right-wrapper');
-    if (hdrRight && !document.getElementById('web-session-exit')) {
-      const exitBtn = document.createElement('button');
-      exitBtn.type = 'button';
-      exitBtn.id = 'web-session-exit';
-      exitBtn.className = 'wsh-exit no-drag';
-      exitBtn.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Exit`;
-      hdrRight.insertBefore(exitBtn, hdrRight.firstChild);
-      exitBtn.addEventListener('click', () => exit());
-    }
-
-    // Live status badge next to the timer (center of the header).
-    const hdrCenter = document.querySelector('.header-center');
-    if (hdrCenter && !document.getElementById('wsh-live')) {
-      const live = document.createElement('span');
-      live.id = 'wsh-live';
-      live.className = 'wsh-live no-drag';
-      live.innerHTML = `<span class="wsh-live-dot"></span> Listening`;
-      hdrCenter.appendChild(live);
-    }
-
-    // Primary actions bar (Answer + Screenshot) injected just BEFORE the composer row.
-    const inputRow = content.querySelector('.input-row');
-    const actions = document.createElement('div');
-    actions.id = 'web-session-actions';
-    actions.className = 'web-session-actions no-drag';
-    actions.innerHTML = `
-      <button type="button" id="web-session-answer" class="wsa-btn wsa-answer">
-        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Answer
-      </button>
-      <button type="button" id="web-session-screenshot" class="wsa-btn wsa-screenshot" title="Snap a coding/question screenshot for the AI">
-        <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Screenshot
-      </button>`;
-    if (inputRow && inputRow.parentNode) {
-      inputRow.parentNode.insertBefore(actions, inputRow);
-    } else {
-      content.appendChild(actions);
-    }
-
-    // "Answer": send the current live transcript (the interviewer's last question) for an
-    // AI answer. finalizeAndSend() already folds liveTranscript into the payload and even
-    // sends a spoken-only turn (empty box), so it IS the "send the live transcript" path.
-    actions.querySelector('#web-session-answer').addEventListener('click', () => {
-      try { finalizeAndSend(); } catch (_) {}
-    });
-
-    // "Screenshot": capture a coding question → OCR → answer (same path as the Snap btn).
-    actions.querySelector('#web-session-screenshot').addEventListener('click', () => {
-      try { handleScreenshotStage(); } catch (_) {}
-    });
-  }
-
-  // Mirror the live conversation transcript into the left pane. Called from
-  // _renderLiveTranscript() so it stays in lockstep with the source of truth.
-  function mirrorTranscript() {
-    if (!active || !transcriptEl) return;
+  // Show the temporary recent-transcript overlay (last ~6 lines). Auto-collapses
+  // after a few seconds unless `sticky` (expand affordance → longer dwell).
+  function _showOverlay(sticky) {
+    if (!overlayEl) return;
     const segs = (typeof liveTranscript !== 'undefined' && Array.isArray(liveTranscript)) ? liveTranscript : [];
     const partial = (typeof _rtPartialText === 'string' && !isAutoMode) ? _rtPartialText.trim() : '';
-    const listening = (typeof isListening !== 'undefined' && isListening);
+    const inner = overlayEl.querySelector('#wf-overlay-inner');
 
     if (segs.length === 0 && !partial) {
-      transcriptEl.innerHTML = listening
-        ? `<div class="wll-listening"><span class="wll-l-dot"></span><span class="wll-l-dot"></span><span class="wll-l-dot"></span><span class="wll-l-text">Listening…</span></div>`
-        : `<div class="wll-empty">
-             <div class="wll-empty-title">Not listening yet</div>
-             <div class="wll-empty-sub">Press <b>Start</b> — the mic hears you and your interviewer, and their words appear here.</div>
-           </div>`;
-      return;
+      inner.innerHTML = `<div class="wf-ov-empty">${
+        (typeof isListening !== 'undefined' && isListening) ? 'Listening… nothing transcribed yet.' : 'Not listening yet — press Start.'
+      }</div>`;
+    } else {
+      const recent = segs.slice(-6);
+      let html = recent.map(seg => {
+        const isInt = seg.role === 'interviewer';
+        return `<div class="wf-ov-line ${isInt ? 'wf-ov-int' : 'wf-ov-you'}">
+                  <span class="wf-ov-role">${isInt ? 'Interviewer' : 'You'}</span>
+                  <span class="wf-ov-text">${escapeHTML(seg.text)}</span>
+                </div>`;
+      }).join('');
+      if (partial) {
+        html += `<div class="wf-ov-line wf-ov-int wf-ov-partial">
+                   <span class="wf-ov-role">Interviewer</span>
+                   <span class="wf-ov-text">${escapeHTML(partial)}<span class="wf-ov-caret"></span></span>
+                 </div>`;
+      }
+      inner.innerHTML = html;
     }
 
-    let html = segs.map(seg => {
-      const isInt = seg.role === 'interviewer';
-      return `<div class="wll-seg ${isInt ? 'wll-int' : 'wll-you'}">
-                <span class="wll-role">${isInt ? 'Interviewer' : 'You'}</span>
-                <span class="wll-text">${escapeHTML(seg.text)}</span>
-              </div>`;
-    }).join('');
-
-    if (partial) {
-      html += `<div class="wll-seg wll-int wll-partial">
-                 <span class="wll-role">Interviewer</span>
-                 <span class="wll-text">${escapeHTML(partial)}<span class="wll-caret"></span></span>
-               </div>`;
-    }
-
-    transcriptEl.innerHTML = html;
-    transcriptEl.scrollTop = transcriptEl.scrollHeight;
+    overlayEl.classList.add('wf-overlay-open');
+    inner.scrollTop = inner.scrollHeight;
+    if (overlayTimer) { clearTimeout(overlayTimer); overlayTimer = null; }
+    overlayTimer = setTimeout(_hideOverlay, sticky ? 6000 : 3200);
   }
 
-  // Keep the Start/Stop button + listening dot in sync with isListening.
+  function _hideOverlay() {
+    if (overlayTimer) { clearTimeout(overlayTimer); overlayTimer = null; }
+    if (overlayEl) overlayEl.classList.remove('wf-overlay-open');
+  }
+
+  // Stream the flattened transcript through the ticker. Auto-scroll so the newest
+  // words stay in view (translate the track left as it grows past the viewport).
+  // Called from _renderLiveTranscript() so it stays in lockstep with the source.
+  function mirrorTranscript() {
+    if (!active) return;
+    if (tickerTrackEl) {
+      const text = _tickerString();
+      const listening = (typeof isListening !== 'undefined' && isListening);
+      if (!text) {
+        tickerTrackEl.innerHTML = listening
+          ? `<span class="wf-tick-idle">Listening…</span>`
+          : `<span class="wf-tick-idle wf-tick-muted">Press Start to hear the interviewer and you.</span>`;
+        tickerTrackEl.style.transform = 'translateX(0)';
+      } else {
+        tickerTrackEl.textContent = text;
+        // Keep the last ~1 line visible: shift the track so its right edge shows.
+        const vp = tickerTrackEl.parentElement; // .wf-tick-viewport
+        requestAnimationFrame(() => {
+          if (!tickerTrackEl || !vp) return;
+          const over = tickerTrackEl.scrollWidth - vp.clientWidth;
+          tickerTrackEl.style.transform = over > 0 ? `translateX(${-over}px)` : 'translateX(0)';
+        });
+      }
+    }
+    // If the overlay is open, keep its recent lines fresh in real time.
+    if (overlayEl && overlayEl.classList.contains('wf-overlay-open')) _showOverlay(true);
+  }
+
+  // Keep the mic button + listening dot/badge in sync with isListening.
   function _syncListenState() {
     const listening = (typeof isListening !== 'undefined' && isListening);
-    if (startStopBtn) {
-      startStopBtn.classList.toggle('wll-on', listening);
+    if (micBtn) {
+      micBtn.classList.toggle('wf-on', listening);
       const icon = listening ? 'fa-stop' : 'fa-microphone';
       const label = listening ? 'Stop' : 'Start';
-      startStopBtn.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i><span>${label}</span>`;
+      micBtn.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i><span class="wf-btn-label">${label}</span>`;
     }
-    if (dotEl) dotEl.classList.toggle('wll-dot-live', listening);
-    const liveBadge = document.getElementById('wsh-live');
-    if (liveBadge) liveBadge.classList.toggle('wsh-live-on', listening);
+    if (dotEl) dotEl.classList.toggle('wf-tick-live', listening);
+    const live = document.getElementById('wf-live');
+    if (live) {
+      live.classList.toggle('wf-live-on', listening);
+      const t = live.querySelector('.wf-live-text');
+      if (t) t.textContent = listening ? 'Listening' : 'Idle';
+    }
     mirrorTranscript();
   }
   // Exposed so other listening-state changes (startListening/stop) can refresh us.
@@ -8052,6 +8091,7 @@ const WhisSession = (() => {
 
   function exit() {
     active = false;
+    _hideOverlay();
     // Stop capture cleanly (silent — no toast spam).
     try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
 
