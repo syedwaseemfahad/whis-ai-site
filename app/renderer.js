@@ -1666,7 +1666,10 @@ function updateShortcutsUI() {
         ).join('');
     }
 
-    if (isAutoMode) {
+    if (IS_MOBILE_WEB) {
+        // Phones have no keyboard shortcuts — keep the prompt simple and action-led.
+        inputEl.placeholder = isAutoMode ? 'Add a note or follow-up…' : 'Ask anything — tap the mic to speak…';
+    } else if (isAutoMode) {
         inputEl.placeholder = `Add a note or follow-up… (${CTRL}+↵ to send)`;
     } else {
         inputEl.placeholder = `Ask a question, or use ${CTRL}+L / ${CTRL}+J…`;
