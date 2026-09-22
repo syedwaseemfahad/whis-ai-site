@@ -534,9 +534,6 @@
       .forEach((id) => { const el = $(id); if (el) el.addEventListener('click', openNewSession); });
     $('createSessionBtn').addEventListener('click', createSession);
 
-    // Promo + prepare stubs
-    $('promoMockBtn').addEventListener('click', () => switchScreen('mock'));
-
     // Nav items
     document.querySelectorAll('.nav-item[data-screen]').forEach((n) =>
       n.addEventListener('click', () => switchScreen(n.getAttribute('data-screen'))));

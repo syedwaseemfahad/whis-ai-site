@@ -50,13 +50,16 @@
   --web-gap: 16px;
   --web-radius: 14px;
 
-  /* Solid, intentional dark surfaces (base --bg-0 = #070a14). */
-  --web-bg: #070a14;
-  --web-panel: #0c1120;
-  --web-panel-2: #0f1526;
-  --web-border: rgba(255, 255, 255, 0.08);
-  --web-border-strong: rgba(255, 255, 255, 0.12);
-  --web-accent: #29b6f6;
+  /* Solid, intentional deep-navy surfaces aligned to the site brand
+     (base navy #010c1a / #0a1628 per brand-kit.md). */
+  --web-bg: #010c1a;
+  --web-panel: #0a1628;
+  --web-panel-2: #0d1f3c;
+  --web-border: rgba(14, 165, 233, 0.14);
+  --web-border-strong: rgba(14, 165, 233, 0.24);
+  /* Primary accent: sky-blue #0ea5e9 / #38bdf8 (brand). */
+  --web-accent: #0ea5e9;
+  --web-accent-bright: #38bdf8;
 }
 
 
@@ -157,11 +160,32 @@ body.whis-web .whis-global-header {
 }
 
 body.whis-web .whis-logo-text {
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.01em;
+  color: #fff;
 }
-body.whis-web .whis-logo-svg { width: 22px; height: 22px; }
+/* Sky-blue "-AI" accent, matching the site wordmark. */
+body.whis-web .whis-logo-accent { color: var(--web-accent-bright, #38bdf8); }
+
+/* Canonical W-peaks mark sits in a rounded deep-navy tile with a sky glow,
+   exactly like the site logo in brand-kit.md. */
+body.whis-web .whis-logo-mark {
+  position: relative;
+  height: 34px;
+  width: 34px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: linear-gradient(145deg, #0a1628 0%, #0d1f3c 100%);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+  box-shadow: 0 0 14px rgba(14, 165, 233, 0.25), 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+body.whis-web .whis-logo-mark .whis-logo-svg { width: 21px; height: 17px; }
+body.whis-web .whis-logo-svg { width: 21px; height: 17px; }
 
 
 /* ── 4. CONTENT AREA — the app body ───────────────────────────────────────── */
@@ -650,7 +674,7 @@ body.whis-web .web-welcome { margin: auto 0; width: 100%; }
 
 /* Advanced "capture a tab's audio" link in the welcome guidance */
 body.whis-web .web-adv-link {
-  color: var(--web-accent, #29b6f6);
+  color: var(--web-accent, #0ea5e9);
   text-decoration: none;
   font-weight: 600;
   white-space: nowrap;
@@ -678,7 +702,7 @@ body.whis-web .web-boot-spinner {
   height: 30px;
   border-radius: 50%;
   border: 2.5px solid rgba(255, 255, 255, 0.12);
-  border-top-color: var(--web-accent, #29b6f6);
+  border-top-color: var(--web-accent, #0ea5e9);
   animation: webBootSpin 0.75s linear infinite;
 }
 body.whis-web .web-boot-label {
@@ -715,7 +739,7 @@ body.whis-web .web-desktop-cta:hover {
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.07);
 }
-body.whis-web .web-desktop-cta i { color: var(--web-accent, #29b6f6); font-size: 12px; }
+body.whis-web .web-desktop-cta i { color: var(--web-accent, #0ea5e9); font-size: 12px; }
 
 /* Same CTA when it sits inside the profile dropdown menu. */
 body.whis-web .profile-dropdown-menu .web-desktop-cta,
@@ -732,8 +756,8 @@ body.whis-web #profile-dropdown-menu .web-desktop-cta {
    ===================================================================== */
 /* Active (PiP open) state for any Go Live trigger. */
 body.whis-web .wl-golive-btn.wl-active .btn-mini-label,
-body.whis-web .wl-golive-btn.wl-active { color: var(--web-accent, #29b6f6); }
-body.whis-web .wl-golive-btn.wl-active i { color: var(--web-accent, #29b6f6); }
+body.whis-web .wl-golive-btn.wl-active { color: var(--web-accent, #0ea5e9); }
+body.whis-web .wl-golive-btn.wl-active i { color: var(--web-accent, #0ea5e9); }
 body.whis-web .wl-golive-btn.wl-active {
   border-color: rgba(41, 182, 246, 0.5);
   box-shadow: 0 0 0 2px rgba(41, 182, 246, 0.14);
@@ -753,8 +777,8 @@ body.whis-web .web-golive-cta {
   font-size: 13.5px;
   font-weight: 600;
   color: #04121c;
-  background: var(--web-accent, #29b6f6);
-  border: 1px solid var(--web-accent, #29b6f6);
+  background: var(--web-accent, #0ea5e9);
+  border: 1px solid var(--web-accent, #0ea5e9);
   border-radius: 10px;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.05s ease;
@@ -829,8 +853,8 @@ body.whis-web .wf-btn {
 body.whis-web .wf-btn:hover { background: rgba(255, 255, 255, 0.08); }
 body.whis-web .wf-btn:active { transform: translateY(1px); }
 body.whis-web .wf-btn.wf-mic {
-  background: var(--web-accent, #29b6f6);
-  border-color: var(--web-accent, #29b6f6);
+  background: var(--web-accent, #0ea5e9);
+  border-color: var(--web-accent, #0ea5e9);
   color: #04121c;
 }
 body.whis-web .wf-btn.wf-mic i { color: #04121c; }
@@ -842,8 +866,8 @@ body.whis-web .wf-btn.wf-mic.wf-on {
 }
 body.whis-web .wf-btn.wf-mic.wf-on i { color: #ff8a8a; }
 body.whis-web .wf-btn.wf-answer {
-  background: var(--web-accent, #29b6f6);
-  border-color: var(--web-accent, #29b6f6);
+  background: var(--web-accent, #0ea5e9);
+  border-color: var(--web-accent, #0ea5e9);
   color: #04121c;
 }
 body.whis-web .wf-btn.wf-answer i { color: #04121c; }
@@ -901,7 +925,7 @@ body.whis-web .wf-tick-dot {
   transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 body.whis-web .wf-tick-dot.wf-tick-live {
-  background: var(--web-accent, #29b6f6);
+  background: var(--web-accent, #0ea5e9);
   box-shadow: 0 0 0 3px rgba(41, 182, 246, 0.18);
   animation: wf-pulse 1.8s ease-in-out infinite;
 }
@@ -922,7 +946,7 @@ body.whis-web .wf-tick-track {
   will-change: transform;
   transition: transform 0.35s ease-out;
 }
-body.whis-web .wf-tick-idle { color: var(--web-accent, #29b6f6); font-weight: 600; }
+body.whis-web .wf-tick-idle { color: var(--web-accent, #0ea5e9); font-weight: 600; }
 body.whis-web .wf-tick-idle.wf-tick-muted { color: var(--text-sub, #8a94a6); font-weight: 500; }
 body.whis-web .wf-tick-expand {
   flex: 0 0 auto;
@@ -969,19 +993,19 @@ body.whis-web .wf-ov-line {
   background: rgba(255, 255, 255, 0.03);
   border-left: 3px solid var(--web-border-strong);
 }
-body.whis-web .wf-ov-line.wf-ov-int { border-left-color: var(--web-accent, #29b6f6); }
+body.whis-web .wf-ov-line.wf-ov-int { border-left-color: var(--web-accent, #0ea5e9); }
 body.whis-web .wf-ov-line.wf-ov-you { border-left-color: #3ddc84; background: rgba(61, 220, 132, 0.05); }
 body.whis-web .wf-ov-role {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
   color: var(--text-sub, #8a94a6);
 }
-body.whis-web .wf-ov-line.wf-ov-int .wf-ov-role { color: var(--web-accent, #29b6f6); }
+body.whis-web .wf-ov-line.wf-ov-int .wf-ov-role { color: var(--web-accent, #0ea5e9); }
 body.whis-web .wf-ov-line.wf-ov-you .wf-ov-role { color: #3ddc84; }
 body.whis-web .wf-ov-text { font-size: 13.5px; line-height: 1.5; color: var(--text-main, #e8edf5); word-break: break-word; }
 body.whis-web .wf-ov-partial .wf-ov-text { color: var(--text-sub, #b7c0d2); }
 body.whis-web .wf-ov-caret {
   display: inline-block; width: 6px; height: 14px;
-  background: var(--web-accent, #29b6f6); margin-left: 2px;
+  background: var(--web-accent, #0ea5e9); margin-left: 2px;
   vertical-align: text-bottom; animation: wf-blink 1s steps(2) infinite;
 }
 @keyframes wf-blink { 50% { opacity: 0; } }
@@ -1051,8 +1075,8 @@ body.whis-web .web-session-enter-cta {
   font-size: 15px;
   font-weight: 700;
   color: #04121c;
-  background: var(--web-accent, #29b6f6);
-  border: 1px solid var(--web-accent, #29b6f6);
+  background: var(--web-accent, #0ea5e9);
+  border: 1px solid var(--web-accent, #0ea5e9);
   border-radius: 13px;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.05s ease;
