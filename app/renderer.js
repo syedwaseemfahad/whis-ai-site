@@ -4937,6 +4937,10 @@ if (window.electronAPI) {
               // throttled so the streaming markdown parse can't starve audio→text.
               if (isFirstChunk) renderMessages(state.pendingStream.id, true);
               else scheduleStreamRender(state.pendingStream.id);
+              // WEB Live Mode: mirror the same answer into the floating PiP panel.
+              if (window.WHIS_WEB && typeof WhisLive !== 'undefined') {
+                WhisLive.mirrorAnswer(state.pendingStream.content, isFirstChunk);
+              }
             }
           }
         } catch {}
@@ -4954,6 +4958,10 @@ if (window.electronAPI) {
       }
       _streamRenderPending = false;
       document.querySelectorAll('.stream-cursor').forEach(el => el.remove());
+      // WEB Live Mode: final flush + drop the streaming cursor in the PiP panel.
+      if (window.WHIS_WEB && typeof WhisLive !== 'undefined') {
+        WhisLive.endAnswer(state.pendingStream ? state.pendingStream.content : fullText);
+      }
       cleanupStreamState();
       resetStreamControllerId();
     });
@@ -5197,6 +5205,13 @@ function _renderWebWelcome(container) {
       </div>
       <div class="web-starter-grid">${chips}</div>
       <div class="web-welcome-guidance">${guidance}</div>
+      ${(typeof WhisLive !== 'undefined' && WhisLive.supported())
+        ? `<button type="button" class="web-golive-cta wl-golive-btn" id="web-golive-cta">
+             <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+             Go Live — float a co-pilot over your interview
+             <i class="fa-solid fa-arrow-right" aria-hidden="true" style="font-size:11px;"></i>
+           </button>`
+        : ''}
       <a href="https://whis-ai.com/#download" target="_blank" rel="noopener" class="web-desktop-cta" id="web-desktop-cta">
         <i class="fa-solid fa-desktop" aria-hidden="true"></i> Get the desktop app for live interviews
         <i class="fa-solid fa-arrow-right" aria-hidden="true" style="font-size:11px;"></i>
@@ -5219,6 +5234,13 @@ function _renderWebWelcome(container) {
     window._whisTabAudio = true;
     whisToast('Advanced mode: pick the interviewer’s tab and check “Share tab audio”. Prefer the simple way? Just click Listen for mic capture.', 'info', 7000);
     try { startListening(); } catch (_) {}
+  });
+
+  // Welcome-screen "Go Live" entry (desktop web + Document PiP only).
+  const golive = container.querySelector('#web-golive-cta');
+  if (golive) golive.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { WhisLive.goLive(golive); } catch (_) {}
   });
 }
 
@@ -6940,30 +6962,39 @@ async function extractTextFromImage(dataUrl) {
 
 let isCapturingScreen = false;
 
-async function silentScreenshotCapture() {
+async function silentScreenshotCapture(opts = {}) {
     if (isCapturingScreen) return;
     // Demo already captured via captureScreenDemo() — skip to avoid the
     // desktopCapturer.getSources() blink that occurs on content-protected windows.
     if (_demoActive) return;
     if (!window.electronAPI || !window.electronAPI.captureScreen) return;
-    
+
+    // WEB Live Mode: when a persistent shared-screen stream exists, grab a frame
+    // from it (no re-prompt, works while the Whis tab is backgrounded) instead of
+    // the one-shot captureScreen(). Also skip the body-hide blink — the shared
+    // window is the interview, not this tab.
+    const useLive = window.WHIS_WEB && opts.fromLive === true &&
+        window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen();
+
     isCapturingScreen = true;
-    
+
     const slider = document.getElementById("app-opacity-slider");
     const targetOpacity = slider ? slider.value : "1";
-    
+
     try {
         // Never hide the body during the interactive demo — it blacks out the entire overlay
-        if (!_demoActive) {
+        if (!_demoActive && !useLive) {
             document.body.style.transition = "opacity 0.15s ease-out";
             document.body.style.opacity = "0";
             document.body.style.pointerEvents = "none";
             await new Promise(r => setTimeout(r, 120));
         }
 
-        const res = await window.electronAPI.captureScreen();
+        const res = useLive
+            ? await window.electronAPI.grabLiveFrame()
+            : await window.electronAPI.captureScreen();
 
-        if (!_demoActive) {
+        if (!_demoActive && !useLive) {
             document.body.style.opacity = targetOpacity;
             document.body.style.pointerEvents = "auto";
             await new Promise(r => setTimeout(r, 30));
@@ -6998,8 +7029,20 @@ async function handleScreenshotStage() {
   if (isProcessingSend || isAutoMode) return;
   const hasPermission = await checkAndRequestPermission('screen');
   if (!hasPermission) return;
-  
+
   await silentScreenshotCapture();
+  finalizeAndSend();
+}
+
+// WEB Live Mode: capture the interview question from the PERSISTENT shared screen
+// (no re-prompt) and send it down the normal OCR→stream path. The answer streams
+// into the main app AND mirrors into the floating PiP panel.
+async function handleLiveCaptureStage() {
+  if (isProcessingSend || isAutoMode) return;
+  if (!(window.electronAPI && window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen())) return;
+  // Immediate feedback in the PiP while the frame is grabbed + OCR'd.
+  try { if (typeof WhisLive !== 'undefined' && WhisLive.isOpen()) WhisLive.mirrorAnswer('Reading the question…', true); } catch (_) {}
+  await silentScreenshotCapture({ fromLive: true });
   finalizeAndSend();
 }
 
@@ -7459,6 +7502,300 @@ function _showStealthOnboard() {
     applyScale(); // run once on load so initial render is already scaled
 })();
 
+// =====================================================================
+// WEB LIVE MODE — Document Picture-in-Picture co-pilot
+// ---------------------------------------------------------------------
+// A browser tab can't overlay the interview. Instead: the user shares
+// their interview screen ONCE (persistent stream), and we float a small
+// always-on-top Document PiP window over Zoom / the coding tab. It streams
+// the AI answer and offers Capture + Mic. Frames are grabbed from the
+// persistent stream (no re-prompt) so it works while this tab is hidden.
+//
+// Web-only. Guarded by window.WHIS_WEB and documentPictureInPicture support.
+// NEVER runs on desktop Electron.
+// =====================================================================
+const WhisLive = (() => {
+  let pip = null;          // the PiP Window
+  let ansEl = null;        // streaming-answer node inside the PiP
+  let statusEl = null;     // status line node
+  let micBtn = null;       // mic toggle button node
+  let goLiveBtnEls = [];   // "Go Live" trigger buttons in the main UI (for state reset)
+
+  const supported = () =>
+    window.WHIS_WEB &&
+    !IS_MOBILE_WEB &&
+    typeof window.documentPictureInPicture !== 'undefined' &&
+    !!(window.electronAPI && window.electronAPI.startLiveScreen);
+
+  const isOpen = () => !!pip;
+
+  function _toast(msg, type, dur) {
+    try { whisToast(msg, type || 'info', dur || 4000); } catch (_) {}
+  }
+
+  // Copy the host document's styles into the PiP doc — Document PiP windows do
+  // NOT inherit the opener's stylesheets. Clone <link rel=stylesheet> + <style>.
+  function _copyStyles(doc) {
+    try {
+      document.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => {
+        doc.head.appendChild(node.cloneNode(true));
+      });
+    } catch (_) {}
+    // Compact, self-contained brand styles so the panel is readable even if the
+    // host stylesheets fail to clone (cross-origin link edge cases).
+    const s = doc.createElement('style');
+    s.textContent = `
+      :root { --wl-accent:#29b6f6; }
+      html,body { margin:0; padding:0; height:100%; }
+      body.wl-body {
+        background:#070a14; color:#e8edf5;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+        display:flex; flex-direction:column; overflow:hidden;
+        -webkit-font-smoothing:antialiased;
+      }
+      .wl-head {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); flex:0 0 auto;
+      }
+      .wl-title { font-size:13px; font-weight:600; letter-spacing:.2px; display:flex; align-items:center; gap:7px; }
+      .wl-dot { width:7px; height:7px; border-radius:50%; background:var(--wl-accent); box-shadow:0 0 0 3px rgba(41,182,246,.18); }
+      .wl-close {
+        background:transparent; border:none; color:#8a94a6; font-size:15px; cursor:pointer;
+        width:26px; height:26px; border-radius:6px; line-height:1;
+      }
+      .wl-close:hover { background:rgba(255,255,255,.06); color:#fff; }
+      .wl-status {
+        padding:6px 12px; font-size:11.5px; color:#9aa6ba; flex:0 0 auto;
+        border-bottom:1px solid rgba(255,255,255,.05); display:flex; align-items:center; gap:6px;
+      }
+      .wl-status .wl-live-dot { width:6px; height:6px; border-radius:50%; background:#3ddc84; }
+      .wl-answer {
+        flex:1 1 auto; overflow-y:auto; padding:12px 14px; font-size:14px; line-height:1.55;
+        white-space:normal; word-break:break-word;
+      }
+      .wl-answer .wl-placeholder { color:#6b7688; font-size:13px; }
+      .wl-answer pre {
+        background:#0d1526; border:1px solid rgba(255,255,255,.07); border-radius:8px;
+        padding:10px; overflow-x:auto; font-size:12.5px;
+      }
+      .wl-answer code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+      .wl-cursor { display:inline-block; width:7px; height:14px; background:var(--wl-accent);
+        margin-left:2px; vertical-align:text-bottom; animation:wlblink 1s steps(2) infinite; }
+      @keyframes wlblink { 50% { opacity:0; } }
+      .wl-actions { display:flex; gap:8px; padding:10px 12px; flex:0 0 auto;
+        border-top:1px solid rgba(255,255,255,.08); }
+      .wl-btn {
+        flex:1; display:flex; align-items:center; justify-content:center; gap:7px;
+        padding:12px 10px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;
+        border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#e8edf5;
+      }
+      .wl-btn:hover { background:rgba(255,255,255,.08); }
+      .wl-btn:active { transform:translateY(1px); }
+      .wl-btn.wl-primary { background:var(--wl-accent); border-color:var(--wl-accent); color:#04121c; }
+      .wl-btn.wl-primary:hover { filter:brightness(1.06); }
+      .wl-btn.wl-on { background:rgba(61,220,132,.16); border-color:rgba(61,220,132,.5); color:#8ff0bd; }
+      .wl-hint { padding:0 12px 10px; font-size:10.5px; color:#6b7688; line-height:1.4; flex:0 0 auto; }
+    `;
+    doc.head.appendChild(s);
+  }
+
+  function _buildBody(doc) {
+    doc.body.className = 'wl-body';
+    doc.body.innerHTML = `
+      <div class="wl-head">
+        <div class="wl-title"><span class="wl-dot"></span> Whis · Live</div>
+        <button class="wl-close" id="wl-close" title="Close Live">&times;</button>
+      </div>
+      <div class="wl-status" id="wl-status"><span class="wl-live-dot"></span><span id="wl-status-text">Sharing your screen</span></div>
+      <div class="wl-answer" id="wl-answer"><div class="wl-placeholder">Click <b>Capture question</b> when the interviewer shows a question — or turn on the mic to listen. The answer appears here.</div></div>
+      <div class="wl-actions">
+        <button class="wl-btn wl-primary" id="wl-capture"><span>&#128247;</span> Capture question</button>
+        <button class="wl-btn" id="wl-mic"><span>&#127908;</span> Mic</button>
+      </div>
+      <div class="wl-hint">Tip: share only the interview window/tab, not this display, so the panel stays private.</div>
+    `;
+
+    ansEl = doc.getElementById('wl-answer');
+    statusEl = doc.getElementById('wl-status-text');
+    micBtn = doc.getElementById('wl-mic');
+
+    doc.getElementById('wl-close').addEventListener('click', () => close());
+    doc.getElementById('wl-capture').addEventListener('click', async () => {
+      _setStatus('Reading the question…');
+      try {
+        await handleLiveCaptureStage();
+      } catch (_) {
+        _toast('Capture failed — try again.', 'error');
+      }
+      _syncStatus();
+    });
+    micBtn.addEventListener('click', () => {
+      try { toggleRecording(); } catch (_) {}
+      // Reflect state shortly after (startListening is async).
+      setTimeout(_syncMic, 250);
+    });
+  }
+
+  function _setStatus(text) {
+    if (statusEl) statusEl.textContent = text;
+  }
+
+  function _syncMic() {
+    if (!micBtn) return;
+    const on = (typeof isListening !== 'undefined' && isListening);
+    micBtn.classList.toggle('wl-on', on);
+    micBtn.innerHTML = on ? '<span>&#128308;</span> Listening' : '<span>&#127908;</span> Mic';
+    _syncStatus();
+  }
+
+  function _syncStatus() {
+    if (typeof isListening !== 'undefined' && isListening) {
+      _setStatus(typeof _liveListenLabel === 'function' ? _liveListenLabel() : 'Listening…');
+    } else {
+      _setStatus('Sharing your screen · ready');
+    }
+  }
+
+  // Called from the chat-stream handlers to mirror the main answer.
+  function mirrorAnswer(fullContent, isFirstChunk) {
+    if (!pip || !ansEl) return;
+    try {
+      const html = (typeof formatMessageContent === 'function')
+        ? formatMessageContent(fullContent)
+        : String(fullContent || '');
+      ansEl.innerHTML = html + '<span class="wl-cursor"></span>';
+      ansEl.scrollTop = ansEl.scrollHeight;
+    } catch (_) {}
+  }
+
+  function endAnswer(fullContent) {
+    if (!pip || !ansEl) return;
+    try {
+      const html = (typeof formatMessageContent === 'function')
+        ? formatMessageContent(fullContent)
+        : String(fullContent || '');
+      ansEl.innerHTML = html;
+      ansEl.scrollTop = ansEl.scrollHeight;
+    } catch (_) {}
+  }
+
+  async function goLive(triggerEl) {
+    if (isOpen()) { try { pip.focus(); } catch (_) {} return; }
+    if (!supported()) {
+      _toast('Live Mode needs Chrome or Edge on desktop — or put Whis on a second screen.', 'info', 6000);
+      return;
+    }
+
+    // Share the interview screen ONCE (persistent stream). Must be in the click
+    // handler's user gesture — both getDisplayMedia and requestWindow require it.
+    let shareRes;
+    try {
+      shareRes = await window.electronAPI.startLiveScreen(window._whisTabAudio === true);
+    } catch (e) {
+      shareRes = { error: e && e.message };
+    }
+    if (!shareRes || shareRes.error) {
+      _toast('Screen share cancelled. Live Mode needs your interview screen shared once.', 'warning', 5000);
+      return;
+    }
+
+    // Open the always-on-top Document PiP window.
+    try {
+      pip = await window.documentPictureInPicture.requestWindow({ width: 400, height: 560 });
+    } catch (e) {
+      // PiP failed after sharing — stop the stream so we don't leave it dangling.
+      try { window.electronAPI.stopLiveScreen(); } catch (_) {}
+      pip = null;
+      _toast('Could not open the Live panel. Try Chrome/Edge on desktop.', 'error', 5000);
+      return;
+    }
+
+    _copyStyles(pip.document);
+    _buildBody(pip.document);
+    _syncMic();
+    _syncStatus();
+
+    // When the PiP closes (X, Cmd-W, or system) → stop stream + mic, reset UI.
+    pip.addEventListener('pagehide', () => _onPipGone());
+
+    goLiveBtnEls = Array.from(document.querySelectorAll('.wl-golive-btn'));
+    goLiveBtnEls.forEach((b) => { b.classList.add('wl-active'); b.setAttribute('aria-pressed', 'true'); });
+
+    _toast('Live Mode on. Share only the interview window so the panel stays private.', 'success', 5000);
+  }
+
+  function _onPipGone() {
+    pip = null; ansEl = null; statusEl = null; micBtn = null;
+    try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
+    try { window.electronAPI.stopLiveScreen(); } catch (_) {}
+    goLiveBtnEls.forEach((b) => { b.classList.remove('wl-active'); b.setAttribute('aria-pressed', 'false'); });
+    goLiveBtnEls = [];
+  }
+
+  // Close the PiP programmatically (fires pagehide → _onPipGone).
+  function close() {
+    if (pip) { try { pip.close(); } catch (_) { _onPipGone(); } }
+  }
+
+  // The user clicked the browser's "Stop sharing" → tear down the panel.
+  function _onScreenEnded() {
+    if (pip) { try { pip.close(); } catch (_) {} }
+    _onPipGone();
+    _toast('Screen sharing ended.', 'info', 4000);
+  }
+
+  // Wire the browser "Stop sharing" callback + build the Go Live entry buttons.
+  function init() {
+    if (!window.WHIS_WEB) return;
+    if (window.electronAPI && window.electronAPI.onLiveScreenEnded) {
+      window.electronAPI.onLiveScreenEnded(() => _onScreenEnded());
+    }
+    _installEntryButtons();
+  }
+
+  // Inject a "Go Live" button into the input row (near Listen/Snap). On browsers
+  // without Document PiP (or on mobile), show a disabled note instead of the button.
+  function _installEntryButtons() {
+    const row = document.querySelector('.input-row');
+    if (!row || document.getElementById('go-live-btn')) return;
+
+    const anchor = document.getElementById('screenshot-btn') || row.firstElementChild;
+
+    if (!supported()) {
+      // Not supported here — a small, honest note (no false promises).
+      const note = document.createElement('button');
+      note.id = 'go-live-note';
+      note.className = 'input-icon-btn wl-golive-note';
+      note.type = 'button';
+      note.title = IS_MOBILE_WEB
+        ? 'Live Mode needs Chrome or Edge on a desktop.'
+        : 'Live Mode needs Chrome or Edge — or put Whis on a second screen.';
+      note.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i><span class="btn-mini-label">Live</span>';
+      note.addEventListener('click', () => {
+        _toast(IS_MOBILE_WEB
+          ? 'Live Mode needs Chrome or Edge on a desktop computer.'
+          : 'Live Mode needs Chrome or Edge on desktop — or put Whis on a second screen next to your interview.',
+          'info', 6000);
+      });
+      if (anchor && anchor.nextSibling) row.insertBefore(note, anchor.nextSibling);
+      else row.appendChild(note);
+      return;
+    }
+
+    const btn = document.createElement('button');
+    btn.id = 'go-live-btn';
+    btn.className = 'input-icon-btn wl-golive-btn';
+    btn.type = 'button';
+    btn.title = 'Float a small live co-pilot over your interview (share your screen once)';
+    btn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i><span class="btn-mini-label">Go Live</span>';
+    btn.addEventListener('click', () => goLive(btn));
+    if (anchor && anchor.nextSibling) row.insertBefore(btn, anchor.nextSibling);
+    else row.appendChild(btn);
+  }
+
+  return { init, goLive, close, mirrorAnswer, endAnswer, isOpen, supported };
+})();
+
 // START APP
 (async () => {
     await loadEnvVariables();
@@ -7469,4 +7806,5 @@ function _showStealthOnboard() {
     renderMessages();
     const _savedDraft = localStorage.getItem('wh_draft');
     if (_savedDraft) { inputEl.value = _savedDraft; updateContextHint(); }
+    try { if (window.WHIS_WEB) WhisLive.init(); } catch (_) {}
 })();

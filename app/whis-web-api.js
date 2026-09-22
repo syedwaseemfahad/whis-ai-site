@@ -594,6 +594,134 @@ window.WHIS_WEB = true;
     }
   }
 
+  // -------------------------------------------------------------------------
+  // LIVE MODE — persistent screen stream (share once, grab frames repeatedly).
+  // Unlike _grabOneFrame() which prompts + stops each time, this keeps ONE
+  // getDisplayMedia stream alive so frames can be grabbed while the Whis tab is
+  // backgrounded (during a real interview). Powers the Document PiP "Capture".
+  // -------------------------------------------------------------------------
+  let _liveStream = null;
+  let _liveTrack = null;
+  let _liveImageCapture = null;
+  let _liveVideoEl = null; // reusable hidden <video> fallback for grabFrame
+  const _liveEndedCbs = []; // onLiveScreenEnded
+
+  function onLiveScreenEnded(cb) {
+    if (typeof cb === "function") _liveEndedCbs.push(cb);
+  }
+
+  function hasLiveScreen() {
+    return !!(_liveTrack && _liveTrack.readyState === "live");
+  }
+
+  function _teardownLive() {
+    try {
+      if (_liveStream) _liveStream.getTracks().forEach((t) => t.stop());
+    } catch (_) {}
+    try {
+      if (_liveVideoEl) {
+        _liveVideoEl.pause();
+        _liveVideoEl.srcObject = null;
+        _liveVideoEl.remove();
+      }
+    } catch (_) {}
+    _liveStream = null;
+    _liveTrack = null;
+    _liveImageCapture = null;
+    _liveVideoEl = null;
+  }
+
+  async function startLiveScreen(withAudio) {
+    // Reuse an existing live stream (never double-prompt).
+    if (hasLiveScreen()) return { ok: true, reused: true };
+    _teardownLive();
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: !!withAudio,
+      });
+      const track = stream.getVideoTracks()[0];
+      if (!track) {
+        try { stream.getTracks().forEach((t) => t.stop()); } catch (_) {}
+        return { error: "No screen track" };
+      }
+      _liveStream = stream;
+      _liveTrack = track;
+      try {
+        if (typeof ImageCapture !== "undefined") {
+          _liveImageCapture = new ImageCapture(track);
+        }
+      } catch (_) {
+        _liveImageCapture = null;
+      }
+      // User clicked the browser's "Stop sharing" → clean up + notify renderer.
+      track.addEventListener("ended", () => {
+        _teardownLive();
+        fireAll(_liveEndedCbs);
+      });
+      return { ok: true };
+    } catch (err) {
+      _teardownLive();
+      const msg = err && err.message ? err.message : "cancelled";
+      return { error: "Screen share failed: " + msg };
+    }
+  }
+
+  async function grabLiveFrame() {
+    // No persistent stream → fall back to the one-shot (prompts once).
+    if (!hasLiveScreen()) return _grabOneFrame();
+
+    // Prefer ImageCapture.grabFrame (works while the tab is backgrounded).
+    try {
+      if (_liveImageCapture) {
+        const bitmap = await _liveImageCapture.grabFrame();
+        const canvas = document.createElement("canvas");
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        canvas.getContext("2d").drawImage(bitmap, 0, 0);
+        return { dataUrl: canvas.toDataURL("image/png") };
+      }
+    } catch (_) {
+      /* fall through to the <video>+canvas path */
+    }
+
+    // Fallback: draw the persistent track through a hidden, reused <video>.
+    try {
+      if (!_liveVideoEl) {
+        const v = document.createElement("video");
+        v.muted = true;
+        v.playsInline = true;
+        v.style.position = "fixed";
+        v.style.left = "-99999px";
+        v.style.top = "0";
+        v.width = 2;
+        v.height = 2;
+        v.srcObject = _liveStream;
+        document.body.appendChild(v);
+        await v.play().catch(() => {});
+        await new Promise((r) => {
+          if (v.readyState >= 2) return r();
+          v.onloadeddata = () => r();
+          setTimeout(r, 500);
+        });
+        _liveVideoEl = v;
+      }
+      const video = _liveVideoEl;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 1920;
+      canvas.height = video.videoHeight || 1080;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      return { dataUrl: canvas.toDataURL("image/png") };
+    } catch (err) {
+      return { error: "Frame grab failed: " + (err && err.message) };
+    }
+  }
+
+  function stopLiveScreen() {
+    _teardownLive();
+    return Promise.resolve({ ok: true });
+  }
+
   function captureScreen() {
     return _grabOneFrame();
   }
@@ -885,6 +1013,13 @@ window.WHIS_WEB = true;
     captureScreen,
     captureScreenDemo,
     getScreenSourceId,
+
+    // Live Mode — persistent screen stream (Document PiP)
+    startLiveScreen,
+    grabLiveFrame,
+    stopLiveScreen,
+    onLiveScreenEnded,
+    hasLiveScreen,
     openScreenRecordingSettings,
     openSoundSettings,
     openAudioMidiSetup,
