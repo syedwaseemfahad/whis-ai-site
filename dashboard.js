@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
    Whis-AI — Dashboard (user workspace) logic
    Consumes the backend contract at api.whis-ai.com. Guards all
-   failures gracefully. Sessions come from the backend; Resumes /
-   Documents are localStorage stubs pending their own backend.
+   failures gracefully. Sessions, Resumes and Documents are all
+   backed by the live API (no local stubs).
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -411,75 +411,274 @@
     setTimeout(loadSessions, 1200);
   }
 
-  // ═══════════ RESUMES / DOCUMENTS (localStorage stubs) ═══════════
-  const LS = {
-    resumes: 'whisDash_resumes',
-    documents: 'whisDash_documents'
-  };
-  let docModalKind = 'documents'; // or 'resumes'
+  // ═══════════ RESUMES (backend) ═══════════
+  const RESUME_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg>';
+  const DOC_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4a2 2 0 0 1 2-2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M13 2v5h5"/></svg>';
+  const DEL_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
 
-  function loadStore(kind) {
-    try { return JSON.parse(localStorage.getItem(LS[kind]) || '[]'); }
-    catch (e) { return []; }
+  let resumesLoaded = false;
+  let documentsLoaded = false;
+
+  function firstText() {
+    for (let i = 0; i < arguments.length; i++) {
+      const v = arguments[i];
+      if (typeof v === 'string' && v.length) return v;
+    }
+    return '';
   }
-  function saveStore(kind, arr) {
-    localStorage.setItem(LS[kind], JSON.stringify(arr));
+  function itemId(it) { return it.id || it._id || it.resumeId || it.documentId || ''; }
+  function itemTitle(it, fallback) { return firstText(it.title, it.name, it.filename) || fallback; }
+  function itemContent(it) { return firstText(it.content, it.body, it.text) || ''; }
+
+  async function loadResumes() {
+    show($('resumesSkeleton'));
+    [$('resumesList'), $('resumesEmpty'), $('resumesError')].forEach(hide);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/resumes`, { headers: headers() });
+      if (!r.ok) throw new Error('resumes ' + r.status);
+      const d = await r.json();
+      const items = Array.isArray(d) ? d : (d.resumes || d.items || []);
+      hide($('resumesSkeleton'));
+      renderResumes(items);
+      resumesLoaded = true;
+    } catch (e) {
+      hide($('resumesSkeleton'));
+      show($('resumesError'));
+    }
   }
 
-  function renderDocs(kind) {
-    const list = kind === 'resumes' ? $('resumesList') : $('documentsList');
-    const empty = kind === 'resumes' ? $('resumesEmpty') : $('documentsEmpty');
-    const items = loadStore(kind);
-    if (!items.length) { list.innerHTML = ''; show(empty); return; }
-    hide(empty);
-    const ico = kind === 'resumes'
-      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4a2 2 0 0 1 2-2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M13 2v5h5"/></svg>';
-    list.innerHTML = items.map((it) => `
-      <div class="doc-row">
-        <div class="dr-ico">${ico}</div>
+  function renderResumes(items) {
+    const list = $('resumesList');
+    if (!items.length) { list.innerHTML = ''; hide(list); show($('resumesEmpty')); return; }
+    hide($('resumesEmpty'));
+    list.innerHTML = items.map((it) => {
+      const id = itemId(it);
+      const title = itemTitle(it, 'Untitled resume');
+      return `
+      <div class="doc-row" data-open="${esc(id)}" data-type="resume">
+        <div class="dr-ico">${RESUME_ICO}</div>
         <div class="dr-meta">
-          <div class="dr-name">${esc(it.name)}</div>
-          <div class="dr-sub">${esc(fmtDate(it.createdAt))}${it.body ? ` · ${it.body.length} chars` : ''}</div>
+          <div class="dr-name">${esc(title)}</div>
+          <div class="dr-sub">${esc(fmtDate(it.updatedAt || it.createdAt))}</div>
         </div>
         <div class="dr-actions">
-          <button class="icon-btn danger" data-del="${esc(it.id)}" data-kind="${kind}" title="Delete" aria-label="Delete">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-          </button>
+          <button class="icon-btn danger" data-del="${esc(id)}" data-type="resume" title="Delete" aria-label="Delete">${DEL_ICO}</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
+    show(list);
+    wireDocRows(list, 'resume');
+  }
+
+  async function openResume(id) {
+    openModal('viewerModal');
+    $('viewerTitle').textContent = 'Resume';
+    $('viewerSub').textContent = '—';
+    $('viewerContent').innerHTML = '<div class="sk sk-line w70"></div><div class="sk sk-line w55"></div><div class="sk sk-line w40"></div>';
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/resumes/${encodeURIComponent(id)}`, { headers: headers() });
+      if (!r.ok) throw new Error('resume ' + r.status);
+      const it = await r.json();
+      renderViewer(itemTitle(it, 'Resume'), it, itemContent(it), '/resume-maker.html', 'Edit in Resume Maker');
+    } catch (e) {
+      $('viewerContent').innerHTML = `<div class="viewer-empty">Couldn't load this resume. Try again in a moment.</div>`;
+    }
+  }
+
+  async function deleteResume(id) {
+    if (!confirm('Delete this resume? This cannot be undone.')) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/resumes/${encodeURIComponent(id)}`, { method: 'DELETE', headers: headers() });
+      if (!r.ok) throw new Error('del ' + r.status);
+      toast('Resume deleted.');
+      loadResumes();
+    } catch (e) { toast('Couldn\'t delete. Try again.', true); }
+  }
+
+  // ═══════════ DOCUMENTS (backend) ═══════════
+  const KIND_LABELS = { jd: 'Job description', note: 'Note', playbook: 'Playbook' };
+
+  async function loadDocuments() {
+    show($('documentsSkeleton'));
+    [$('documentsList'), $('documentsEmpty'), $('documentsError')].forEach(hide);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/documents`, { headers: headers() });
+      if (!r.ok) throw new Error('documents ' + r.status);
+      const d = await r.json();
+      const items = Array.isArray(d) ? d : (d.documents || d.items || []);
+      hide($('documentsSkeleton'));
+      renderDocuments(items);
+      documentsLoaded = true;
+    } catch (e) {
+      hide($('documentsSkeleton'));
+      show($('documentsError'));
+    }
+  }
+
+  function kindLabel(k) {
+    const key = String(k || '').toLowerCase();
+    return KIND_LABELS[key] || (key ? key.charAt(0).toUpperCase() + key.slice(1) : 'Document');
+  }
+
+  function renderDocuments(items) {
+    const list = $('documentsList');
+    if (!items.length) { list.innerHTML = ''; hide(list); show($('documentsEmpty')); return; }
+    hide($('documentsEmpty'));
+    list.innerHTML = items.map((it) => {
+      const id = itemId(it);
+      const title = itemTitle(it, 'Untitled document');
+      const content = itemContent(it);
+      const chars = it.length != null ? Number(it.length) : content.length;
+      return `
+      <div class="doc-row" data-open="${esc(id)}" data-type="document">
+        <div class="dr-ico">${DOC_ICO}</div>
+        <div class="dr-meta">
+          <div class="dr-name">${esc(title)}</div>
+          <div class="dr-sub">
+            <span class="dr-kind">${esc(kindLabel(it.kind))}</span>
+            <span>${esc(fmtDate(it.updatedAt || it.createdAt))}${chars ? ` · ${chars} chars` : ''}</span>
+          </div>
+        </div>
+        <div class="dr-actions">
+          <button class="icon-btn danger" data-del="${esc(id)}" data-type="document" title="Delete" aria-label="Delete">${DEL_ICO}</button>
+        </div>
+      </div>`;
+    }).join('');
+    show(list);
+    wireDocRows(list, 'document');
+  }
+
+  async function openDocument(id) {
+    openModal('viewerModal');
+    $('viewerTitle').textContent = 'Document';
+    $('viewerSub').textContent = '—';
+    $('viewerContent').innerHTML = '<div class="sk sk-line w70"></div><div class="sk sk-line w55"></div><div class="sk sk-line w40"></div>';
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/documents/${encodeURIComponent(id)}`, { headers: headers() });
+      if (!r.ok) throw new Error('document ' + r.status);
+      const it = await r.json();
+      renderViewer(itemTitle(it, 'Document'), it, itemContent(it));
+    } catch (e) {
+      $('viewerContent').innerHTML = `<div class="viewer-empty">Couldn't load this document. Try again in a moment.</div>`;
+    }
+  }
+
+  async function deleteDocument(id) {
+    if (!confirm('Delete this document? This cannot be undone.')) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/documents/${encodeURIComponent(id)}`, { method: 'DELETE', headers: headers() });
+      if (!r.ok) throw new Error('del ' + r.status);
+      toast('Document deleted.');
+      loadDocuments();
+    } catch (e) { toast('Couldn\'t delete. Try again.', true); }
+  }
+
+  // Shared viewer + row wiring
+  function renderViewer(title, it, content, editHref, editLabel) {
+    $('viewerTitle').textContent = title;
+    const bits = [];
+    if (it.kind) bits.push(kindLabel(it.kind));
+    if (it.updatedAt || it.createdAt) bits.push(fmtDate(it.updatedAt || it.createdAt));
+    $('viewerSub').textContent = bits.join(' · ') || '—';
+    let html = content
+      ? `<div class="viewer-body">${esc(content)}</div>`
+      : `<div class="viewer-empty">This item has no saved text content.</div>`;
+    if (editHref) {
+      html += `<div class="viewer-actions"><a class="btn btn-ghost btn-sm" href="${esc(editHref)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        ${esc(editLabel || 'Edit')}</a></div>`;
+    }
+    $('viewerContent').innerHTML = html;
+  }
+
+  function wireDocRows(list, type) {
+    list.querySelectorAll('[data-open]').forEach((row) => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-del]')) return;
+        const id = row.getAttribute('data-open');
+        if (type === 'resume') openResume(id); else openDocument(id);
+      });
+    });
     list.querySelectorAll('[data-del]').forEach((b) => {
-      b.addEventListener('click', () => {
-        const k = b.getAttribute('data-kind');
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = b.getAttribute('data-del');
-        saveStore(k, loadStore(k).filter((x) => String(x.id) !== String(id)));
-        renderDocs(k);
-        toast('Deleted.');
+        if (type === 'resume') deleteResume(id); else deleteDocument(id);
       });
     });
   }
 
-  function openDocModal(kind) {
-    docModalKind = kind;
-    $('docModalTitle').textContent = kind === 'resumes' ? 'Add resume' : 'Add document';
-    $('docModalSub').textContent = kind === 'resumes'
-      ? 'Paste your resume text or add a title.'
-      : 'Paste a job description or notes.';
+  // ═══════════ ADD DOCUMENT (modal + upload) ═══════════
+  function openDocModal() {
     $('docName').value = '';
     $('docBody').value = '';
+    $('docKind').value = 'jd';
+    $('docFile').value = '';
+    $('docDropText').textContent = 'Click to choose a .txt or PDF, or paste text below';
+    $('docDrop').classList.remove('has-file');
     openModal('docModal');
     setTimeout(() => $('docName').focus(), 60);
   }
 
-  function saveDoc() {
-    const name = $('docName').value.trim();
-    if (!name) { $('docName').focus(); return; }
-    const arr = loadStore(docModalKind);
-    arr.unshift({ id: Date.now().toString(36), name, body: $('docBody').value.trim(), createdAt: new Date().toISOString() });
-    saveStore(docModalKind, arr);
-    closeModal('docModal');
-    renderDocs(docModalKind);
-    toast('Saved.');
+  async function readTxt(file) {
+    return await file.text();
+  }
+
+  async function readPdf(file) {
+    if (!window.pdfjsLib) throw new Error('pdfjs unavailable');
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let out = '';
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const tc = await page.getTextContent();
+      out += tc.items.map((i) => i.str).join(' ') + '\n\n';
+    }
+    return out.trim();
+  }
+
+  async function handleDocFile(file) {
+    if (!file) return;
+    const drop = $('docDrop');
+    $('docDropText').textContent = `Reading ${file.name}…`;
+    try {
+      const isPdf = /\.pdf$/i.test(file.name) || file.type === 'application/pdf';
+      const text = isPdf ? await readPdf(file) : await readTxt(file);
+      $('docBody').value = text;
+      if (!$('docName').value.trim()) {
+        $('docName').value = file.name.replace(/\.(txt|pdf)$/i, '');
+      }
+      $('docDropText').textContent = `${file.name} · ${text.length} chars loaded`;
+      drop.classList.add('has-file');
+    } catch (e) {
+      $('docDropText').textContent = 'Couldn\'t read that file. Paste the text instead.';
+      drop.classList.remove('has-file');
+      toast('Couldn\'t parse the file. Paste the text instead.', true);
+    }
+  }
+
+  async function saveDoc() {
+    const title = $('docName').value.trim();
+    const content = $('docBody').value.trim();
+    if (!title) { $('docName').focus(); toast('Give your document a title.', true); return; }
+    if (!content) { $('docBody').focus(); toast('Add some content or upload a file.', true); return; }
+    const btn = $('saveDocBtn');
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/documents`, {
+        method: 'POST', headers: headers(),
+        body: JSON.stringify({ title, kind: $('docKind').value, content })
+      });
+      if (!r.ok) throw new Error('save ' + r.status);
+      closeModal('docModal');
+      toast('Document saved.');
+      loadDocuments();
+    } catch (e) {
+      toast('Couldn\'t save. Try again.', true);
+    } finally {
+      btn.disabled = false; btn.textContent = orig;
+    }
   }
 
   // ═══════════ NAV / SCREENS ═══════════
@@ -489,8 +688,8 @@
     if (target) target.classList.add('active');
     document.querySelectorAll('.nav-item[data-screen]').forEach((n) =>
       n.classList.toggle('active', n.getAttribute('data-screen') === name));
-    if (name === 'resumes') renderDocs('resumes');
-    if (name === 'documents') renderDocs('documents');
+    if (name === 'resumes' && !resumesLoaded) loadResumes();
+    if (name === 'documents' && !documentsLoaded) loadDocuments();
     closeSidebar();
     // scroll main to top
     const c = document.querySelector('.content'); if (c) c.scrollTop = 0;
@@ -565,10 +764,14 @@
     // Retry
     $('retrySessionsBtn').addEventListener('click', loadSessions);
 
-    // Resumes / Documents
-    ['addResumeBtn', 'resumesEmptyBtn'].forEach((id) => $(id).addEventListener('click', () => openDocModal('resumes')));
-    ['addDocBtn', 'documentsEmptyBtn'].forEach((id) => $(id).addEventListener('click', () => openDocModal('documents')));
+    // Resumes (backend) — New/empty CTAs are links to /resume-maker.html
+    $('retryResumesBtn').addEventListener('click', loadResumes);
+
+    // Documents (backend)
+    ['addDocBtn', 'documentsEmptyBtn'].forEach((id) => $(id).addEventListener('click', openDocModal));
+    $('retryDocumentsBtn').addEventListener('click', loadDocuments);
     $('saveDocBtn').addEventListener('click', saveDoc);
+    $('docFile').addEventListener('change', (e) => handleDocFile(e.target.files && e.target.files[0]));
 
     // Ask AI
     $('askBtn').addEventListener('click', askAI);

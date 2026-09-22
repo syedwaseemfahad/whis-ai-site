@@ -2,9 +2,12 @@
    Whis-AI — Free Mock Interview (lead magnet)
    Flow: Setup → ask-aloud (TTS) → answer (mic + STT) → coach → loop
          → save the whole mock to the dashboard (/api/sessions).
-   Talks to api.whis-ai.com. Every network call is guarded and
-   degrades gracefully. TTS/STT are feature-detected and fall back
-   to text so the page works on Safari/Firefox too.
+   Live backend (deployed): /api/mock/next-question drives the questions
+   and /api/mock/draft-answer drives the model answer + coaching; the
+   finished mock is saved via /api/sessions*. A tiny local question/answer
+   bank is kept only as a silent safety net if a call ever fails.
+   TTS/STT are feature-detected and fall back to text so the page works
+   on Safari/Firefox too.
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -145,7 +148,7 @@
         if (res.text || res.content) opt.dataset.text = res.text || res.content;
         sel.appendChild(opt);
       });
-    } catch (e) { /* endpoint may not exist yet — paste/upload still works */ }
+    } catch (e) { /* network hiccup — paste/upload still works */ }
   }
 
   async function resolveSavedResumeText(id) {
@@ -315,7 +318,7 @@
     speakQuestion(question);
   }
 
-  // Local question bank — used if the backend endpoint isn't reachable yet.
+  // Silent safety net — only used if a live /api/mock/next-question call fails.
   function fallbackQuestion(n) {
     const role = config.role || 'this role';
     const bank = [
@@ -516,6 +519,9 @@
     $('coachModel').innerHTML = '<span class="q-skeleton"></span><span class="q-skeleton"></span><span class="q-skeleton short"></span>';
     const noteEl = $('coachNote');
     hide(noteEl);
+    // Hold the Next/Finish actions until the coaching lands, so the loop feels deliberate.
+    const actions = $('coachCard').querySelector('.coach-actions');
+    if (actions) actions.classList.add('hidden');
 
     let model = '', note = '';
     try {
@@ -543,6 +549,8 @@
     if (note) { noteEl.innerHTML = `<strong>To improve:</strong> ${esc(note)}`; show(noteEl); }
 
     history.push({ question: currentQuestion, answer, model, note });
+
+    if (actions) actions.classList.remove('hidden');
 
     // Toggle finish vs next based on how far along we are.
     $('finishBtn').classList.toggle('hidden', history.length < MIN_QUESTIONS && history.length < MAX_QUESTIONS);

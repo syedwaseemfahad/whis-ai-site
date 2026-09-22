@@ -4,7 +4,7 @@
    editor + live preview → tailor to a JD → ATS score with per-point
    fixes → templates → download PDF + save to account.
 
-   Backend contract (teammate is adding these — we degrade gracefully):
+   Live backend (deployed):
      POST /api/resume/tailor  {resumeText, jobDescription}
           → {resumeText?, tailoredText?, suggestions:[{issue,fix,severity}], score?}
      POST /api/resume/score   {resumeText, jobDescription?}
@@ -453,7 +453,8 @@
     const jd = $('jdInput').value.trim();
     const btn = $('tailorBtn');
     if (!jd) { toast('Paste a job description to tailor — or use “Re-score only”.'); $('jdInput').focus(); return; }
-    setBtnLoading(btn, 'Tailoring…');
+    setBtnLoading(btn, 'Tailoring to the job…');
+    setScoreBusy('Tailoring to the job…');
     try {
       const r = await fetch(`${BACKEND_URL}/api/resume/tailor`, {
         method: 'POST', headers: headers(),
@@ -467,17 +468,18 @@
         hydrateFields(); renderRepeaters(); renderPreview();
       }
       applySuggestions(d.suggestions);
-      if (d.score != null) { currentScore = clampScore(d.score); renderScore(); }
+      if (d.score != null) { currentScore = clampScore(d.score); clearScoreBusy(); renderScore(); }
       else await scoreOnly(true);
       toast('Tailored to the job. Review the fixes on the right.');
     } catch (e) {
+      clearScoreBusy();
       toast('Couldn\'t reach the tailor service. Try again shortly.', true);
     } finally { restoreBtn(btn); }
   }
 
   async function scoreOnly(silent) {
     const btn = $('scoreOnlyBtn');
-    if (!silent) setBtnLoading(btn, 'Scoring…');
+    if (!silent) { setBtnLoading(btn, 'Scoring…'); setScoreBusy('Scoring…'); }
     try {
       const r = await fetch(`${BACKEND_URL}/api/resume/score`, {
         method: 'POST', headers: headers(),
@@ -487,11 +489,29 @@
       const d = await r.json();
       currentScore = clampScore(d.score);
       if (d.suggestions) applySuggestions(d.suggestions);
+      clearScoreBusy();
       renderScore(); renderFixes();
       if (!silent) toast('Re-scored.');
     } catch (e) {
+      clearScoreBusy();
       if (!silent) toast('Couldn\'t reach the scoring service. Try again shortly.', true);
     } finally { if (!silent) restoreBtn(btn); }
+  }
+
+  // ── Score-panel busy state (shown on the gauge during AI calls) ──
+  function setScoreBusy(label) {
+    const state = $('scoreState');
+    const cap = $('scoreCaption');
+    const numEl = $('scoreNum');
+    const panel = document.querySelector('.score-panel');
+    if (panel) panel.classList.add('busy');
+    if (state) state.textContent = label || 'Working…';
+    if (numEl) numEl.innerHTML = '<span class="score-dots"><i></i><i></i><i></i></span>';
+    if (cap) cap.textContent = 'Analyzing your resume against the job — this takes a few seconds.';
+  }
+  function clearScoreBusy() {
+    const panel = document.querySelector('.score-panel');
+    if (panel) panel.classList.remove('busy');
   }
 
   function clampScore(s) { s = Number(s); if (isNaN(s)) return null; return Math.max(0, Math.min(100, Math.round(s))); }
