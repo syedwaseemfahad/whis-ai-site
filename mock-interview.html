@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Whis-AI — Free Mock Interview</title>
+  <meta name="theme-color" content="#070a14" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="description" content="Rehearse your interview before the real one. A free AI mock interview that asks questions aloud, listens to your answers, and coaches you with a strong model answer after every question." />
+
+  <meta property="og:title" content="Whis-AI — Free Mock Interview" />
+  <meta property="og:description" content="Rehearse the interview before the real one. Free AI mock interview with spoken questions, live transcription of your answers, and instant coaching." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://whis-ai.com/mock-interview.html" />
+  <meta property="og:image" content="https://whis-ai.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="canonical" href="https://whis-ai.com/mock-interview.html" />
+  <link rel="icon" type="image/jpeg" href="/owl_logo.jpeg" />
+  <link rel="apple-touch-icon" href="/owl_logo.jpeg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/mock-interview.css" />
+</head>
+<body>
+
+  <!-- ─────────── Top bar ─────────── -->
+  <header class="topnav">
+    <a class="brand" href="/">
+      <img class="mark" src="/owl_logo.jpeg" alt="" />
+      <span>Whis<span class="accent">-AI</span></span>
+    </a>
+    <div class="tn-right">
+      <span class="tn-tag">Free mock interview</span>
+      <a class="btn btn-ghost btn-sm" href="/dashboard.html">Dashboard</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ════════════════ 1) SETUP ════════════════ -->
+    <section class="stage active" id="stage-setup">
+      <div class="hero">
+        <div class="hero-tag">Your first mock is free</div>
+        <h1>Rehearse the interview <span class="accent">before the real one.</span></h1>
+        <p class="hero-sub">
+          Whis-AI runs a realistic interviewer for your exact role. It asks questions out loud, listens
+          to your spoken answer, then shows a strong model answer so you learn fast. Practice with the
+          same copilot you'll use live.
+        </p>
+      </div>
+
+      <div class="setup-card">
+        <div class="sc-head">
+          <div class="sc-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </div>
+          <div>
+            <div class="sc-title">Set up your mock</div>
+            <div class="sc-sub">Tell us the role and paste your resume so questions stay on-target.</div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="fRole">Role</label>
+            <input type="text" id="fRole" placeholder="e.g. Backend Engineer" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="fCompany">Company <span class="dim">(optional)</span></label>
+            <input type="text" id="fCompany" placeholder="e.g. Stripe" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="fLanguage">Language</label>
+            <select id="fLanguage">
+              <option value="en">English</option>
+              <option value="hi">Hindi</option>
+              <option value="te">Telugu</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fSavedResume">Saved resume <span class="dim">(if signed in)</span></label>
+            <select id="fSavedResume">
+              <option value="">None / paste below</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Resume</label>
+          <div class="resume-drop" id="resumeDrop">
+            <input type="file" id="resumeFile" accept=".pdf,.txt,.doc,.docx" hidden />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+            <div class="rd-text"><strong>Upload a PDF</strong> or drag it here — or paste the text below.</div>
+            <div class="rd-file" id="resumeFileName"></div>
+          </div>
+          <textarea id="fResume" placeholder="Paste your resume text here…"></textarea>
+        </div>
+
+        <div class="setup-error hidden" id="setupError"></div>
+
+        <button class="btn btn-primary btn-block" id="startBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+          Start mock interview
+        </button>
+
+        <div class="cap-note" id="capNote">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span id="capNoteText">We'll use your mic and speaker. Sign in to save this mock to your dashboard — it's optional to start.</span>
+        </div>
+      </div>
+
+      <div class="how">
+        <div class="how-item">
+          <div class="how-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg></div>
+          <div class="how-h">It asks aloud</div>
+          <div class="how-p">A natural voice reads each question, just like a real interviewer.</div>
+        </div>
+        <div class="how-item">
+          <div class="how-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10a7 7 0 0 1-14 0M12 17v4"/></svg></div>
+          <div class="how-h">You answer</div>
+          <div class="how-p">Speak your answer. We transcribe it live so you can see it too.</div>
+        </div>
+        <div class="how-item">
+          <div class="how-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div class="how-h">It coaches you</div>
+          <div class="how-p">See a strong model answer and one note on what to improve.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 2) INTERVIEW ════════════════ -->
+    <section class="stage" id="stage-interview">
+      <div class="iv-head">
+        <div class="iv-meta">
+          <span class="iv-role" id="ivRole">Mock interview</span>
+          <span class="iv-company" id="ivCompany"></span>
+        </div>
+        <div class="iv-progress">
+          <span id="ivCount">Question 1</span>
+          <div class="iv-bar"><div class="iv-bar-fill" id="ivBarFill"></div></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="endBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          End &amp; review
+        </button>
+      </div>
+
+      <!-- Interviewer question -->
+      <div class="q-card">
+        <div class="q-top">
+          <div class="q-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          </div>
+          <div class="q-who">
+            <div class="q-name">Interviewer</div>
+            <div class="q-state" id="qState">Preparing your first question…</div>
+          </div>
+          <button class="q-replay" id="replayBtn" title="Repeat the question" aria-label="Repeat the question" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+          </button>
+        </div>
+        <div class="q-text" id="qText">
+          <span class="q-skeleton"></span>
+          <span class="q-skeleton short"></span>
+        </div>
+      </div>
+
+      <!-- Answer capture -->
+      <div class="answer-card" id="answerCard">
+        <div class="ans-head">
+          <div class="ans-title">Your answer</div>
+          <div class="mic-badge" id="micBadge"><span class="dot"></span><span id="micBadgeText">Idle</span></div>
+        </div>
+
+        <div class="ans-transcript" id="ansTranscript" data-empty="Your spoken answer will appear here as you talk…"></div>
+
+        <!-- Fallback typed answer (shown when STT unavailable) -->
+        <textarea class="ans-typed hidden" id="ansTyped" placeholder="Speech recognition isn't available in this browser — type your answer here instead."></textarea>
+
+        <div class="ans-controls">
+          <button class="btn btn-primary" id="recordBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10a7 7 0 0 1-14 0M12 17v4"/></svg>
+            <span id="recordBtnText">Start answering</span>
+          </button>
+          <button class="btn btn-ghost" id="submitAnswerBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            Submit &amp; get coaching
+          </button>
+        </div>
+        <div class="ans-hint" id="ansHint"></div>
+      </div>
+
+      <!-- Coaching (shown after an answer) -->
+      <div class="coach hidden" id="coachCard">
+        <div class="coach-grid">
+          <div class="coach-col">
+            <div class="coach-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+              Your answer
+            </div>
+            <div class="coach-body" id="coachYours"></div>
+          </div>
+          <div class="coach-col strong">
+            <div class="coach-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg>
+              Strong model answer
+            </div>
+            <div class="coach-body" id="coachModel"><span class="q-skeleton"></span><span class="q-skeleton"></span><span class="q-skeleton short"></span></div>
+          </div>
+        </div>
+        <div class="coach-note" id="coachNote"></div>
+        <div class="coach-actions">
+          <button class="btn btn-primary" id="nextBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            Next question
+          </button>
+          <button class="btn btn-ghost" id="finishBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+            Finish &amp; review
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 3) SUMMARY ════════════════ -->
+    <section class="stage" id="stage-summary">
+      <div class="summary-head">
+        <div class="sum-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
+        <h2>Mock complete</h2>
+        <p id="sumSub">You answered <strong id="sumCount">0</strong> questions. Here's your full transcript with model answers.</p>
+        <div class="save-state" id="saveState"></div>
+      </div>
+
+      <div class="review" id="reviewList"></div>
+
+      <!-- CTA -->
+      <div class="cta">
+        <div class="cta-h">Now do it for real — with Whis-AI in your ear.</div>
+        <div class="cta-p">The same copilot you just practiced with can sit invisibly beside your live interview, feed you the right answer in real time, and read your screen for coding rounds.</div>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="/app/">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            Open the live copilot
+          </a>
+          <a class="btn btn-ghost" href="/#pricing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg>
+            Go Elite
+          </a>
+          <button class="btn btn-ghost" id="restartBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
+            Run another mock
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─────────── Sign-in prompt (for saving) ─────────── -->
+  <div class="modal-overlay" id="signInModal">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="mh-title">Save this mock to your dashboard</div>
+          <div class="mh-sub">Sign in with Google to keep your transcript and model answers to review later.</div>
+        </div>
+        <button class="modal-close" data-close="signInModal" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <a class="g-btn" id="modalGoogleBtn" href="#">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </a>
+        <p class="g-note">We'll bring you right back to your finished mock.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+  <script src="/mock-interview.js"></script>
+</body>
+</html>
