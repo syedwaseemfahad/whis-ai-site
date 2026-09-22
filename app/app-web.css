@@ -1,0 +1,481 @@
+/* ============================================================================
+   Whis-AI — WEB / MOBILE LAYOUT LAYER  (app-web.css)
+   ----------------------------------------------------------------------------
+   Loaded LAST, after styles.css and the inline WEB-ADAPTATION <style> block.
+
+   Goal: the app was built as a frameless desktop overlay — a narrow, transparent
+   centered column with subtitle-style text meant to float over an interviewer's
+   screen. In a browser tab / on a phone that reads as "a shrunk desktop tool."
+   This layer rebuilds the LAYOUT + VISUAL POLISH into a real, responsive web app
+   while touching only styling (no DOM ids/classes are changed — renderer.js keeps
+   working against #content-area, .whis-global-header, .input-row, #login-btn, etc).
+
+   Contract with the logic teammate:
+     - body.whis-web            -> always present in the browser build (web base)
+     - body.whis-web.whis-mobile-> added on phones
+   Pure @media queries are kept as a fallback for before the class lands.
+
+   SECTIONS
+     0.  Design tokens for the web surface (spacing / radius / type scale)
+     1.  App shell — full-height column, solid dark surface, kill overlay chrome
+     2.  Undo the "transparent overlay / subtitle" rules from styles.css tail
+     3.  Header — real sticky top bar spanning the app width
+     4.  Content area — comfortable app body, internal scroll
+     5.  Messages / answers — readable reading measure + typography
+     6.  Composer — sticky bottom input bar with room to breathe
+     7.  Overlays / modals — center within the web shell
+     8.  Scrollbars, focus, hover, transitions (polish)
+     9.  Desktop / laptop  (min-width: 900px)
+     10. Tablet             (641px – 899px)
+     11. Mobile             (max-width: 640px) + body.whis-mobile
+     12. Reduced motion
+   ========================================================================== */
+
+
+/* ── 0. WEB TOKENS ───────────────────────────────────────────────────────── */
+:root {
+  /* A calmer, larger type scale than the 13px overlay default — answers are meant
+     to be READ on a big screen now, not skimmed as subtitles. */
+  --web-font-base: 15px;
+  --web-line: 1.65;
+
+  /* Comfortable reading measure for the answer column. */
+  --web-answer-measure: 860px;
+  /* Overall app chrome width — deliberate, centered "app", not a floating card. */
+  --web-app-max: 1180px;
+
+  /* Consistent spacing + radius scale for the web surface. */
+  --web-pad-x: 40px;
+  --web-pad-y: 24px;
+  --web-gap: 16px;
+  --web-radius: 14px;
+
+  /* Solid, intentional dark surfaces (base --bg-0 = #070a14). */
+  --web-bg: #070a14;
+  --web-panel: #0c1120;
+  --web-panel-2: #0f1526;
+  --web-border: rgba(255, 255, 255, 0.08);
+  --web-border-strong: rgba(255, 255, 255, 0.12);
+  --web-accent: #29b6f6;
+}
+
+
+/* ── 1. APP SHELL ─────────────────────────────────────────────────────────── */
+/* Fill the viewport with an opaque dark surface and lay the app out as a single
+   full-height flex column: sticky header, scrolling body, sticky composer. */
+body.whis-web,
+html:has(body.whis-web) {
+  background: var(--web-bg) !important;
+}
+
+body.whis-web {
+  -webkit-app-region: no-drag;         /* drag surface is meaningless on the web */
+  border-radius: 0 !important;
+  overflow: hidden;                    /* internal panels scroll, not the page   */
+  height: 100dvh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--web-font-base);
+  cursor: auto;
+}
+
+/* Desktop-overlay chrome that has no meaning in a tab. */
+body.whis-web #whis-border-ring { display: none !important; }
+body.whis-web .window-drag-pill { display: none !important; }
+body.whis-web .whis-global-header { cursor: default; }
+
+
+/* ── 2. UNDO THE TRANSPARENT-OVERLAY / SUBTITLE RULES ─────────────────────── */
+/* styles.css tail (~7311-7394) forces transparent backgrounds + heavy black text
+   halos with !important so text reads over a live screen. On a solid web surface
+   that looks grimy. We re-specify with higher specificity (body.whis-web …) so we
+   win even against those !important rules. */
+
+/* Give the content chrome real, quiet dark panels again. */
+body.whis-web #content-area,
+body.whis-web .content-area {
+  background: var(--web-bg) !important;
+}
+
+/* Kill the subtitle text-shadow on answers, header and composer — replace with none.
+   Clean text on a dark panel needs no outline. */
+body.whis-web .whis-message-bubble,
+body.whis-web .whis-message-bubble *,
+body.whis-web .whis-message-bubble strong,
+body.whis-web .whis-message-bubble b,
+body.whis-web #input,
+body.whis-web .header-icon-btn,
+body.whis-web .input-icon-btn,
+body.whis-web .btn-mini-label,
+body.whis-web .whis-global-header,
+body.whis-web .whis-logo-text,
+body.whis-web .mode-label,
+body.whis-web .quick-prompt-chip,
+body.whis-web .send-btn i {
+  text-shadow: none !important;
+}
+
+/* Answer text: soft off-white on dark, not pure #fff subtitle white. */
+body.whis-web .whis-message-bubble,
+body.whis-web .whis-message-bubble * {
+  color: var(--text-main) !important;
+}
+body.whis-web .whis-message-bubble strong,
+body.whis-web .whis-message-bubble b {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* The tail forces `padding: 18px 16px 14px !important` on the content area and a
+   `margin-top: 18px !important` on the input row — both fight the web layout. Reset. */
+body.whis-web #content-area,
+body.whis-web .content-area {
+  padding: 0 !important;
+}
+body.whis-web .input-row {
+  margin-top: 0 !important;
+}
+
+
+/* ── 3. HEADER — sticky top bar ───────────────────────────────────────────── */
+body.whis-web .whis-global-header {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  height: auto;
+  min-height: 56px;
+  flex: 0 0 auto;
+  padding: 10px max(var(--web-pad-x), env(safe-area-inset-right)) 10px
+                max(var(--web-pad-x), env(safe-area-inset-left));
+  padding-top: max(10px, env(safe-area-inset-top));
+  background: rgba(9, 12, 22, 0.92) !important;
+  border-bottom: 1px solid var(--web-border);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  backdrop-filter: saturate(140%) blur(14px);
+  gap: 12px;
+}
+
+body.whis-web .whis-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+body.whis-web .whis-logo-svg { width: 22px; height: 22px; }
+
+
+/* ── 4. CONTENT AREA — the app body ───────────────────────────────────────── */
+/* The content area becomes the scroll host under the header. Inside it, the
+   messages list scrolls; the composer stays pinned at the bottom. */
+body.whis-web #content-area,
+body.whis-web .content-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: 100% !important;   /* override inline block's 900px cap on the shell */
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Everything that lives directly in the content area is centered to the app width
+   and given generous side padding, so it reads as a deliberate app, not a card. */
+body.whis-web #messages,
+body.whis-web .bottom-bar,
+body.whis-web .quick-prompts,
+body.whis-web .input-row,
+body.whis-web #live-transcript,
+body.whis-web #attachment-area,
+body.whis-web #trial-motivation-bar {
+  width: 100%;
+  max-width: var(--web-app-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: max(var(--web-pad-x), env(safe-area-inset-left));
+  padding-right: max(var(--web-pad-x), env(safe-area-inset-right));
+}
+
+
+/* ── 5. MESSAGES / ANSWERS ────────────────────────────────────────────────── */
+body.whis-web #messages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 28px;
+  padding-bottom: 16px;
+  gap: 14px;
+  scroll-behavior: smooth;
+}
+
+/* Answer bubbles get a comfortable reading measure and readable type. */
+body.whis-web .whis-message {
+  width: 100%;
+  max-width: var(--web-answer-measure);
+}
+body.whis-web .whis-message.assistant { margin-right: auto; }
+body.whis-web .whis-message.user { margin-left: auto; }
+
+body.whis-web .whis-message-bubble {
+  font-size: var(--web-font-base);
+  line-height: var(--web-line);
+}
+body.whis-web .whis-message-bubble p { margin: 0 0 0.75em; }
+body.whis-web .whis-message-bubble p:last-child { margin-bottom: 0; }
+body.whis-web .whis-message-bubble li { line-height: var(--web-line); }
+body.whis-web .whis-code-block,
+body.whis-web .whis-code-block code {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+
+/* ── 6. COMPOSER — sticky bottom bar ──────────────────────────────────────── */
+body.whis-web .bottom-bar {
+  flex: 0 0 auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+body.whis-web .quick-prompts {
+  flex: 0 0 auto;
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+
+body.whis-web .input-row {
+  flex: 0 0 auto;
+  gap: 10px;
+  padding-top: 12px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--web-border);
+  background: linear-gradient(180deg, rgba(7,10,20,0) 0%, var(--web-bg) 42%);
+}
+
+/* Give the input a real, tactile field on the dark surface. */
+body.whis-web #input {
+  background: var(--web-panel) !important;
+  border: 1px solid var(--web-border-strong) !important;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 52px;
+  padding: 14px 92px 14px 16px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+body.whis-web #input:focus {
+  border-color: rgba(41, 182, 246, 0.55) !important;
+  background: var(--web-panel-2) !important;
+  box-shadow: 0 0 0 3px rgba(41, 182, 246, 0.14) !important;
+}
+body.whis-web #input::placeholder { color: rgba(255, 255, 255, 0.34); }
+
+/* Primary send + secondary action buttons — solid, comfortable hit targets. */
+body.whis-web .send-btn {
+  min-width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--web-accent) !important;
+  color: #04121d !important;
+  box-shadow: none !important;
+  transition: filter 0.16s ease, transform 0.08s ease;
+}
+body.whis-web .send-btn i { color: #04121d !important; }
+body.whis-web .send-btn:hover { filter: brightness(1.06) !important; }
+body.whis-web .send-btn:active { transform: scale(0.97); }
+
+body.whis-web .input-icon-btn {
+  min-width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--web-panel) !important;
+  border: 1px solid var(--web-border-strong) !important;
+}
+body.whis-web .input-icon-btn:hover {
+  background: var(--web-panel-2) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+
+/* ── 7. OVERLAYS / MODALS ─────────────────────────────────────────────────── */
+/* Overlays are position:absolute from top:var(--header-height). With a taller web
+   header that constant no longer matches; pin them to the whole shell instead so
+   login / trial / checkout cards sit dead-center in the tab. */
+body.whis-web .content-overlay {
+  top: 0 !important;
+  z-index: 12000;
+  padding: 24px;
+  background: rgba(4, 6, 14, 0.82) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  backdrop-filter: blur(12px) saturate(120%);
+}
+
+
+/* ── 8. POLISH — scrollbars / focus / transitions ─────────────────────────── */
+body.whis-web #messages::-webkit-scrollbar { width: 10px; }
+body.whis-web #messages::-webkit-scrollbar-track { background: transparent; }
+body.whis-web #messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+body.whis-web #messages:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  background-clip: content-box;
+}
+body.whis-web #messages {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.18) transparent;
+}
+
+/* Consistent, visible keyboard focus. */
+body.whis-web button:focus-visible,
+body.whis-web a:focus-visible,
+body.whis-web input:focus-visible,
+body.whis-web textarea:focus-visible {
+  outline: 2px solid rgba(41, 182, 246, 0.7);
+  outline-offset: 2px;
+}
+
+/* Subtle, consistent hover on header icon buttons. */
+body.whis-web .header-icon-btn,
+body.whis-web .guide-btn,
+body.whis-web .whis-icon-btn {
+  transition: background 0.16s ease, color 0.16s ease, transform 0.08s ease;
+}
+
+
+/* ── 9. DESKTOP / LAPTOP (min-width: 900px) ───────────────────────────────── */
+@media (min-width: 900px) {
+  body.whis-web #messages {
+    padding-top: 36px;
+  }
+  /* Roomier gutters on wide screens so the app fills the width deliberately. */
+  body.whis-web #messages,
+  body.whis-web .bottom-bar,
+  body.whis-web .quick-prompts,
+  body.whis-web .input-row,
+  body.whis-web #live-transcript,
+  body.whis-web #attachment-area,
+  body.whis-web #trial-motivation-bar {
+    padding-left: max(var(--web-pad-x), env(safe-area-inset-left));
+    padding-right: max(var(--web-pad-x), env(safe-area-inset-right));
+  }
+}
+
+/* Fallback (before the .whis-web class is added) — same intent, plain @media. */
+@media (min-width: 900px) {
+  #content-area { max-width: none; }
+}
+
+
+/* ── 10. TABLET (641px – 899px) ───────────────────────────────────────────── */
+@media (min-width: 641px) and (max-width: 899px) {
+  :root { --web-pad-x: 28px; }
+  body.whis-web .whis-logo-text { font-size: 15px; }
+}
+
+
+/* ── 11. MOBILE (max-width: 640px) + body.whis-mobile ─────────────────────── */
+/* Single column, full-bleed, touch-first. Larger tap targets, bigger composer,
+   readable fonts, no horizontal scroll, safe-area aware, collapsed header. */
+@media (max-width: 640px) {
+  :root {
+    --web-pad-x: 16px;
+    --web-answer-measure: 100%;
+  }
+}
+
+body.whis-web.whis-mobile,
+body.whis-web.whis-mobile #content-area,
+body.whis-web.whis-mobile .content-area {
+  overflow-x: hidden;
+}
+
+/* Header: essentials only. The existing width media queries in styles.css already
+   hide shortcuts/labels/sliders below their breakpoints; we make what's left tidy. */
+@media (max-width: 640px) {
+  body.whis-web .whis-global-header {
+    min-height: 52px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+    gap: 8px;
+  }
+  body.whis-web .whis-logo-text { font-size: 15px; }
+
+  /* Answer measure goes full-bleed. */
+  body.whis-web #messages,
+  body.whis-web .bottom-bar,
+  body.whis-web .quick-prompts,
+  body.whis-web .input-row,
+  body.whis-web #live-transcript {
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+  }
+  body.whis-web .whis-message { max-width: 100%; }
+  body.whis-web #messages { padding-top: 18px; gap: 12px; }
+
+  /* Touch-friendly composer: bigger field + >=44px targets. */
+  body.whis-web #input {
+    font-size: 16px;               /* 16px prevents iOS zoom-on-focus */
+    min-height: 50px;
+    padding-right: 84px;
+  }
+  body.whis-web .send-btn,
+  body.whis-web .input-icon-btn {
+    min-width: 48px;
+    height: 48px;
+  }
+  body.whis-web .input-row {
+    gap: 8px;
+    padding-top: 10px;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  /* Quick-prompt chips scroll horizontally instead of wrapping into a wall. */
+  body.whis-web .quick-prompts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  body.whis-web .quick-prompts::-webkit-scrollbar { display: none; }
+  body.whis-web .quick-prompt-chip { flex: 0 0 auto; min-height: 34px; }
+
+  /* Modals: near full-width cards with breathing room. */
+  body.whis-web .content-overlay { padding: 16px; }
+  body.whis-web .content-overlay .login-card,
+  body.whis-web .content-overlay .perm-card { width: 100%; max-width: 360px; }
+}
+
+/* Same rules, keyed on the class the teammate adds, so they apply even on larger
+   phones/foldables that the logic layer flags as mobile above 640px. */
+body.whis-web.whis-mobile #input { font-size: 16px; min-height: 50px; }
+body.whis-web.whis-mobile .send-btn,
+body.whis-web.whis-mobile .input-icon-btn { min-width: 48px; height: 48px; }
+body.whis-web.whis-mobile .whis-message { max-width: 100%; }
+body.whis-web.whis-mobile #messages,
+body.whis-web.whis-mobile .input-row,
+body.whis-web.whis-mobile .bottom-bar,
+body.whis-web.whis-mobile .quick-prompts {
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+body.whis-web.whis-mobile .quick-prompts {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+body.whis-web.whis-mobile .quick-prompts::-webkit-scrollbar { display: none; }
+
+
+/* ── 12. REDUCED MOTION ───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body.whis-web * { scroll-behavior: auto !important; }
+}

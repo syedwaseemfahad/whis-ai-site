@@ -37,6 +37,43 @@
     }
 })();
 
+// ================================================================
+// WEB / MOBILE ENVIRONMENT DETECTION (contract with the CSS teammate)
+// ================================================================
+// `window.WHIS_WEB === true` is set by the browser shim. We tag <body> so CSS can
+// adapt layout, and detect mobile robustly. Mobile phones have NO getDisplayMedia
+// (so no interviewer/system-audio capture), coarse pointers, and small viewports.
+// Everything here is a no-op on desktop Electron (WHIS_WEB is falsy there).
+function isMobileWeb() {
+    if (!window.WHIS_WEB) return false;
+    try {
+        const noDisplayMedia = !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia;
+        const coarseAndSmall = (typeof matchMedia === 'function'
+            && matchMedia('(pointer:coarse)').matches
+            && window.innerWidth < 820);
+        const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent || '');
+        // No screen-capture API is the hard signal (a phone literally cannot capture a
+        // tab). Coarse+small or a mobile UA are the soft signals for tablets/edge cases.
+        return noDisplayMedia || coarseAndSmall || uaMobile;
+    } catch (_) {
+        return false;
+    }
+}
+
+// Boolean exposed for reuse across the renderer (and for the CSS teammate / debugging).
+window.WHIS_IS_MOBILE = isMobileWeb();
+const IS_MOBILE_WEB = window.WHIS_IS_MOBILE;
+
+(function tagEnvClasses() {
+    const apply = () => {
+        if (!document.body) return;
+        if (window.WHIS_WEB) document.body.classList.add('whis-web');
+        if (IS_MOBILE_WEB) document.body.classList.add('whis-mobile');
+    };
+    if (document.body) apply();
+    else document.addEventListener('DOMContentLoaded', apply);
+})();
+
 // --- Mode Toggle State ---
 let isAutoMode = false; // Defaults to Manual
 
@@ -892,6 +929,10 @@ function showPermissionOverlay(type, resolveCallback) {
 }
 
 async function checkAndRequestPermission(type) {
+    // WEB: there is no OS-level TCC/permission bridge in a browser — the browser's own
+    // getUserMedia/getDisplayMedia prompt handles consent inline. Return true so the
+    // capture call proceeds and the native prompt appears (no desktop settings overlay).
+    if (window.WHIS_WEB) return true;
     if (!window.electronAPI || !window.electronAPI.checkPermissions) return true;
 
     const perms = await window.electronAPI.checkPermissions();
@@ -1784,6 +1825,13 @@ async function handleUserPostLogin(user) {
     if (!_onboardShown && (isActive || isTrialActive) && !hasShownTourThisSession && localStorage.getItem('wh_stealth_ok')) {
         hasShownTourThisSession = true;
         setTimeout(() => { try { openWhisTour(); } catch (_) {} }, 800);
+    }
+
+    // WEB: once an entitled user reaches a usable state, make the answer loop
+    // discoverable (type / Listen / mic). Fires at most once ever (localStorage-gated),
+    // so returning users aren't nagged. Skipped for locked/free users (nothing to do yet).
+    if (window.WHIS_WEB && (isActive || isTrialActive)) {
+        _showWebFirstRunHintOnce();
     }
 
     const upgradeItem = document.getElementById("upgrade-btn");
@@ -3254,19 +3302,34 @@ async function activateTrial() {
             localStorage.setItem('trialStartLocal', Date.now().toString());
             trialModal.style.display = "none";
             await checkAuth(true);
+            // WEB: make the very next step obvious — drop the user straight into the
+            // composer and surface a short first-run hint so they know what to do.
+            if (window.WHIS_WEB) {
+                try { _applyComposerLock(); } catch (_) {}
+                try { inputEl && inputEl.focus(); } catch (_) {}
+                _showWebFirstRunHintOnce();
+            }
             // Every new trial user gets the guided walkthrough the moment their trial
             // starts. Guarded so it shows once per session (won't double with the
-            // first-run wizard, which sets the same flag).
-            if (!hasShownTourThisSession) {
+            // first-run wizard, which sets the same flag). On mobile the multi-step tour
+            // is too heavy for a small screen — the concise first-run hint covers it.
+            if (!hasShownTourThisSession && !IS_MOBILE_WEB) {
                 hasShownTourThisSession = true;
                 setTimeout(() => { try { openWhisTour(); } catch (_) {} }, 700);
             }
         } else {
-            trialErrorEl.textContent = data.error || "Failed to start trial.";
+            // Clear, friendly next step — never a dead UI. If the trial is already used
+            // up, point the user at the plans instead of leaving a bare error string.
+            const msg = data.error || "Failed to start trial.";
+            trialErrorEl.textContent = msg;
             startTrialEliteBtn.disabled = false;
+            if (/used|exhaust|already|limit/i.test(msg)) {
+                whisToast('Your free trial is already used. Go Elite for unlimited access.', 'warning', 6000,
+                    { action: { label: 'See Plans', fn: () => { try { window.electronAPI.openSubscriptionPage(); } catch (_) {} } } });
+            }
         }
     } catch (e) {
-        trialErrorEl.textContent = "Network error.";
+        trialErrorEl.textContent = "Network error. Check your connection and tap Start again.";
         startTrialEliteBtn.disabled = false;
     }
 }
@@ -5668,6 +5731,12 @@ async function getSystemAudioStreamViaElectron() {
     // the tiny 1x1 video to minimize GPU work. Web is detected by the absence of the
     // desktop-only captureScreen bridge.
     const _isWeb = !!window.WHIS_WEB;
+    // MOBILE: phones have no getDisplayMedia at all — calling it throws (or is
+    // undefined). Interviewer/system-audio capture is physically impossible on a
+    // phone, so bail early and let startListening() fall through to mic-only.
+    if (IS_MOBILE_WEB || !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        throw new Error('getDisplayMedia unavailable (mobile / no screen-capture)');
+    }
     const displayStream = await navigator.mediaDevices.getDisplayMedia({
         audio: true,
         video: _isWeb ? true : { width: 1, height: 1, frameRate: 1 }
@@ -5789,23 +5858,42 @@ async function startListening() {
   if (isListening) return;
 
   try {
-    audioInputDeviceID = await getSystemAudioOutputDeviceID(); 
-
-    const constraints = {
-      audio: {
-        deviceId: audioInputDeviceID,
-        sampleRate: SAMPLE_RATE, 
-        channelCount: 1 
-      }
-    };
-    
     let stream;
-    const loopbackId = await findLoopbackDeviceId();
 
-    // ── Attempt 1: Electron chromeMediaSource — silent, no picker, most reliable ──
-    try {
-        stream = await getSystemAudioStreamViaElectron();
-    } catch (e1) {
+    // ── MOBILE WEB PATH: mic-only ──
+    // Phones cannot capture the interviewer's tab/system audio (no getDisplayMedia).
+    // So on mobile the "Listen" button captures the USER's own voice via getUserMedia
+    // (which DOES work on mobile) so they can ask questions by voice. We never touch
+    // the system-audio cascade below (it would throw and dead-end the UI). A one-time
+    // note explains the honest tradeoff. Typed questions remain the primary path.
+    // We acquire the stream here, then fall through to the shared audio pipeline.
+    if (IS_MOBILE_WEB) {
+        _showMobileCaptureNoteOnce();
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (eMic) {
+            console.warn('Mobile mic capture failed:', eMic);
+            updateListeningUI(false);
+            whisToast('Whis needs microphone access to hear your question. Enable the mic for this site, then tap Listen again. You can also just type your question below.', 'warning', 8000);
+            return;
+        }
+    } else {
+        audioInputDeviceID = await getSystemAudioOutputDeviceID();
+
+        const constraints = {
+          audio: {
+            deviceId: audioInputDeviceID,
+            sampleRate: SAMPLE_RATE,
+            channelCount: 1
+          }
+        };
+
+        const loopbackId = await findLoopbackDeviceId();
+
+        // ── Attempt 1: Electron chromeMediaSource — silent, no picker, most reliable ──
+        try {
+            stream = await getSystemAudioStreamViaElectron();
+        } catch (e1) {
         console.warn("Electron system audio failed, trying loopback device:", e1);
 
         // ── Attempt 2: Named loopback device (BlackHole / Stereo Mix / VB-Cable) ──
@@ -5830,7 +5918,14 @@ async function startListening() {
         // No further fallback — getDisplayMedia is intentionally excluded because it
         // triggers the macOS native screen picker which causes the NSPanel window to hide.
         if (!stream) {
-            if (isMac) {
+            if (window.WHIS_WEB) {
+                // Desktop-web (laptop browser): the browser tab/screen picker was
+                // dismissed or shared no audio. Give a browser-appropriate nudge — no
+                // OS Settings / restart talk (that's desktop-app-only friction).
+                updateListeningUI(false);
+                whisToast('To capture the meeting, click <strong>Listen</strong> again and pick the interviewer’s tab or window — and be sure to check <strong>“Share tab audio.”</strong> Or just type your question below.', 'warning', 9000);
+                return;
+            } else if (isMac) {
                 updateListeningUI(false);
                 showScreenPermissionRestartDialog();
             } else {
@@ -5840,6 +5935,7 @@ async function startListening() {
             return;
         }
     }
+    } // end desktop system-audio branch (mobile skips straight to the shared pipeline)
 
     activeMediaStream = stream;
 
@@ -5887,7 +5983,10 @@ async function startListening() {
     _showPreflightChecklist();
     startChunkCommitTimer();
     openRealtimeTranscription(); // primary: real-time streaming (WAV commit is fallback)
-    startUserMicCapture(); // parallel user-voice capture
+    // On mobile the PRIMARY stream is already the user's mic, so a second parallel mic
+    // capture would double-open the device and transcribe the same voice twice. Desktop
+    // still runs it (there the primary stream is the interviewer's system audio).
+    if (!IS_MOBILE_WEB) startUserMicCapture(); // parallel user-voice capture
 
     processor.onaudioprocess = (e) => {
         if (!isListening) return;
@@ -6422,6 +6521,19 @@ function _startSpeakerIndicator() {
         const now = Date.now();
         const youRecent = now - _lastUserAudioAt < 750;
         const intRecent = now - _lastInterviewerAudioAt < 750;
+        // MOBILE: the only source is the user's own mic (no interviewer capture), so the
+        // primary processor's activity IS "you". Never show "Interviewer speaking…" here.
+        if (IS_MOBILE_WEB) {
+            const active = youRecent || intRecent;
+            if (active) {
+                dot.style.background = '#4df4b1'; dot.style.boxShadow = '0 0 9px rgba(77,244,177,0.9)';
+                txt.textContent = 'Hearing you…'; txt.style.color = '#4df4b1';
+            } else {
+                dot.style.background = '#8b93a8'; dot.style.boxShadow = '0 0 6px rgba(139,147,168,0.5)';
+                txt.textContent = 'Listening to you'; txt.style.color = '#aab2c5';
+            }
+            return;
+        }
         // Two separate sources = clean diarization: the mic sets _lastUserAudioAt (you),
         // the system-audio processor sets _lastInterviewerAudioAt (interviewer).
         if (youRecent) {
@@ -6466,7 +6578,7 @@ function updateListeningUI(active) {
         let content = `<div class="wave-and-text" style="display: flex; align-items: center; gap: 8px;">`;
         content += `<div class="wave-container" style="margin: 0;"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>`;
         content += `<span id="ls-dot" style="width:7px;height:7px;border-radius:50%;background:#8b93a8;box-shadow:0 0 6px rgba(139,147,168,0.55);flex:0 0 auto;transition:background .12s,box-shadow .12s;"></span>`;
-        content += `<span id="ls-text" class="status-text listening-indicator" style="font-size:10px; margin:0; line-height:1; text-transform:none; letter-spacing:0.2px; color:#aab2c5;">Listening — interviewer &amp; you</span>`;
+        content += `<span id="ls-text" class="status-text listening-indicator" style="font-size:10px; margin:0; line-height:1; text-transform:none; letter-spacing:0.2px; color:#aab2c5;">${IS_MOBILE_WEB ? 'Listening to you — ask your question' : 'Listening — interviewer &amp; you'}</span>`;
         content += `</div>`;
         listeningStatusEl.innerHTML = content;
 
@@ -6868,6 +6980,39 @@ function _flashShortcutLabel(label) {
 }
 
 // ── Pre-interview checklist (CHANGE 9) ──
+// ── Mobile capture note (shown once, honest about the tradeoff) ──
+// The first time a mobile user taps Listen, explain that a phone can hear THEM (mic)
+// and answer TYPED questions, but cannot capture the interviewer — that needs a laptop.
+// Encouraging, not a dead-end: the value on mobile is instant answers to what they ask.
+let _mobileCaptureNoteShown = false;
+function _showMobileCaptureNoteOnce() {
+    if (_mobileCaptureNoteShown) return;
+    if (localStorage.getItem('wh_mobile_capture_note') === '1') { _mobileCaptureNoteShown = true; return; }
+    _mobileCaptureNoteShown = true;
+    localStorage.setItem('wh_mobile_capture_note', '1');
+    whisToast(
+        'On your phone, Whis answers your <strong>typed questions</strong> and hears <strong>your mic</strong>. To capture the interviewer live during a call, open Whis on a laptop or desktop.',
+        'info', 9000
+    );
+}
+
+// ── Web first-run hint (once) ──
+// Makes the answer loop discoverable the moment the user can actually use it.
+// Desktop-web: type OR click Listen to capture the meeting tab. Mobile: type OR
+// use the mic. Shown once ever (localStorage) so it never nags returning users.
+let _webFirstRunHintShown = false;
+function _showWebFirstRunHintOnce() {
+    if (!window.WHIS_WEB) return;
+    if (_webFirstRunHintShown) return;
+    if (localStorage.getItem('wh_web_firstrun_hint') === '1') { _webFirstRunHintShown = true; return; }
+    _webFirstRunHintShown = true;
+    localStorage.setItem('wh_web_firstrun_hint', '1');
+    const msg = IS_MOBILE_WEB
+        ? 'You’re in. <strong>Type your question and press Enter</strong> for an instant answer — or tap the mic to ask by voice.'
+        : 'You’re in. <strong>Type your question and press Enter</strong>, or click <strong>Listen</strong> to capture the meeting tab’s audio.';
+    setTimeout(() => whisToast(msg, 'info', 8000), 400);
+}
+
 let _hasShownPreflight = false;
 
 function _showPreflightChecklist() {
