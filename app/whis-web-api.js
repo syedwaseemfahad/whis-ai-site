@@ -446,45 +446,55 @@ window.WHIS_WEB = true;
     }
   }
 
-  // extractFileText: the desktop parsed PDF/DOCX/TXT locally with node modules.
-  // On the web, TXT we can decode inline; anything else we POST to an optional
-  // backend route, and if it isn't there we resolve '' rather than crash.
+  // extractFileText: the desktop parsed PDF/DOCX/TXT with Node modules. On the web we
+  // do it IN THE BROWSER — pdf.js for PDF, mammoth for DOCX (both loaded from CDN in
+  // index.html), TextDecoder for txt. No server round-trip, no resume upload needed.
   async function extractFileText(buffer, ext) {
     try {
       const extension = (ext || "").toLowerCase().replace(/^\./, "");
-      // Plain text: decode directly, no server needed.
-      if (extension === "txt") {
+      const ab = buffer instanceof ArrayBuffer ? buffer : (buffer && buffer.buffer) || new Uint8Array(buffer || []).buffer;
+
+      // Plain text
+      if (extension === "txt" || extension === "md" || extension === "rtf") {
+        try { return { text: new TextDecoder("utf-8").decode(ab) || "" }; } catch (_) { return { text: "" }; }
+      }
+
+      // PDF via pdf.js
+      if (extension === "pdf") {
         try {
-          const text = new TextDecoder("utf-8").decode(
-            buffer instanceof ArrayBuffer ? buffer : new Uint8Array(buffer)
-          );
-          return { text: text || "" };
-        } catch (_) {
-          return { text: "" };
+          if (!window.pdfjsLib) return { text: "", error: "PDF reader still loading — please try again in a moment." };
+          const pdf = await window.pdfjsLib.getDocument({ data: new Uint8Array(ab) }).promise;
+          let out = "";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            out += content.items.map((it) => (it.str || "")).join(" ") + "\n";
+          }
+          return { text: out.trim() };
+        } catch (e) {
+          console.warn("[whis-web] pdf extract failed:", e);
+          return { text: "", error: "Could not read this PDF. If it's a scanned image, paste the text instead." };
         }
       }
-      // PDF / DOCX / other: try a backend extractor if present.
+
+      // DOCX via mammoth
+      if (extension === "docx") {
+        try {
+          if (!window.mammoth) return { text: "", error: "Doc reader still loading — please try again in a moment." };
+          const result = await window.mammoth.extractRawText({ arrayBuffer: ab });
+          return { text: (result && result.value ? result.value : "").trim() };
+        } catch (e) {
+          console.warn("[whis-web] docx extract failed:", e);
+          return { text: "", error: "Could not read this .docx. Try 'Save As' → PDF, or paste the text." };
+        }
+      }
+
+      // Legacy .doc / unknown: try a plain-text decode, else guide the user.
       try {
-        const bytes =
-          buffer instanceof ArrayBuffer ? buffer : new Uint8Array(buffer).buffer;
-        const res = await fetch(`${BACKEND_URL}/api/extract-file`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/octet-stream",
-            "x-file-ext": extension,
-            "x-google-id": gid(),
-          },
-          body: bytes,
-        });
-        if (res && res.ok) {
-          const data = await res.json().catch(() => null);
-          if (data && typeof data.text === "string") return { text: data.text };
-        }
-      } catch (_) {
-        /* route may not exist — fall through */
-      }
-      // MVP fallback: never crash the uploader.
-      return { text: "" };
+        const t = new TextDecoder("utf-8").decode(ab).replace(/[^\x09\x0A\x0D\x20-\x7E]+/g, " ").trim();
+        if (t && t.length > 40) return { text: t };
+      } catch (_) {}
+      return { text: "", error: "Unsupported file. Upload a PDF, DOCX, or TXT — or paste your resume text." };
     } catch (_) {
       return { text: "" };
     }
