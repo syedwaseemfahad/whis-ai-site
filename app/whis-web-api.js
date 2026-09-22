@@ -137,8 +137,10 @@ window.WHIS_WEB = true;
   }
 
   async function checkAuth() {
+    // MUST mirror the desktop shape: renderer does `const { user } = await checkAuth()`.
+    // Returning a raw user (or null) breaks destructuring — {user:null} / {user} instead.
     const user = storedUser();
-    if (!user) return null;
+    if (!user) return { user: null };
     // Best-effort validation; the stored user is authoritative for the UI.
     try {
       const res = await safeFetch(`${BACKEND_URL}/api/user/status`, {
@@ -153,7 +155,7 @@ window.WHIS_WEB = true;
     } catch (_) {
       /* offline / transient — keep the local user */
     }
-    return user;
+    return { user };
   }
 
   async function _ensureGoogleClientId() {
@@ -173,14 +175,16 @@ window.WHIS_WEB = true;
   // carrying attribution in `state`. The backend then bounces back to the app
   // with ?auth_success=true&user=<encoded json>, which we persist as whisUser.
   async function loginGoogle() {
-    // If we already came back from the callback, adopt the user and return it.
+    // If we're already signed in (e.g. from the marketing site — same origin, shared
+    // localStorage), just hand the user back in the SAME { user } shape the desktop
+    // returns, so the renderer's `if (result.user)` branch fires instead of no-op.
     const already = storedUser();
-    if (already) return already;
+    if (already) return { user: already };
 
     const clientId = await _ensureGoogleClientId();
     if (!clientId) {
       console.warn("[whis-web] no Google client id; cannot start OAuth");
-      return null;
+      return { error: "Sign-in is temporarily unavailable. Please try again." };
     }
 
     const redirectUri = encodeURIComponent(
