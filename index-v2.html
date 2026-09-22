@@ -50,6 +50,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Payment + icons (ported from live index.html money flows) -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
     /* ─────────────────────────────────────────────────────────────
@@ -263,11 +266,71 @@
     .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
     .reveal.in{opacity:1;transform:none}
 
+    /* ── Pricing (enterprise-dark, ported money flow) ── */
+    .price-nudge{max-width:640px;margin:0 auto 34px;text-align:center;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:14px;padding:16px 22px;font-size:14px;color:var(--txt-dim)}
+    .price-nudge b{color:var(--txt)}
+    .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1040px;margin:0 auto;align-items:stretch}
+    .price-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:28px 26px;display:flex;flex-direction:column;position:relative;transition:border-color .18s,transform .18s}
+    .price-card:hover{border-color:var(--accent-line);transform:translateY(-3px)}
+    .price-card.hero{border-color:var(--accent-line);box-shadow:0 0 0 1.5px var(--accent-line),0 28px 70px -30px rgba(41,182,246,.5)}
+    .price-badge-row{height:26px;margin-bottom:14px;display:flex;align-items:center}
+    .price-badge{display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:999px;color:#04121c;background:var(--accent)}
+    .price-badge.value{background:var(--ok);color:#04121c}
+    .price-badge .d{width:6px;height:6px;border-radius:50%;background:#04121c}
+    .price-tier{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+    .price-tier .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding:3px 9px;border-radius:999px;border:1px solid var(--accent-line);background:var(--accent-soft)}
+    .price-tier .nm{font-size:22px;font-weight:800}
+    .price-amt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+    .price-amt .big{font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1}
+    .price-amt .orig{font-size:16px;color:var(--txt-faint);text-decoration:line-through}
+    .price-per{font-size:11px;color:var(--txt-faint);margin-top:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+    .price-sup{min-height:20px;margin:12px 0 20px;font-size:12.5px;font-weight:600;color:var(--txt-dim)}
+    .price-feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:24px;flex:1}
+    .price-feats li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--txt-dim);line-height:1.4}
+    .price-feats li .ic{width:18px;height:18px;border-radius:6px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .price-feats li .ic svg{width:11px;height:11px;stroke:var(--accent);stroke-width:3}
+    .price-feats li.off{opacity:.4}
+    .price-feats li.off .ic{background:rgba(255,255,255,.05);color:var(--txt-faint)}
+    .price-feats li.off span{text-decoration:line-through}
+    .price-cta{width:100%;padding:14px;border-radius:12px;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:1px solid var(--line-strong);background:rgba(255,255,255,.05);color:var(--txt);transition:background .18s,border-color .18s}
+    .price-cta:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24)}
+    .price-cta.primary{background:var(--accent);color:#04121c;border-color:transparent;box-shadow:0 8px 30px -12px rgba(41,182,246,.6)}
+    .price-cta.primary:hover{background:#4fc3f7}
+    .price-trust{margin-top:28px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 24px;font-size:12.5px;color:var(--txt-faint)}
+    .price-trust span{display:inline-flex;align-items:center;gap:7px}
+    .price-trust i{color:var(--ok)}
+    .price-foot-note{text-align:center;font-size:12.5px;color:var(--txt-faint);margin-top:14px}
+    .price-foot-note a{color:var(--accent);font-weight:700}
+
+    /* ── Ported modals (payment / download / profile) ── */
+    /* Utility classes the ported JS toggles (Tailwind-style, from live index.html) */
+    .hidden{display:none !important}
+    .wm-overlay{position:fixed;inset:0;z-index:150;background:rgba(4,7,14,.82);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px}
+    .wm-overlay.flex{display:flex}
+    .wm-overlay.show{display:flex}
+    .wm-card{background:var(--card);border:1px solid var(--line-strong);border-radius:22px;max-width:400px;width:100%;padding:30px 28px;position:relative;max-height:90vh;overflow-y:auto}
+    .wm-card .wm-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--txt-faint);cursor:pointer;font-size:20px;line-height:1}
+    .wm-card h3{font-size:20px;margin-bottom:6px}
+    .wm-card p{color:var(--txt-dim);font-size:14px}
+    .wm-pay-btn{width:100%;display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:border-color .18s,background .18s;margin-bottom:10px}
+    .wm-pay-btn:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+    .wm-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+    .wm-dl-row{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;transition:border-color .18s,background .18s}
+    .wm-dl-row:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+    .wm-dl-row .l{display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;color:var(--txt)}
+    .wm-dl-row .l i{font-size:18px}
+    .wm-input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);font-size:14px;font-family:inherit;outline:none}
+    .wm-input:focus{border-color:var(--accent-line)}
+    .wm-input::placeholder{color:var(--txt-faint)}
+
     /* Responsive */
     @media(max-width:960px){
       .proof-grid{grid-template-columns:repeat(2,1fr)}
       .verif-grid{grid-template-columns:repeat(2,1fr)}
       .feat-grid,.cross-grid,.testi-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:960px){
+      .price-grid{grid-template-columns:1fr;max-width:440px}
     }
     @media(max-width:760px){
       .nav-links{display:none}
@@ -297,13 +360,15 @@
       <a href="#how">How it works</a>
       <a href="#platforms">Platforms</a>
       <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
       <a href="#testimonials">Reviews</a>
       <a href="#faq">FAQ</a>
+      <a href="#" onclick="event.preventDefault();openDownloadModal()">Download</a>
       <a href="/interview-guides/">Interview Guides</a>
     </nav>
     <div class="nav-cta">
       <button id="signInBtn" onclick="openLoginModal()">Sign in</button>
-      <div id="userProfileTrigger">
+      <div id="userProfileTrigger" onclick="openProfileModal()">
         <img id="navUserAvatar" src="" alt="" />
         <span id="navPlanBadge">FREE</span>
       </div>
@@ -558,6 +623,105 @@
   </div>
 </section>
 
+<!-- ══════════════════ PRICING (ported money flow) ══════════════════ -->
+<section class="band alt" id="pricing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2>Practice free. Go Elite for the real thing.</h2>
+      <p>The web app is free forever. Elite unlocks the invisible desktop copilot for live interviews.</p>
+    </div>
+
+    <div class="price-nudge reveal">
+      <span id="smartPickText">Smart pick: go <b class="accent">Quarterly</b> or <b class="accent">6-Month</b>. A job search rarely ends in 30 days, so pay once, stay covered, and <b>save up to 60%</b>.</span>
+    </div>
+
+    <div id="pricing-anchor" class="price-grid">
+
+      <!-- FREE TRIAL (India only) -->
+      <div id="cardFree" class="price-card reveal" style="display:none">
+        <div class="price-badge-row"></div>
+        <div class="price-tier"><span class="tag">Free</span><span class="nm">Trial</span></div>
+        <div class="price-amt"><span class="big">₹0</span></div>
+        <div class="price-per">free to test</div>
+        <div class="price-sup">No card needed · try it in 2 minutes</div>
+        <ul class="price-feats">
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>2 × 5-min trials daily</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Full Elite access in trial</span></li>
+          <li class="off"><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12"/></svg></span><span>Use in a real interview</span></li>
+          <li class="off"><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12"/></svg></span><span>10 hrs / month usage</span></li>
+        </ul>
+        <button onclick="openDownloadModal()" class="price-cta">Try Free</button>
+      </div>
+
+      <!-- ELITE · MONTHLY -->
+      <div class="price-card reveal">
+        <div class="price-badge-row"></div>
+        <div class="price-tier"><span class="tag">Elite</span><span class="nm">Monthly</span></div>
+        <div class="price-amt"><span class="big" id="pmTotal">—</span><span class="orig" id="pmOrig" style="display:none"></span></div>
+        <div class="price-per">per month</div>
+        <div class="price-sup" id="pmSupport"></div>
+        <ul class="price-feats">
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Invisible on Zoom, Teams &amp; proctoring</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Hears the interviewer — real-time answers</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Reads your screen — solves coding instantly</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Resume-aware behavioral (STAR) answers</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Instant panic-hide hotkey</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span class="js-hours">10 hrs usage / mo</span></li>
+        </ul>
+        <button onclick="buyElite('monthly')" class="price-cta">Get Started →</button>
+      </div>
+
+      <!-- ELITE · QUARTERLY (hero for India) -->
+      <div id="cardQuarterly" class="price-card hero reveal">
+        <div class="price-badge-row" id="badgeQuarterly"><span class="price-badge"><span class="d"></span>Most Popular</span></div>
+        <div class="price-tier"><span class="tag">Elite</span><span class="nm">Quarterly</span></div>
+        <div class="price-amt"><span class="big" id="pqTotal">—</span><span class="orig" id="pqOrig" style="display:none"></span></div>
+        <div class="price-per">one payment · 3 months</div>
+        <div class="price-sup" id="pqSupport"></div>
+        <ul class="price-feats">
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Invisible on Zoom, Teams &amp; proctoring</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Hears the interviewer — real-time answers</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Reads your screen — solves coding instantly</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Resume-aware behavioral (STAR) answers</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Instant panic-hide hotkey</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span class="js-hours">10 hrs usage / mo</span></li>
+        </ul>
+        <button id="ctaQuarterly" onclick="buyElite('quarterly')" class="price-cta primary">Get Started →</button>
+      </div>
+
+      <!-- ELITE · 6-MONTH (hero for non-India) -->
+      <div id="cardSemiannual" class="price-card reveal">
+        <div class="price-badge-row" id="badgeSemiannual"><span class="price-badge value">Best Value</span></div>
+        <div class="price-tier"><span class="tag">Elite</span><span class="nm">6-Month</span></div>
+        <div class="price-amt"><span class="big" id="psTotal">—</span><span class="orig" id="psOrig" style="display:none"></span></div>
+        <div class="price-per">one payment · 6 months</div>
+        <div class="price-sup" id="psSupport"></div>
+        <ul class="price-feats">
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Invisible on Zoom, Teams &amp; proctoring</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Hears the interviewer — real-time answers</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Reads your screen — solves coding instantly</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Resume-aware behavioral (STAR) answers</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span>Instant panic-hide hotkey</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5"/></svg></span><span class="js-hours">10 hrs usage / mo</span></li>
+        </ul>
+        <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="price-cta primary">Get Started →</button>
+      </div>
+
+    </div>
+
+    <div class="price-trust reveal">
+      <span><i class="fa-solid fa-gift"></i> Free trial first</span>
+      <span><i class="fa-solid fa-shield-halved"></i> No data stored</span>
+      <span><i class="fa-solid fa-lock"></i> Secure checkout</span>
+      <span><i class="fa-solid fa-eye-slash"></i> 0% detection</span>
+      <span><i class="fa-solid fa-headset"></i> Human support</span>
+    </div>
+    <p class="price-foot-note">Prefer to test first? <a href="#" onclick="event.preventDefault();openDownloadModal()">Start a free trial</a> — no card needed.</p>
+    <p class="price-foot-note" style="margin-top:6px">Paid plans include <span class="accent" id="usage-hours">10</span> hours / month of app usage. The Ghost Timer only counts while you're actively in an interview.</p>
+  </div>
+</section>
+
 <!-- ══════════════════ PREPARE CROSS-SELL ══════════════════ -->
 <section class="band" id="prepare">
   <div class="wrap">
@@ -675,7 +839,7 @@
       <a href="/app/" class="btn btn-primary">Try it free
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <button class="btn btn-ghost" onclick="openLoginModal()">Sign in with Google</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Get Elite</button>
     </div>
   </div>
 </section>
@@ -718,6 +882,140 @@
   </div>
 </footer>
 
+<!-- ══════════════════ PAYMENT MODAL (ported checkout) ══════════════════ -->
+<div id="paymentModal" class="wm-overlay">
+  <div class="wm-card" style="max-width:380px">
+    <button class="wm-close" onclick="closePaymentModal()" aria-label="Close">✕</button>
+    <div style="text-align:center;padding:6px 0 18px">
+      <div style="width:46px;height:46px;border-radius:14px;background:var(--accent-soft);border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <i class="fa-solid fa-lock accent"></i>
+      </div>
+      <h3 style="margin-bottom:4px">Secure Checkout</h3>
+      <p style="font-size:12px;color:var(--txt-faint)">256-bit SSL · Trusted &amp; safe</p>
+    </div>
+
+    <!-- Coupon -->
+    <div style="text-align:center;margin-bottom:8px">
+      <a href="#" id="showCouponLink" onclick="event.preventDefault();document.getElementById('couponRow').style.display='block';this.style.display='none';" style="font-size:12.5px;color:var(--txt-dim);text-decoration:underline;text-underline-offset:3px">Have a coupon code?</a>
+      <div id="couponRow" style="display:none;margin-top:12px">
+        <div style="display:flex;gap:8px">
+          <input type="text" id="couponInput" placeholder="ENTER CODE" class="wm-input" style="flex:1;text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-size:12.5px" />
+          <button onclick="applyCoupon()" class="price-cta primary" style="width:auto;padding:0 18px;letter-spacing:.04em">Apply</button>
+        </div>
+        <div id="couponMessage" class="hidden" style="text-align:left;font-size:12.5px;font-weight:700;margin-top:8px"></div>
+      </div>
+    </div>
+    <div id="influencerDiscountMsg" class="hidden"></div>
+
+    <!-- Payment options -->
+    <div style="margin-top:8px">
+      <div style="font-size:10px;font-weight:800;color:var(--txt-faint);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px">Payment method</div>
+
+      <!-- India: Razorpay -->
+      <div id="razorpayWrapper" class="hidden">
+        <button onclick="triggerRazorpayFlow(event)" class="wm-pay-btn">
+          <span class="wm-icon-wrap"><i class="fa-solid fa-credit-card accent" style="font-size:16px"></i></span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:14px;font-weight:700;color:var(--txt)">Razorpay</span>
+            <span style="display:block;font-size:11.5px;color:var(--txt-faint);margin-top:2px">Cards · UPI · Netbanking · Wallets</span>
+          </span>
+          <i class="fa-solid fa-chevron-right" style="color:var(--txt-faint);font-size:11px"></i>
+        </button>
+      </div>
+
+      <!-- International: Card (USD) via Razorpay -->
+      <div id="paypalWrapper" class="hidden" style="flex-direction:column;gap:10px">
+        <button onclick="triggerCardPayment(event)" class="wm-pay-btn">
+          <span class="wm-icon-wrap" style="gap:5px">
+            <svg width="15" height="10" viewBox="0 0 48 30"><rect width="48" height="30" rx="4" fill="#1A1F71"/><text x="5" y="22" font-size="18" fill="white" font-weight="900" font-family="Arial,sans-serif">VISA</text></svg>
+            <svg width="13" height="13" viewBox="0 0 34 34"><circle cx="12" cy="17" r="12" fill="#EB001B"/><circle cx="22" cy="17" r="12" fill="#F79E1B"/><path d="M17 8.3a12 12 0 010 17.4 12 12 0 010-17.4z" fill="#FF5F00"/></svg>
+          </span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:14px;font-weight:700;color:var(--txt)">Credit / Debit Card</span>
+            <span style="display:block;font-size:11.5px;color:var(--txt-faint);margin-top:2px">Visa, Mastercard &amp; more</span>
+          </span>
+          <i class="fa-solid fa-chevron-right" style="color:var(--txt-faint);font-size:11px"></i>
+        </button>
+        <button id="upiInrOption" onclick="triggerUpiInrPayment(event)" class="wm-pay-btn" style="display:none">
+          <span class="wm-icon-wrap"><i class="fa-solid fa-indian-rupee-sign" style="color:var(--ok);font-size:16px"></i></span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:14px;font-weight:700;color:var(--txt)">Pay in ₹ via UPI</span>
+            <span style="display:block;font-size:11.5px;color:var(--txt-faint);margin-top:2px">Have an Indian bank? UPI · GPay · PhonePe</span>
+          </span>
+          <i class="fa-solid fa-chevron-right" style="color:var(--txt-faint);font-size:11px"></i>
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:8px">
+      <i class="fa-solid fa-shield-halved" style="color:var(--ok);font-size:11px"></i>
+      <span style="font-size:10.5px;color:var(--txt-faint)">Payments secured by SSL encryption</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ DOWNLOAD MODAL (ported) ══════════════════ -->
+<div id="downloadModal" class="wm-overlay">
+  <div class="wm-card" style="max-width:400px">
+    <button class="wm-close" onclick="closeDownloadModal()" aria-label="Close">✕</button>
+    <h3 id="dlTitle" style="margin-bottom:20px;margin-top:4px">Select Platform</h3>
+    <div id="dlPlatforms" style="display:flex;flex-direction:column;gap:12px">
+      <a id="download-mac-arm" href="#" class="wm-dl-row">
+        <span class="l"><i class="fa-brands fa-apple"></i><span>macOS <span style="font-size:10px;font-weight:600;color:var(--txt-faint);background:rgba(255,255,255,.06);border:1px solid var(--line);padding:2px 6px;border-radius:5px;margin-left:6px">Apple Silicon</span></span></span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--txt-faint)"></i>
+      </a>
+      <a id="download-mac-intel" href="#" class="wm-dl-row" style="display:none">
+        <span class="l"><i class="fa-brands fa-apple"></i><span>macOS <span style="font-size:10px;font-weight:600;color:var(--txt-faint);background:rgba(255,255,255,.06);border:1px solid var(--line);padding:2px 6px;border-radius:5px;margin-left:6px">Intel</span></span></span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--txt-faint)"></i>
+      </a>
+      <a id="download-windows-link" href="#" class="wm-dl-row">
+        <span class="l"><i class="fa-brands fa-windows"></i> Windows</span>
+        <i class="fa-solid fa-arrow-right" style="color:var(--txt-faint)"></i>
+      </a>
+    </div>
+    <!-- Mobile: capture email, send desktop link -->
+    <div id="dlMobileCapture" class="hidden">
+      <p style="font-size:13.5px;color:var(--txt-dim);line-height:1.55;margin-bottom:16px">Whis runs on your <b style="color:var(--txt)">computer</b> (Mac / Windows). Drop your email and we'll send the download link to open there — set-up takes about 2 minutes, no credit card.</p>
+      <input id="dlEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" class="wm-input" style="margin-bottom:12px" />
+      <button id="dlSendBtn" onclick="sendDesktopLink()" class="price-cta primary" style="letter-spacing:.04em">Email me the link →</button>
+      <p id="dlSendMsg" class="hidden" style="text-align:center;font-size:12.5px;font-weight:700;margin-top:12px"></p>
+      <p style="text-align:center;font-size:11px;color:var(--txt-faint);margin-top:12px">No spam — just your download link.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PROFILE / SUBSCRIPTION MODAL (ported) ══════════════════ -->
+<div id="profileModal" class="wm-overlay">
+  <div class="wm-card" style="max-width:380px;text-align:center">
+    <button class="wm-close" onclick="closeProfileModal()" aria-label="Close">✕</button>
+    <img id="modalUserAvatar" src="" alt="" style="width:72px;height:72px;border-radius:50%;margin:4px auto 12px;object-fit:cover;border:2px solid var(--accent);padding:2px;background:#1b2540" />
+    <h3 id="modalUserName" style="margin-bottom:20px">User</h3>
+    <div style="background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:left;margin-bottom:20px">
+      <p style="font-size:10.5px;color:var(--txt-faint);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px">Current Plan</p>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span id="modalPlanName" style="font-size:19px;font-weight:800">Free</span>
+        <span id="modalPlanStatus" style="font-size:9.5px;font-weight:800;background:rgba(255,255,255,.08);color:var(--txt-dim);padding:3px 8px;border-radius:6px">ACTIVE</span>
+      </div>
+      <div id="modalPlanValidity" style="font-size:11px;color:var(--txt-faint);margin-top:8px"></div>
+      <div id="modalRenewInfo" style="font-size:11px;margin-top:4px"></div>
+    </div>
+    <button id="cancelSubBtn" onclick="cancelSubscription()" class="price-cta hidden" style="margin-bottom:12px">Cancel Auto-Renew</button>
+    <button onclick="logout()" class="price-cta" style="background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25);color:#f87171">Sign Out</button>
+  </div>
+</div>
+
+<!-- ══════════════════ SUCCESS MODAL (ported) ══════════════════ -->
+<div id="successModal" class="wm-overlay">
+  <div class="wm-card" style="max-width:380px;text-align:center;border-color:rgba(52,211,153,.35)">
+    <div style="width:56px;height:56px;border-radius:50%;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);display:flex;align-items:center;justify-content:center;margin:6px auto 16px">
+      <i class="fa-solid fa-check" style="color:var(--ok);font-size:22px"></i>
+    </div>
+    <h3 style="margin-bottom:8px">Upgrade Complete</h3>
+    <p style="margin-bottom:22px">Your account has been successfully upgraded. Systems are now fully operational.</p>
+    <button onclick="window.location.reload()" class="price-cta primary" style="background:var(--ok);color:#04121c">Initialize System</button>
+  </div>
+</div>
+
 <!-- ══════════════════ LOGIN MODAL ══════════════════ -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal">
@@ -746,6 +1044,20 @@
   let GOOGLE_CLIENT_ID = null;
   let SITE_CONFIG = {};
 
+  // ── Money-flow state (ported 1:1 from live index.html) ──
+  const IS_INDIA = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Kolkata')
+                || (Intl.DateTimeFormat().resolvedOptions().timeZone || "").includes('Calcutta')
+                || new Date().getTimezoneOffset() === -330;
+  window._geoBand = 1; window._geoMultiplier = 1.0;
+  let currentCycle = 'monthly';
+  let currentTier  = 'free';
+  let PRICING_CONFIG = null;
+  let EXCHANGE_RATE = 90;
+  let currentCoupon = "";
+  let currentCouponDiscount = 0;
+  let _urlCoupon = "";
+  let selectedTierForPayment = null;
+
   document.getElementById('year').textContent = new Date().getFullYear();
 
   /* ── FAQ accordion ── */
@@ -767,17 +1079,74 @@
   /* ── Session / nav UI (same shape as live site) ── */
   function checkUser(){
     const s = localStorage.getItem('whisUser');
-    if (s){ try{ currentUser = JSON.parse(s); updateNavUI(currentUser); }catch(e){ localStorage.removeItem('whisUser'); } }
+    if (s){ try{ currentUser = JSON.parse(s); updateNavUI(currentUser); fetchUserStatus(); }catch(e){ localStorage.removeItem('whisUser'); } }
   }
   function updateNavUI(u){
     const btn = document.getElementById('signInBtn'); if (btn) btn.style.display='none';
     const trigger = document.getElementById('userProfileTrigger');
     if (trigger){ trigger.style.display='flex'; }
     const av = document.getElementById('navUserAvatar'); if (av && u.avatarUrl) av.src = u.avatarUrl;
+    const badge = document.getElementById('navPlanBadge'); if (badge) badge.textContent = "FREE";
   }
   function logout(){ localStorage.removeItem('whisUser'); location.reload(); }
 
-  /* ── Config fetch → Google client id + optional social-proof stat ── */
+  /* ── Charm pricing (mirrors server so display == charge) ── */
+  function charmUSD(price){
+    if (Math.round(price * 100) % 100 === 99) return parseFloat(price.toFixed(2));
+    const base = Math.round(price / 5) * 5;
+    return parseFloat((Math.max(base - 0.01, 0.99)).toFixed(2));
+  }
+  function charmINR(price){
+    const n = Math.round(price);
+    if (n % 100 === 99) return n;
+    return Math.round(n / 100) * 100 - 1;
+  }
+  function _loadScript(src, defer){
+    const s = document.createElement('script');
+    s.src = src; if (defer) s.defer = true; else s.async = true;
+    document.head.appendChild(s); return s;
+  }
+
+  /* ── applyConfig: third-party scripts, download URLs, social-proof stats (ported) ── */
+  function applyConfig(data){
+    if (data.googleAdsId){
+      _loadScript(`https://www.googletagmanager.com/gtag/js?id=${data.googleAdsId}`);
+      try{ gtag('config', data.googleAdsId); }catch(e){}
+    }
+    if (data.shownIoToken) _loadScript(`https://shown.io/metrics/${data.shownIoToken}`, true);
+
+    // PayPal SDK (kept for parity — all card paths now route through Razorpay)
+    const paypalClientId = data.paypalClientId || data.paypalClientID
+      || data.paypalSDKClientId || data.paypalSdkClientId
+      || data.paypal_client_id || data.paypalKey;
+    if (paypalClientId){
+      const ppScript = document.createElement('script');
+      ppScript.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&intent=capture&components=buttons`;
+      ppScript.onload = () => { window._paypalSdkReady = true; };
+      document.head.appendChild(ppScript);
+    }
+
+    // Download links from config
+    window._dlMacArm   = data.downloadMacUrl       || '';
+    window._dlMacIntel = data.downloadMacIntelUrl   || '';
+    const winLink = document.getElementById('download-windows-link');
+    if (winLink && data.downloadWindowsUrl) winLink.href = data.downloadWindowsUrl;
+    _applyMacDownloadLinks();
+
+    // Social proof stats
+    if (data.statEngineersHired){
+      const fmt = n => n >= 1000 ? (n/1000).toFixed(0) + ',000+' : n + '+';
+      const label = fmt(data.statEngineersHired);
+      ['hero-eng-count','pricing-eng-count','trust-eng-count','cta-eng-count'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.textContent = label;
+      });
+    }
+    if (data.monthlyUsageHours){
+      const el = document.getElementById('usage-hours'); if (el) el.textContent = data.monthlyUsageHours;
+    }
+  }
+
+  /* ── Config fetch → Google client id + geo pricing (merged, ported) ── */
   async function fetchConfig(){
     try{
       const res = await fetch(`${BACKEND_URL}/api/config`);
@@ -785,16 +1154,489 @@
         const data = await res.json();
         SITE_CONFIG = data;
         GOOGLE_CLIENT_ID = data.googleClientId;
-        // If backend supplies a live user count, fill the hero social-proof number.
-        if (data.statEngineersHired){
-          const n = data.statEngineersHired;
-          const label = n >= 1000 ? (n/1000).toFixed(0) + ',000+' : n + '+';
-          const el = document.getElementById('hero-eng-count');
-          if (el) el.textContent = label;
-        }
+        // Server returns prices already multiplied by geo/city/device factors.
+        PRICING_CONFIG = IS_INDIA
+          ? (data.pricingINR || data.pricing)
+          : (data.pricingUSD || data.pricing);
+        if (data.geoBand)       window._geoBand       = data.geoBand;
+        if (data.geoMultiplier) window._geoMultiplier = data.geoMultiplier;
+        if (data.exchangeRate)  EXCHANGE_RATE = data.exchangeRate;
+
+        applyConfig(data);
+        renderPricingCards();
+        renderPlanHours();
+        applyGeoPlans();
+        applyGeoHero();
       }
     }catch(e){ /* non-fatal: sign-in still opens once config resolves */ }
   }
+
+  /* ── Pricing card render (ported) ── */
+  function renderPricingCards(){
+    if (!PRICING_CONFIG || !PRICING_CONFIG.pro_plus) return;
+    const p    = PRICING_CONFIG.pro_plus;
+    const sym  = IS_INDIA ? '₹' : '$';
+    const disc = p.discount || 0;
+    const charm = IS_INDIA ? charmINR : charmUSD;
+    const fin  = (n) => charm(n * (1 - disc/100));
+    const fmt  = (n) => IS_INDIA ? Math.round(n).toLocaleString('en-IN') : n.toFixed(2);
+    const set  = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    const show = (id, on)  => { const e = document.getElementById(id); if (e) e.style.display = on ? '' : 'none'; };
+
+    const monthlyPerMo = fin(p.monthly);
+    const cards = [
+      { pre:'pm', total:p.monthly,    months:1 },
+      { pre:'pq', total:p.quarterly,  months:3 },
+      { pre:'ps', total:p.semiannual, months:6 },
+    ];
+    cards.forEach(o => {
+      if (o.total == null) return;
+      const final = fin(o.total);
+      const perMo = final / o.months;
+      const save  = Math.round((1 - perMo / monthlyPerMo) * 100);
+      const perMoShown = IS_INDIA ? Math.floor(perMo).toLocaleString('en-IN') : fmt(perMo);
+      set(o.pre + 'Total', `${sym}${fmt(final)}`);
+      show(o.pre + 'Orig', false);
+      const supEl = document.getElementById(o.pre + 'Support');
+      if (supEl){
+        supEl.innerHTML = (o.months === 1)
+          ? 'Billed monthly'
+          : `Just ${sym}${perMoShown}/mo · <span class="accent" style="font-weight:800">save ${save}% vs monthly</span>`;
+      }
+    });
+  }
+
+  /* ── Per-plan usage hours from micHours (ported) ── */
+  function renderPlanHours(){
+    const mh = (SITE_CONFIG && SITE_CONFIG.micHours) || { monthly:10, quarterly:15, semiannual:20 };
+    const order = ['monthly','quarterly','semiannual'];
+    document.querySelectorAll('.js-hours').forEach((el, i) => {
+      const cyc = order[i];
+      if (cyc && mh[cyc] != null) el.textContent = `${mh[cyc]} hrs usage / mo`;
+    });
+  }
+
+  /* ── Geo-aware plan set: India → Free+Monthly+Quarterly; else Monthly+Quarterly+6-Month (ported) ── */
+  function applyGeoPlans(){
+    const free  = document.getElementById('cardFree');
+    const six   = document.getElementById('cardSemiannual');
+    const nudge = document.getElementById('smartPickText');
+    if (IS_INDIA){
+      if (free) free.style.display = '';
+      if (six)  six.style.display  = 'none';
+      if (nudge) nudge.innerHTML = 'Smart pick: go <b class="accent">Quarterly</b>. A job search rarely wraps up in 30 days — pay once, stay covered, and <b>save 40% vs monthly</b>.';
+    } else {
+      if (free) free.style.display = 'none';
+      if (six)  six.style.display  = '';
+    }
+  }
+
+  /* ── Geo-aware hero: India keeps Quarterly hero; non-India promotes 6-Month (ported, adapted to v2 classes) ── */
+  function applyGeoHero(){
+    if (IS_INDIA) return; // Quarterly already the hero card
+    const cardQ = document.getElementById('cardQuarterly');
+    const cardS = document.getElementById('cardSemiannual');
+    const badgeQ = document.getElementById('badgeQuarterly');
+    const badgeS = document.getElementById('badgeSemiannual');
+    // 6-Month → hero
+    if (cardS) cardS.classList.add('hero');
+    if (badgeS) badgeS.innerHTML = '<span class="price-badge"><span class="d"></span>Most Popular</span>';
+    // Quarterly → demoted to Best Value
+    if (cardQ) cardQ.classList.remove('hero');
+    if (badgeQ) badgeQ.innerHTML = '<span class="price-badge value">Best Value</span>';
+  }
+
+  /* ── Per-card CTA → lock billing length, open checkout (ported) ── */
+  function buyElite(cycle){ currentCycle = cycle; initiatePayment('pro_plus'); }
+
+  /* ── User subscription status → nav badge + profile modal (ported) ── */
+  async function fetchUserStatus(){
+    if (!currentUser) return;
+    try{
+      const r = await fetch(`${BACKEND_URL}/api/user/status`, {headers:{'x-google-id':currentUser.googleId}});
+      const d = await r.json();
+      window._hasFailedPayment = !!d.hasFailedPayment;
+      _applyUpiVisibility();
+      if (d.active) currentTier = d.tier; else currentTier = 'free';
+      const badge = document.getElementById('navPlanBadge');
+      const validityEl = document.getElementById('modalPlanValidity');
+      const renewEl = document.getElementById('modalRenewInfo');
+      const cancelBtn = document.getElementById('cancelSubBtn');
+      const nameEl = document.getElementById('modalPlanName');
+      const statusEl = document.getElementById('modalPlanStatus');
+      if (d.active){
+        if (badge){ badge.innerText = d.tier === 'pro_plus' ? 'ELITE' : 'PRO'; }
+        if (nameEl) nameEl.innerText = d.tier === 'pro_plus' ? 'Elite License' : 'Pro License';
+        if (statusEl) statusEl.innerText = 'ACTIVE';
+        if (validityEl){
+          if (d.expiry || d.validUntil){
+            validityEl.innerText = "Valid until: " + new Date(d.expiry || d.validUntil).toLocaleDateString();
+          } else { validityEl.innerText = "Active Subscription"; }
+        }
+        if (renewEl && cancelBtn){
+          if (d.autoRenew && !d.cancelledAt){
+            const next = d.nextBillingDate || d.validUntil;
+            renewEl.innerText = next ? `Auto-renews on ${new Date(next).toLocaleDateString()}` : 'Auto-renew on';
+            renewEl.style.color = 'var(--ok)';
+            cancelBtn.classList.remove('hidden');
+          } else if (d.cancelledAt){
+            renewEl.innerText = `Auto-renew cancelled — access until ${new Date(d.validUntil).toLocaleDateString()}`;
+            renewEl.style.color = '#fbbf24';
+            cancelBtn.classList.add('hidden');
+          } else {
+            renewEl.innerText = "";
+            cancelBtn.classList.add('hidden');
+          }
+        }
+      } else {
+        if (badge) badge.innerText = 'FREE';
+        if (nameEl) nameEl.innerText = 'Free Tier';
+        if (statusEl) statusEl.innerText = 'ACTIVE';
+        if (validityEl) validityEl.innerText = "Lifetime Free Access";
+        if (renewEl) renewEl.innerText = "";
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+      }
+      const mn = document.getElementById('modalUserName'); if (mn) mn.innerText = currentUser.name || 'User';
+      const ma = document.getElementById('modalUserAvatar'); if (ma) ma.src = currentUser.avatarUrl || '';
+    }catch(e){}
+  }
+
+  /* ── Cancel subscription (ported) ── */
+  async function cancelSubscription(){
+    if (!currentUser) return;
+    const ok = confirm("Cancel auto-renewal?\n\nYour access continues until the end of your current billing period — you won't be charged again.");
+    if (!ok) return;
+    const btn = document.getElementById('cancelSubBtn');
+    const orig = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = 'Cancelling...';
+    try{
+      const r = await fetch(`${BACKEND_URL}/api/subscription/cancel`, {
+        method:'POST', headers:{'Content-Type':'application/json','x-google-id':currentUser.googleId},
+        body: JSON.stringify({ googleId: currentUser.googleId })
+      });
+      const d = await r.json();
+      if (d.success){ alert(`Auto-renew cancelled. You keep full access until ${new Date(d.accessUntil).toLocaleDateString()}.`); fetchUserStatus(); }
+      else { alert(d.error || "Could not cancel. Please contact support."); }
+    }catch(e){ alert("Network error. Please try again."); }
+    btn.disabled = false; btn.innerHTML = orig;
+  }
+
+  /* ── Coupon validation (ported) ── */
+  async function applyCoupon(){
+    const code = document.getElementById('couponInput').value.trim().toUpperCase();
+    if (!code) return;
+    try{
+      const res = await fetch(`${BACKEND_URL}/api/payment/validate-coupon`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ coupon: code, cycle: currentCycle })
+      });
+      const data = await res.json();
+      const msgEl = document.getElementById('couponMessage');
+      msgEl.classList.remove('hidden');
+      if (data.success){
+        currentCoupon = code; currentCouponDiscount = data.discount;
+        msgEl.innerText = `✓ ${data.discount}% Discount Applied!`;
+        msgEl.style.color = 'var(--ok)';
+      } else {
+        currentCoupon = ""; currentCouponDiscount = 0;
+        msgEl.innerText = `✕ ${data.error || "Invalid Coupon"}`;
+        msgEl.style.color = '#f87171';
+      }
+    }catch(e){}
+  }
+
+  /* ── Payment gate → open checkout modal (ported) ── */
+  function initiatePayment(targetTier){
+    if (!currentUser){ openLoginModal(); return; }
+    if (currentTier === 'pro_plus') return;
+    if (currentTier === 'pro' && targetTier === 'pro') return;
+    selectedTierForPayment = targetTier;
+    openPaymentModal();
+  }
+
+  // International "Pay in ₹ via UPI" fallback — non-India only, after ≥1 failed card attempt.
+  window._hasFailedPayment = window._hasFailedPayment || false;
+  function _applyUpiVisibility(){
+    const upiBtn = document.getElementById('upiInrOption');
+    if (!upiBtn) return;
+    upiBtn.style.display = (!IS_INDIA && window._hasFailedPayment) ? '' : 'none';
+  }
+
+  const paymentModal = document.getElementById('paymentModal');
+  function openPaymentModal(){
+    currentCoupon = ""; currentCouponDiscount = 0;
+    document.getElementById('couponInput').value = '';
+    document.getElementById('couponMessage').classList.add('hidden');
+    document.getElementById('couponRow').style.display = 'none';
+    document.getElementById('showCouponLink').style.display = 'inline';
+    paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
+
+    const rzWrapper = document.getElementById('razorpayWrapper');
+    const ppWrapper = document.getElementById('paypalWrapper');
+    if (IS_INDIA){
+      if (rzWrapper){ rzWrapper.classList.remove('hidden'); rzWrapper.style.display = ''; }
+      if (ppWrapper){ ppWrapper.classList.add('hidden'); ppWrapper.style.display = 'none'; }
+    } else {
+      if (rzWrapper){ rzWrapper.classList.add('hidden'); rzWrapper.style.display = 'none'; }
+      if (ppWrapper){ ppWrapper.classList.remove('hidden'); ppWrapper.style.display = 'flex'; }
+      _applyUpiVisibility();
+    }
+    const infMsg = document.getElementById('influencerDiscountMsg');
+    if (infMsg) infMsg.classList.add('hidden');
+    if (_urlCoupon) _autoApplyUrlCoupon();
+  }
+  function closePaymentModal(){ paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); }
+  paymentModal.addEventListener('click', (e)=>{ if (e.target === paymentModal) closePaymentModal(); });
+
+  function _regionTrialCoupon(){
+    const tr = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG.trialReward : null;
+    if (tr) return IS_INDIA ? tr.quarterlyCoupon : tr.semiannualCoupon;
+    return _urlCoupon;
+  }
+  async function _autoApplyUrlCoupon(){
+    if (!_urlCoupon) return;
+    const codeToApply = _regionTrialCoupon() || _urlCoupon;
+    const ci = document.getElementById('couponInput');
+    const cr = document.getElementById('couponRow');
+    const cl = document.getElementById('showCouponLink');
+    const msgEl = document.getElementById('couponMessage');
+    try{
+      const res = await fetch(`${BACKEND_URL}/api/payment/validate-coupon`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ coupon: codeToApply, cycle: currentCycle })
+      });
+      const data = await res.json();
+      if (ci) ci.value = codeToApply;
+      if (cr) cr.style.display = 'block';
+      if (cl) cl.style.display = 'none';
+      if (msgEl) msgEl.classList.remove('hidden');
+      if (data.success && data.discount > 0){
+        currentCoupon = codeToApply; currentCouponDiscount = data.discount;
+        if (msgEl){ msgEl.innerText = `✓ ${data.discount}% Discount Applied!`; msgEl.style.color = 'var(--ok)'; }
+      } else {
+        currentCoupon = ""; currentCouponDiscount = 0;
+        const _planLabel = IS_INDIA ? '3-month' : '6-month';
+        if (msgEl){ msgEl.innerText = `This code applies to the ${_planLabel} plan — pick it to use your discount.`; msgEl.style.color = '#fbbf24'; }
+      }
+    }catch(_){}
+  }
+
+  /* ── PayPal alias → Razorpay (all card paths route through Razorpay) (ported) ── */
+  async function triggerCardPayment(event){
+    if (!currentUser){ openLoginModal(); return; }
+    return triggerRazorpayFlow(event);
+  }
+  async function triggerUpiInrPayment(event){
+    if (!currentUser){ openLoginModal(); return; }
+    return triggerRazorpayFlow(event, true);
+  }
+
+  /* ── Razorpay one-time order → create-order → verify (ported) ── */
+  async function triggerRazorpayFlow(event, payInInr){
+    const targetTier = selectedTierForPayment;
+    const btn = event.currentTarget; const orig = btn.innerHTML;
+    btn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:var(--txt)"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing...</span>';
+    try{
+      const res = await fetch(`${BACKEND_URL}/api/payment/create-order`,{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          googleId: currentUser.googleId,
+          tier: targetTier,
+          cycle: currentCycle,
+          couponCode: currentCoupon,
+          refCode: localStorage.getItem('whisRef'),
+          utmSource: localStorage.getItem('whisSource'),
+          currency: IS_INDIA ? 'INR' : 'USD',
+          payInInr: payInInr === true
+        })
+      });
+      const data = await res.json();
+      if (data.order_id){
+        const rzp1 = new Razorpay({
+          "key": data.key_id, "name": "Whis AI",
+          "description": (targetTier === 'pro_plus' ? 'Elite' : 'Pro') + ` ${currentCycle}`,
+          "order_id": data.order_id,
+          "amount": data.amount,
+          "currency": data.currency,
+          "prefill": { "name": data.user_name || "", "email": data.user_email || "", "contact": data.user_contact || "" },
+          "handler": async function (response){
+            try{
+              const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature
+                })
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.success){
+                if (typeof gtag !== 'undefined'){ gtag('event','conversion',{ 'send_to': SITE_CONFIG.googleAdsConversionTag || '' }); }
+                closePaymentModal();
+                const sm = document.getElementById('successModal');
+                if (sm){ sm.classList.remove('hidden'); sm.classList.add('flex'); }
+              } else { alert("Verification Failed. Contact Support."); }
+            }catch(e){ alert("Network Error during verification."); }
+          },
+          "theme": { "color": "#29b6f6" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
+        });
+        rzp1.on('payment.failed', function(){ window._hasFailedPayment = true; _applyUpiVisibility(); });
+        rzp1.open();
+      } else {
+        alert(data.error || "Could not start checkout. Please try again.");
+        btn.innerHTML = orig;
+      }
+    }catch(e){ btn.innerHTML = orig; }
+  }
+
+  /* ── PayPal SDK buttons + fallback (ported — used only if PayPal ever re-enabled) ── */
+  function initPayPalButtons(){
+    const container = document.getElementById('paypal-button-container');
+    if (!container || container.children.length > 0) return;
+    if (!window._paypalSdkReady){ _showPayPalFallback(container); return; }
+    _renderPayPalButtons(container);
+  }
+  function _renderPayPalButtons(container){
+    paypal.Buttons({
+      style: { layout:'vertical', color:'blue', shape:'rect', label:'pay', height:45 },
+      createOrder: async function(){
+        if (!currentUser){ openLoginModal(); throw new Error('not logged in'); }
+        const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            googleId: currentUser.googleId, tier: selectedTierForPayment,
+            cycle: currentCycle, couponCode: currentCoupon,
+            refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource')
+          })
+        });
+        const data = await res.json();
+        if (data.id) return data.id;
+        throw new Error('No order ID returned from backend');
+      },
+      onApprove: async function(data){
+        try{
+          const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify-paypal`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ orderID: data.orderID, googleId: currentUser.googleId })
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyData.success){ alert('Verification Failed. Contact Support.'); return; }
+        }catch(e){ alert('Network Error during verification.'); return; }
+        closePaymentModal();
+        const sm = document.getElementById('successModal');
+        if (sm){ sm.classList.remove('hidden'); sm.classList.add('flex'); }
+        checkUser();
+      },
+      onError: function(err){ console.error('PayPal SDK error', err); _showPayPalFallback(container); },
+      onCancel: function(){}
+    }).render(container);
+  }
+  function _showPayPalFallback(container){
+    container.innerHTML = `<button id="paypalFallbackBtn" onclick="_paypalPopup()" class="price-cta primary">Pay with PayPal</button>`;
+  }
+  async function _paypalPopup(){
+    if (!currentUser){ openLoginModal(); return; }
+    const btn = document.getElementById('paypalFallbackBtn');
+    if (btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
+    try{
+      const res = await fetch(`${BACKEND_URL}/api/payment/create-paypal-order`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          googleId: currentUser.googleId, tier: selectedTierForPayment,
+          cycle: currentCycle, couponCode: currentCoupon,
+          refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource')
+        })
+      });
+      const data = await res.json();
+      if (data.approveUrl) window.location.href = data.approveUrl;
+    }catch(e){ alert('Could not start PayPal checkout. Please try again.'); }
+    if (btn){ btn.disabled = false; btn.textContent = 'Pay with PayPal'; }
+  }
+
+  /* ── Mac chip detection + download links (ported) ── */
+  let _macChipResult = undefined;
+  async function _detectMacChip(){
+    if (_macChipResult !== undefined) return _macChipResult;
+    try{
+      if (navigator.userAgentData){
+        const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+        _macChipResult = ua.architecture === 'arm' ? 'apple_silicon' : 'intel';
+      } else { _macChipResult = null; }
+    }catch(_){ _macChipResult = null; }
+    return _macChipResult;
+  }
+  function _applyMacDownloadLinks(){
+    const armEl   = document.getElementById('download-mac-arm');
+    const intelEl = document.getElementById('download-mac-intel');
+    const armUrl   = window._dlMacArm   || '';
+    const intelUrl = window._dlMacIntel || '';
+    if (!armEl || !intelEl) return;
+    if (armUrl)   armEl.href   = armUrl;
+    if (intelUrl) intelEl.href = intelUrl;
+    if (!intelUrl){ armEl.style.display = ''; intelEl.style.display = 'none'; return; }
+    const chip = _macChipResult;
+    if (chip === 'apple_silicon'){ armEl.style.display = ''; intelEl.style.display = 'none'; }
+    else if (chip === 'intel'){ armEl.style.display = 'none'; intelEl.style.display = ''; }
+    else { armEl.style.display = ''; intelEl.style.display = ''; }
+  }
+  _detectMacChip().then(_applyMacDownloadLinks);
+
+  /* ── Download modal (ported, with mobile email capture) ── */
+  const _isMobileUA = /Android|iPhone|iPad|iPod|Mobile|Silk|Kindle|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent || '');
+  const downloadModal = document.getElementById('downloadModal');
+  function openDownloadModal(){
+    downloadModal.classList.remove('hidden'); downloadModal.classList.add('flex');
+    const plat = document.getElementById('dlPlatforms');
+    const cap  = document.getElementById('dlMobileCapture');
+    const title = document.getElementById('dlTitle');
+    if (_isMobileUA){
+      if (plat) plat.classList.add('hidden');
+      if (cap)  cap.classList.remove('hidden');
+      if (title) title.textContent = 'Get the link for your computer';
+    } else {
+      if (plat) plat.classList.remove('hidden');
+      if (cap)  cap.classList.add('hidden');
+      if (title) title.textContent = 'Select Platform';
+      _detectMacChip().then(_applyMacDownloadLinks);
+    }
+  }
+  function closeDownloadModal(){ downloadModal.classList.add('hidden'); downloadModal.classList.remove('flex'); }
+  downloadModal.addEventListener('click', (e)=>{ if (e.target === downloadModal) closeDownloadModal(); });
+
+  async function sendDesktopLink(){
+    const emailEl = document.getElementById('dlEmail');
+    const btn = document.getElementById('dlSendBtn');
+    const msg = document.getElementById('dlSendMsg');
+    const email = ((emailEl && emailEl.value) || '').trim();
+    const showMsg = (text, ok) => { if (msg){ msg.textContent = text; msg.style.color = ok ? 'var(--ok)' : '#f87171'; msg.classList.remove('hidden'); } };
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showMsg('Please enter a valid email.', false); return; }
+    const orig = btn.textContent; btn.disabled = true; btn.textContent = 'Sending…';
+    try{
+      const r = await fetch(`${BACKEND_URL}/api/send-download-link`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email,
+          ref: localStorage.getItem('whisRef') || null,
+          aid: localStorage.getItem('whisVisitorId') || null,
+          source: localStorage.getItem('whisSource') || null,
+          landing: location.pathname + (location.search || '')
+        })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.success){ showMsg('✓ Sent! Open the email on your computer to install.', true); btn.textContent = 'Link sent ✓'; }
+      else { throw new Error(d.error || 'fail'); }
+    }catch(e){ showMsg('Could not send — please try again.', false); btn.disabled = false; btn.textContent = orig; }
+  }
+
+  /* ── Profile modal (ported) ── */
+  const profileModal = document.getElementById('profileModal');
+  function openProfileModal(){ if (currentUser) fetchUserStatus(); profileModal.classList.remove('hidden'); profileModal.classList.add('flex'); }
+  function closeProfileModal(){ profileModal.classList.add('hidden'); profileModal.classList.remove('flex'); }
+  profileModal.addEventListener('click', (e)=>{ if (e.target === profileModal) closeProfileModal(); });
+
+  /* ── Success modal close on backdrop ── */
+  const successModal = document.getElementById('successModal');
+  if (successModal) successModal.addEventListener('click', (e)=>{ if (e.target === successModal) { successModal.classList.add('hidden'); successModal.classList.remove('flex'); } });
 
   /* ── Login modal + real Google OAuth (identical URL/state to live) ── */
   const loginModal = document.getElementById('loginModal');
@@ -820,13 +1662,48 @@
           Continue with Google
         </a>`;
     } else {
-      // Config not loaded yet — try once more, then show fallback.
       container.innerHTML = '<p style="color:var(--txt-faint);font-size:13px">Loading sign-in…</p>';
       fetchConfig().then(()=>{ if (GOOGLE_CLIENT_ID) openLoginModal(); });
     }
   }
   function closeLoginModal(){ loginModal.classList.remove('show'); }
   loginModal.addEventListener('click', (e)=>{ if (e.target === loginModal) closeLoginModal(); });
+
+  /* ── Deep-link coupon (?coupon=CODE) ── */
+  (function initUrlCoupon(){
+    try{
+      const code = new URLSearchParams(window.location.search).get('coupon');
+      if (code){
+        _urlCoupon = code.trim().toUpperCase();
+        const sd = document.getElementById('showCouponLink');
+        if (sd) sd.style.display = 'inline';
+      }
+    }catch(_){}
+  })();
+
+  /* ── PayPal redirect return (ported) ── */
+  (function handlePayPalReturn(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const paypalSuccess = urlParams.get('paypal_success');
+    const paypalError = urlParams.get('paypal_error');
+    if (paypalSuccess === 'true'){
+      window.history.replaceState({}, document.title, window.location.pathname);
+      const revenue = parseFloat(urlParams.get('revenue') || '0');
+      const currency = urlParams.get('currency') || 'USD';
+      const txId = urlParams.get('transaction_id') || '';
+      if (typeof gtag !== 'undefined'){
+        gtag('event','conversion',{ 'send_to': SITE_CONFIG.googleAdsConversionTag || '', 'value': revenue, 'currency': currency, 'transaction_id': txId });
+      }
+      setTimeout(() => {
+        const sm = document.getElementById('successModal');
+        if (sm){ sm.classList.remove('hidden'); sm.classList.add('flex'); }
+        checkUser();
+      }, 500);
+    } else if (paypalError){
+      window.history.replaceState({}, document.title, window.location.pathname);
+      alert('PayPal payment was not completed. Please try again.');
+    }
+  })();
 
   /* ── Attribution capture + OAuth-success catch (mirrors live index.html) ── */
   (function initAttribution(){
