@@ -5061,6 +5061,100 @@ document.addEventListener('click', async (e) => {
     }
 });
 
+// ================================================================
+// WEB WELCOME / EMPTY STATE (conversion-optimized)
+// ----------------------------------------------------------------
+// A confident welcome with 6 one-tap starter questions. Tapping one sends it
+// through the exact same path a typed question uses (set #input, dispatch
+// 'input', call finalizeAndSend) so the user sees a streaming answer within
+// seconds — the fastest route to the "aha". If the composer is locked (no
+// active trial/plan), we start the free trial first, one tap → trial → answer.
+// WEB-only; never rendered on desktop Electron.
+// ================================================================
+const _WEB_STARTER_QUESTIONS = [
+  { icon: 'fa-user', text: 'Tell me about yourself' },
+  { icon: 'fa-bullseye', text: 'Why do you want this role?' },
+  { icon: 'fa-scale-balanced', text: "What's your biggest weakness?" },
+  { icon: 'fa-code', text: 'Explain REST vs GraphQL' },
+  { icon: 'fa-bug', text: 'Walk me through a hard bug you fixed' },
+  { icon: 'fa-people-arrows', text: 'Describe a conflict with a teammate' },
+];
+
+function _renderWebWelcome(container) {
+  const guidance = IS_MOBILE_WEB
+    ? 'or tap the mic to ask by voice'
+    : 'or click Listen to capture your meeting tab';
+
+  const chips = _WEB_STARTER_QUESTIONS.map((q, i) => `
+    <button class="web-starter-chip" data-starter-idx="${i}" style="--i:${i}">
+      <i class="fa-solid ${q.icon} web-starter-icon" aria-hidden="true"></i>
+      <span class="web-starter-text">${escapeHTML(q.text)}</span>
+      <i class="fa-solid fa-arrow-right web-starter-go" aria-hidden="true"></i>
+    </button>`).join('');
+
+  container.innerHTML = `
+    <div class="web-welcome">
+      <div class="web-welcome-head">
+        <div class="web-welcome-eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Whis Elite</div>
+        <div class="web-welcome-title">Your interview co-pilot is ready</div>
+        <div class="web-welcome-sub">Ask anything — get an instant, interview-ready answer.</div>
+      </div>
+      <div class="web-starter-grid">${chips}</div>
+      <div class="web-welcome-guidance">${escapeHTML(guidance)}</div>
+    </div>`;
+
+  container.querySelectorAll('.web-starter-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.getAttribute('data-starter-idx'), 10);
+      const q = _WEB_STARTER_QUESTIONS[idx];
+      if (q) _sendStarterQuestion(q.text);
+    });
+  });
+}
+
+// Send a starter question via the real send path. If the user isn't yet on a
+// trial/plan, start the free trial first (zero-friction aha), then send. If the
+// trial can't start, fall back to the existing plans/upgrade path.
+async function _sendStarterQuestion(text) {
+  if (!inputEl) return;
+
+  const fire = () => {
+    inputEl.value = text;
+    inputEl.dispatchEvent(new Event('input'));
+    try { inputEl.focus(); } catch (_) {}
+    finalizeAndSend();
+  };
+
+  // Already entitled → send immediately.
+  if (typeof _isEntitledToUse === 'function' ? _isEntitledToUse() : true) {
+    fire();
+    return;
+  }
+
+  // Not entitled: try to start the free trial in one tap, then send the answer.
+  try { _trackFunnel && _trackFunnel('web_starter_trial_attempt'); } catch (_) {}
+  try {
+    await activateTrial();
+  } catch (_) { /* fall through to entitlement re-check below */ }
+
+  if (typeof _isEntitledToUse === 'function' ? _isEntitledToUse() : false) {
+    fire();
+    return;
+  }
+
+  // Trial start failed / exhausted → graceful fallback to the existing paths.
+  if (typeof openTrialModal === 'function' &&
+      typeof currentTrialUsage !== 'undefined' &&
+      typeof maxTrialSessions !== 'undefined' &&
+      currentTrialUsage < maxTrialSessions) {
+    try { openTrialModal(); return; } catch (_) {}
+  }
+  try {
+    whisToast('Start Elite to ask this — one tap.', 'info', 5000,
+      { action: { label: 'See Plans', fn: () => { try { window.electronAPI.openSubscriptionPage(); } catch (_) {} } } });
+  } catch (_) {}
+}
+
 function renderMessages(activeMessageId = null, isFirstChunk = false) {
   // Hot-path: streaming update — only patch the active bubble, never rebuild
   if (activeMessageId && !isFirstChunk) {
@@ -5089,6 +5183,13 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
   // Empty state — show when there are no real messages
   const realMessages = state.messages.filter(m => m.id !== 'welcome' && m.content !== 'Ready.');
   if (realMessages.length === 0) {
+    // WEB: replace the desktop ⌘L/⌘J "void" with a confident, conversion-focused
+    // welcome — one-tap starter questions that send immediately for the fastest
+    // possible time-to-value (the "aha"). Guarded so desktop Electron is untouched.
+    if (window.WHIS_WEB) {
+      _renderWebWelcome(messagesContainer);
+      return;
+    }
     messagesContainer.innerHTML = `
       <div class="whis-empty-state">
         <div class="whis-empty-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
