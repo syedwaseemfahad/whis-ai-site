@@ -657,3 +657,71 @@ body.whis-web .web-adv-link {
   border-bottom: 1px solid transparent;
 }
 body.whis-web .web-adv-link:hover { border-bottom-color: currentColor; }
+
+
+/* ── Section 15: neutral boot / loading state ─────────────────────────────────
+   Shown until checkAuth resolves so returning users don't see the sign-in card
+   flash. Enterprise-clean: a single quiet spinner, no gradients or emoji. */
+body.whis-web #web-boot-overlay {
+  background: var(--web-bg, #070a14) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+body.whis-web .web-boot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+body.whis-web .web-boot-spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--web-accent, #29b6f6);
+  animation: webBootSpin 0.75s linear infinite;
+}
+body.whis-web .web-boot-label {
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.5);
+}
+@keyframes webBootSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  body.whis-web .web-boot-spinner { animation-duration: 1.6s; }
+}
+
+
+/* ── Section 16: "Get the desktop app" honest framing link ─────────────────────
+   Web = practice/try; the invisible live-interview tool is the desktop app. Kept
+   subtle so it never overpromises stealth on web. */
+body.whis-web .web-desktop-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 14px auto 0;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+body.whis-web .web-desktop-cta:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+}
+body.whis-web .web-desktop-cta i { color: var(--web-accent, #29b6f6); font-size: 12px; }
+
+/* Same CTA when it sits inside the profile dropdown menu. */
+body.whis-web .profile-dropdown-menu .web-desktop-cta,
+body.whis-web #profile-dropdown-menu .web-desktop-cta {
+  display: flex;
+  width: auto;
+  margin: 6px 8px 4px;
+  justify-content: flex-start;
+}

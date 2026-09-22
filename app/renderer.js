@@ -69,10 +69,36 @@ const IS_MOBILE_WEB = window.WHIS_IS_MOBILE;
         if (!document.body) return;
         if (window.WHIS_WEB) document.body.classList.add('whis-web');
         if (IS_MOBILE_WEB) document.body.classList.add('whis-mobile');
+
+        if (window.WHIS_WEB) {
+            // Show a neutral boot state and DON'T flash the sign-in card while checkAuth
+            // resolves. checkAuth() routes to showLogin()/showApp(), both of which hide
+            // the boot overlay via _hideWebBoot().
+            const _boot  = document.getElementById('web-boot-overlay');
+            const _login = document.getElementById('login-overlay');
+            if (_boot)  _boot.style.display  = 'flex';
+            if (_login) _login.style.display = 'none';
+
+            // Honest web copy: web is a practice/try surface, not the live stealth tool.
+            const _sub = document.querySelector('#login-overlay .login-subtitle');
+            if (_sub) _sub.textContent = 'Practice interview answers with an AI co-pilot. Sign in to start free.';
+            const _subBtn = document.getElementById('sub-btn');
+            if (_subBtn) _subBtn.textContent = 'Upgrade to Elite';
+            // Persistent honest CTA in the profile menu: web = practice, desktop = live.
+            const _deskItem = document.getElementById('web-desktop-app-item');
+            if (_deskItem) _deskItem.style.display = '';
+        }
     };
     if (document.body) apply();
     else document.addEventListener('DOMContentLoaded', apply);
 })();
+
+// WEB: dismiss the neutral boot overlay once auth routing has decided app-vs-login.
+function _hideWebBoot() {
+    if (!window.WHIS_WEB) return;
+    const _boot = document.getElementById('web-boot-overlay');
+    if (_boot) _boot.style.display = 'none';
+}
 
 // --- Mode Toggle State ---
 let isAutoMode = false; // Defaults to Manual
@@ -1163,7 +1189,7 @@ function _streamFakeText(bubbleEl, fullText) {
     }, 15);
 }
 
-const WHIS_TOUR_STEPS = [
+const _WHIS_TOUR_STEPS_ALL = [
     {
         title: 'A quick 60 second tour',
         tag: '🎯 Your interview copilot',
@@ -1184,7 +1210,7 @@ const WHIS_TOUR_STEPS = [
         title: 'Snap solves what is on your screen',
         tag: '📸 The Snap button',
         body: 'Snap grabs whatever coding question is on your screen, reads it, and solves it. Great for LeetCode, HackerRank, or a shared doc.',
-        tip: 'Shortcut: <strong>⌘/Ctrl + J</strong>. The app hides itself so it never shows up in your own screenshot.',
+        tip: window.WHIS_WEB ? 'Shortcut: <strong>⌘/Ctrl + J</strong>.' : 'Shortcut: <strong>⌘/Ctrl + J</strong>. The app hides itself so it never shows up in your own screenshot.',
         target: '#screenshot-btn',
         position: 'top-right',
     },
@@ -1221,6 +1247,7 @@ const WHIS_TOUR_STEPS = [
         position: 'bottom',
     },
     {
+        webHide: true, // stealth proof is desktop-only; the "prove it" button errors in a browser
         title: 'Your interviewer sees nothing',
         tag: '🛡️ Stealth, our biggest edge',
         body: 'This is the part that wins interviews. Whis is invisible to your interviewer. Even if they screen share, record, or take a real screenshot on Mac or Windows, the app simply does not show up. Try it right now and see for yourself.<br><button id="wt-stealth-prove" class="wt-inline-btn"><i class="fa-solid fa-camera"></i> Prove it, take a screenshot</button>',
@@ -1258,6 +1285,11 @@ const WHIS_TOUR_STEPS = [
         },
     },
 ];
+
+// On web, drop steps that make desktop-only stealth claims / fire browser-breaking flows.
+const WHIS_TOUR_STEPS = window.WHIS_WEB
+    ? _WHIS_TOUR_STEPS_ALL.filter(s => !s.webHide)
+    : _WHIS_TOUR_STEPS_ALL;
 
 let whisTourStep = 0;
 let whisTourActive = false;
@@ -1617,14 +1649,17 @@ function updateShortcutsUI() {
     const enterSym = isMac ? '↵' : 'Enter';
     const backSym = isMac ? '⌫' : 'Del';
     
-    // Core shortcuts available in all modes
-    const baseShortcuts = [
-        { key: `${CTRL}+H`, label: 'Hide / Show App' },
-        { key: `${CTRL}+${backSym}`, label: 'Clear Chat' },
-        { key: `${CTRL}+Q`, label: 'Quit App' },
-        { key: `${CTRL}+Arrows`, label: 'Move Window' },
-        { key: `${CTRL}+ +`, label: 'Bigger Text (- smaller, 0 reset)' }
-    ];
+    // Core shortcuts available in all modes.
+    // WEB: a browser tab can't hide/quit/move the window — only Clear Chat works.
+    const baseShortcuts = window.WHIS_WEB
+        ? [ { key: `${CTRL}+${backSym}`, label: 'Clear Chat' } ]
+        : [
+            { key: `${CTRL}+H`, label: 'Hide / Show App' },
+            { key: `${CTRL}+${backSym}`, label: 'Clear Chat' },
+            { key: `${CTRL}+Q`, label: 'Quit App' },
+            { key: `${CTRL}+Arrows`, label: 'Move Window' },
+            { key: `${CTRL}+ +`, label: 'Bigger Text (- smaller, 0 reset)' }
+        ];
 
     let popoverShortcuts = [];
     let inlineShortcuts = [];
@@ -1634,10 +1669,12 @@ function updateShortcutsUI() {
             { key: `${CTRL}+${enterSym}`, label: 'Send (Auto-Capture)' },
             ...baseShortcuts
         ];
-        inlineShortcuts = [
-            { key: `${CTRL}+H`, label: 'Hide' },
-            { key: `${CTRL}+${enterSym}`, label: 'Send' }
-        ];
+        inlineShortcuts = window.WHIS_WEB
+            ? [ { key: `${CTRL}+${enterSym}`, label: 'Send' } ]
+            : [
+                { key: `${CTRL}+H`, label: 'Hide' },
+                { key: `${CTRL}+${enterSym}`, label: 'Send' }
+            ];
     } else {
         popoverShortcuts = [
             { key: `${CTRL}+L`, label: 'Toggle Mic (Listen)' },
@@ -1645,11 +1682,16 @@ function updateShortcutsUI() {
             { key: `${CTRL}+${enterSym}`, label: 'Send' },
             ...baseShortcuts
         ];
-        inlineShortcuts = [
-            { key: `${CTRL}+H`, label: 'Hide' },
-            { key: `${CTRL}+L`, label: 'Mic' },
-            { key: `${CTRL}+J`, label: 'Snap' }
-        ];
+        inlineShortcuts = window.WHIS_WEB
+            ? [
+                { key: `${CTRL}+L`, label: 'Mic' },
+                { key: `${CTRL}+J`, label: 'Snap' }
+            ]
+            : [
+                { key: `${CTRL}+H`, label: 'Hide' },
+                { key: `${CTRL}+L`, label: 'Mic' },
+                { key: `${CTRL}+J`, label: 'Snap' }
+            ];
     }
 
     // Render Compact Highlighted Inline Shortcuts
@@ -1748,7 +1790,9 @@ async function handleUserPostLogin(user) {
          // after a session rotation (e.g. starting a trial). Lock gracefully instead;
          // the user can reopen to reclaim the session on this device.
          stopSessionHeartbeat();
-         showSubscriptionLock(user, "Your session was opened on another device. Reopen the app to continue here.");
+         showSubscriptionLock(user, window.WHIS_WEB
+             ? "Your session was opened on another device. Reload this page and sign in again."
+             : "Your session was opened on another device. Reopen the app to continue here.");
          return;
     }
     _sessionInvalidStrikes = 0;
@@ -1846,8 +1890,10 @@ async function handleUserPostLogin(user) {
         upgradeItem.innerHTML = `<i class="fa-solid fa-gem"></i> Manage Subscription`;
         menuStartTrialBtn.style.display = "none";
     } else {
-        upgradeItem.innerHTML = `<i class="fa-solid fa-crown"></i> Upgrade to Pro`;
-        
+        upgradeItem.innerHTML = window.WHIS_WEB
+            ? `<i class="fa-solid fa-crown"></i> Upgrade to Elite`
+            : `<i class="fa-solid fa-crown"></i> Upgrade to Pro`;
+
         if (currentTrialUsage < maxTrialSessions) {
             menuStartTrialBtn.style.display = "block";
             menuStartTrialBtn.innerHTML = `<i class="fa-solid fa-stopwatch" style="color:#4df4b1;"></i> ${trialDurationMinutes}m Free Trial`;
@@ -2465,7 +2511,9 @@ function startSessionHeartbeat(googleId) {
                 _sessionInvalidStrikes++;
                 if (_sessionInvalidStrikes >= 2) {
                     stopSessionHeartbeat();
-                    showSubscriptionLock(currentUser, "Your session was opened on another device. Reopen the app to continue here.");
+                    showSubscriptionLock(currentUser, window.WHIS_WEB
+                        ? "Your session was opened on another device. Reload this page and sign in again."
+                        : "Your session was opened on another device. Reopen the app to continue here.");
                 }
                 return;
             }
@@ -2507,9 +2555,10 @@ function stopSessionHeartbeat() {
 }
 
 function showLogin() {
+  _hideWebBoot();
   loginOverlay.style.display = "flex";
   subOverlay.style.display = "none";
-  contentArea.style.display = "none"; 
+  contentArea.style.display = "none";
   currentUser = null;
   updateHeaderVisibility(false);
   stopSessionHeartbeat(); 
@@ -2526,6 +2575,7 @@ function showLogin() {
 }
 
 function showSubscriptionLock(user, msg) {
+  _hideWebBoot();
   currentUser = user;
   loginOverlay.style.display = "none";
   contentArea.style.display = "none";
@@ -2565,6 +2615,7 @@ function showToastError(msg) {
 }
 
 function showApp(user) {
+  _hideWebBoot();
   currentUser = user;
   loginOverlay.style.display = "none";
   subOverlay.style.display = "none";
@@ -2714,9 +2765,10 @@ function showApp(user) {
       }, 60000);
   }
 
-  // Proactive screenshare-risk warning for Pro users (shown once per install)
+  // Proactive screenshare-risk warning for Pro users (shown once per install).
+  // Desktop only: stealth (visible vs invisible on screenshare) is a desktop feature.
   const isProtected = isFreeTier || (subscriptionTier === 'pro_plus' && subscriptionIsActive);
-  if (!isProtected && subscriptionTier === 'pro' && subscriptionIsActive && !localStorage.getItem('wh_pro_risk_notified')) {
+  if (!window.WHIS_WEB && !isProtected && subscriptionTier === 'pro' && subscriptionIsActive && !localStorage.getItem('wh_pro_risk_notified')) {
       localStorage.setItem('wh_pro_risk_notified', '1');
       setTimeout(() => {
           whisToast(
@@ -2799,7 +2851,10 @@ function openSubscriptionDetail() {
     const tierName  = _tierLabel(tier);
     const statusText = isTrial ? 'Trial' : isActive ? 'Active' : 'Inactive';
     const statusClass = isTrial ? 'trial' : isActive ? 'active' : 'inactive';
-    const planDesc = tier === 'free'
+    // Web has no OS-level stealth, so drop the screenshare visibility clauses there.
+    const planDesc = window.WHIS_WEB
+        ? (tier === 'free' ? '20 answers / day' : '10 hours')
+        : tier === 'free'
         ? '20 answers / day · Screenshare invisible'
         : tier === 'pro'
         ? '10 hours · Visible on screenshare'
@@ -3059,6 +3114,11 @@ upgradeBtn.addEventListener("click", () => {
 });
 
 // === GUIDE OVERLAY LOGIC ===
+// WEB: the First-Time User Guide is 100% desktop (install .app/.exe, OS permissions,
+// hide/quit/move shortcuts, screenshare stealth). None of it applies in a browser, so
+// hide the "?" guide button entirely on web.
+if (window.WHIS_WEB && guideBtn) guideBtn.style.display = 'none';
+
 if (guideBtn && guideOverlay) {
   const openGuide = () => {
     guideOverlay.style.display = "flex";
@@ -3615,7 +3675,7 @@ let _demoCleanup = [];   // fns to run when demo closes
 
 const _CTRL = isMac ? '⌘' : 'Ctrl';
 
-const DEMO_STEPS = [
+const _DEMO_STEPS_ALL = [
 
   /* ── 0  Welcome ─────────────────────────────────────────────────── */
   {
@@ -4046,6 +4106,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
 
   /* ── 6  Stealth Proof ────────────────────────────────────────────── */
   {
+    webHide: true, // desktop-only: getDisplayMedia in a browser shows the visible tab, contradicting the claim
     tag: '🛡️ Step 6 of 7',
     icon: '<i class="fa-solid fa-shield-halved"></i>',
     iconColor: '#4df4b1',
@@ -4152,13 +4213,14 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
     target: null, pos: 'center',
     body: 'You just saw every feature work live — the exact edge you\'ll have in the real room. One quick checklist:',
     action(zone) {
+      const _stealthLines = window.WHIS_WEB ? '' : `
+          <div class="demo-check-item"><i class="fa-solid fa-check"></i> Stealth active — invisible to interviewers</div>
+          <div class="demo-check-item"><i class="fa-solid fa-check"></i> ${_CTRL}+H if you ever need to hide instantly</div>`;
       zone.innerHTML = `
         <div class="demo-checklist">
           <div class="demo-check-item"><i class="fa-solid fa-check"></i> Resume uploaded in Context Manager</div>
-          <div class="demo-check-item"><i class="fa-solid fa-check"></i> ${_CTRL}+L to listen · ${_CTRL}+J to screenshot</div>
-          <div class="demo-check-item"><i class="fa-solid fa-check"></i> Crisp Mode ON during live interviews</div>
-          <div class="demo-check-item"><i class="fa-solid fa-check"></i> Stealth active — invisible to interviewers</div>
-          <div class="demo-check-item"><i class="fa-solid fa-check"></i> ${_CTRL}+H if you ever need to hide instantly</div>
+          <div class="demo-check-item"><i class="fa-solid fa-check"></i> ${_CTRL}+L to listen${window.WHIS_WEB ? '' : ` · ${_CTRL}+J to screenshot`}</div>
+          <div class="demo-check-item"><i class="fa-solid fa-check"></i> Crisp Mode ON for short glanceable hints</div>${_stealthLines}
         </div>
         <div class="demo-sales-close">
           <div class="demo-sales-line">This is your unfair advantage. The candidates who walk in with Whis walk out with the offer — don't face the interview that changes your life without it.</div>
@@ -4175,6 +4237,11 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
   }
 
 ];
+
+// On web, drop the stealth-proof step (browser getDisplayMedia would show the tab, contradicting the claim).
+const DEMO_STEPS = window.WHIS_WEB
+    ? _DEMO_STEPS_ALL.filter(s => !s.webHide)
+    : _DEMO_STEPS_ALL;
 
 /* ─── Demo engine helpers ─── */
 
@@ -4318,7 +4385,10 @@ function _demoGoTo(index) {
   // Header
   document.getElementById('demo-step-num').textContent   = _demoStep + 1;
   document.getElementById('demo-step-total').textContent = total;
-  document.getElementById('demo-tag').textContent         = step.tag;
+  // Web drops the stealth step, so the "Step N of 7" tag labels would be off by one.
+  document.getElementById('demo-tag').textContent         = window.WHIS_WEB
+      ? step.tag.replace(/Step \d+ of \d+/, `Step ${_demoStep + 1} of ${total}`)
+      : step.tag;
   document.getElementById('demo-title').textContent       = step.title;
   document.getElementById('demo-body').innerHTML          = step.body;
 
@@ -5099,8 +5169,11 @@ function _liveListenLabel() {
 }
 
 function _renderWebWelcome(container) {
+  // Honest framing: on a phone, live meeting/interviewer capture isn't possible —
+  // it's practice by voice/text. On desktop web, the mic hears you and your
+  // interviewer on speaker; true screenshare-invisible live capture is the desktop app.
   const guidance = IS_MOBILE_WEB
-    ? 'or tap the mic to ask by voice'
+    ? 'or tap the mic to practice out loud. Live interview capture needs the desktop app.'
     : 'or click Listen — the mic hears you and your interviewer (on speaker). '
       + '<a href="#" id="web-adv-tabaudio" class="web-adv-link">Advanced: capture a tab’s audio</a>';
 
@@ -5111,15 +5184,23 @@ function _renderWebWelcome(container) {
       <i class="fa-solid fa-arrow-right web-starter-go" aria-hidden="true"></i>
     </button>`).join('');
 
+  const _sub = IS_MOBILE_WEB
+    ? 'Practice interview answers by voice or text — anywhere.'
+    : 'Practice and get instant, interview-ready answers.';
+
   container.innerHTML = `
     <div class="web-welcome">
       <div class="web-welcome-head">
         <div class="web-welcome-eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Whis Elite</div>
         <div class="web-welcome-title">Your interview co-pilot is ready</div>
-        <div class="web-welcome-sub">Ask anything — get an instant, interview-ready answer.</div>
+        <div class="web-welcome-sub">${_sub}</div>
       </div>
       <div class="web-starter-grid">${chips}</div>
       <div class="web-welcome-guidance">${guidance}</div>
+      <a href="https://whis-ai.com/#download" target="_blank" rel="noopener" class="web-desktop-cta" id="web-desktop-cta">
+        <i class="fa-solid fa-desktop" aria-hidden="true"></i> Get the desktop app for live interviews
+        <i class="fa-solid fa-arrow-right" aria-hidden="true" style="font-size:11px;"></i>
+      </a>
     </div>`;
 
   container.querySelectorAll('.web-starter-chip').forEach(btn => {
@@ -6522,7 +6603,9 @@ async function startUserMicCapture() {
         try {
             whisToast(
                 denied
-                    ? 'Microphone access is blocked. Enable it in System Settings → Privacy → Microphone, then press Listen again.'
+                    ? (window.WHIS_WEB
+                        ? 'Microphone access is blocked. Click the mic icon in your browser\'s address bar to allow the microphone, then press Listen again.'
+                        : 'Microphone access is blocked. Enable it in System Settings → Privacy → Microphone, then press Listen again.')
                     : 'Could not start your microphone. Check that no other app is using it, then press Listen again.',
                 'error', 7000
             );

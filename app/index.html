@@ -9,7 +9,25 @@
          workers + wasm need 'unsafe-eval'/blob:) and the two CDNs we load, while
          still blocking object/embed, foreign frames, and base-uri hijacking. -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https: wss: blob: data:; worker-src 'self' blob:; media-src 'self' blob: data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" />
-    <title>Whis-AI</title>
+    <title>Whis-AI — Practice interviews with an AI co-pilot</title>
+    <!-- Web table-stakes: description, social cards, theme color, favicon. Harmless on
+         desktop Electron (which ignores them); load-bearing for the web build's SEO/sharing. -->
+    <meta name="description" content="Practice interview answers with an AI co-pilot. Get instant, interview-ready responses by voice or text. Sign in to start free." />
+    <meta name="theme-color" content="#070a14" />
+    <link rel="icon" href="https://whis-ai.com/owl_logo.jpeg" />
+    <link rel="apple-touch-icon" href="https://whis-ai.com/owl_logo.jpeg" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Whis-AI" />
+    <meta property="og:title" content="Whis-AI — Practice interviews with an AI co-pilot" />
+    <meta property="og:description" content="Practice interview answers with an AI co-pilot. Get instant, interview-ready responses by voice or text." />
+    <meta property="og:image" content="https://whis-ai.com/og-image.png" />
+    <meta property="og:url" content="https://whis-ai.com/" />
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Whis-AI — Practice interviews with an AI co-pilot" />
+    <meta name="twitter:description" content="Practice interview answers with an AI co-pilot. Get instant, interview-ready responses by voice or text." />
+    <meta name="twitter:image" content="https://whis-ai.com/og-image.png" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Brand typography — same as the website: Plus Jakarta Sans + Inter -->
@@ -206,6 +224,12 @@
                     <button id="stealth-test-btn" class="dropdown-item" style="display:none;">
                         <i class="fa-solid fa-eye-slash" style="color:#29b6f6;"></i> Verify Stealth
                     </button>
+
+                    <!-- WEB ADAPTATION: honest framing — web is practice; live interviews need the desktop app.
+                         Hidden on desktop (shown via renderer.js only when window.WHIS_WEB). -->
+                    <a id="web-desktop-app-item" class="dropdown-item" href="https://whis-ai.com/#download" target="_blank" rel="noopener" style="display:none;">
+                        <i class="fa-solid fa-desktop" style="color:#29b6f6;"></i> Get the desktop app
+                    </a>
 
                     <button id="upgrade-btn" class="dropdown-item upgrade-item">
                        <i class="fa-solid fa-crown"></i> Upgrade to Pro
@@ -750,6 +774,15 @@
         </div>
 
         <p class="perm-v2-close-msg">Closing to apply permissions &mdash; reopen after toggling</p>
+      </div>
+    </div>
+
+    <!-- WEB: neutral boot/loading state shown until checkAuth resolves, so returning
+         users don't see the sign-in card flash. Hidden on desktop (display:none). -->
+    <div id="web-boot-overlay" class="content-overlay no-drag" style="display: none; align-items: center; justify-content: center;">
+      <div class="web-boot-card">
+        <div class="web-boot-spinner" aria-hidden="true"></div>
+        <div class="web-boot-label">Loading Whis-AI…</div>
       </div>
     </div>
 
