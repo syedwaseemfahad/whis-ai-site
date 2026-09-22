@@ -42,6 +42,28 @@ window.WHIS_WEB = true;
   const BACKEND_URL = window.WHIS_BACKEND_URL || "https://api.whis-ai.com";
   const APP_AUTH_TOKEN = ""; // desktop had a shared secret; the web has none.
 
+  // ---- Adopt the user returned from the OAuth callback ---------------------
+  // After Google sign-in the backend bounces back to /app/?auth_success=true&user=...
+  // (because loginGoogle sends ret:"/app/"). Persist that user to localStorage and
+  // clean the URL — SYNCHRONOUSLY at load, before renderer.js boots and calls
+  // checkAuth(). Mirrors the marketing site's auth_success handler exactly.
+  (function _adoptUserFromCallback() {
+    try {
+      const q = new URLSearchParams(location.search);
+      if (q.get("auth_success") === "true" && q.get("user")) {
+        const decoded = decodeURIComponent(q.get("user"));
+        JSON.parse(decoded); // validate it's real JSON before storing
+        localStorage.setItem("whisUser", decoded);
+        history.replaceState({}, document.title, location.pathname);
+      } else if (q.get("auth_error")) {
+        console.warn("[whis-web] auth_error:", q.get("auth_error"));
+        history.replaceState({}, document.title, location.pathname);
+      }
+    } catch (e) {
+      console.warn("[whis-web] could not adopt callback user:", e);
+    }
+  })();
+
   // Google client id: the marketing site loads it from /api/config. We fetch it
   // lazily the first time loginGoogle() is called so we can build the OAuth URL
   // exactly like index.html does. Cached once resolved.
@@ -152,8 +174,11 @@ window.WHIS_WEB = true;
     const currentSource = localStorage.getItem("whisSource") || "organic";
     const currentRef = localStorage.getItem("whisRef") || "";
     const currentAid = localStorage.getItem("whisVisitorId") || "";
+    // ret = where the backend should bounce us back to AFTER Google auth. Without this
+    // the callback defaults to the marketing homepage and the app never sees the user.
+    const retPath = location.pathname || "/app/";
     const stateParam = encodeURIComponent(
-      JSON.stringify({ s: currentSource, r: currentRef, a: currentAid })
+      JSON.stringify({ s: currentSource, r: currentRef, a: currentAid, ret: retPath })
     );
     const authUrl =
       `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}` +
