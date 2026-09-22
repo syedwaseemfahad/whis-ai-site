@@ -2484,7 +2484,11 @@ function startSessionHeartbeat(googleId) {
             // net against infinite free usage. Require TWO consecutive inactive reads
             // so a single transient blip right after starting a trial can't false-lock;
             // the trial timer remains the instant, authoritative end at true expiry.
-            if (!status.active && (subscriptionIsActive || subscriptionIsTrial)) {
+            // Defense-in-depth: never treat "inactive" as trial-end while the server
+            // still reports a live trial (status.isTrial). The 1s trial timer is the
+            // authoritative end at true expiry. This stops the heartbeat from killing a
+            // web trial ~10s in even if `active` reads false for any reason.
+            if (!status.active && !status.isTrial && (subscriptionIsActive || subscriptionIsTrial)) {
                 _inactiveStrikes++;
                 if (_inactiveStrikes >= 2) lockAfterEntitlementEnd();
             } else {

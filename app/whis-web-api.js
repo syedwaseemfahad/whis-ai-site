@@ -145,7 +145,7 @@ window.WHIS_WEB = true;
     try {
       const res = await safeFetch(`${BACKEND_URL}/api/user/status`, {
         method: "GET",
-        headers: { "x-google-id": user.googleId || "" },
+        headers: { "x-google-id": user.googleId || "", "x-whis-web": "1" },
       });
       if (res && !res.ok && res.status === 401) {
         // Session revoked server-side — drop the stale user.
@@ -505,6 +505,7 @@ window.WHIS_WEB = true;
       const headers = {
         "x-google-id": googleId || gid(),
         "x-whis-auth": APP_AUTH_TOKEN,
+        "x-whis-web": "1", // non-secret signal so the server reports a live web trial as active
       };
       if (sessionId) headers["x-session-id"] = sessionId;
       const res = await safeFetch(`${BACKEND_URL}/api/user/status`, {
@@ -735,14 +736,19 @@ window.WHIS_WEB = true;
       coupon = arg.coupon;
     }
     googleId = googleId || (u && u.googleId) || "";
+    // The backend serves a PRE-AUTHED Razorpay sheet at /checkout that validates gid+sid
+    // (currentSessionId from the OAuth callback) and opens payment directly — the same
+    // sheet the desktop app used. (The old '/#pricing?params' put the query AFTER the
+    // hash, so the site never received gid/tier/coupon and checkout silently failed.)
+    const sid = (u && (u.currentSessionId || u.sessionId)) ||
+      (function () { try { return localStorage.getItem("whisSid") || ""; } catch (_) { return ""; } })();
     const params = new URLSearchParams();
     if (googleId) params.set("gid", googleId);
-    if (tier) params.set("tier", tier);
+    if (sid) params.set("sid", sid);
+    params.set("tier", tier || "pro_plus");
     if (cycle) params.set("cycle", cycle);
     if (coupon) params.set("coupon", coupon);
-    const q = params.toString();
-    // The marketing site's pricing lives at the site root under #pricing.
-    return `https://whis-ai.com/#pricing${q ? "?" + q : ""}`;
+    return `${BACKEND_URL}/checkout?${params.toString()}`;
   }
 
   function openSubscriptionPage(arg) {
