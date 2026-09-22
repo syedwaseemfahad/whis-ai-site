@@ -1956,6 +1956,7 @@ function _trackFunnel(event, context, metadata) {
 
 function maybeShowInterviewOnboarding() {
     try {
+        if (window.WHIS_WEB) return false; // web: value-first, don't wall the welcome
         if (!currentUser) return false;
         if (localStorage.getItem(WH_INTERVIEW_SEEN)) return false;
         const ov = document.getElementById('interview-onboard-overlay');
@@ -2723,7 +2724,13 @@ function showApp(user) {
   }
 
   // First-run stealth wizard — shown once ever, before the tour
-  if (!localStorage.getItem('wh_stealth_ok')) {
+  if (window.WHIS_WEB) {
+      // WEB: value-first for conversion. Do NOT open the stealth or resume-onboarding
+      // walls on arrival — the welcome + one-tap starter questions must be the first
+      // thing a trial user sees, so they reach an answer in one tap. Personalizing with
+      // a resume stays available later from Profile → Manage Contexts.
+      try { localStorage.setItem('wh_stealth_ok', '1'); } catch (_) {}
+  } else if (!localStorage.getItem('wh_stealth_ok')) {
       setTimeout(_showStealthOnboard, 600);
   } else {
       // Context onboarding — auto-shown at most once (and only if the user has no
