@@ -585,6 +585,7 @@ function stopAppUsageTimer() {
 }
 
 function showUsageWarning() {
+    if (window.WHIS_WEB) return; // no desktop 60-min session nag / quit on the web
     if (usageWarningOverlay) {
         usageWarningOverlay.style.display = "flex";
         let secondsLeft = 60;
@@ -764,6 +765,11 @@ function updateMinutesDisplay(status) {
 // Shared helper — starts the 10-second ring countdown and quits the app.
 // Returns a cancel function. Drives the SVG ring and the number.
 function _startPermCountdown(onCancel) {
+    // WEB: never run the desktop "reopen the app" countdown-and-quit. There is no OS
+    // permission to re-grant on relaunch in a browser, and quitApp is a no-op, so this
+    // would only leave a dead overlay covering the app. (This was the trial "closed
+    // itself after 10 seconds" bug.)
+    if (window.WHIS_WEB) return () => {};
     const TOTAL = 10;
     const CIRCUMFERENCE = 213.6;
     const countdownEl = document.getElementById('perm-v2-countdown');
@@ -800,7 +806,9 @@ function showScreenPermissionRestartDialog() {
     // fix in System Settings — capturing interviewer audio just means picking a tab/window
     // (with "Share tab audio" checked) in the browser's own picker. Show a plain retry
     // message instead of the macOS "open System Settings / reopen app" countdown overlay.
-    if (!window.electronAPI || !window.electronAPI.captureScreen) {
+    // (WHIS_WEB, not captureScreen — the web shim PROVIDES captureScreen, so keying off
+    // it here would wrongly run the desktop 10-second countdown-and-quit on the web.)
+    if (window.WHIS_WEB) {
         whisToast('To hear the interviewer, click <strong>Listen</strong> again and choose the meeting tab/window in the picker — make sure <strong>"Share tab audio"</strong> is checked.', 'warning', 8000);
         return;
     }
@@ -837,6 +845,10 @@ function showScreenPermissionRestartDialog() {
 // Show the permission overlay, open System Settings, then close the app after
 // a short countdown so macOS can apply the new permission on relaunch.
 function showPermissionOverlay(type, resolveCallback) {
+    // WEB: the browser grants mic/screen via its own prompt at capture time — never show
+    // the macOS "open System Settings, reopen the app" overlay. Resolve so any awaiting
+    // flow continues cleanly.
+    if (window.WHIS_WEB) { if (typeof resolveCallback === 'function') resolveCallback(true); return; }
     const hr = document.getElementById("header-right");
     if (hr) hr.style.display = "none";
 
@@ -6906,6 +6918,7 @@ function _updateStealthBadge(isProtected) {
 // We must hide the Whis body first so the captured image shows what the interviewer
 // actually sees (the desktop/other windows behind Whis, with no trace of Whis).
 async function _captureStealthProof() {
+    if (window.WHIS_WEB) return null; // stealth proof is meaningless in a browser
     if (!window.electronAPI || !window.electronAPI.captureScreen) return null;
 
     const slider = document.getElementById('app-opacity-slider');
