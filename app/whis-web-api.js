@@ -64,6 +64,21 @@ window.WHIS_WEB = true;
     }
   })();
 
+  // ---- Web-funnel entry event ---------------------------------------------
+  // Fire ONE `web_app_opened` per browser session (even before sign-in, so we can
+  // measure how many people reach the live app vs. how many convert). Deferred to
+  // the end of the file once trackEvent is defined; guarded so it fires only once.
+  function _emitWebOpenedOnce() {
+    try {
+      if (sessionStorage.getItem("whis_web_opened")) return;
+      sessionStorage.setItem("whis_web_opened", "1");
+      const u = storedUser();
+      window.electronAPI && window.electronAPI.trackEvent &&
+        window.electronAPI.trackEvent({ googleId: u && (u.googleId || u.id), event: "web_app_opened",
+          metadata: { path: location.pathname, ref: document.referrer || null } });
+    } catch (_) {}
+  }
+
   // Google client id: the marketing site loads it from /api/config. We fetch it
   // lazily the first time loginGoogle() is called so we can build the OAuth URL
   // exactly like index.html does. Cached once resolved.
@@ -874,4 +889,5 @@ window.WHIS_WEB = true;
   };
 
   console.info("[whis-web] shim ready");
+  _emitWebOpenedOnce();
 })();
