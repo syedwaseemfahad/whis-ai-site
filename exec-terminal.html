@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Whis-AI | Executive Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        slate: { 850: '#111827', 900: '#0b0f19', 950: '#05080f' },
+                        brand: { 400: '#38bdf8', 500: '#0ea5e9' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #05080f; color: #e2e8f0; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel { background: #0b0f19; border: 1px solid #1e293b; }
+        .hidden-tab { display: none !important; }
+        .data-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+        input, select { font-family: 'Inter', sans-serif; }
+        .grid-dots { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 20px 20px; }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="h-[100dvh] flex overflow-hidden w-full">
+
+    <div id="loginOverlay" class="absolute inset-0 z-[100] flex items-center justify-center bg-[#05080f] px-4">
+        <div class="glass-panel p-8 rounded border border-[#1e293b] max-w-sm w-full text-center">
+            <h2 class="text-xl font-bold text-white mb-1 uppercase tracking-widest">Global Sec Ops</h2>
+            <p class="text-xs text-slate-500 mb-6 font-mono">Whis-AI Admin Terminal</p>
+            <input type="password" id="adminPwd" placeholder="Passkey" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-4 py-3 text-sm focus:border-brand-500 outline-none mb-4 font-mono" onkeypress="if(event.key === 'Enter') loginAdmin()">
+            <button onclick="loginAdmin()" id="loginBtn" class="w-full bg-slate-800 text-white font-mono text-sm py-3 rounded hover:bg-slate-700 transition border border-[#1e293b]">Authenticate</button>
+            <p id="loginError" class="text-xs text-red-500 mt-4 hidden font-mono">ERR: Unauthorized</p>
+        </div>
+    </div>
+
+    <div id="adminDashboard" class="flex w-full h-full hidden">
+        
+        <div id="sidebarPanel" class="w-full md:w-56 bg-[#0b0f19] border-r border-[#1e293b] flex flex-col h-full z-20 shrink-0 absolute md:static inset-0 transform -translate-x-full md:translate-x-0 transition-transform">
+            <div class="p-5 border-b border-[#1e293b] flex justify-between items-center">
+                <div class="font-bold text-sm tracking-widest text-white">WHIS-AI <span class="text-brand-500">EXEC</span></div>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <nav class="flex-1 py-4 px-3 space-y-1">
+                <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]">
+                    <i class="fa-solid fa-chart-line text-brand-400 w-4"></i> Overview
+                </button>
+                <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-database w-4"></i> Directory
+                </button>
+                <button onclick="switchTab('ops')" id="nav-ops" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-headset w-4"></i> Operations
+                </button>
+                <button onclick="switchTab('payouts')" id="nav-payouts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-emerald-400/70 hover:text-emerald-400 text-xs font-semibold tracking-wide border border-transparent transition mt-4">
+                    <i class="fa-solid fa-hand-holding-dollar w-4"></i> Partner Payouts
+                </button>
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-purple-400 text-xs font-semibold tracking-wide border border-transparent transition">
+                    <i class="fa-solid fa-chart-bar w-4"></i> Revenue Intel
+                </button>
+            </nav>
+            <div class="p-4 border-t border-[#1e293b] text-[10px] text-slate-500 flex justify-between items-center font-mono uppercase">
+                <span>Sys_Online</span>
+                <button onclick="logoutAdmin()" class="hover:text-white"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#05080f]">
+            <header class="glass-panel border-b border-[#1e293b] px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400"><i class="fa-solid fa-bars"></i></button>
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-widest" id="header-title">Executive Overview</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="timeRangeSelect" onchange="initDashboard()" class="bg-[#05080f] border border-[#1e293b] text-brand-400 text-xs font-mono font-bold rounded px-3 py-1.5 outline-none cursor-pointer hidden md:block">
+                        <option value="7">LAST 7 DAYS</option>
+                        <option value="30" selected>LAST 30 DAYS</option>
+                        <option value="90">LAST 90 DAYS</option>
+                    </select>
+                    <button onclick="initDashboard()" class="text-slate-500 hover:text-white bg-slate-900 border border-[#1e293b] p-1.5 rounded"><i class="fa-solid fa-rotate text-sm"></i></button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 no-scrollbar">
+                
+                <div id="tab-overview" class="tab-content flex flex-col gap-6">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-brand-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                <span>Live MRR</span>
+                                <i class="fa-solid fa-money-bill-trend-up text-brand-400"></i>
+                            </p>
+                            <h3 class="text-2xl data-value text-white" id="stat-mrr">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-arpu">ARPU: --</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-emerald-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Realized Rev (Period)</p>
+                            <h3 class="text-2xl data-value text-emerald-400" id="stat-realized-rev">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Normalized to USD</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-red-500 relative grid-dots">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Estimated AI COGS</p>
+                            <h3 class="text-2xl data-value text-red-400" id="stat-ai-cost">--</h3>
+                            <p class="text-[9px] text-red-500/50 font-mono absolute bottom-4 right-4" id="stat-ai-period">--</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Gross Margin</p>
+                            <h3 class="text-2xl data-value text-purple-400" id="stat-margin">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4 italic">Target > 85%</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Identity Base</p>
+                            <h3 class="text-xl data-value text-white" id="stat-users">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-conv">--% Conv</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Active Licenses</p>
+                            <h3 class="text-xl data-value text-slate-300" id="stat-paid-total">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4" id="stat-paid-split">E:0 | P:0</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Audio Minutes</p>
+                            <h3 class="text-xl data-value text-slate-300" id="stat-mic">--</h3>
+                            <p class="text-[9px] text-slate-600 font-mono absolute bottom-4 right-4">Live Capture</p>
+                        </div>
+                        <div class="glass-panel rounded p-4 border-l-2 border-l-slate-700 relative">
+                            <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1">Daily Signups (Avg)</p>
+                            <h3 class="text-xl data-value text-slate-300" id="stat-avg-signups">--</h3>
+                            <p class="text-[9px] text-brand-500 font-mono absolute bottom-4 right-4">Velocity</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="glass-panel rounded p-5 relative">
+                            <p class="absolute top-5 right-5 text-[9px] text-slate-600 font-mono italic">Click chart to drill-down</p>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Acquisition Velocity</h3>
+                            <div class="h-[250px] w-full"><canvas id="acquisitionChart"></canvas></div>
+                        </div>
+                        <div class="glass-panel rounded p-5 relative">
+                            <p class="absolute top-5 right-5 text-[9px] text-slate-600 font-mono italic">Click chart to drill-down</p>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">AI System Load</h3>
+                            <div class="h-[250px] w-full"><canvas id="aiLoadChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-users" class="tab-content hidden-tab flex flex-col h-full">
+                    <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="relative w-full md:w-1/3">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" id="filter-search" placeholder="Search Email, Name, or ID/Date..." class="w-full pl-8 pr-3 py-2 bg-[#05080f] border border-[#1e293b] rounded text-xs text-white focus:border-brand-500 outline-none font-mono" onkeypress="if(event.key === 'Enter') applyFilters()">
+                        </div>
+                        <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                            <select id="filter-tier" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="applyFilters()">
+                                <option value="">All Tiers</option>
+                                <option value="free">Free</option>
+                                <option value="pro">Pro</option>
+                                <option value="pro_plus">Elite</option>
+                            </select>
+                            <select id="filter-status" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="applyFilters()">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <button onclick="applyFilters()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition">Apply</button>
+                            <button onclick="exportToCSV()" class="bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-4 py-2 rounded text-xs font-semibold border border-emerald-900/50 transition flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i> Export CSV
+                            </button>
+                            <button onclick="openManageUserModal()" class="bg-brand-500/20 hover:bg-brand-500/40 text-brand-400 px-4 py-2 rounded text-xs font-semibold border border-brand-500/50 transition flex items-center gap-2">
+                                <i class="fa-solid fa-user-shield"></i> Manage Identity
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded overflow-hidden flex flex-col">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                                    <tr>
+                                        <th class="px-4 py-3">User Identity</th>
+                                        <th class="px-4 py-3">Plan / Status</th>
+                                        <th class="px-4 py-3">Valid Until (TTL)</th>
+                                        <th class="px-4 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-[#1e293b]" id="users-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mt-4 text-xs font-mono text-slate-500">
+                        <span id="user-count-info">Showing 0 results</span>
+                        <div class="flex gap-2">
+                            <button onclick="changePage(-1)" id="btn-prev" class="px-3 py-1 bg-slate-900 border border-[#1e293b] rounded hover:text-white disabled:opacity-50">Prev</button>
+                            <button onclick="changePage(1)" id="btn-next" class="px-3 py-1 bg-slate-900 border border-[#1e293b] rounded hover:text-white disabled:opacity-50">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-ops" class="tab-content hidden-tab flex flex-col gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-panel rounded flex flex-col h-[400px]">
+                            <div class="p-4 border-b border-[#1e293b] flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Active Incident Reports</h3>
+                                <span class="bg-red-500/10 text-red-500 px-2 py-0.5 rounded text-[9px] font-mono">LIVE FEED</span>
+                            </div>
+                            <div class="overflow-y-auto no-scrollbar flex-1" id="ops-reports-feed">
+                                <div class="p-8 text-center text-slate-600 italic text-xs">Awaiting telemetry...</div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded flex flex-col h-[400px]">
+                            <div class="p-4 border-b border-[#1e293b] flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Enterprise Opportunities</h3>
+                                <i class="fa-solid fa-building text-slate-600"></i>
+                            </div>
+                            <div class="overflow-y-auto no-scrollbar flex-1" id="ops-enterprise-feed">
+                                <div class="p-8 text-center text-slate-600 italic text-xs">No pending outreach.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ REVENUE INTEL TAB ══════════════════════════════════════════ -->
+                <div id="tab-analytics" class="tab-content hidden-tab flex flex-col gap-5">
+
+                    <!-- Top bar -->
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-widest">Live Business Intelligence</p>
+                            <p class="text-[10px] text-slate-600 font-mono mt-0.5" id="an-timestamp">Not loaded — click Fetch</p>
+                        </div>
+                        <button onclick="fetchAnalytics()" id="an-refresh-btn"
+                            class="bg-purple-900/30 hover:bg-purple-900/50 text-purple-400 px-4 py-2 rounded text-xs font-semibold border border-purple-500/30 transition flex items-center gap-2">
+                            <i class="fa-solid fa-brain"></i> Fetch Live Analytics
+                        </button>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="an-loading" class="glass-panel rounded p-12 text-center hidden">
+                        <i class="fa-solid fa-circle-notch fa-spin text-purple-400 text-2xl mb-4"></i>
+                        <p class="text-slate-400 text-sm">Pulling 115K+ data points from database...</p>
+                        <p class="text-slate-600 text-xs mt-2 font-mono">Takes ~15 seconds</p>
+                    </div>
+
+                    <!-- Error -->
+                    <div id="an-error" class="glass-panel rounded p-8 text-center hidden border border-red-500/20">
+                        <i class="fa-solid fa-circle-exclamation text-red-500 text-2xl mb-3 block"></i>
+                        <p class="text-red-400 text-sm mb-3">Could not reach analytics server.</p>
+                        <p class="text-slate-600 text-xs font-mono mb-3">Check your network connection or try again.</p>
+                        <button onclick="fetchAnalytics()" class="text-xs text-purple-400 border border-purple-500/30 px-3 py-1 rounded">Retry</button>
+                    </div>
+
+                    <!-- ── Main Content ──────────────────────────────────────── -->
+                    <div id="an-content" class="flex flex-col gap-5 hidden">
+
+                        <!-- Row 1: 4 KPI cards -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-brand-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Total Revenue</span><i class="fa-solid fa-indian-rupee-sign text-brand-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-white" id="an-total-rev">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3" id="an-arpu">ARPU --</p>
+                            </div>
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-emerald-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Paid Orders</span><i class="fa-solid fa-receipt text-emerald-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-emerald-400" id="an-paid-orders">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3" id="an-aov">AOV --</p>
+                            </div>
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-purple-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Active Subs</span><i class="fa-solid fa-users text-purple-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-purple-400" id="an-active-subs">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3" id="an-churn-pct">Churn --%</p>
+                            </div>
+                            <div class="glass-panel rounded p-4 border-l-2 border-l-amber-500 relative">
+                                <p class="text-[10px] text-slate-500 uppercase font-semibold mb-1 flex justify-between">
+                                    <span>Payment Success</span><i class="fa-solid fa-percent text-amber-400"></i>
+                                </p>
+                                <h3 class="text-xl data-value text-amber-400" id="an-pay-success">--</h3>
+                                <p class="text-[9px] text-slate-600 font-mono absolute bottom-3 right-3">Of all checkouts</p>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Collected vs Abandoned -->
+                        <div class="glass-panel rounded p-4">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Revenue Collected vs Checkout Abandoned</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-mono mb-1">
+                                        <span class="text-emerald-400">Collected</span>
+                                        <span class="text-emerald-400 font-bold" id="an-collected">--</span>
+                                    </div>
+                                    <div class="bg-slate-900 rounded-full h-2.5">
+                                        <div class="bg-emerald-500 h-2.5 rounded-full transition-all duration-700" id="an-collected-bar" style="width:0%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-mono mb-1">
+                                        <span class="text-red-400">Abandoned at Checkout</span>
+                                        <span class="text-red-400 font-bold" id="an-abandoned">--</span>
+                                    </div>
+                                    <div class="bg-slate-900 rounded-full h-2.5">
+                                        <div class="bg-red-500/60 h-2.5 rounded-full" id="an-abandoned-bar" style="width:100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-slate-600 font-mono mt-3" id="an-abandon-note">-- users reached checkout and left</p>
+                        </div>
+
+                        <!-- Row 3: India vs USA -->
+                        <div>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">Regional Split — Telugu Audience</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="glass-panel rounded p-4 border border-orange-500/20">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-2xl">🇮🇳</span>
+                                        <span class="text-[9px] text-slate-500 font-mono uppercase">India</span>
+                                    </div>
+                                    <p class="data-value text-white text-lg mb-3" id="an-india-rev">--</p>
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Paid Users</span>
+                                            <span class="text-slate-300" id="an-india-users">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Checkout Success</span>
+                                            <span class="text-amber-400 font-bold" id="an-india-success">--%</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Order</span>
+                                            <span class="text-slate-300" id="an-india-aov">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Days to Pay</span>
+                                            <span class="text-slate-300" id="an-india-days">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="glass-panel rounded p-4 border border-blue-500/20">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-2xl">🇺🇸</span>
+                                        <span class="text-[9px] text-slate-500 font-mono uppercase">NRI · Telugu</span>
+                                    </div>
+                                    <p class="data-value text-white text-lg mb-3" id="an-usa-rev">--</p>
+                                    <div class="space-y-1.5">
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Paid Users</span>
+                                            <span class="text-slate-300" id="an-usa-users">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Checkout Success</span>
+                                            <span class="text-emerald-400 font-bold" id="an-usa-success">--%</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Order</span>
+                                            <span class="text-slate-300" id="an-usa-aov">--</span>
+                                        </div>
+                                        <div class="flex justify-between text-[9px] font-mono">
+                                            <span class="text-slate-500">Avg Days to Pay</span>
+                                            <span class="text-slate-300" id="an-usa-days">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Last 7 Days Table -->
+                        <div class="glass-panel rounded overflow-hidden">
+                            <div class="p-4 border-b border-[#1e293b] flex justify-between items-center">
+                                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Last 7 Days Performance</h3>
+                                <span class="text-[9px] text-slate-600 font-mono italic">← swipe →</span>
+                            </div>
+                            <div class="overflow-x-auto no-scrollbar">
+                                <table class="w-full text-left text-xs font-mono whitespace-nowrap">
+                                    <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 text-[10px] uppercase">
+                                        <tr>
+                                            <th class="px-4 py-2">Date</th>
+                                            <th class="px-4 py-2 text-right">Visits</th>
+                                            <th class="px-4 py-2 text-right">Signups</th>
+                                            <th class="px-4 py-2 text-right">Conv%</th>
+                                            <th class="px-4 py-2 text-right">Paid</th>
+                                            <th class="px-4 py-2 text-right">Revenue</th>
+                                            <th class="px-4 py-2 text-right">Abandoned</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="an-7day-tbody" class="divide-y divide-[#1e293b] text-slate-300"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Day of Week -->
+                        <div class="glass-panel rounded p-4">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Best Days — Avg Revenue</h3>
+                            <div id="an-dow" class="space-y-2.5"></div>
+                        </div>
+
+                        <!-- Row 6: Cohort Chart -->
+                        <div class="glass-panel rounded p-5">
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cohort Conversion Rate</h3>
+                            <p class="text-[9px] text-slate-600 font-mono mb-4">Older cohorts convert better — early Telugu followers are warmest</p>
+                            <div class="h-[180px]"><canvas id="an-cohort-chart"></canvas></div>
+                        </div>
+
+                        <!-- Row 7: Warm Leads Alert -->
+                        <div class="glass-panel rounded p-4 border border-amber-500/30" style="background:rgba(245,158,11,0.04)">
+                            <div class="flex gap-3 items-start">
+                                <div class="bg-amber-500/20 rounded p-2 shrink-0">
+                                    <i class="fa-solid fa-fire-flame-curved text-amber-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-sm font-bold text-amber-400 mb-1">Warm Leads — Checkout Abandoned</h3>
+                                    <p class="text-[11px] text-slate-400 leading-relaxed" id="an-warm-text">--</p>
+                                    <div class="grid grid-cols-3 gap-3 mt-4">
+                                        <div class="bg-slate-900 rounded p-3 text-center border border-[#1e293b]">
+                                            <p class="text-[8px] text-slate-500 uppercase mb-1">Users</p>
+                                            <p class="data-value text-amber-400 text-lg" id="an-warm-users">--</p>
+                                        </div>
+                                        <div class="bg-slate-900 rounded p-3 text-center border border-[#1e293b]">
+                                            <p class="text-[8px] text-slate-500 uppercase mb-1">Left on Table</p>
+                                            <p class="data-value text-red-400 text-lg" id="an-warm-lost">--</p>
+                                        </div>
+                                        <div class="bg-slate-900 rounded p-3 text-center border border-[#1e293b]">
+                                            <p class="text-[8px] text-slate-500 uppercase mb-1">Avg / User</p>
+                                            <p class="data-value text-slate-300 text-lg" id="an-warm-avg">--</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- end an-content -->
+                </div><!-- end tab-analytics -->
+
+                <div id="tab-payouts" class="tab-content hidden-tab flex flex-col h-full">
+                    <div class="glass-panel p-4 mb-4 rounded flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-widest mb-1">Affiliate Settlements</h2>
+                            <p class="text-xs text-slate-500 font-mono">Manage and clear pending manual UPI transfers.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                            <select id="filter-payout-status" class="bg-[#05080f] border border-[#1e293b] text-slate-300 text-xs rounded px-3 py-2 outline-none" onchange="fetchPayoutsList()">
+                                <option value="pending">Pending (Unpaid)</option>
+                                <option value="paid">Cleared (Paid)</option>
+                                <option value="all">All Records</option>
+                            </select>
+                            <button onclick="fetchPayoutsList()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-semibold border border-[#1e293b] transition flex items-center gap-2">
+                                <i class="fa-solid fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded overflow-hidden flex flex-col flex-1">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs whitespace-nowrap">
+                                <thead class="bg-slate-900 border-b border-[#1e293b] text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                                    <tr>
+                                        <th class="px-4 py-3">Date</th>
+                                        <th class="px-4 py-3">Order Ref</th>
+                                        <th class="px-4 py-3">Partner ID</th>
+                                        <th class="px-4 py-3">UPI Destination</th>
+                                        <th class="px-4 py-3">Amount Owed</th>
+                                        <th class="px-4 py-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-[#1e293b]" id="payouts-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="fixed inset-0 z-[200] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-[#05080f]/90 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="glass-panel w-full max-w-4xl rounded shadow-2xl relative z-10 flex flex-col max-h-[90vh] overflow-hidden">
+            
+            <div class="p-5 border-b border-[#1e293b] bg-slate-900 flex justify-between items-start">
+                <div class="flex items-center gap-4">
+                    <img id="mod-avatar" src="" alt="Avatar" class="w-12 h-12 rounded bg-slate-800 border border-[#1e293b] object-cover">
+                    <div>
+                        <h2 class="text-lg font-bold text-white font-mono" id="mod-name">--</h2>
+                        <p class="text-xs text-slate-400 font-mono" id="mod-email">--</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openManageUserModal(document.getElementById('mod-email').innerText); closeModal();" class="text-brand-500 hover:text-white text-xs border border-brand-500/30 px-3 py-1 rounded bg-brand-500/10 transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit User
+                    </button>
+                    <button onclick="closeModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            
+            <div class="p-5 overflow-y-auto space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 rounded p-4 border border-[#1e293b] md:col-span-2 relative overflow-hidden">
+                        <div class="absolute right-0 top-0 h-full w-1" id="mod-integrity-bar"></div>
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-bold">License Integrity & TTL</p>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <div id="mod-tier-badge" class="mb-1">--</div>
+                                <p class="text-[11px] text-slate-400 font-mono mt-2" id="mod-valid-until-text">Valid Until: --</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-500 uppercase">Time To Live</p>
+                                <p class="text-lg font-bold data-value" id="mod-ttl-countdown">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 rounded p-4 border border-[#1e293b]">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-bold">Identity & Sync</p>
+                        <p class="text-[10px] text-brand-400 font-mono truncate" id="mod-gid" title="">--</p>
+                        <p class="text-[10px] text-slate-400 font-mono mt-1" id="mod-phone">--</p>
+                        <div class="mt-3 pt-3 border-t border-[#1e293b]">
+                            <p class="text-[9px] text-slate-500 font-mono">Join: <span id="mod-joined" class="text-slate-300">--</span></p>
+                            <p class="text-[9px] text-slate-500 font-mono mt-1">Seen: <span id="mod-active" class="text-slate-300">--</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-[#1e293b] pb-2">Core System Constraints</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-slate-900/50 rounded p-3 border border-[#1e293b] text-center">
+                            <p class="text-[9px] text-slate-500 uppercase">Free Payload Hits</p>
+                            <p class="text-lg font-bold text-white mt-1 font-mono" id="mod-free">0<span class="text-[10px] text-slate-600">/10</span></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded p-3 border border-[#1e293b] text-center">
+                            <p class="text-[9px] text-slate-500 uppercase">Stealth Trials Used</p>
+                            <p class="text-lg font-bold text-white mt-1 font-mono" id="mod-trial">0<span class="text-[10px] text-slate-600">/3</span></p>
+                        </div>
+                        <div class="bg-slate-900/50 rounded p-3 border border-[#1e293b] text-center">
+                            <p class="text-[9px] text-slate-500 uppercase">Vision Processing</p>
+                            <p class="text-lg font-bold text-white mt-1 font-mono" id="mod-screen">0<span class="text-[10px] text-slate-600"> OCRs</span></p>
+                        </div>
+                        <div class="bg-[#05080f] rounded p-3 border border-brand-500/30 text-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-brand-500/5 opacity-50"></div>
+                            <p class="text-[9px] text-brand-400 uppercase">Audio Capture Secs</p>
+                            <p class="text-lg font-bold text-brand-300 mt-1 font-mono relative z-10" id="mod-mic">0<span class="text-[10px] text-brand-500/50">/18000</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-[#1e293b] pb-2">Financial Ledger</h3>
+                    <table class="w-full text-left text-[11px] font-mono">
+                        <thead class="text-slate-500 border-b border-[#1e293b] bg-slate-900">
+                            <tr><th class="py-2 px-3">Date</th><th class="px-3">Order ID</th><th class="px-3">Plan/Cycle</th><th class="px-3">Amount</th><th class="px-3">Status</th></tr>
+                        </thead>
+                        <tbody id="mod-orders-body" class="divide-y divide-[#1e293b] text-slate-300 bg-slate-900/30"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageUserModal" class="fixed inset-0 z-[250] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-[#05080f]/90 backdrop-blur-sm" onclick="closeManageUserModal()"></div>
+        <div class="glass-panel w-full max-w-md rounded shadow-2xl relative z-10 p-6 border border-[#1e293b]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-sm font-bold text-slate-200 uppercase tracking-widest">Provision / Modify User</h3>
+                <button onclick="closeManageUserModal()" class="text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Target Email Identity</label>
+                    <input type="email" id="manage-email" placeholder="user@domain.com" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none font-mono">
+                    <p class="text-[9px] text-slate-500 mt-1 italic">If email does not exist, a new identity will be provisioned.</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Target Tier</label>
+                        <select id="manage-tier" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none">
+                            <option value="pro_plus">Elite (Pro Plus)</option>
+                            <option value="pro">Pro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-semibold mb-1 block">Duration (Months)</label>
+                        <input type="number" id="manage-months" value="1" min="1" class="w-full bg-[#05080f] border border-[#1e293b] text-white rounded px-3 py-2 text-xs focus:border-brand-500 outline-none font-mono">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-8 pt-4 border-t border-[#1e293b]">
+                <button onclick="prepareAction('revoke')" class="text-red-500 hover:text-white hover:bg-red-500/20 px-3 py-1.5 rounded text-xs font-semibold transition border border-transparent hover:border-red-500/50">
+                    <i class="fa-solid fa-skull mr-1"></i> Revoke Access
+                </button>
+                <button onclick="prepareAction('upgrade')" class="bg-slate-800 hover:bg-slate-700 text-brand-400 px-4 py-2 rounded text-xs font-semibold transition border border-[#1e293b]">
+                    Preview Upgrade <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dangerConfirmModal" class="fixed inset-0 z-[300] hidden items-center justify-center px-4">
+        <div class="absolute inset-0 bg-red-900/20 backdrop-blur-sm" onclick="closeDangerModal()"></div>
+        <div class="glass-panel w-full max-w-sm rounded shadow-2xl relative z-10 p-6 border-2 border-red-500/50 bg-[#0b0f19]">
+            <div class="flex items-center gap-3 mb-4 text-red-500">
+                <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                <h3 class="text-sm font-bold uppercase tracking-widest text-white">Execute Action?</h3>
+            </div>
+            <div id="danger-msg" class="text-xs text-slate-300 font-mono mb-6 bg-[#05080f] p-3 rounded border border-[#1e293b]">
+                </div>
+            <div class="flex gap-3 justify-end">
+                <button onclick="closeDangerModal()" class="px-4 py-2 bg-slate-800 text-white rounded text-xs font-semibold hover:bg-slate-700 border border-[#1e293b]">Abort</button>
+                <button id="danger-execute-btn" class="px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)]">Execute</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = "https://api.whis-ai.com"; // Use your actual URL if different
+        let adminPassword = sessionStorage.getItem('whisAdminPwd');
+        let currentPage = 0;
+        let acqChart = null;
+        let loadChart = null;
+        
+        let loadedDateRangeArray = []; 
+        let loadedUsersForCSV = [];
+
+        // --- Formatters ---
+        function formatSeconds(seconds) {
+            if (!seconds) return "0s";
+            if (seconds < 60) return `${seconds}s`;
+            const m = Math.floor(seconds / 60);
+            const h = Math.floor(m / 60);
+            if (h > 0) return `${h}h ${m % 60}m`;
+            return `${m}m ${seconds % 60}s`;
+        }
+
+        function parseDateSafely(val) {
+            if (!val) return null;
+            const d = new Date(val);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function getLicenseIntegrity(subscription) {
+            if (!subscription || (!subscription.tier || subscription.tier === 'free')) {
+                return { isPaid: false, isActive: false, validUntil: null, ttlStr: "Lifetime Free" };
+            }
+            const vDate = parseDateSafely(subscription.validUntil);
+            if (!vDate) return { isPaid: true, isActive: false, validUntil: null, ttlStr: "No Expiry Found" };
+            const now = new Date();
+            const msDiff = vDate.getTime() - now.getTime();
+            const isFuture = msDiff > 0;
+            let ttlStr = "";
+            const absDiff = Math.abs(msDiff);
+            const days = Math.floor(absDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((absDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            if (isFuture) ttlStr = days > 0 ? `${days}d ${hours}h remaining` : `${hours}h remaining`;
+            else ttlStr = days > 0 ? `Expired ${days}d ago` : `Expired ${hours}h ago`;
+            return { isPaid: true, isActive: isFuture, validUntil: vDate, ttlStr, isTrial: !!subscription.isTrial };
+        }
+
+        // --- Authentication ---
+        if (adminPassword) {
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            initDashboard();
+        }
+
+        async function loginAdmin() {
+            const pwd = document.getElementById('adminPwd').value;
+            if(!pwd) return;
+            document.getElementById('loginBtn').innerText = '...';
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary`, { headers: { 'x-dashboard-password': pwd } });
+                if (res.ok) {
+                    adminPassword = pwd;
+                    sessionStorage.setItem('whisAdminPwd', pwd);
+                    location.reload();
+                } else throw new Error();
+            } catch (e) {
+                document.getElementById('loginError').classList.remove('hidden');
+                document.getElementById('loginBtn').innerText = 'Authenticate';
+            }
+        }
+        function logoutAdmin() { sessionStorage.removeItem('whisAdminPwd'); location.reload(); }
+
+        // --- Navigation ---
+        function toggleMobileSidebar() { document.getElementById('sidebarPanel').classList.toggle('-translate-x-full'); }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-tab'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden-tab');
+            document.querySelectorAll('nav button').forEach(b => {
+                b.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800/30 text-slate-400 hover:text-white text-xs font-semibold tracking-wide border border-transparent transition";
+                b.querySelector('i').classList.remove('text-brand-400', 'text-emerald-400');
+            });
+            const active = document.getElementById(`nav-${tab}`);
+            active.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded bg-slate-800/50 text-white text-xs font-semibold tracking-wide border border-[#1e293b]";
+            if(tab !== 'payouts') active.querySelector('i').classList.add('text-brand-400');
+            else active.querySelector('i').classList.add('text-emerald-400');
+            
+            const titles = { 'overview': 'Executive Overview', 'users': 'Identity Database', 'ops': 'Mission Control (Ops)', 'payouts': 'Partner Payouts', 'analytics': 'Revenue Intelligence' };
+            document.getElementById('header-title').innerText = titles[tab] || 'Dashboard';
+            
+            if(tab === 'users' && currentPage === 0) fetchUsersList();
+            if(tab === 'ops') fetchOpsTelemetry();
+            if(tab === 'payouts') fetchPayoutsList();
+            if(tab === 'analytics') fetchAnalytics();
+        }
+
+        function drillDownToDate(dateString) {
+            document.getElementById('filter-search').value = dateString;
+            switchTab('users');
+            applyFilters();
+        }
+
+        // --- Data Fetching ---
+        async function initDashboard() {
+            const daysToFetch = document.getElementById('timeRangeSelect').value;
+            fetchSummary(daysToFetch);
+            fetchFinancialIntelligence(daysToFetch);
+            if(!document.getElementById('tab-users').classList.contains('hidden-tab')) fetchUsersList();
+            if(!document.getElementById('tab-ops').classList.contains('hidden-tab')) fetchOpsTelemetry();
+            if(!document.getElementById('tab-payouts').classList.contains('hidden-tab')) fetchPayoutsList();
+        }
+
+        async function fetchFinancialIntelligence(daysToFetch) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/financial-intelligence?days=${daysToFetch}`, { 
+                    headers: { 'x-dashboard-password': adminPassword } 
+                });
+                const data = await res.json();
+                const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+                
+                document.getElementById('stat-mrr').innerText = formatter.format(data.liveMRR);
+                document.getElementById('stat-arpu').innerText = `ARPU: ${formatter.format(data.arpu)}`;
+                document.getElementById('stat-realized-rev').innerText = formatter.format(data.periodRealizedRevenueUSD);
+                document.getElementById('stat-ai-cost').innerText = formatter.format(data.estimatedAiCogsUSD);
+                document.getElementById('stat-ai-period').innerText = `LAST ${daysToFetch} DAYS`;
+                
+                const marginEl = document.getElementById('stat-margin');
+                marginEl.innerText = `${data.grossMarginPercent.toFixed(1)}%`;
+                if(data.grossMarginPercent < 60) marginEl.className = "text-2xl data-value text-red-500";
+                else if(data.grossMarginPercent < 80) marginEl.className = "text-2xl data-value text-amber-500";
+                else marginEl.className = "text-2xl data-value text-purple-400";
+            } catch(e) { console.error("Fin Intel Error:", e); }
+        }
+
+        async function fetchSummary(daysToFetch) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/summary?days=${daysToFetch}`, { headers: { 'x-dashboard-password': adminPassword } });
+                if(res.status === 401) logoutAdmin();
+                const data = await res.json();
+                
+                document.getElementById('stat-users').innerText = (data.totalUsers || 0).toLocaleString();
+                document.getElementById('stat-paid-total').innerText = (data.totalPaid || 0).toLocaleString();
+                document.getElementById('stat-paid-split').innerText = `E:${data.eliteCount || 0} | P:${data.proCount || 0}`;
+                document.getElementById('stat-conv').innerText = data.totalUsers > 0 ? ((data.totalPaid / data.totalUsers) * 100).toFixed(1) + "% Conv" : "0% Conv";
+                document.getElementById('stat-mic').innerText = formatSeconds(data.totalMicSecondsThisMonth);
+                document.getElementById('stat-avg-signups').innerText = (data.dailySignups.length > 0 ? (data.dailySignups.reduce((a,b)=>a+b.count,0)/data.dailySignups.length).toFixed(1) : 0);
+
+                loadedDateRangeArray = [];
+                for(let i = daysToFetch - 1; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    loadedDateRangeArray.push(d.toISOString().slice(0,10));
+                }
+
+                const signupsData = loadedDateRangeArray.map(date => (data.dailySignups.find(x => x._id === date)?.count || 0));
+                const upgradesData = loadedDateRangeArray.map(date => (data.dailyUpgrades.find(x => x._id === date)?.count || 0));
+                const chatData = loadedDateRangeArray.map(date => (data.metrics.find(x => x._id === date)?.chat || 0));
+                const transcribeData = loadedDateRangeArray.map(date => (data.metrics.find(x => x._id === date)?.transcribe || 0));
+
+                renderAcquisitionChart(loadedDateRangeArray, signupsData, upgradesData);
+                renderLoadChart(loadedDateRangeArray, chatData, transcribeData);
+            } catch(e) { console.error(e); }
+        }
+
+        async function fetchOpsTelemetry() {
+            try {
+                // Fetch Reports
+                const repRes = await fetch(`${BACKEND_URL}/api/report`, { headers: { 'x-dashboard-password': adminPassword } });
+                const reports = await repRes.json();
+                const feed = document.getElementById('ops-reports-feed');
+                feed.innerHTML = reports.length ? '' : '<div class="p-8 text-center text-slate-600 italic text-xs">Awaiting telemetry...</div>';
+                reports.slice(0, 10).forEach(r => {
+                    feed.innerHTML += `
+                        <div class="p-4 border-b border-[#1e293b] hover:bg-slate-800/20">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[10px] text-brand-400 font-mono">${r.userEmail || 'Anon'}</span>
+                                <span class="text-[9px] text-slate-600 font-mono">${new Date(r.createdAt).toLocaleTimeString()}</span>
+                            </div>
+                            <p class="text-xs text-white leading-relaxed">${r.message}</p>
+                        </div>`;
+                });
+
+                // Fetch Enterprise Queries
+                const entRes = await fetch(`${BACKEND_URL}/api/enterprise-query`, { headers: { 'x-dashboard-password': adminPassword } });
+                const queries = await entRes.json();
+                const entFeed = document.getElementById('ops-enterprise-feed');
+                entFeed.innerHTML = queries.length ? '' : '<div class="p-8 text-center text-slate-600 italic text-xs">No pending outreach.</div>';
+                queries.forEach(q => {
+                    entFeed.innerHTML += `
+                        <div class="p-4 border-b border-[#1e293b] hover:bg-slate-800/20">
+                            <div class="font-bold text-white text-xs">${q.companyName}</div>
+                            <div class="text-[10px] text-slate-400">${q.email} • ${q.expectedUsers} users</div>
+                        </div>`;
+                });
+            } catch(e) { console.error("Ops Fetch Error", e); }
+        }
+
+        // --- Directory Functions ---
+        function applyFilters() { currentPage = 0; fetchUsersList(); }
+        function changePage(delta) { currentPage += delta; fetchUsersList(); }
+
+        async function fetchUsersList() {
+            try {
+                const search = document.getElementById('filter-search').value;
+                const tier = document.getElementById('filter-tier').value;
+                const status = document.getElementById('filter-status').value;
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-500 font-mono text-xs">Querying database...</td></tr>`;
+                
+                const query = new URLSearchParams({ page: currentPage, search, tier, status }).toString();
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/users-list?${query}`, { headers: { 'x-dashboard-password': adminPassword } });
+                const data = await res.json();
+                
+                loadedUsersForCSV = data.users || [];
+                document.getElementById('btn-prev').disabled = data.page === 0;
+                document.getElementById('btn-next').disabled = data.page >= data.totalPages - 1;
+                document.getElementById('user-count-info').innerText = `Displaying ${data.users.length} of ${data.total} records (Page ${data.page + 1})`;
+
+                if(data.users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-slate-500 font-mono text-xs">0 Records Match Query.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.users.forEach(u => {
+                    const integrity = getLicenseIntegrity(u.subscription);
+                    const tierLabel = u.subscription?.tier === 'pro_plus' ? 'ELITE' : (u.subscription?.tier === 'pro' ? 'PRO' : 'FREE');
+                    const tierColor = tierLabel === 'ELITE' ? 'text-emerald-400' : (tierLabel === 'PRO' ? 'text-blue-400' : 'text-slate-500');
+                    let statColor = 'bg-slate-600'; 
+                    let statText = 'INACTIVE';
+                    
+                    if (integrity.isPaid) {
+                        if (integrity.isActive) {
+                            statColor = integrity.isTrial ? 'bg-amber-500' : 'bg-emerald-500';
+                            statText = integrity.isTrial ? 'TRIAL (ACTIVE)' : 'PAID (ACTIVE)';
+                        } else {
+                            statColor = 'bg-red-500'; statText = 'EXPIRED';
+                        }
+                    }
+
+                    let validHtml = `<span class="text-slate-600">--</span>`;
+                    if (integrity.isPaid && integrity.validUntil) {
+                        validHtml = `
+                            <div class="${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}">${integrity.validUntil.toISOString().split('T')[0]}</div>
+                            <div class="text-[9px] text-slate-500 mt-0.5">${integrity.ttlStr}</div>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-800/20 transition group">
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-white text-[11px]">${u.email || 'N/A'}</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5">${u.name || 'Unknown'}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-mono text-[10px] font-bold ${tierColor}">${tierLabel}</div>
+                                <div class="font-mono text-[9px] text-slate-400 flex items-center gap-1.5 mt-1">
+                                    <div class="w-1.5 h-1.5 rounded-full ${statColor}"></div> ${statText}
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 font-mono text-[10px]">${validHtml}</td>
+                            <td class="px-4 py-3 text-right">
+                                <button onclick="openProfile('${u.googleId}')" class="text-slate-500 hover:text-brand-400 border border-[#1e293b] px-2 py-1 rounded bg-slate-900 transition"><i class="fa-solid fa-folder-open"></i></button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function openProfile(googleId) {
+            if(!googleId || googleId === 'null') return;
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('profileModal').classList.add('flex');
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/user-details/${googleId}`, { headers: { 'x-dashboard-password': adminPassword } });
+                const u = await res.json();
+                document.getElementById('mod-avatar').src = u.avatarUrl || 'https://via.placeholder.com/150/0f172a/38bdf8?text=USR';
+                document.getElementById('mod-name').innerText = u.name || 'Unknown User';
+                document.getElementById('mod-email').innerText = u.email || 'No email';
+                document.getElementById('mod-gid').innerText = u.googleId;
+                document.getElementById('mod-phone').innerText = u.phone || 'No phone';
+                document.getElementById('mod-joined').innerText = u.createdAt ? u.createdAt.substring(0,10) : '--';
+                document.getElementById('mod-active').innerText = u.lastLogin ? u.lastLogin.substring(0,10) : '--';
+                
+                const integrity = getLicenseIntegrity(u.subscription);
+                let barColor = integrity.isActive ? 'bg-emerald-500' : 'bg-red-500';
+                document.getElementById('mod-integrity-bar').className = `absolute right-0 top-0 h-full w-1 ${barColor}`;
+                document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold text-white uppercase">${u.subscription?.tier || 'FREE'}</span>`;
+                document.getElementById('mod-ttl-countdown').innerText = integrity.ttlStr;
+
+                document.getElementById('mod-free').innerHTML = `${u.freeUsage?.count || 0}<span class="text-[10px] text-slate-600">/10</span>`;
+                document.getElementById('mod-trial').innerHTML = `${u.trialUsage?.count || 0}<span class="text-[10px] text-slate-600">/3</span>`;
+                document.getElementById('mod-mic').innerHTML = `${formatSeconds(u.micUsage?.secondsUsed || 0)}`;
+
+                const tBody = document.getElementById('mod-orders-body');
+                tBody.innerHTML = u.orders?.length ? '' : '<tr><td colspan="5" class="py-6 text-center text-slate-600 italic">No ledger entries.</td></tr>';
+                u.orders?.forEach(o => {
+                    tBody.innerHTML += `<tr><td class="py-2 px-3">${o.date.substring(0,10)}</td><td class="px-3">${o.orderId.substring(0,8)}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function closeModal() { document.getElementById('profileModal').classList.add('hidden'); document.getElementById('profileModal').classList.remove('flex'); }
+
+        // --- Security & Action Management Functions ---
+
+        let pendingAdminAction = null;
+
+        function openManageUserModal(prefillEmail = "") {
+            document.getElementById('manage-email').value = prefillEmail;
+            document.getElementById('manageUserModal').classList.remove('hidden');
+            document.getElementById('manageUserModal').classList.add('flex');
+        }
+
+        function closeManageUserModal() {
+            document.getElementById('manageUserModal').classList.add('hidden');
+            document.getElementById('manageUserModal').classList.remove('flex');
+        }
+
+        function closeDangerModal() {
+            document.getElementById('dangerConfirmModal').classList.add('hidden');
+            document.getElementById('dangerConfirmModal').classList.remove('flex');
+            pendingAdminAction = null;
+        }
+
+        function prepareAction(actionType) {
+            const email = document.getElementById('manage-email').value.trim();
+            if (!email) return alert("Target email is required.");
+
+            const tier = document.getElementById('manage-tier').value;
+            const months = document.getElementById('manage-months').value;
+
+            pendingAdminAction = { action: actionType, email, tier, months };
+
+            const msgContainer = document.getElementById('danger-msg');
+            
+            if (actionType === 'upgrade') {
+                msgContainer.innerHTML = `You are about to provision or upgrade:<br><br>
+                    <span class="text-brand-400 font-bold">${email}</span><br>
+                    Tier: <span class="text-emerald-400 font-bold uppercase">${tier}</span><br>
+                    Duration: <span class="text-white font-bold">${months} Months</span>`;
+                document.getElementById('danger-execute-btn').innerText = "Execute Upgrade";
+                document.getElementById('danger-execute-btn').className = "px-4 py-2 bg-emerald-600 text-white rounded text-xs font-semibold hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]";
+            } else {
+                msgContainer.innerHTML = `You are about to <span class="text-red-500 font-bold uppercase">REVOKE</span> all access for:<br><br>
+                    <span class="text-brand-400 font-bold">${email}</span><br><br>
+                    This will immediately downgrade the user to the free tier and wipe their time-to-live.`;
+                document.getElementById('danger-execute-btn').innerText = "Execute Revoke";
+                document.getElementById('danger-execute-btn').className = "px-4 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)]";
+            }
+
+            // Open strict confirmation modal
+            document.getElementById('manageUserModal').classList.add('hidden');
+            document.getElementById('dangerConfirmModal').classList.remove('hidden');
+            document.getElementById('dangerConfirmModal').classList.add('flex');
+        }
+
+        // Bind the execute button
+        document.getElementById('danger-execute-btn').addEventListener('click', async () => {
+            if (!pendingAdminAction) return;
+            
+            const btn = document.getElementById('danger-execute-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/user-action`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-dashboard-password': adminPassword 
+                    },
+                    body: JSON.stringify(pendingAdminAction)
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    alert(`SUCCESS: ${data.message}`);
+                    closeDangerModal();
+                    // Refresh data
+                    initDashboard(); 
+                } else {
+                    alert(`ERROR: ${data.error || 'Failed to execute action'}`);
+                }
+            } catch (e) {
+                console.error("Action Error:", e);
+                alert("CRITICAL ERROR: Failed to communicate with the server.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // --- CSV Export ---
+        function exportToCSV() {
+            if (!loadedUsersForCSV.length) return alert("No users to export.");
+            const headers = ['Email', 'Name', 'Tier', 'Status', 'Joined'];
+            const rows = loadedUsersForCSV.map(u => `${u.email},"${u.name}",${u.subscription?.tier},${u.subscription?.status},${u.createdAt}`);
+            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',') + "\n" + rows.join('\n');
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", `whis_export_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link); link.click();
+        }
+
+        // --- Payout Ledger Functions ---
+        async function fetchPayoutsList() {
+            try {
+                const status = document.getElementById('filter-payout-status').value;
+                const tbody = document.getElementById('payouts-table-body');
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500 font-mono text-xs"><i class="fa-solid fa-circle-notch fa-spin"></i> Fetching ledger...</td></tr>`;
+                
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/payouts?status=${status}`, { headers: { 'x-dashboard-password': adminPassword } });
+                const data = await res.json();
+                
+                if(!data.payouts || data.payouts.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500 font-mono text-xs">No records match the current filter.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.payouts.forEach(p => {
+                    const isPaid = p.status === 'paid';
+                    const dateStr = new Date(p.createdAt).toLocaleDateString() + ' ' + new Date(p.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    let actionHtml = '';
+                    if (!isPaid) {
+                        actionHtml = `<button onclick="markPayoutPaid('${p._id}', this)" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded transition font-bold text-[10px] uppercase tracking-wider"><i class="fa-solid fa-check mr-1"></i> Mark Paid</button>`;
+                    } else {
+                        actionHtml = `<span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"><i class="fa-solid fa-check-double mr-1"></i> Cleared</span>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-800/20 transition group">
+                            <td class="px-4 py-3 text-slate-400 font-mono text-[10px]">${dateStr}</td>
+                            <td class="px-4 py-3 text-slate-300 font-mono text-[11px]">${p.orderId}</td>
+                            <td class="px-4 py-3 text-sky-400 font-bold font-mono text-[11px]">${p.influencerId}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-white font-mono text-xs">${p.upiId}</span>
+                                    <button onclick="navigator.clipboard.writeText('${p.upiId}'); alert('Copied UPI ID!')" class="text-slate-500 hover:text-white transition"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-emerald-400 font-bold text-sm">₹${p.commissionAmount}</td>
+                            <td class="px-4 py-3 text-right">${actionHtml}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { 
+                console.error(e); 
+                document.getElementById('payouts-table-body').innerHTML = `<tr><td colspan="6" class="text-center py-6 text-red-400 font-mono text-xs">Error fetching ledger.</td></tr>`;
+            }
+        }
+
+        async function markPayoutPaid(ledgerId, btnElement) {
+            if(!confirm("Are you sure you have manually sent the money to this UPI ID? This action cannot be undone.")) return;
+            
+            const origHtml = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/dashboard/payouts/mark-paid`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-dashboard-password': adminPassword },
+                    body: JSON.stringify({ ledgerId })
+                });
+                
+                const data = await res.json();
+                if(data.success) {
+                    btnElement.outerHTML = `<span class="text-[10px] text-emerald-500 uppercase tracking-widest font-bold fade-in"><i class="fa-solid fa-check-double mr-1"></i> Cleared</span>`;
+                } else {
+                    alert("Error: " + (data.error || "Failed to update"));
+                    btnElement.innerHTML = origHtml;
+                    btnElement.disabled = false;
+                }
+            } catch(e) {
+                alert("Network error.");
+                btnElement.innerHTML = origHtml;
+                btnElement.disabled = false;
+            }
+        }
+
+        // --- Charts ---
+        Chart.defaults.color = '#475569';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+
+        function renderAcquisitionChart(labels, signups, upgrades) {
+            const ctx = document.getElementById('acquisitionChart').getContext('2d');
+            if(acqChart) acqChart.destroy();
+            acqChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels.map(l => l.substring(5)), datasets: [
+                    { label: 'Signups', data: signups, borderColor: '#0ea5e9', tension: 0.2, pointRadius: 4 },
+                    { label: 'Upgrades', data: upgrades, borderColor: '#10b981', tension: 0.2, pointRadius: 4 }
+                ]},
+                options: { responsive: true, maintainAspectRatio: false, onClick: (e, el) => el[0] && drillDownToDate(loadedDateRangeArray[el[0].index]), plugins: { legend: { labels: { boxWidth: 10 } } } }
+            });
+        }
+
+        // ══ REVENUE INTEL ════════════════════════════════════════════════════════
+
+        let anCohortChart = null;
+
+        function anFmt(n) {
+            if (n >= 100000) return '₹' + (n / 100000).toFixed(1) + 'L';
+            if (n >= 1000)   return '₹' + (n / 1000).toFixed(1) + 'K';
+            return '₹' + (n || 0).toLocaleString();
+        }
+
+        async function fetchAnalytics() {
+            const btn = document.getElementById('an-refresh-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Fetching...';
+            document.getElementById('an-loading').classList.remove('hidden');
+            document.getElementById('an-content').classList.add('hidden');
+            document.getElementById('an-error').classList.add('hidden');
+
+            try {
+                const res  = await fetch(`${BACKEND_URL}/api/dashboard/analytics`, {
+                    headers: { 'x-dashboard-password': adminPassword }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Failed');
+                renderAnalytics(data);
+                document.getElementById('an-timestamp').textContent = 'Updated: ' + data.timestamp;
+                document.getElementById('an-content').classList.remove('hidden');
+            } catch (e) {
+                document.getElementById('an-error').classList.remove('hidden');
+            } finally {
+                document.getElementById('an-loading').classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Refresh';
+            }
+        }
+
+        function renderAnalytics(data) {
+            const s  = data.summary        || {};
+            const k  = data.kpis           || {};
+            const r  = data.revenue        || {};
+            const IN = data.india          || {};
+            const US = data.usa            || {};
+            const fs = data.failed_summary || {};
+
+            // ── KPI cards
+            document.getElementById('an-total-rev').textContent    = anFmt(s.total_revenue || 0);
+            document.getElementById('an-arpu').textContent         = 'ARPU ₹' + Math.round(k.arpu || 0);
+            document.getElementById('an-paid-orders').textContent  = (s.paid_orders || 0).toLocaleString();
+            document.getElementById('an-aov').textContent          = 'AOV ₹' + Math.round(k.aov || 0).toLocaleString();
+            document.getElementById('an-active-subs').textContent  = (s.active_subs || 0) + ' (' + (s.active_pct || 0) + '%)';
+            document.getElementById('an-churn-pct').textContent    = 'Churn ' + (s.churn_pct || 0) + '%';
+            document.getElementById('an-pay-success').textContent  = (k.payment_success || 0) + '%';
+
+            // ── Revenue vs Abandoned bars
+            const paid   = r.paid_value   || 0;
+            const failed = r.failed_value || 0;
+            const total  = paid + failed;
+            const pPct   = total > 0 ? Math.round(paid   / total * 100) : 20;
+            const fPct   = total > 0 ? Math.round(failed / total * 100) : 80;
+            document.getElementById('an-collected').textContent      = anFmt(paid);
+            document.getElementById('an-abandoned').textContent      = anFmt(failed);
+            document.getElementById('an-collected-bar').style.width  = pPct + '%';
+            document.getElementById('an-abandoned-bar').style.width  = fPct + '%';
+            document.getElementById('an-abandon-note').textContent   =
+                (fs.unique_users || 0) + ' users reached checkout and left without paying (last 90 days)';
+
+            // ── India
+            document.getElementById('an-india-rev').textContent     = anFmt(IN.revenue_inr || 0);
+            document.getElementById('an-india-users').textContent   = (IN.paid_users || 0) + ' users';
+            document.getElementById('an-india-success').textContent = (IN.success_rate || 0) + '%';
+            document.getElementById('an-india-aov').textContent     = '₹' + (IN.avg_order || 0).toLocaleString();
+            document.getElementById('an-india-days').textContent    = (IN.avg_days || 0) + ' days';
+
+            // ── USA
+            const usaRevStr = anFmt(US.revenue_inr || 0) + (US.revenue_usd ? ' ($' + Math.round(US.revenue_usd) + ')' : '');
+            document.getElementById('an-usa-rev').textContent       = usaRevStr;
+            document.getElementById('an-usa-users').textContent     = (US.paid_users || 0) + ' users';
+            document.getElementById('an-usa-success').textContent   = (US.success_rate || 0) + '%';
+            document.getElementById('an-usa-aov').textContent       = '₹' + (US.avg_order || 0).toLocaleString();
+            document.getElementById('an-usa-days').textContent      = (US.avg_days || 0) + ' days';
+
+            // ── 7 day table
+            const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const tbody = document.getElementById('an-7day-tbody');
+            tbody.innerHTML = '';
+            (data.last_7_days || []).forEach(row => {
+                const dayLabel = DAYS[new Date(row.date + 'T00:00:00').getDay()];
+                const hiRev    = row.revenue > 20000;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/20 transition">
+                        <td class="px-4 py-2.5 text-slate-400">${row.date.slice(5)} <span class="text-slate-600">${dayLabel}</span></td>
+                        <td class="px-4 py-2.5 text-right">${(row.visits||0).toLocaleString()}</td>
+                        <td class="px-4 py-2.5 text-right">${(row.signups||0).toLocaleString()}</td>
+                        <td class="px-4 py-2.5 text-right ${row.conv_pct>15?'text-emerald-400':''}">${row.conv_pct}%</td>
+                        <td class="px-4 py-2.5 text-right text-emerald-400 font-bold">${row.paid_orders||0}</td>
+                        <td class="px-4 py-2.5 text-right ${hiRev?'text-brand-400 font-bold':'text-slate-300'}">₹${(row.revenue||0).toLocaleString()}</td>
+                        <td class="px-4 py-2.5 text-right text-red-400/70">${row.failed||0}</td>
+                    </tr>`;
+            });
+
+            // ── Day of week bars
+            const dowEl = document.getElementById('an-dow');
+            dowEl.innerHTML = '';
+            const maxRev = Math.max(...(data.day_of_week || []).map(d => d.avg_revenue || 0), 1);
+            (data.day_of_week || []).forEach(row => {
+                const pct   = Math.round((row.avg_revenue || 0) / maxRev * 100);
+                const color = pct >= 80 ? 'bg-brand-500' : pct >= 50 ? 'bg-slate-500' : 'bg-slate-700';
+                dowEl.innerHTML += `
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] text-slate-400 font-mono w-8">${row.day.slice(0,3).toUpperCase()}</span>
+                        <div class="flex-1 bg-slate-900 rounded-full h-2 overflow-hidden">
+                            <div class="${color} h-full rounded-full" style="width:${pct}%"></div>
+                        </div>
+                        <span class="text-[10px] data-value text-slate-300 w-16 text-right">₹${((row.avg_revenue||0)/1000).toFixed(1)}K</span>
+                        <span class="text-[9px] text-slate-600 w-8 text-right">${row.paid_orders||0} ord</span>
+                    </div>`;
+            });
+
+            // ── Cohort chart
+            const cohorts = (data.cohorts || []).filter(c => c.conv_rate > 0).reverse();
+            if (anCohortChart) anCohortChart.destroy();
+            anCohortChart = new Chart(document.getElementById('an-cohort-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: cohorts.map(c => c.month.slice(5) + '/' + c.month.slice(2,4)),
+                    datasets: [{
+                        label: 'Conv %',
+                        data: cohorts.map(c => c.conv_rate),
+                        backgroundColor: cohorts.map(c => c.conv_rate >= 5 ? '#0ea5e9' : c.conv_rate >= 2 ? '#818cf8' : '#334155'),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { callback: v => v + '%', font: { size: 10 } }, grid: { color: '#1e293b' } },
+                        x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+                    }
+                }
+            });
+
+            // ── Warm leads
+            document.getElementById('an-warm-users').textContent = (fs.unique_users || 0).toLocaleString();
+            document.getElementById('an-warm-lost').textContent  = anFmt(fs.total_lost || 0);
+            document.getElementById('an-warm-avg').textContent   = '₹' + (fs.avg_per_user || 0).toLocaleString();
+            document.getElementById('an-warm-text').textContent  =
+                `${fs.unique_users || '--'} users opened checkout and left without paying in the last 90 days. ` +
+                `Average intent value ₹${(fs.avg_per_user||0).toLocaleString()} per user. ` +
+                `Send a WhatsApp/email follow-up within 1 hour of abandonment for best recovery rate.`;
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════
+
+        function renderLoadChart(labels, chats, transcribes) {
+            const ctx = document.getElementById('aiLoadChart').getContext('2d');
+            if(loadChart) loadChart.destroy();
+            loadChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels.map(l => l.substring(5)), datasets: [
+                    { label: 'Chats', data: chats, backgroundColor: '#8b5cf6' },
+                    { label: 'Audio', data: transcribes, backgroundColor: '#c084fc' }
+                ]},
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+            });
+        }
+    </script>
+</body>
+</html>
