@@ -5087,10 +5087,18 @@ const _WEB_STARTER_QUESTIONS = [
   { icon: 'fa-people-arrows', text: 'Describe a conflict with a teammate' },
 ];
 
+// Honest listening-status label per platform/mode (web = mic-first).
+function _liveListenLabel() {
+  if (!window.WHIS_WEB) return 'Listening — interviewer & you';
+  if (IS_MOBILE_WEB) return 'Listening (mic) — ask your question';
+  return window._whisTabAudio ? 'Listening — interviewer’s tab' : 'Listening (mic) — you & interviewer on speaker';
+}
+
 function _renderWebWelcome(container) {
   const guidance = IS_MOBILE_WEB
     ? 'or tap the mic to ask by voice'
-    : 'or click Listen to capture your meeting tab';
+    : 'or click Listen — the mic hears you and your interviewer (on speaker). '
+      + '<a href="#" id="web-adv-tabaudio" class="web-adv-link">Advanced: capture a tab’s audio</a>';
 
   const chips = _WEB_STARTER_QUESTIONS.map((q, i) => `
     <button class="web-starter-chip" data-starter-idx="${i}" style="--i:${i}">
@@ -5107,7 +5115,7 @@ function _renderWebWelcome(container) {
         <div class="web-welcome-sub">Ask anything — get an instant, interview-ready answer.</div>
       </div>
       <div class="web-starter-grid">${chips}</div>
-      <div class="web-welcome-guidance">${escapeHTML(guidance)}</div>
+      <div class="web-welcome-guidance">${guidance}</div>
     </div>`;
 
   container.querySelectorAll('.web-starter-chip').forEach(btn => {
@@ -5116,6 +5124,16 @@ function _renderWebWelcome(container) {
       const q = _WEB_STARTER_QUESTIONS[idx];
       if (q) _sendStarterQuestion(q.text);
     });
+  });
+
+  // Advanced: opt into capturing a browser tab's audio (headphone users). Sets the
+  // flag then starts listening via the getDisplayMedia path. Default stays mic-first.
+  const adv = container.querySelector('#web-adv-tabaudio');
+  if (adv) adv.addEventListener('click', (e) => {
+    e.preventDefault();
+    window._whisTabAudio = true;
+    whisToast('Advanced mode: pick the interviewer’s tab and check “Share tab audio”. Prefer the simple way? Just click Listen for mic capture.', 'info', 7000);
+    try { startListening(); } catch (_) {}
   });
 }
 
@@ -5979,14 +5997,30 @@ async function startListening() {
     // the system-audio cascade below (it would throw and dead-end the UI). A one-time
     // note explains the honest tradeoff. Typed questions remain the primary path.
     // We acquire the stream here, then fall through to the shared audio pipeline.
-    if (IS_MOBILE_WEB) {
-        _showMobileCaptureNoteOnce();
+    if (window.WHIS_WEB && !window._whisTabAudio) {
+        // MIC-FIRST on web — one click, NO screen-share "Share audio" toggle. The mic
+        // hears you AND the interviewer when the call plays through the laptop speaker.
+        // (Screen/tab audio is an opt-in "Advanced" path via window._whisTabAudio.)
+        if (IS_MOBILE_WEB) _showMobileCaptureNoteOnce();
         try {
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (eMic) {
-            console.warn('Mobile mic capture failed:', eMic);
+            console.warn('Web mic capture failed:', eMic);
             updateListeningUI(false);
-            whisToast('Whis needs microphone access to hear your question. Enable the mic for this site, then tap Listen again. You can also just type your question below.', 'warning', 8000);
+            whisToast('Whis needs microphone access. Enable the mic for this site (address-bar icon), then click Listen again — or just type your question below.', 'warning', 8000);
+            return;
+        }
+    } else if (window.WHIS_WEB && window._whisTabAudio) {
+        // ADVANCED web option: capture a browser tab's audio directly (for headphone
+        // users who want the interviewer's tab). Cancelling falls back to the friendly
+        // web guidance and resets to mic-first for next time.
+        try {
+            stream = await getSystemAudioStreamViaElectron();
+        } catch (eTab) {
+            console.warn('Web tab-audio capture cancelled/failed:', eTab);
+            window._whisTabAudio = false;
+            updateListeningUI(false);
+            showScreenPermissionRestartDialog();
             return;
         }
     } else {
@@ -6098,7 +6132,7 @@ async function startListening() {
     // On mobile the PRIMARY stream is already the user's mic, so a second parallel mic
     // capture would double-open the device and transcribe the same voice twice. Desktop
     // still runs it (there the primary stream is the interviewer's system audio).
-    if (!IS_MOBILE_WEB) startUserMicCapture(); // parallel user-voice capture
+    if (!window.WHIS_WEB) startUserMicCapture(); // parallel user-voice capture (desktop only; web's primary stream already covers it)
 
     processor.onaudioprocess = (e) => {
         if (!isListening) return;
@@ -6656,7 +6690,7 @@ function _startSpeakerIndicator() {
             txt.textContent = 'Interviewer speaking…'; txt.style.color = '#46c8ff';
         } else {
             dot.style.background = '#8b93a8'; dot.style.boxShadow = '0 0 6px rgba(139,147,168,0.5)';
-            txt.textContent = 'Listening — interviewer & you'; txt.style.color = '#aab2c5';
+            txt.textContent = _liveListenLabel(); txt.style.color = '#aab2c5';
         }
     }, 180);
 }
@@ -6690,7 +6724,7 @@ function updateListeningUI(active) {
         let content = `<div class="wave-and-text" style="display: flex; align-items: center; gap: 8px;">`;
         content += `<div class="wave-container" style="margin: 0;"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>`;
         content += `<span id="ls-dot" style="width:7px;height:7px;border-radius:50%;background:#8b93a8;box-shadow:0 0 6px rgba(139,147,168,0.55);flex:0 0 auto;transition:background .12s,box-shadow .12s;"></span>`;
-        content += `<span id="ls-text" class="status-text listening-indicator" style="font-size:10px; margin:0; line-height:1; text-transform:none; letter-spacing:0.2px; color:#aab2c5;">${IS_MOBILE_WEB ? 'Listening to you — ask your question' : 'Listening — interviewer &amp; you'}</span>`;
+        content += `<span id="ls-text" class="status-text listening-indicator" style="font-size:10px; margin:0; line-height:1; text-transform:none; letter-spacing:0.2px; color:#aab2c5;">${window.WHIS_WEB ? _liveListenLabel() : 'Listening — interviewer &amp; you'}</span>`;
         content += `</div>`;
         listeningStatusEl.innerHTML = content;
 
