@@ -120,7 +120,7 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
       <input class="search" id="q" placeholder="Search email or name…" onkeydown="if(event.key==='Enter')loadUsers(0)" />
       <div class="seg" id="stage"><button data-s="" class="on">All</button><button data-s="signup">Signed up</button><button data-s="trial">Trial</button><button data-s="paid">Paid</button></div>
-      <button class="btn ghost" onclick="exportUsers()">⬇ CSV</button>
+      <button class="btn ghost" id="exportBtn" onclick="exportUsers()">⬇ CSV</button>
       <span id="cohortChip"></span><span id="cohortLabel" style="display:none"></span>
       <span class="muted" id="ucount" style="font-size:12px"></span>
       <span style="margin-left:auto;display:flex;gap:6px" id="pager"></span>
@@ -275,11 +275,28 @@ async function loadUsers(p){
       <td>${esc(u.country||'—')}</td><td class="muted">${esc(u.source||'—')}</td><td class="muted">${ago(u.lastSeen)} ago</td></tr>`).join('');
   }catch(e){ if(e.message==='unauth')location.reload(); }
 }
-function exportUsers(){
-  if(!UROWS.length)return;
+async function exportUsers(){
   const cols=['email','name','stage','trialSeconds','questions','daysActive','orders','ltv','country','source','influencerId','createdAt','lastSeen'];
   const cell=v=>{v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
-  const csv=[cols.join(',')].concat(UROWS.map(r=>cols.map(c=>cell(r[c])).join(','))).join('\n');
+  const btn=$('exportBtn'); const orig=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; }
+  // Export the FULL filtered set (all pages), not just the 100 rows on screen.
+  // The backend caps limit at 200, so we page through until we've pulled `total`.
+  const base=`/api/admin/analytics/users?q=${encodeURIComponent($('q').value.trim())}&stage=${STAGE}&sort=${SORT}&days=${RANGE}${COHORT?'&cohort='+COHORT:''}${segQS()}`;
+  const PER=200; let all=[], page=0, total=Infinity;
+  try{
+    while(all.length<total && page<500){
+      if(btn) btn.textContent=`Exporting… ${all.length}`;
+      const d=await api(`${base}&page=${page}&limit=${PER}`);
+      if(!d||!d.users||!d.users.length) break;
+      total=d.total||d.users.length; all=all.concat(d.users);
+      if(d.users.length<PER) break;
+      page++;
+    }
+  }catch(e){ if(e.message==='unauth'){location.reload();return;} }
+  if(btn){ btn.disabled=false; btn.textContent=orig; }
+  if(!all.length){ all=UROWS; } // fallback to whatever is on screen
+  const csv=[cols.join(',')].concat(all.map(r=>cols.map(c=>cell(r[c])).join(','))).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`whis-users-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
 }
 
