@@ -2584,8 +2584,9 @@ function showApp(user) {
   // Show initial contextual hint — slight delay so localContexts are loaded
   setTimeout(() => { _lastHint = null; updateContextHint(); }, 600);
 
-  // One-time position hint — tells new users the window is moveable/resizable
-  if (!localStorage.getItem('wh_pos_hint_shown')) {
+  // One-time position hint — tells new users the window is moveable/resizable.
+  // Desktop-only: a browser tab has no draggable/resizable app window.
+  if (!window.WHIS_WEB && !localStorage.getItem('wh_pos_hint_shown')) {
     localStorage.setItem('wh_pos_hint_shown', '1');
     setTimeout(() => {
       const hint = document.createElement('div');
