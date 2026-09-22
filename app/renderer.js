@@ -5204,6 +5204,11 @@ function _renderWebWelcome(container) {
         <div class="web-welcome-sub">${_sub}</div>
       </div>
       <div class="web-starter-grid">${chips}</div>
+      <button type="button" class="web-session-enter web-session-enter-cta" id="web-session-enter-cta">
+        <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+        Start Live Session
+        <span class="wsec-sub">Full two-pane view · live transcript + AI answers</span>
+      </button>
       <div class="web-welcome-guidance">${guidance}</div>
       ${(typeof WhisLive !== 'undefined' && WhisLive.supported())
         ? `<button type="button" class="web-golive-cta wl-golive-btn" id="web-golive-cta">
@@ -5932,7 +5937,11 @@ function _renderLiveTranscript() {
     if (!el) return;
     // Interviewer's in-progress (not-yet-final) words stream live at the bottom.
     const partial = (typeof _rtPartialText === 'string' && !isAutoMode) ? _rtPartialText.trim() : '';
-    if (liveTranscript.length === 0 && !partial) { el.style.display = 'none'; return; }
+    if (liveTranscript.length === 0 && !partial) {
+        el.style.display = 'none';
+        try { if (window.WHIS_WEB && typeof WhisSession !== 'undefined') WhisSession.mirrorTranscript(); } catch (_) {}
+        return;
+    }
     el.style.display = 'flex';
 
     let html = liveTranscript.map(seg => {
@@ -5949,6 +5958,9 @@ function _renderLiveTranscript() {
 
     el.innerHTML = html;
     el.scrollTop = el.scrollHeight;
+
+    // WEB two-pane session: mirror the same transcript into the left pane in real time.
+    try { if (window.WHIS_WEB && typeof WhisSession !== 'undefined') WhisSession.mirrorTranscript(); } catch (_) {}
 }
 
 // Silent system audio capture via getDisplayMedia, intercepted by
@@ -6860,6 +6872,8 @@ function updateListeningUI(active) {
   }
   checkPillContainer();
   updateContextHint();
+  // WEB two-pane session: keep the left-pane Start/Stop button + listening dot in sync.
+  try { if (window.WHIS_WEB && typeof window._whisSessionSync === 'function') window._whisSessionSync(); } catch (_) {}
 }
 
 function toggleRecording() {
@@ -7796,6 +7810,271 @@ const WhisLive = (() => {
   return { init, goLive, close, mirrorAnswer, endAnswer, isOpen, supported };
 })();
 
+// ============================================================================
+// WEB TWO-PANE LIVE SESSION  (WHIS_WEB only; desktop Electron untouched)
+// ----------------------------------------------------------------------------
+// A spacious, full-page split view modelled on ParakeetAI:
+//   LEFT  (#web-live-left) = live interviewer transcript + listening controls (input)
+//   RIGHT (#content-area / #messages) = AI answers + composer + primary actions (output)
+// It wraps the EXISTING app: on enter we add `whis-session-active` to <body>, which
+// (via app-web.css) turns the shell into a CSS grid with the injected left pane on the
+// left and the untouched #content-area on the right. Everything reuses the existing
+// systems — startListening/stopAndCommitAudio, liveTranscript/_renderLiveTranscript,
+// finalizeAndSend/sendMessage, handleScreenshotStage, and the trial timer element.
+// ============================================================================
+const WhisSession = (() => {
+  if (!window.WHIS_WEB) {
+    // Desktop build: expose inert no-ops so any caller is safe.
+    return { init(){}, enter(){}, exit(){}, isActive(){ return false; }, mirrorTranscript(){} };
+  }
+
+  let built = false;
+  let active = false;
+  let leftEl = null;
+  let transcriptEl = null;
+  let startStopBtn = null;
+  let clearBtn = null;
+  let langSelect = null;
+  let dotEl = null;
+
+  const LANG_KEY = 'wh_session_lang';
+
+  const _LANGS = [
+    ['en', 'English'], ['hi', 'Hindi'], ['te', 'Telugu'], ['ta', 'Tamil'],
+    ['es', 'Spanish'], ['fr', 'French'], ['de', 'German'], ['pt', 'Portuguese'],
+    ['zh', 'Chinese'], ['ja', 'Japanese'], ['ar', 'Arabic'],
+  ];
+
+  function _build() {
+    if (built) return;
+    const content = document.getElementById('content-area');
+    if (!content || !content.parentNode) return;
+
+    leftEl = document.createElement('aside');
+    leftEl.id = 'web-live-left';
+    leftEl.className = 'web-live-left no-drag';
+    leftEl.innerHTML = `
+      <div class="wll-head">
+        <div class="wll-title"><span class="wll-dot" id="wll-dot"></span> Live transcript</div>
+        <div class="wll-sub" id="wll-sub">Interviewer &amp; you, in real time</div>
+      </div>
+      <div class="wll-transcript" id="web-live-transcript">
+        <div class="wll-empty" id="wll-empty">
+          <div class="wll-empty-title">Not listening yet</div>
+          <div class="wll-empty-sub">Press <b>Start</b> — the mic hears you and your interviewer, and their words appear here.</div>
+        </div>
+      </div>
+      <div class="wll-controls">
+        <button type="button" id="wll-startstop" class="wll-btn wll-primary">
+          <i class="fa-solid fa-microphone" aria-hidden="true"></i><span>Start</span>
+        </button>
+        <button type="button" id="wll-clear" class="wll-btn wll-ghost" title="Clear transcript">
+          <i class="fa-solid fa-eraser" aria-hidden="true"></i><span>Clear</span>
+        </button>
+        <select id="wll-lang" class="wll-lang" title="Transcription language" aria-label="Transcription language">
+          ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+        </select>
+      </div>`;
+
+    // Insert the left pane as the FIRST child of the shell, before #content-area.
+    content.parentNode.insertBefore(leftEl, content);
+
+    transcriptEl = leftEl.querySelector('#web-live-transcript');
+    startStopBtn = leftEl.querySelector('#wll-startstop');
+    clearBtn     = leftEl.querySelector('#wll-clear');
+    langSelect   = leftEl.querySelector('#wll-lang');
+    dotEl        = leftEl.querySelector('#wll-dot');
+
+    // Restore saved language choice (display-only preference; stored for continuity).
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && langSelect) langSelect.value = saved;
+    } catch (_) {}
+    if (langSelect) langSelect.addEventListener('change', () => {
+      try { localStorage.setItem(LANG_KEY, langSelect.value); } catch (_) {}
+    });
+
+    // Start/Stop mic → reuse the exact same capture pipeline as the desktop app.
+    startStopBtn.addEventListener('click', () => {
+      if (typeof isListening !== 'undefined' && isListening) {
+        try { stopAndCommitAudio(); } catch (_) {}
+      } else {
+        try { startListening(); } catch (_) {}
+      }
+      // UI refreshes on the next tick once isListening settles.
+      setTimeout(_syncListenState, 60);
+    });
+
+    // Clear empties BOTH the mirrored pane and the underlying liveTranscript buffer.
+    clearBtn.addEventListener('click', () => {
+      try { liveTranscript = []; _renderLiveTranscript(); } catch (_) {}
+      mirrorTranscript();
+    });
+
+    // Inject the session header actions (Answer / Screenshot / Exit) into the right pane.
+    _buildRightActions();
+
+    built = true;
+  }
+
+  // Right-pane primary actions live in a compact bar pinned above the composer,
+  // plus an Exit button injected into the (full-width) global header. The global
+  // header already carries the product mark, profile menu, and the trial timer —
+  // we reuse it as the single top bar rather than stacking a second header.
+  function _buildRightActions() {
+    const content = document.getElementById('content-area');
+    if (!content || document.getElementById('web-session-actions')) return;
+
+    // Exit button → injected into the global header's right wrapper, shown only
+    // in session mode (CSS gates visibility on body.whis-session-active).
+    const hdrRight = document.querySelector('.header-right-wrapper');
+    if (hdrRight && !document.getElementById('web-session-exit')) {
+      const exitBtn = document.createElement('button');
+      exitBtn.type = 'button';
+      exitBtn.id = 'web-session-exit';
+      exitBtn.className = 'wsh-exit no-drag';
+      exitBtn.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Exit`;
+      hdrRight.insertBefore(exitBtn, hdrRight.firstChild);
+      exitBtn.addEventListener('click', () => exit());
+    }
+
+    // Live status badge next to the timer (center of the header).
+    const hdrCenter = document.querySelector('.header-center');
+    if (hdrCenter && !document.getElementById('wsh-live')) {
+      const live = document.createElement('span');
+      live.id = 'wsh-live';
+      live.className = 'wsh-live no-drag';
+      live.innerHTML = `<span class="wsh-live-dot"></span> Listening`;
+      hdrCenter.appendChild(live);
+    }
+
+    // Primary actions bar (Answer + Screenshot) injected just BEFORE the composer row.
+    const inputRow = content.querySelector('.input-row');
+    const actions = document.createElement('div');
+    actions.id = 'web-session-actions';
+    actions.className = 'web-session-actions no-drag';
+    actions.innerHTML = `
+      <button type="button" id="web-session-answer" class="wsa-btn wsa-answer">
+        <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Answer
+      </button>
+      <button type="button" id="web-session-screenshot" class="wsa-btn wsa-screenshot" title="Snap a coding/question screenshot for the AI">
+        <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Screenshot
+      </button>`;
+    if (inputRow && inputRow.parentNode) {
+      inputRow.parentNode.insertBefore(actions, inputRow);
+    } else {
+      content.appendChild(actions);
+    }
+
+    // "Answer": send the current live transcript (the interviewer's last question) for an
+    // AI answer. finalizeAndSend() already folds liveTranscript into the payload and even
+    // sends a spoken-only turn (empty box), so it IS the "send the live transcript" path.
+    actions.querySelector('#web-session-answer').addEventListener('click', () => {
+      try { finalizeAndSend(); } catch (_) {}
+    });
+
+    // "Screenshot": capture a coding question → OCR → answer (same path as the Snap btn).
+    actions.querySelector('#web-session-screenshot').addEventListener('click', () => {
+      try { handleScreenshotStage(); } catch (_) {}
+    });
+  }
+
+  // Mirror the live conversation transcript into the left pane. Called from
+  // _renderLiveTranscript() so it stays in lockstep with the source of truth.
+  function mirrorTranscript() {
+    if (!active || !transcriptEl) return;
+    const segs = (typeof liveTranscript !== 'undefined' && Array.isArray(liveTranscript)) ? liveTranscript : [];
+    const partial = (typeof _rtPartialText === 'string' && !isAutoMode) ? _rtPartialText.trim() : '';
+    const listening = (typeof isListening !== 'undefined' && isListening);
+
+    if (segs.length === 0 && !partial) {
+      transcriptEl.innerHTML = listening
+        ? `<div class="wll-listening"><span class="wll-l-dot"></span><span class="wll-l-dot"></span><span class="wll-l-dot"></span><span class="wll-l-text">Listening…</span></div>`
+        : `<div class="wll-empty">
+             <div class="wll-empty-title">Not listening yet</div>
+             <div class="wll-empty-sub">Press <b>Start</b> — the mic hears you and your interviewer, and their words appear here.</div>
+           </div>`;
+      return;
+    }
+
+    let html = segs.map(seg => {
+      const isInt = seg.role === 'interviewer';
+      return `<div class="wll-seg ${isInt ? 'wll-int' : 'wll-you'}">
+                <span class="wll-role">${isInt ? 'Interviewer' : 'You'}</span>
+                <span class="wll-text">${escapeHTML(seg.text)}</span>
+              </div>`;
+    }).join('');
+
+    if (partial) {
+      html += `<div class="wll-seg wll-int wll-partial">
+                 <span class="wll-role">Interviewer</span>
+                 <span class="wll-text">${escapeHTML(partial)}<span class="wll-caret"></span></span>
+               </div>`;
+    }
+
+    transcriptEl.innerHTML = html;
+    transcriptEl.scrollTop = transcriptEl.scrollHeight;
+  }
+
+  // Keep the Start/Stop button + listening dot in sync with isListening.
+  function _syncListenState() {
+    const listening = (typeof isListening !== 'undefined' && isListening);
+    if (startStopBtn) {
+      startStopBtn.classList.toggle('wll-on', listening);
+      const icon = listening ? 'fa-stop' : 'fa-microphone';
+      const label = listening ? 'Stop' : 'Start';
+      startStopBtn.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i><span>${label}</span>`;
+    }
+    if (dotEl) dotEl.classList.toggle('wll-dot-live', listening);
+    const liveBadge = document.getElementById('wsh-live');
+    if (liveBadge) liveBadge.classList.toggle('wsh-live-on', listening);
+    mirrorTranscript();
+  }
+  // Exposed so other listening-state changes (startListening/stop) can refresh us.
+  window._whisSessionSync = _syncListenState;
+
+  function enter() {
+    _build();
+    if (!built) return;
+    active = true;
+    document.body.classList.add('whis-session-active');
+
+    mirrorTranscript();
+    _syncListenState();
+
+    // Mic-first: begin listening automatically so the transcript starts flowing.
+    if (!(typeof isListening !== 'undefined' && isListening)) {
+      try { startListening(); } catch (_) {}
+    }
+    setTimeout(_syncListenState, 120);
+    try { _trackFunnel && _trackFunnel('web_session_enter'); } catch (_) {}
+  }
+
+  function exit() {
+    active = false;
+    // Stop capture cleanly (silent — no toast spam).
+    try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
+
+    document.body.classList.remove('whis-session-active');
+    // Back to the normal welcome / empty state.
+    try { renderMessages(); } catch (_) {}
+    try { _trackFunnel && _trackFunnel('web_session_exit'); } catch (_) {}
+  }
+
+  function isActive() { return active; }
+
+  function init() {
+    // Wire any existing "Start Live Session" entry points. The welcome renders its CTA
+    // dynamically, so we also delegate clicks at the document level (below).
+    document.addEventListener('click', (e) => {
+      const t = e.target && e.target.closest ? e.target.closest('.web-session-enter') : null;
+      if (t) { e.preventDefault(); enter(); }
+    });
+  }
+
+  return { init, enter, exit, isActive, mirrorTranscript };
+})();
+
 // START APP
 (async () => {
     await loadEnvVariables();
@@ -7807,4 +8086,5 @@ const WhisLive = (() => {
     const _savedDraft = localStorage.getItem('wh_draft');
     if (_savedDraft) { inputEl.value = _savedDraft; updateContextHint(); }
     try { if (window.WHIS_WEB) WhisLive.init(); } catch (_) {}
+    try { if (window.WHIS_WEB) WhisSession.init(); } catch (_) {}
 })();
