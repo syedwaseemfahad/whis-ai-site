@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- WEB ADAPTATION: required for a usable mobile layout. viewport-fit=cover lets
+         the app paint under the notch/home-indicator so we can honor safe-area insets. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- SECURITY: CSP for the renderer. Kept compatible with Tesseract.js (blob
+         workers + wasm need 'unsafe-eval'/blob:) and the two CDNs we load, while
+         still blocking object/embed, foreign frames, and base-uri hijacking. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https: wss: blob: data:; worker-src 'self' blob:; media-src 'self' blob: data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" />
+    <title>Whis-AI — Practice interviews with an AI co-pilot</title>
+    <!-- Web table-stakes: description, social cards, theme color, favicon. Harmless on
+         desktop Electron (which ignores them); load-bearing for the web build's SEO/sharing. -->
+    <meta name="description" content="Practice interview answers with an AI co-pilot. Get instant, interview-ready responses by voice or text. Sign in to start free." />
+    <meta name="theme-color" content="#12432f" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Whis-AI" />
+    <meta property="og:title" content="Whis-AI — Practice interviews with an AI co-pilot" />
+    <meta property="og:description" content="Practice interview answers with an AI co-pilot. Get instant, interview-ready responses by voice or text." />
+    <meta property="og:image" content="https://whis-ai.com/og-image.png" />
+    <meta property="og:url" content="https://whis-ai.com/" />
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Whis-AI — Practice interviews with an AI co-pilot" />
+    <meta name="twitter:description" content="Practice interview answers with an AI co-pilot. Get instant, interview-ready responses by voice or text." />
+    <meta name="twitter:image" content="https://whis-ai.com/og-image.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Editorial (v3) typography — Fraunces (display) + Inter (UI) + JetBrains Mono (code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- WEB: client-side resume extraction (desktop did this in Node). pdf.js = PDF text,
+         mammoth = DOCX text. Loaded here so the shim's extractFileText works in-browser. -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script>try{ if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'; }catch(e){}</script>
+    <!-- WEB ADAPTATION: the desktop build ran frameless + transparent as an overlay.
+         In a normal browser tab we need a solid, intentional-looking dark surface that
+         fills the viewport and centers the app. These rules override the transparent
+         overlay defaults from styles.css. Dark base = --bg-0 (#070a14) from the app theme. -->
+    <style>
+      html, body {
+        min-height: 100vh;
+        /* Opaque forest-green editorial base (v3) so the app is visible in a browser
+           tab (styles.css intentionally makes body transparent for the desktop
+           overlay). Green #12432f matches the editorial system in brand-kit-v3.md. */
+        background: #12432f !important;
+        border-radius: 0 !important;
+      }
+      body {
+        /* -webkit-app-region: drag is meaningless on the web; neutralize it so the
+           whole page doesn't behave like a drag surface. Harmless leftover CSS in
+           styles.css is overridden here. */
+        -webkit-app-region: no-drag;
+      }
+      /* Center the app column for a clean, contained "app" feel in a wide tab. */
+      #content-area {
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+    <!-- WEB ADAPTATION: loaded LAST so it overrides styles.css AND the inline block above.
+         Turns the narrow desktop-overlay column into a real, responsive web/mobile app. -->
+    <link rel="stylesheet" href="app-web.css" />
+    <!-- EDITORIAL v3 RESKIN: loaded LAST so it overrides styles.css AND app-web.css.
+         Repaints the app to the dark forest-green editorial system (brand-kit-v3):
+         green base, lavender accent, Fraunces display type, hairline borders.
+         Structure + layout (90%-output focus mode, transcript ticker, composer)
+         are unchanged — this is a pure visual layer. -->
+    <link rel="stylesheet" href="app3-editorial.css" />
+  </head>
+  <body>
+
+    <!-- Animated gradient border — SVG fill:none so only the stroke line is visible -->
+    <svg id="whis-border-ring" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wbr-grad" gradientUnits="userSpaceOnUse">
+          <stop offset="0%"   stop-color="#38bdf8"/>
+          <stop offset="20%"  stop-color="#0ea5e9"/>
+          <stop offset="40%"  stop-color="#22d3ee"/>
+          <stop offset="60%"  stop-color="#0ea5e9"/>
+          <stop offset="80%"  stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#22d3ee"/>
+        </linearGradient>
+        <!-- Comet: bright white core fading to transparent -->
+        <linearGradient id="wbr-comet-grad" gradientUnits="userSpaceOnUse">
+          <stop offset="0%"   stop-color="rgba(255,255,255,0)"  />
+          <stop offset="60%"  stop-color="rgba(255,255,255,0.9)"/>
+          <stop offset="100%" stop-color="#38bdf8"              />
+        </linearGradient>
+      </defs>
+      <!-- Main spinning rainbow ring -->
+      <rect id="wbr-rect"  fill="none" stroke="url(#wbr-grad)"       stroke-width="1.5" rx="19" ry="19"/>
+      <!-- Fast comet arc on top -->
+      <rect id="wbr-comet" fill="none" stroke="url(#wbr-comet-grad)" stroke-width="2"   rx="19" ry="19"/>
+    </svg>
+
+    <div class="whis-global-header">
+       
+       <div class="header-left no-drag">
+           <a class="whis-logo-container" href="/index3.html" title="Whis-AI home" style="text-decoration:none;">
+                <!-- Canonical W-peaks brand mark (recolored to the v3 lavender accent). -->
+                <span class="whis-logo-mark">
+                    <svg class="whis-logo-svg" width="22" height="18" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 9 L7.5 2 L10 9" fill="rgba(195,169,239,0.24)"/>
+                        <path d="M14 9 L16.5 2 L19 9" fill="rgba(195,169,239,0.24)"/>
+                        <path d="M2 5 L6 17 L12 9 L18 17 L22 5" stroke="#eaf3ec" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <circle cx="8.5" cy="12" r="1.8" fill="#c3a9ef"/>
+                        <circle cx="15.5" cy="12" r="1.8" fill="#c3a9ef"/>
+                    </svg>
+                </span>
+                <span class="whis-logo-text">Whis<span class="whis-logo-accent">-AI</span></span>
+           </a>
+       </div>
+
+       <div class="header-center" style="flex-grow: 1; display: flex; justify-content: center; align-items: center; gap: 8px; min-width: 0;">
+           <div id="usage-shortcuts" class="highlighted-shortcuts-container no-drag"></div>
+
+           <div id="trial-timer-container" class="trial-timer-container no-drag" style="display:none;">
+              <div class="timer-badge">
+                 <i class="fa-solid fa-stopwatch"></i>
+                 <span id="trial-timer-text">10:00</span>
+              </div>
+              <button id="end-trial-btn" class="end-trial-btn" title="End Session">
+                  <i class="fa-solid fa-xmark"></i>
+              </button>
+           </div>
+
+           <!-- WEB ADAPTATION: window drag pill is desktop-only (frameless window move). Hidden on web. -->
+           <div class="window-drag-pill" title="Drag to move  ·  ⌘ Arrow keys to reposition" aria-hidden="true" style="display:none;">
+               <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <rect y="0" width="16" height="2" rx="1" fill="currentColor"/>
+                   <rect y="4" width="16" height="2" rx="1" fill="currentColor"/>
+                   <rect y="8" width="16" height="2" rx="1" fill="currentColor"/>
+               </svg>
+           </div>
+       </div>
+
+       <div class="header-right-wrapper no-drag" style="display: flex; align-items: center;">
+           
+           <div class="font-controls no-drag">
+               <button id="font-dec" title="Smaller text — Ctrl/Cmd + -" aria-label="Smaller text (Ctrl/Cmd + -)">A-</button>
+               <button id="font-reset" title="Reset text size (Ctrl/Cmd + 0)" aria-label="Reset text size (Ctrl/Cmd + 0)">A</button>
+               <button id="font-inc" title="Larger text — Ctrl/Cmd + +" aria-label="Larger text (Ctrl/Cmd + +)">A+</button>
+           </div>
+
+           <div class="opacity-slider-wrapper" id="opacity-slider-container">
+               <i class="fa-solid fa-eye-low-vision" style="font-size: 11px; color: var(--text-sub);"></i>
+               <input type="range" id="app-opacity-slider" class="beautiful-range" min="0.15" max="1" step="0.05" value="1">
+           </div>
+
+           <div class="mode-switch-wrapper" id="mode-switch-container">
+               <span id="mode-label-manual" class="mode-label" style="color:#29b6f6;">Manual</span>
+               <label class="beautiful-switch">
+                   <input type="checkbox" id="mode-toggle-checkbox">
+                   <span class="slider round"></span>
+               </label>
+               <span id="mode-label-auto" class="mode-label">Auto</span>
+           </div>
+
+           <!-- Interview elapsed timer — appears on first send -->
+           <div id="interview-timer" class="interview-timer" style="display:none;">
+             <span class="interview-timer-dot"></span>
+             <span id="interview-timer-display">00:00</span>
+           </div>
+
+           <!-- One-click trial button visible in header for free users -->
+           <button id="header-trial-btn" class="header-trial-btn" style="display:none;" title="Start your free 5-minute trial">
+             <i class="fa-solid fa-bolt"></i> Try Free
+           </button>
+
+           <div class="shortcut-dropdown-container" style="position: relative; margin-right: 15px;">
+               <button id="shortcut-toggle-btn" class="header-icon-btn glow-btn">
+                   <i class="fa-solid fa-keyboard"></i>
+               </button>
+               <div id="shortcut-popover" class="shortcut-popover" style="display:none;">
+                   <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">All Shortcuts</div>
+                   <div id="usage-shortcuts-popover" class="usage-shortcuts-list"></div>
+               </div>
+           </div>
+
+           <div id="header-right" class="header-right" style="visibility: hidden;">
+              <div class="profile-dropdown-container">
+                 <button id="profile-btn" class="whis-icon-btn profile-btn">
+                    <div class="whis-logo-circle">
+                       <img id="user-avatar" class="user-avatar" style="display:none" />
+                       <i id="user-icon" class="fa-solid fa-user" style="display:block;"></i>
+                    </div>
+                 </button>
+
+                 <div id="profile-dropdown-menu" class="profile-dropdown-menu no-drag" style="display:none;">
+                    <div class="dropdown-header">
+                       <span id="dropdown-user-email">Loading...</span>
+                    </div>
+
+                    <!-- v3 cross-links: editorial dashboard + editorial home. -->
+                    <a class="dropdown-item" href="/dashboard3.html">
+                       <i class="fa-solid fa-table-columns"></i> Dashboard
+                    </a>
+                    <a class="dropdown-item" href="/index3.html">
+                       <i class="fa-solid fa-house"></i> Home
+                    </a>
+
+                    <button id="menu-start-trial-btn" class="dropdown-item" style="display:none;">
+                       <i class="fa-solid fa-stopwatch" style="color: #29b6f6;"></i> 10m Free Trial
+                    </button>
+
+                    <button id="subscription-detail-btn" class="dropdown-item">
+                       <i class="fa-solid fa-receipt"></i> My Subscription
+                    </button>
+
+                    <button id="context-manager-btn" class="dropdown-item">
+                       <i class="fa-solid fa-layer-group"></i> Manage Contexts
+                    </button>
+
+                    <button id="refresh-btn" class="dropdown-item">
+                       <i class="fa-solid fa-arrows-rotate"></i> Refresh Status
+                    </button>
+
+                    <button id="support-chat-btn" class="dropdown-item">
+                       <i class="fa-solid fa-headset" style="color:#29b6f6;"></i> Live Support
+                    </button>
+
+                    <button id="report-btn" class="dropdown-item">
+                       <i class="fa-solid fa-flag"></i> Report AI Content
+                    </button>
+
+                    <button id="demo-launch-btn" class="dropdown-item">
+                        <i class="fa-solid fa-clapperboard-play" style="color:#29b6f6;"></i> Interactive Demo
+                    </button>
+
+                    <!-- WEB ADAPTATION: stealth verification is desktop-only (OS content protection). Hidden on web. -->
+                    <button id="stealth-test-btn" class="dropdown-item" style="display:none;">
+                        <i class="fa-solid fa-eye-slash" style="color:#29b6f6;"></i> Verify Stealth
+                    </button>
+
+                    <!-- WEB ADAPTATION: honest framing — web is practice; live interviews need the desktop app.
+                         Hidden on desktop (shown via renderer.js only when window.WHIS_WEB). -->
+                    <a id="web-desktop-app-item" class="dropdown-item" href="https://whis-ai.com/#download" target="_blank" rel="noopener" style="display:none;">
+                        <i class="fa-solid fa-desktop" style="color:#29b6f6;"></i> Get the desktop app
+                    </a>
+
+                    <button id="upgrade-btn" class="dropdown-item upgrade-item">
+                       <i class="fa-solid fa-crown"></i> Upgrade to Pro
+                    </button>
+                    <button id="logout-btn" class="dropdown-item signout-item">
+                       <i class="fa-solid fa-right-from-bracket"></i> Sign out
+                    </button>
+                 </div>
+              </div>
+           </div>
+
+           <div class="header-controls">
+              <div id="conn-status-dot" class="conn-status-dot" title="Backend connection"></div>
+
+              <!-- WEB ADAPTATION: stealth / screen-share invisibility is a desktop-only OS capability.
+                   It is FALSE in a browser tab, so we hide the claim entirely. -->
+              <button id="stealth-header-badge" class="stealth-header-badge" title="Invisible in screenshare, recordings &amp; screenshots · Click to verify" style="display:none;">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <span>Stealth</span>
+              </button>
+
+              <button id="guide-btn" class="guide-btn">
+                 <i class="fa-solid fa-circle-question"></i>
+              </button>
+
+              <!-- WEB ADAPTATION: minimize-to-pill is a desktop window feature. Hidden on web. -->
+              <button id="minimize-btn" class="minimize-btn" title="Minimize to a tiny bar (⌘/Ctrl + H)" style="display:none;">
+                 <i class="fa-solid fa-minus"></i>
+              </button>
+
+              <!-- WEB ADAPTATION: "Quit App" / window close is desktop-only (a browser tab can't be
+                   reliably closed programmatically). Hidden on web. -->
+              <button id="global-close-btn" class="global-close-btn" style="display:none;">
+                 <i class="fa-solid fa-xmark"></i>
+              </button>
+           </div>
+
+       </div>
+    </div>
+
+    <div class="whis-global-footer no-drag" style="display:none;"></div>
+
+    <div id="guide-overlay" class="content-overlay no-drag" style="display: none; align-items: center; justify-content: center;">
+      <div class="login-card guide-card no-drag">
+        <div class="whis-guide-header">
+          <div class="whis-guide-header-left">
+            <div class="whis-guide-header-icon">
+              <i class="fa-solid fa-book"></i>
+            </div>
+            <div class="whis-guide-header-text">
+              <div class="whis-guide-title">First‑Time User Guide</div>
+              <div class="whis-guide-subtitle">Setup • Shortcuts • Usage • Fixes</div>
+            </div>
+          </div>
+          <button id="close-guide-btn" class="whis-guide-close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="whis-guide-toolbar">
+          <div class="whis-guide-searchwrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="whis-guide-search" type="text" placeholder="Search: permissions, mic, screenshot, hide, crisp..." autocomplete="off" />
+            <button id="whis-guide-clear" class="whis-guide-clear">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <button id="whis-guide-top" class="whis-guide-ghostbtn">
+            <i class="fa-solid fa-arrow-up"></i>
+            Top
+          </button>
+        </div>
+
+        <div class="whis-guide-layout">
+          <div class="whis-guide-nav" id="whis-guide-nav">
+            <button class="whis-guide-nav-item is-active" data-target="whis-guide-overview">
+              <span>Overview</span><span class="whis-guide-navhint">Start</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-install">
+              <span>Install</span><span class="whis-guide-navhint">Phase 1</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-perms">
+              <span>Permissions</span><span class="whis-guide-navhint">Phase 2</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-shortcuts">
+              <span>Shortcuts</span><span class="whis-guide-navhint">Phase 3</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-screenshare">
+              <span>Screenshare</span><span class="whis-guide-navhint">Phase 4</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-usage">
+              <span>How to use</span><span class="whis-guide-navhint">Phase 5</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-context">
+              <span>Context & Crisp</span><span class="whis-guide-navhint">Phase 6</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-trial">
+              <span>Trial & Exit</span><span class="whis-guide-navhint">Phase 7</span>
+            </button>
+            <button class="whis-guide-nav-item" data-target="whis-guide-stuck">
+              <span>Still stuck?</span><span class="whis-guide-navhint">Fix</span>
+            </button>
+          </div>
+
+          <div class="whis-guide-content" id="whis-guide-content" tabindex="0">
+            <section class="whis-guide-section" id="whis-guide-overview" data-keys="overview start new users what does">
+              <div class="whis-guide-section-head">
+                <div class="whis-guide-section-title">What Whis‑AI does</div>
+                <div class="whis-guide-badges">
+                  <span class="whis-guide-pill">✅ Easy fixes</span>
+                  <span class="whis-guide-pill">✅ First‑time setup</span>
+                  <span class="whis-guide-pill">✅ Shortcuts cheat‑sheet</span>
+                </div>
+              </div>
+
+              <div class="whis-guide-box">
+                <div class="whis-guide-text">
+                  <b>Whis‑AI</b> is an intelligent thought partner for technical interviews. It runs as a small desktop overlay on <b>macOS</b> and <b>Windows</b> and helps you structure answers, explain clearly, and stay calm under pressure.
+                </div>
+              </div>
+
+              <div class="whis-guide-box whis-guide-box-warn">
+                <div class="whis-guide-box-title">Start here (new users)</div>
+                <div class="whis-guide-text">
+                  If Whis‑AI doesn’t work, it’s almost always due to:
+                  <ol class="whis-guide-ol">
+                    <li>Missing permissions</li>
+                    <li>Using the wrong shortcut</li>
+                    <li>Launching incorrectly on macOS (from Downloads instead of Applications)</li>
+                  </ol>
+                  <div class="whis-guide-note"><b>Tip:</b> Go top‑to-bottom once — it resolves ~99% of first‑time issues.</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-install" data-keys="install installation mac windows damaged unidentified developer quarantine">
+              <div class="whis-guide-section-title">Phase 1 — Installation</div>
+
+              <div class="whis-guide-grid">
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">macOS — do this exactly</div>
+                  <ol class="whis-guide-ol">
+                    <li>Download <b>Whis.app</b></li>
+                    <li>Open <b>Downloads</b></li>
+                    <li><b>Drag Whis.app → Applications</b></li>
+                    <li>Open from <b>Applications</b> (not Downloads)</li>
+                  </ol>
+                  <div class="whis-guide-note whis-guide-note-danger"><b>Important:</b> Opening from Downloads can break permissions.</div>
+
+                </div>
+
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">Windows — installation</div>
+                  <ol class="whis-guide-ol">
+                    <li>Run the downloaded <b>.exe</b></li>
+                    <li>If SmartScreen shows “Protected your PC” → <b>More info</b> → <b>Run anyway</b></li>
+                  </ol>
+                  <div class="whis-guide-note"><b>Note:</b> SmartScreen warnings are common for newer desktop apps.</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-perms" data-keys="permissions microphone screen recording accessibility privacy security">
+              <div class="whis-guide-section-title">Phase 2 — Permissions</div>
+
+              <div class="whis-guide-box">
+                <div class="whis-guide-text">If Whis‑AI doesn’t hear or respond, permissions are missing.</div>
+              </div>
+
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-cardbox-title">macOS (System Settings → Privacy & Security)</div>
+                <ul class="whis-guide-ul">
+                  <li><b>Microphone</b> — allows Whis‑AI to hear the interviewer</li>
+                  <li><b>Accessibility</b> — keeps the overlay on top</li>
+                  <li><b>Screen Recording</b> — required for screenshot questions</li>
+                </ul>
+                <div class="whis-guide-note"><b>After changing permissions:</b> close and reopen Whis‑AI.</div>
+              </div>
+
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-cardbox-title">Quick checks</div>
+                <ul class="whis-guide-ul">
+                  <li>Can’t hear audio → check <b>Microphone</b></li>
+                  <li>Screenshot doesn’t work → check <b>Screen Recording</b></li>
+                  <li>Overlay goes behind windows → check <b>Accessibility</b></li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-shortcuts" data-keys="shortcuts hotkeys hide show mic send screenshot move window">
+              <div class="whis-guide-section-title">Phase 3 — Shortcuts (save this)</div>
+
+              <div class="whis-guide-tablewrap">
+                <table class="whis-guide-table">
+                  <thead>
+                    <tr>
+                      <th>Action</th>
+                      <th>macOS</th>
+                      <th>Windows</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Hide / Show</td>
+                      <td>⌘ + \</td>
+                      <td>Ctrl + \</td>
+                    </tr>
+
+                    <tr>
+                      <td>Send</td>
+                      <td>⌘ + Enter</td>
+                      <td>Ctrl + Enter</td>
+                    </tr>
+
+                    <tr>
+                      <td>Clear</td>
+                      <td>⌘ + ⌫</td>
+                      <td>Ctrl + ⌫</td>
+                    </tr>
+                    <tr>
+                      <td>Quit App</td>
+                      <td>⌘ + Q</td>
+                      <td>Ctrl + Q</td>
+                    </tr>
+                    <tr>
+                      <td>Move Window</td>
+                      <td>⌘ + Arrow Keys</td>
+                      <td>Ctrl + Arrow Keys</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="whis-guide-note whis-guide-note-good"><b>If the app “disappears”</b> — you probably hid it. Use <b>Hide / Show</b> again.</div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-screenshare" data-keys="screenshare share screen clarity hide meeting window invisible stealth">
+              <div class="whis-guide-section-title">Phase 4 — Screenshare &amp; Stealth</div>
+
+              <div class="whis-guide-note whis-guide-note-good">
+                <b>✅ Stealth Mode is ON for all plans, including Free.</b> Whis-AI is blocked at the OS level — invisible in screenshares, screenshots, and screen recordings.
+              </div>
+
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-cardbox-title">Hide shortcut — ⌘/Ctrl + H</div>
+                <div class="whis-guide-text">Instantly fades the app from <b>your own view</b>. Use this if someone is physically near you or glancing at your screen. Press again to bring it back.</div>
+              </div>
+
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-cardbox-title">Screenshare &amp; screenshot invisibility</div>
+                <div class="whis-guide-text">Whis-AI does not appear in Zoom/Teams/Meet live shares, recordings, or even regular screenshots. Share your <b>Entire Screen</b> confidently — the interviewer literally cannot capture it.</div>
+              </div>
+
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-cardbox-title">Screenshot for input (⌘/Ctrl + J)</div>
+                <div class="whis-guide-text">When <em>you</em> use the screenshot shortcut to send a question to Whis-AI, the app briefly hides itself before capturing so it is never included in the captured image.</div>
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-usage" data-keys="using usage end to end mic listens system audio interviewer not interviewee send button screenshot ocr">
+              <div class="whis-guide-section-title">Phase 5 — Using Whis‑AI (end‑to-end)</div>
+
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-cardbox-title">Before the interview (5 minutes)</div>
+                <ol class="whis-guide-ol">
+                  <li>Open Whis‑AI and sign in</li>
+                  <li>Open <b>Manage Contexts</b> → add your Resume + (optional) Job Description</li>
+                  <li>Turn <b>Crisp Mode</b> ON (recommended for first interviews)</li>
+                  <li>Test Mic ON + take one Screenshot</li>
+                </ol>
+              </div>
+
+              <div class="whis-guide-note whis-guide-note-info">
+                <b>Mic clarity:</b> Whis listens to <b>system / computer output audio (interviewer)</b> only — it does <b>not</b> capture your mic / voice. If you speak and don’t see yourself being transcribed, that’s expected.
+              </div>
+
+              <div class="whis-guide-grid">
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">Option 1: Live Listening</div>
+                  <ol class="whis-guide-ol">
+                    <li>Press Mic shortcut (⌘/Ctrl + L)</li>
+                    <li>Mic icon turns red & pulses</li>
+                    <li>Pause 1–2 seconds after interviewer finishes</li>
+                  </ol>
+                </div>
+
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">Option 2: Manual Chat</div>
+                  <div class="whis-guide-text">Type prompts like: “Answer in STAR”, “Explain step‑by‑step”, “Be concise”, then Send (⌘/Ctrl + Enter).</div>
+                </div>
+
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">Option 3: Screenshot OCR</div>
+                  <div class="whis-guide-text">Press Screenshot shortcut (⌘/Ctrl + J) to instantly capture and analyze on-screen questions.</div>
+                </div>
+              </div>
+
+              <div class="whis-guide-note whis-guide-note-info">
+                <b>Send button tip:</b> The <b>Send</b> button (and ⌘/Ctrl + Enter) is common for <b>all 3 inputs</b> — manual typing, live listening (voice → text), and screenshot OCR.
+              </div>
+
+              <div class="whis-guide-note whis-guide-note-warn">
+                <b>Avoid these mistakes:</b> forgetting Mic ON, wrong Context, reading answers word‑for‑word, forgetting Hide shortcut.
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-context" data-keys="context manager resume job description crisp mode">
+              <div class="whis-guide-section-title">Phase 6 — Context & Crisp Mode</div>
+
+              <div class="whis-guide-grid">
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">Context Manager</div>
+                  <div class="whis-guide-text">Upload/paste your Resume and Job Description. This makes answers sound like <b>you</b> and improves relevance.</div>
+                </div>
+
+                <div class="whis-guide-cardbox">
+                  <div class="whis-guide-cardbox-title">Crisp Mode</div>
+                  <div class="whis-guide-text">Crisp ON → faster reading, shorter answers. Crisp OFF → deeper explanations.</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-trial" data-keys="trial sessions timer stop close exit x">
+              <div class="whis-guide-section-title">Phase 7 — Trial sessions & closing</div>
+
+              <div class="whis-guide-cardbox">
+                <ul class="whis-guide-ul">
+                  <li>Trial timer appears at the top during a session</li>
+                  <li>Turns red in the last minute</li>
+                  <li>Click <b>Stop (X)</b> to end early</li>
+                </ul>
+                <div class="whis-guide-note whis-guide-note-danger"><b>Closing tip:</b> Closing the window ≠ exiting the app. Use the app’s top‑right <b>X</b> to fully exit.</div>
+              </div>
+            </section>
+
+            <section class="whis-guide-section" id="whis-guide-stuck" data-keys="stuck refresh profile reopen applications">
+              <div class="whis-guide-section-title">Still stuck?</div>
+              <div class="whis-guide-cardbox">
+                <div class="whis-guide-text">
+                  If something isn’t working properly, open the <b>Profile</b> menu → click <b>Refresh</b>. If it still doesn’t work, <b>close the app</b> and reopen it from the <b>Applications</b> folder. No other steps are needed.
+                </div>
+                <div class="whis-guide-footerline">© 2025 Whis‑AI</div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div id="tour-overlay" class="content-overlay no-drag" style="display: none; z-index: 9999;">
+        <!-- Reduced inline padding from 40px to 25px to save vertical space -->
+        <div class="login-card tour-card no-drag" style="display: flex; flex-direction: column; text-align: left; position: relative;">
+            
+            <div id="tour-content-scroll" style="padding-right: 15px;">
+                <div id="tour-step-0" class="tour-step">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div></div>
+                    <!-- Removed inline font-size: 24px from all h2 elements -->
+                    <h2 style="text-align: center;">Welcome to Whis-AI</h2>
+                    <p><b>Your silent interview copilot.</b></p>
+                    <p>This runs invisibly in the background. Understand the mechanics and shortcuts below to perform flawlessly under pressure.</p>
+                </div>
+                
+                <div id="tour-step-1" class="tour-step" style="display:none;">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon" style="color: #0288d6;"><i class="fa-solid fa-bolt"></i></div></div>
+                    <h2 style="text-align: center;">Auto Mode</h2>
+                    <p><b>The passive observer.</b></p>
+                    <p>Listens strictly to the interviewer via System Audio. Do not click anything. When they finish asking, simply press <b style="color:#29b6f6;">Cmd/Ctrl + Enter</b>.</p>
+                    <p>Whis-AI silently captures your screen, pairs it with the audio, and streams the perfect technical answer.</p>
+                </div>
+                
+                <div id="tour-step-2" class="tour-step" style="display:none;">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon" style="color: #0288d6;"><i class="fa-solid fa-hand-pointer"></i></div></div>
+                    <h2 style="text-align: center;">Manual Mode</h2>
+                    <p><b>Absolute, explicit control.</b></p>
+                    <ul style="color: #ccc; line-height: 1.5; font-size: 12px; padding-left: 15px;">
+                        <li style="margin-bottom: 6px;"><b style="color:#29b6f6;">Cmd/Ctrl + L:</b> Toggle Mic to start/stop listening.</li>
+                        <li style="margin-bottom: 6px;"><b style="color:#29b6f6;">Cmd/Ctrl + E:</b> Instantly attach a screen capture.</li>
+                    </ul>
+                    <p>Press <b style="color:#29b6f6;">Cmd/Ctrl + Enter</b> to send.</p>
+                </div>
+
+                <div id="tour-step-3" class="tour-step" style="display:none;">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon" style="color: #ffaa00;"><i class="fa-solid fa-eye-slash"></i></div></div>
+                    <h2 style="text-align: center;">Stealth & Movement</h2>
+                    <p><b>Discretion is key.</b></p>
+                    <p>Press <b style="color:#29b6f6;">Cmd/Ctrl + \</b> to instantly hide or show the app. It vanishes without a trace.</p>
+                    <p>Hold <b style="color:#29b6f6;">Cmd/Ctrl</b> and press the <b style="color:#29b6f6;">Arrow Keys</b> to rapidly shift the window out of your way.</p>
+                </div>
+
+                <div id="tour-step-4" class="tour-step" style="display:none;">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon" style="color: #ff6b6b;"><i class="fa-solid fa-layer-group"></i></div></div>
+                    <h2 style="text-align: center;">The Context Engine</h2>
+                    <p><b>Sound like you.</b></p>
+                    <p>Click your Profile Icon and open the <b>Context Manager</b>. Add your Resume and Job Description.</p>
+                    <p>Whis-AI will dynamically generate answers based strictly on your exact historical frameworks and projects.</p>
+                </div>
+
+                <div id="tour-step-5" class="tour-step" style="display:none;">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon" style="color: #b4dcff;"><i class="fa-solid fa-bullseye"></i></div></div>
+                    <h2 style="text-align: center;">Crisp Mode</h2>
+                    <p><b>Control reading speed.</b></p>
+                    <p>Toggle the target icon <i class="fa-solid fa-bullseye"></i> in the input bar.</p>
+                    <p><b>ON:</b> Short, punchy, heavily bulleted hints to glance at while maintaining eye contact.</p>
+                    <p><b>OFF:</b> Massive, deeply technical, multi-paragraph architectural explanations.</p>
+                </div>
+
+                <div id="tour-step-6" class="tour-step" style="display:none;">
+                    <div class="tour-icon-wrap" style="text-align: center;"><div class="tour-icon" style="color: #ff4d4d;"><i class="fa-solid fa-shield-halved"></i></div></div>
+                    <h2 style="text-align: center;">Setup & Clearing</h2>
+                    <p><b>Final preparation.</b></p>
+                    <p><b>Mac Users:</b> You must allow Screen Recording, Mic, and Accessibility in System Settings to function.</p>
+                    <p>Press <b style="color:#29b6f6;">Cmd/Ctrl + Del</b> anytime to clear the memory and start fresh.</p>
+                    <p>You are ready. Good luck.</p>
+                </div>
+            </div>
+
+            <div class="tour-navigation" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                <button id="tour-back-btn" class="tour-nav-btn no-drag" style="visibility: hidden;"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                <div class="tour-dots" style="display: flex; gap: 6px;">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button id="tour-skip-btn" class="tour-nav-btn no-drag" style="opacity: 0.6;">Skip</button>
+                    <button id="tour-next-btn" class="tour-nav-btn tour-nav-primary no-drag">Next <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- WORLD-CLASS INTELLIJ-STYLE INTERACTIVE TOUR SYSTEM          -->
+    <!-- ============================================================ -->
+    <div id="whis-tour" style="display:none; position:fixed; inset:0; z-index:9980;">
+
+      <!-- SVG spotlight: softly dims everything except the highlighted element -->
+      <svg id="wt-spotlight" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity 0.3s ease;">
+        <defs>
+          <mask id="wt-mask">
+            <rect width="100%" height="100%" fill="white"/>
+            <rect id="wt-hole" x="0" y="0" width="0" height="0" rx="12" fill="black"/>
+          </mask>
+        </defs>
+        <rect id="wt-overlay-fill" width="100%" height="100%" fill="rgba(5,8,22,0.55)" mask="url(#wt-mask)"/>
+      </svg>
+
+      <!-- Glow ring around the targeted element -->
+      <div id="wt-ring" style="position:fixed;display:none;pointer-events:none;z-index:9981;"></div>
+
+      <!-- Curved arrow from tooltip to element -->
+      <svg id="wt-arrow-svg" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9982;overflow:visible;">
+        <defs>
+          <marker id="wt-arrowhead" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0,7 2.5,0 5" fill="rgba(61,168,255,0.7)"/>
+          </marker>
+        </defs>
+        <path id="wt-arrow-path" d="" stroke="rgba(61,168,255,0.5)" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#wt-arrowhead)" opacity="0"/>
+      </svg>
+
+      <!-- Floating liquid-glass tour card -->
+      <div id="wt-tooltip" style="position:fixed;display:none;z-index:9990;pointer-events:all;">
+        <div class="wt-card">
+          <!-- Shimmer light sweep -->
+          <div class="wt-shimmer" aria-hidden="true"></div>
+
+          <!-- Top row: step pill + tag -->
+          <div class="wt-card-top">
+            <div class="wt-step-pill">
+              <span class="wt-step-dot"></span>
+              <span>Step <span id="wt-step-num">1</span> of <span id="wt-step-total">8</span></span>
+            </div>
+            <span class="wt-tag" id="wt-tag"></span>
+          </div>
+
+          <!-- Title -->
+          <h3 class="wt-title" id="wt-title"></h3>
+
+          <!-- Body -->
+          <div class="wt-body" id="wt-body"></div>
+
+          <!-- Tip callout -->
+          <div class="wt-tip" id="wt-tip" style="display:none;"></div>
+
+          <!-- Progress bar -->
+          <div class="wt-progress-wrap">
+            <div class="wt-progress-bar" id="wt-progress"></div>
+          </div>
+
+          <!-- Footer nav -->
+          <div class="wt-footer">
+            <button id="wt-back" class="wt-btn-ghost" title="Back">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div class="wt-dots" id="wt-dots"></div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button id="wt-skip" class="wt-btn-ghost wt-btn-skip">Skip</button>
+              <button id="wt-next" class="wt-btn-primary">Next <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div id="permission-overlay" class="content-overlay no-drag" style="display: none; z-index: 6500; border-radius: 16px;">
+      <div class="perm-card-v2 no-drag">
+        <button id="perm-v2-close-btn" class="overlay-close-x" title="Cancel"><i class="fa-solid fa-xmark"></i></button>
+
+        <div class="perm-v2-icon-wrap">
+          <i id="perm-v2-icon" class="fa-solid fa-display"></i>
+        </div>
+
+        <h2 class="perm-v2-title" id="perm-v2-title">Screen Recording Access</h2>
+        <p class="perm-v2-sub" id="perm-v2-sub">Needed once so Whis-AI can hear the interview audio.</p>
+
+        <div class="perm-v2-instructions">
+          <div class="perm-v2-instr-row">
+            <i class="fa-solid fa-circle-check perm-v2-instr-icon"></i>
+            <span id="perm-v2-step1">System Settings is <strong>already open</strong> for you</span>
+          </div>
+          <div class="perm-v2-instr-row">
+            <i class="fa-solid fa-arrow-right perm-v2-instr-icon"></i>
+            <span id="perm-v2-step2">Find <strong>Whis-AI</strong>, toggle <strong class="perm-v2-on">ON</strong>, then reopen the app</span>
+          </div>
+        </div>
+
+        <div class="perm-v2-ring-wrap">
+          <svg class="perm-v2-ring" viewBox="0 0 80 80">
+            <circle class="perm-v2-ring-bg"   cx="40" cy="40" r="34"/>
+            <circle class="perm-v2-ring-fill" id="perm-v2-ring-fill" cx="40" cy="40" r="34"/>
+          </svg>
+          <div class="perm-v2-ring-inner">
+            <span id="perm-v2-countdown">10</span>
+            <span class="perm-v2-ring-label">sec</span>
+          </div>
+        </div>
+
+        <p class="perm-v2-close-msg">Closing to apply permissions &mdash; reopen after toggling</p>
+      </div>
+    </div>
+
+    <!-- WEB: neutral boot/loading state shown until checkAuth resolves, so returning
+         users don't see the sign-in card flash. Hidden on desktop (display:none). -->
+    <div id="web-boot-overlay" class="content-overlay no-drag" style="display: none; align-items: center; justify-content: center;">
+      <div class="web-boot-card">
+        <div class="web-boot-spinner" aria-hidden="true"></div>
+        <div class="web-boot-label">Loading Whis-AI…</div>
+      </div>
+    </div>
+
+    <div id="login-overlay" class="content-overlay no-drag" style="display: flex;">
+      <div class="login-card no-drag">
+        <h1>Whis-AI</h1>
+        <p class="login-subtitle">Sign in to access your live call copilot.</p>
+        <button id="login-btn" class="login-btn-premium google-sign-in-btn">
+          <span class="icon">G</span> Sign in with Google
+        </button>
+        <button id="login-cancel-btn" style="display:none; background:transparent; border:none; color:var(--text-sub); margin-top:10px; cursor:default; font-size:12px; width:100%; text-decoration:underline;">
+           Stuck? Cancel & Retry
+        </button>
+        <div id="login-error" class="login-error"></div>
+      </div>
+    </div>
+
+    <div id="sub-overlay" class="content-overlay no-drag" style="display: none;">
+      <div class="login-card no-drag" style="position:relative;">
+        <button id="sub-close-btn" class="overlay-close-x" title="Close"><i class="fa-solid fa-xmark"></i></button>
+        <div class="whis-logo-circle" style="width:40px; height:40px; font-size:18px; margin:0 auto 10px; background: radial-gradient(circle at 15% 15%, #ffaa00, #ff4d4d);">
+          <span>🔒</span>
+        </div>
+        <h1>Limit Reached</h1>
+        <p class="login-subtitle">Your free usage or subscription has ended.</p>
+        <div class="stakes-line">The job you're interviewing for is worth <b>1000×</b> this. Don't lose the offer over one frozen answer.</div>
+        <div class="stakes-guarantee"><i class="fa-solid fa-shield-halved"></i> 7-day money-back guarantee</div>
+        <button id="lock-start-trial-btn" class="login-btn-premium" style="margin-bottom:10px; background: linear-gradient(135deg, #0288d6, #29b6f6); color: #000; display:none;">
+           <i class="fa-solid fa-bolt"></i> Use 10-Min Free Pass
+        </button>
+        <button id="sub-btn" class="login-btn-premium" style="background: linear-gradient(135deg, #0288d6, #29b6f6); color: #000;">
+          Upgrade to Pro
+        </button>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;">
+          <button id="sub-refresh-btn" class="login-btn-premium" style="flex:1; background: rgba(255, 255, 255, 0.1); color: var(--text-main);">
+            <i class="fa-solid fa-arrows-rotate"></i> Check Status
+          </button>
+          <button id="sub-logout-btn" class="login-btn-premium" style="flex:1; background: rgba(255, 255, 255, 0.1); color: var(--text-main);">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign out
+          </button>
+        </div>
+        <div id="sub-status" class="login-error" style="margin-top: 15px;"></div>
+      </div>
+    </div>
+
+    <div id="trial-modal" class="content-overlay no-drag" style="display: none; z-index: 6000;">
+        <div class="login-card trial-activation-card no-drag">
+            <button id="trial-modal-x" class="overlay-close-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="trial-header">
+                <i class="fa-solid fa-bolt trial-main-icon"></i>
+                <h2>Start Your Free Elite Trial</h2>
+                <p id="trial-sessions-left" class="trial-sessions-count">2 free trials left today</p>
+            </div>
+
+            <!-- WEB ADAPTATION: screen-share invisibility is desktop-only; not true in a browser. Hidden on web. -->
+            <div class="stealth-verified" style="display:none;"><i class="fa-solid fa-shield-halved"></i> Invisible on Zoom, Meet &amp; Teams — verified on this Mac</div>
+
+            <div class="trial-options-grid single">
+                <button id="start-trial-elite" class="trial-option-btn elite">
+                    <span class="tier-label"><i class="fa-solid fa-bolt"></i> Start Elite Trial</span>
+                    <span class="tier-desc">Full access · Advanced AI · Complete stealth</span>
+                </button>
+            </div>
+
+            <button id="trial-personalize-link" class="trial-personalize-link" type="button">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Add your resume for answers tailored to you <span class="opt">· optional</span>
+            </button>
+
+            <button id="close-trial-modal" class="trial-cancel-link">Maybe Later</button>
+            <div id="trial-error" class="login-error"></div>
+        </div>
+    </div>
+
+    <!-- ── TRIAL-COMPLETE DISCOUNT OFFER ── -->
+    <div id="trial-offer-overlay" class="content-overlay no-drag" style="display: none; z-index: 6500;">
+        <div class="login-card trial-offer-card no-drag">
+            <button id="trial-offer-x" class="overlay-close-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="trial-offer-hero">
+                <span class="trial-offer-hero-ring"><i class="fa-solid fa-check"></i></span>
+            </div>
+            <div class="trial-offer-badge"><i class="fa-solid fa-circle-check"></i> Trial Complete</div>
+
+            <h2 class="trial-offer-title">Walk in ready.<br>Walk out hired.</h2>
+            <p class="trial-offer-recap" id="trial-offer-recap">You just felt the edge. Keep it for the interview that counts.</p>
+
+            <!-- Personalized deadline — populated by renderer only when the user gave an interview date -->
+            <div id="trial-offer-countdown" class="trial-offer-countdown" style="display:none;"></div>
+
+            <div id="tp-cycle" class="trial-offer-cycle">
+                <button type="button" class="tp-cyc on" data-cycle="monthly">Monthly</button>
+                <button type="button" class="tp-cyc" data-cycle="quarterly"><span class="tp-popular">Most popular</span>3-Month <span id="tp-q-save"></span></button>
+                <button type="button" class="tp-cyc tp-cyc-semi" data-cycle="semiannual" style="display:none;">6-Month <span id="tp-s-save"></span></button>
+            </div>
+
+            <div class="trial-offer-priceblock">
+                <div class="tp-planlabel">Whis Elite · full access</div>
+                <div id="tp-price-row" class="trial-offer-pricerow">
+                    <span class="tp-orig" id="tp-elite-orig" style="display:none;"></span>
+                    <span class="tp-now"><span class="tp-cur">₹</span><span id="tp-elite-price">…</span></span>
+                    <span id="tp-elite-per" class="tp-per">/month</span>
+                </div>
+                <div class="tp-savings">
+                    <span id="tp-elite-off" class="tp-off" style="display:none;"></span>
+                </div>
+            </div>
+
+            <div class="trial-offer-social"><span class="live-dot"></span> <b id="trial-offer-live">900+</b> candidates in live interviews right now</div>
+
+            <button id="trial-offer-upgrade" class="trial-option-btn elite trial-offer-cta">
+                <span class="tier-label">Get Elite, Land the Offer</span>
+            </button>
+
+            <div class="trial-offer-value">The offer you're chasing is worth <b>1000×</b> this. Don't walk into it without your edge.</div>
+
+            <div class="trial-offer-fineprint">
+                <i class="fa-solid fa-shield-halved"></i> 7-day money-back guarantee · Secure payment · Cancel anytime
+            </div>
+
+            <button id="trial-offer-close" class="trial-cancel-link">Maybe later</button>
+        </div>
+    </div>
+
+    <!-- ── INTERVIEW ONBOARDING — capture the real deadline the whole funnel counts down to ── -->
+    <div id="interview-onboard-overlay" class="content-overlay no-drag" style="display: none; z-index: 6550;">
+        <div class="login-card io-card no-drag">
+            <button id="io-x" class="overlay-close-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="trial-offer-hero"><span class="trial-offer-hero-ring"><i class="fa-solid fa-calendar-check"></i></span></div>
+            <h2 class="io-title">When's your interview?</h2>
+            <p class="io-sub">Whis will count down with you — so you walk in ready, not rushed.</p>
+
+            <div class="io-chips" id="io-chips">
+                <button type="button" class="io-chip" data-days="4">This week</button>
+                <button type="button" class="io-chip" data-days="10">Next week</button>
+                <button type="button" class="io-chip" data-days="21">2–4 weeks</button>
+                <button type="button" class="io-chip" data-days="">Just exploring</button>
+            </div>
+
+            <div class="io-field">
+                <i class="fa-regular fa-building io-field-ic"></i>
+                <input id="io-company" class="io-input" type="text" placeholder="Company (optional)" maxlength="120" aria-label="Company" />
+            </div>
+
+            <button id="io-save" class="trial-option-btn elite io-save-btn">
+                <span class="tier-label">Lock in my edge</span>
+            </button>
+            <button id="io-skip" class="trial-cancel-link">Maybe later</button>
+        </div>
+    </div>
+
+    <div id="context-overlay" class="content-overlay no-drag" style="display: none; align-items: flex-start; padding-top: 50px; z-index: 6600;">
+        <div class="login-card no-drag" style="width: 500px; padding: 25px; text-align: left; display: flex; flex-direction: column; height: 85vh;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                 <h2 style="margin:0; font-size:18px; color: #fff;">Context Manager</h2>
+                 <button id="close-context-btn" style="background:none; border:none; color:var(--text-sub); cursor:default; font-size:18px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="context-list-view" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+                 <div id="no-context-msg" style="text-align:center; color:var(--text-sub); margin-top:20px; font-size:13px;">No contexts added.</div>
+            </div>
+            <button id="add-new-context-btn" class="login-btn-premium" style="margin-top: 15px; background: rgba(255,255,255,0.1);">
+                <i class="fa-solid fa-plus"></i> Add New Context
+            </button>
+            <div id="context-editor-view" style="display:none; flex-direction:column; height:100%;">
+                <input type="text" id="ctx-name-input" placeholder="Context Name (e.g., Resume)" class="ctx-input" maxlength="30" />
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding: 0 4px;">
+                    <span style="font-size: 12px; color: var(--text-sub);">Or upload file (TXT, PDF, DOCX):</span>
+                    <input type="file" id="ctx-file-input" accept=".txt,.pdf,.docx" style="display:none;" />
+                    <button id="ctx-upload-btn" class="login-btn-premium" style="width:auto; padding: 6px 12px; font-size: 11px; background: rgba(61, 168, 255, 0.15); color: #0288d6; border: 1px solid rgba(61, 168, 255, 0.3);">
+                        <i class="fa-solid fa-file-arrow-up"></i> Upload
+                    </button>
+                </div>
+                <textarea id="ctx-content-input" placeholder="Paste your content here (Resume text, Job description, Meeting notes, etc)..." class="ctx-input" style="flex:1; margin-top:10px; resize:none;"></textarea>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button id="cancel-ctx-btn" class="login-btn-premium" style="background:rgba(255,255,255,0.1);">Cancel</button>
+                    <button id="save-ctx-btn" class="login-btn-premium" style="background:linear-gradient(135deg, #0288d6, #29b6f6); color:#000;">Save Context</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="report-overlay" class="content-overlay no-drag" style="display: none; z-index: 7000;">
+        <div class="login-card no-drag" style="width: 400px; padding: 25px; text-align: left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <h2 style="margin:0; font-size:18px; color: #fff;">Report AI Content</h2>
+                <button id="close-report-btn" style="background:none; border:none; color:var(--text-sub); cursor:default; font-size:18px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Please describe the inappropriate content generated by the AI.</p>
+            <select id="report-reason" class="ctx-input" style="width: 100%; margin-bottom: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+                <option value="Offensive or Abusive">Offensive or Abusive</option>
+                <option value="Inaccurate or Misleading">Inaccurate or Misleading</option>
+                <option value="Harmful or Dangerous">Harmful or Dangerous</option>
+                <option value="Other">Other</option>
+            </select>
+            <textarea id="report-details" class="ctx-input" placeholder="Additional details (optional)..." rows="4" style="width: 100%; resize: none; margin-bottom: 15px;"></textarea>
+            <button id="submit-report-btn" class="login-btn-premium" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.5);">Submit Report</button>
+            <div id="report-status" class="login-error" style="margin-top: 10px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <div id="usage-warning-overlay" class="content-overlay no-drag" style="display: none; z-index: 8000;">
+        <div class="login-card no-drag" style="width: 380px; padding: 30px; text-align: center;">
+            <div style="font-size: 40px; color: #ffaa00; margin-bottom: 15px;"><i class="fa-solid fa-clock"></i></div>
+            <h2 style="margin:0 0 10px 0; font-size: 20px; color: #fff;">Usage Warning</h2>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 25px;">You have been using the app for the last 60 minutes. Please close the app to save your minutes.</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="usage-warning-continue-btn" class="login-btn-premium" style="background: rgba(255,255,255,0.1); color: var(--text-main); flex: 1;">No, continue</button>
+                <button id="usage-warning-close-btn" class="login-btn-premium" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; flex: 1;">Close App</button>
+            </div>
+            <div id="usage-warning-countdown" style="margin-top: 15px; font-size: 12px; color: #ff6b6b;">Auto-closing in <span id="usage-warning-sec">60</span>s...</div>
+        </div>
+    </div>
+
+    <div id="content-area" class="content-area">
+
+       <!-- Persistent "buy anytime" pill — always visible for non-Elite users.
+            Opens the exact same offer card shown when a trial completes. -->
+       <button id="upgrade-fab" class="upgrade-fab no-drag" style="display:none;" title="Upgrade to Whis Elite">
+         <i class="fa-solid fa-bolt"></i><span>Upgrade to Elite</span>
+       </button>
+
+       <!-- ── FREE TRIAL CTA (always visible for free users) ── -->
+       <div id="free-trial-cta" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:200; pointer-events:all;">
+         <div class="free-trial-cta-card">
+           <div class="free-trial-cta-icon-wrap">
+             <i class="fa-solid fa-bolt free-trial-bolt-icon"></i>
+           </div>
+           <div class="free-trial-badge">Free Tier</div>
+           <h3 class="free-trial-title">Start Your Free Trial</h3>
+           <p class="free-trial-desc">Get <strong>2 × 5-minute trials per day</strong> of full access — unlimited answers, advanced AI, and context personalization.</p>
+           <div class="free-trial-sessions-row">
+             <i class="fa-solid fa-stopwatch"></i>
+             <span id="free-trial-sessions-text">2 free 5-min trials today</span>
+           </div>
+           <button id="free-trial-cta-btn" class="free-trial-cta-btn">
+             <i class="fa-solid fa-play"></i> Start Free Trial Now
+           </button>
+           <p class="free-trial-footnote">No credit card required &nbsp;·&nbsp; Full Pro features included</p>
+         </div>
+       </div>
+
+       <!-- Trial motivation nudge — slim, glowing, always-visible during trial. Noticeable, never blocks. -->
+       <div id="trial-motivation-bar" class="trial-motivation-bar no-drag" style="display:none;">
+           <span class="tmb-dot"></span>
+           <span class="tmb-text" id="trial-motivation-text">This is what walking in prepared feels like.</span>
+           <button class="tmb-cta" id="trial-motivation-cta">Get Elite →</button>
+       </div>
+
+       <div id="messages" class="messages no-drag"></div>
+       
+       <div id="attachment-area" class="attachment-area no-drag" style="display: none;">
+          <div class="attachment-preview">
+             <div id="attachment-label" class="attachment-pill">
+               <i class="fa-solid fa-image"></i>
+               <span>Screenshot attached</span>
+             </div>
+             <img id="preview-img" src="" />
+            <button id="remove-attachment-btn" class="remove-attachment-btn"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+       </div>
+
+       <!-- Live conversation transcript: interviewer (teal) + user (white) -->
+       <div id="live-transcript" class="live-transcript no-drag" style="display:none;"></div>
+
+       <!-- Unified bottom bar: hint/status on left, pills on right -->
+       <div class="bottom-bar no-drag">
+           <!-- Left: listening waves OR contextual hint (mutually exclusive) -->
+           <div class="bottom-bar-left">
+               <div id="listening-status" class="listening-status" style="pointer-events: auto;"></div>
+               <div id="context-hint" class="context-hint" aria-live="polite"></div>
+           </div>
+
+           <!-- Right: usage pills -->
+           <div id="pill-container" style="display: flex; gap: 6px; pointer-events: none; flex-shrink: 0;">
+               <div id="interview-countdown-pill" class="mic-usage-pill" style="display:none; pointer-events: auto;"></div>
+               <div id="free-answers-pill" class="mic-usage-pill" style="display:none; pointer-events: auto;"></div>
+               <div id="app-minutes-pill" class="mic-usage-pill" style="display:none; pointer-events: auto;"></div>
+               <div id="mic-usage-pill" class="mic-usage-pill" style="display:none; pointer-events: auto;"></div>
+           </div>
+       </div>
+
+       <!-- Quick prompt chips — hidden during active session -->
+       <div id="quick-prompts" class="quick-prompts no-drag">
+         <button class="quick-prompt-chip" data-prompt="Answer in STAR format">STAR format</button>
+         <button class="quick-prompt-chip" data-prompt="Give me Python code">Python code</button>
+         <button class="quick-prompt-chip" data-prompt="Be more concise">Be concise</button>
+         <button class="quick-prompt-chip" data-prompt="Explain simply">Explain simply</button>
+         <button class="quick-prompt-chip" data-prompt="Walk me through the trade-offs">Trade-offs</button>
+         <button class="quick-prompt-chip" data-prompt="What are the edge cases?">Edge cases</button>
+       </div>
+
+       <div class="input-row no-drag">
+          <!-- Interviewer mic (system audio) -->
+          <button id="voice-btn" class="input-icon-btn listen-icon-btn" title="Listen to the interviewer's question">
+              <i class="fa-solid fa-microphone"></i>
+              <span class="btn-mini-label">Listen</span>
+          </button>
+
+          <button id="screenshot-btn" class="input-icon-btn capture-icon-btn" title="Snap the question on your screen for the AI to read">
+              <i class="fa-solid fa-crop-simple"></i>
+              <span class="btn-mini-label">Snap</span>
+          </button>
+                
+          <div class="input-container">
+            <textarea id="input" rows="1" placeholder="Ask a question..."></textarea>
+            <button id="context-quick-btn" class="context-quick-btn" title="Add your resume / context for tailored answers">
+                <i class="fa-solid fa-paperclip"></i>
+            </button>
+            <button id="crisp-toggle" class="crisp-toggle-btn">
+                <i class="fa-solid fa-bullseye"></i>
+            </button>
+          </div>
+          
+          <button id="send-btn" class="send-btn">
+             <i class="fa-solid fa-paper-plane"></i>
+          </button>
+
+          <span id="stream-latency" class="stream-latency" style="display:none;"></span>
+
+          <button id="clear-btn" class="send-btn" style="display: none; background: rgba(255, 107, 107, 0.2); color: #ff6b6b; box-shadow: none;">
+             <i class="fa-solid fa-trash-can"></i>
+          </button>
+       </div>
+    </div>
+
+   <script>
+      document.addEventListener('DOMContentLoaded', () => {
+         const reportBtn = document.getElementById('report-btn');
+         const reportOverlay = document.getElementById('report-overlay');
+         const closeReportBtn = document.getElementById('close-report-btn');
+         const submitReportBtn = document.getElementById('submit-report-btn');
+         const reportStatus = document.getElementById('report-status');
+
+         if(reportBtn) {
+            reportBtn.addEventListener('click', () => {
+               reportOverlay.style.display = 'flex';
+               const profileDropdown = document.getElementById('profile-dropdown-menu');
+               if(profileDropdown) profileDropdown.style.display = 'none';
+            });
+         }
+
+         if(closeReportBtn) {
+            closeReportBtn.addEventListener('click', () => {
+               reportOverlay.style.display = 'none';
+               reportStatus.innerText = '';
+               reportStatus.style.color = '#ff6b6b';
+               document.getElementById('report-details').value = '';
+            });
+         }
+
+         if(submitReportBtn) {
+            submitReportBtn.addEventListener('click', async () => {
+               const reason = document.getElementById('report-reason').value;
+               const details = document.getElementById('report-details').value;
+               
+               const googleId = localStorage.getItem('googleId') || '';
+               const email = localStorage.getItem('userEmail') || 'unknown';
+
+               submitReportBtn.innerText = 'Submitting...';
+               
+               try {
+                  let response;
+
+                  if (window.electronAPI && window.electronAPI.submitReport) {
+                      response = await window.electronAPI.submitReport({ googleId, email, reason, details });
+                  } else {
+                      const res = await fetch("http://localhost:4000/api/report", {
+                          method: "POST",
+                          headers: {
+                              "Content-Type": "application/json",
+                              "x-google-id": googleId
+                          },
+                          body: JSON.stringify({ email, reason, details })
+                      });
+                      response = res.ok ? { success: true } : { error: "Failed" };
+                  }
+
+                  if (response && response.success) {
+                     reportStatus.style.color = '#29b6f6';
+                     reportStatus.innerText = 'Report submitted successfully. Thank you.';
+                     setTimeout(() => {
+                        reportOverlay.style.display = 'none';
+                        reportStatus.innerText = '';
+                        document.getElementById('report-details').value = '';
+                     }, 2000);
+                  } else {
+                     reportStatus.style.color = '#ff6b6b';
+                     reportStatus.innerText = 'Failed to submit report.';
+                  }
+               } catch (e) {
+                  console.error(e);
+                  reportStatus.style.color = '#ff6b6b';
+                  reportStatus.innerText = 'Network error.';
+               } finally {
+                  submitReportBtn.innerText = 'Submit Report';
+               }
+            });
+         }
+      });
+    </script>
+
+    <!-- ══════════════════════════════════════════
+         LIVE SUPPORT CHAT PANEL
+         (must be before renderer.js so the IIFE can find it)
+         ══════════════════════════════════════════ -->
+    <div id="support-chat-panel" class="support-chat-panel no-drag" style="display:none;">
+      <div class="support-chat-header">
+        <div class="support-chat-title">
+          <span class="support-chat-live-dot"></span>
+          Live Support
+        </div>
+        <button id="close-support-chat-btn" class="support-chat-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="support-chat-messages" class="support-chat-messages">
+        <div class="support-chat-empty" id="support-chat-empty">
+          <i class="fa-solid fa-headset"></i>
+          <span>We typically reply within a few minutes.<br>Send us your question below.</span>
+        </div>
+      </div>
+      <div class="support-chat-input-row">
+        <input type="text" id="support-chat-input" class="support-chat-input" placeholder="Type a message…" autocomplete="off" />
+        <button id="support-chat-send-btn" class="support-chat-send-btn">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="shortcut-flash" class="shortcut-flash" style="display:none;"></div>
+
+    <!-- ══════════════════════════════════════════
+         STEALTH ONBOARDING WIZARD (first run)
+         ══════════════════════════════════════════ -->
+    <div id="stealth-onboard-overlay" class="content-overlay no-drag" style="display:none; z-index:7200;">
+      <div class="login-card stealth-onboard-card no-drag">
+
+        <!-- ── Phase 0 (Pro users only): screenshare risk warning ── -->
+        <div id="stealth-ob-p0-pro" style="display:none;">
+          <div class="stealth-ob-icon-wrap">
+            <div class="stealth-ob-icon stealth-ob-icon-risk"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          </div>
+          <h2 class="stealth-ob-title" style="color:#ffaa00;">Your Screenshare is NOT Protected</h2>
+          <p class="stealth-ob-body">
+            You're on the <strong style="color:#fff;">Pro plan</strong>. Whis-AI <strong style="color:#ff6b6b;">IS visible</strong> to your interviewer in Zoom, Teams, and Google Meet. Screen recordings and screenshots will show this app.
+          </p>
+
+          <div class="stealth-risk-features">
+            <div class="stealth-risk-row stealth-risk-missing">
+              <i class="fa-solid fa-xmark"></i> Invisible in Zoom / Meet / Teams screenshare
+            </div>
+            <div class="stealth-risk-row stealth-risk-missing">
+              <i class="fa-solid fa-xmark"></i> Hidden from screen recordings
+            </div>
+            <div class="stealth-risk-row stealth-risk-missing">
+              <i class="fa-solid fa-xmark"></i> Not captured in OS screenshots
+            </div>
+            <div class="stealth-risk-row stealth-risk-has">
+              <i class="fa-solid fa-check"></i> Manual hide shortcut (⌘/Ctrl + H) still works
+            </div>
+          </div>
+
+          <button class="stealth-ob-primary-btn" id="stealth-pro-upgrade-btn" style="background:linear-gradient(135deg,#ffaa00,#ff6b6b); color:#000; margin-top:18px;">
+            <i class="fa-solid fa-shield-halved"></i> Upgrade to Elite — Activate Full Stealth
+          </button>
+          <p style="font-size:10.5px; color:rgba(255,255,255,0.35); margin:10px 0 14px; line-height:1.5;">
+            Pay only the upgrade difference · Same subscription, full OS-level protection
+          </p>
+          <button class="stealth-ob-skip" id="stealth-pro-continue-btn">Continue with Pro — I'll manage manually</button>
+        </div>
+
+        <!-- ── Phase 1: Intro + choice ── -->
+        <div id="stealth-ob-p1">
+          <div class="stealth-ob-icon-wrap">
+            <div class="stealth-ob-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          </div>
+          <h2 class="stealth-ob-title">You Are Completely Invisible</h2>
+          <p class="stealth-ob-body">
+            Whis-AI is blocked at the OS level. Your interviewer cannot see it in
+            Zoom, Google Meet, Teams, or any screen recording — not even in screenshots.
+          </p>
+
+          <p class="stealth-ob-cta-label">Verify it yourself right now:</p>
+
+          <div class="stealth-ob-methods">
+            <button class="stealth-ob-method" id="stealth-ob-shot-btn">
+              <i class="fa-solid fa-camera stealth-ob-method-icon"></i>
+              <div class="stealth-ob-method-text">
+                <strong>Screenshot Proof</strong>
+                <span>We take one instantly — see it with your own eyes</span>
+              </div>
+            </button>
+            <button class="stealth-ob-method" id="stealth-ob-share-btn">
+              <i class="fa-solid fa-display stealth-ob-method-icon"></i>
+              <div class="stealth-ob-method-text">
+                <strong>Screenshare Test</strong>
+                <span>Verify live with Zoom / Meet / Teams</span>
+              </div>
+            </button>
+          </div>
+
+          <button class="stealth-ob-skip" id="stealth-ob-skip">I trust it — skip for now</button>
+        </div>
+
+        <!-- ── Phase 2A: Screenshot result ── -->
+        <div id="stealth-ob-p2-shot" style="display:none;">
+          <div class="stealth-shot-confirmed">
+            <i class="fa-solid fa-shield-halved"></i>
+            Whis-AI is NOT visible in this screenshot
+          </div>
+          <div class="stealth-shot-frame">
+            <img id="stealth-shot-img" src="" alt="Screenshot proof" />
+            <div class="stealth-shot-overlay-label">← Your interviewer sees exactly this. Nothing.</div>
+          </div>
+          <button class="stealth-ob-primary-btn" id="stealth-shot-done-btn">
+            I'm convinced — start using Whis <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- ── Phase 2B: Screenshare guide ── -->
+        <div id="stealth-ob-p2-share" style="display:none;">
+          <div class="stealth-ob-share-header">
+            <i class="fa-solid fa-display" style="color:#29b6f6; font-size:20px;"></i>
+            <div>
+              <div style="font-size:15px; font-weight:700; color:#fff;">Screenshare Verification</div>
+              <div style="font-size:11px; color:var(--text-sub); margin-top:2px;">Follow these steps — takes under 2 minutes</div>
+            </div>
+          </div>
+
+          <ol class="stealth-ob-steps">
+            <li>Keep Whis-AI open and visible on your screen right now</li>
+            <li>Open <strong>Zoom</strong>, <strong>Google Meet</strong>, or <strong>Microsoft Teams</strong></li>
+            <li>Start a new meeting (a solo test meeting works perfectly)</li>
+            <li>Click <strong>"Share Screen"</strong> and choose <strong>Entire Screen</strong></li>
+            <li>Look at your screenshare preview in the meeting toolbar — <strong>Whis-AI is gone</strong></li>
+            <li>Ask a friend in the call, or check yourself — the interviewer sees nothing</li>
+          </ol>
+
+          <div class="stealth-ob-tip">
+            <i class="fa-solid fa-lightbulb"></i>
+            <span>Prefer a quicker test? Take a manual screenshot right now (⌘+Shift+3 on Mac, Win+PrtSc on Windows) — Whis-AI won't appear.</span>
+          </div>
+
+          <div class="stealth-ob-share-actions">
+            <button class="stealth-ob-secondary-btn" id="stealth-share-shot-btn">
+              <i class="fa-solid fa-camera"></i> Take Screenshot Proof Instead
+            </button>
+            <button class="stealth-ob-primary-btn" id="stealth-share-done-btn">
+              I've verified — continue <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         INTERACTIVE DEMO OVERLAY
+         Full guided walkthrough of every feature
+         ══════════════════════════════════════════ -->
+    <div id="whis-demo-overlay" style="display:none; position:fixed; inset:0; z-index:9994; pointer-events:none;">
+
+      <!-- Spotlight SVG: dims everything except target element -->
+      <svg id="demo-spot-svg" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+        <defs>
+          <mask id="demo-mask">
+            <rect width="100%" height="100%" fill="white"/>
+            <rect id="demo-spot-hole" x="0" y="0" width="0" height="0" rx="12" fill="black"/>
+          </mask>
+          <!-- Glow filter for the border rect -->
+          <filter id="demo-glow-f" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+            <feColorMatrix in="blur" type="matrix"
+              values="0 0 0 0 0.655  0 0 0 0 0.545  0 0 0 0 1  0 0 0 1.2 0"
+              result="colored"/>
+            <feMerge><feMergeNode in="colored"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Dim layer -->
+        <rect id="demo-spot-fill" width="100%" height="100%" fill="rgba(3,5,16,0.75)" mask="url(#demo-mask)"/>
+        <!-- Glow border — drawn IN the SVG so coordinates always match the hole perfectly -->
+        <rect id="demo-spot-glow" display="none" fill="none"
+              stroke="rgba(167,139,255,0.9)" stroke-width="2.5" rx="11"
+              filter="url(#demo-glow-f)"/>
+      </svg>
+
+      <!-- Top progress strip -->
+      <div class="demo-progress-strip" style="pointer-events:none;">
+        <div class="demo-progress-fill" id="demo-progress-fill"></div>
+      </div>
+
+      <!-- Floating demo card -->
+      <div id="demo-card" class="demo-card no-drag" style="pointer-events:all;">
+        <!-- Card shimmer sweep -->
+        <div class="demo-card-shimmer" aria-hidden="true"></div>
+
+        <!-- Header row -->
+        <div class="demo-card-hd">
+          <div class="demo-step-pill" id="demo-step-pill">
+            <span class="demo-step-dot"></span>
+            Step <span id="demo-step-num">1</span> / <span id="demo-step-total">8</span>
+          </div>
+          <div class="demo-dots" id="demo-dots"></div>
+          <button class="demo-close-x" id="demo-close-x" title="Exit Demo"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Icon -->
+        <div class="demo-icon-wrap" id="demo-icon-wrap"></div>
+
+        <!-- Tag + Title -->
+        <div class="demo-tag" id="demo-tag"></div>
+        <h3 class="demo-title" id="demo-title"></h3>
+        <div class="demo-body" id="demo-body"></div>
+
+        <!-- Dynamic action zone (step-specific content) -->
+        <div class="demo-action-zone" id="demo-action-zone"></div>
+
+        <!-- Progress bar -->
+        <div class="demo-card-prog-wrap">
+          <div class="demo-card-prog" id="demo-card-prog"></div>
+        </div>
+
+        <!-- Footer nav -->
+        <div class="demo-footer">
+          <button id="demo-back" class="demo-btn-ghost" title="Back">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <button id="demo-skip" class="demo-btn-ghost demo-btn-skip">Exit Demo</button>
+          <button id="demo-next" class="demo-btn-primary">
+            Next <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         CONTEXT ONBOARDING — shown once after first login
+         Helps users personalize AI answers with their background
+         ══════════════════════════════════════════ -->
+    <div id="ctx-onboard-overlay" class="content-overlay no-drag" style="display:none; z-index:7800;">
+      <div class="login-card ctx-onboard-card no-drag" style="position:relative;">
+        <button id="ctx-ob-close-btn" class="overlay-close-x" title="Close"><i class="fa-solid fa-xmark"></i></button>
+
+        <!-- Animated icon -->
+        <div class="ctx-ob-icon-wrap">
+          <div class="ctx-ob-pulse-ring"></div>
+          <div class="ctx-ob-pulse-ring ctx-ob-pulse-ring-2"></div>
+          <div class="ctx-ob-icon">
+            <i class="fa-solid fa-brain-circuit"></i>
+          </div>
+        </div>
+
+        <!-- Headline -->
+        <h2 class="ctx-ob-title">Make Whis-AI Sound Like <span class="ctx-ob-title-you">You</span></h2>
+        <p class="ctx-ob-subtitle">A 30-second setup that transforms every answer from generic to unmistakably yours — referencing your real projects, stack, and experience.</p>
+
+        <!-- Benefit row -->
+        <div class="ctx-ob-benefits-inline">
+          <span class="ctx-ob-pill"><i class="fa-solid fa-user-tie"></i> Resume-aware</span>
+          <span class="ctx-ob-pill-sep">·</span>
+          <span class="ctx-ob-pill"><i class="fa-solid fa-bullseye-arrow"></i> Job-matched</span>
+          <span class="ctx-ob-pill-sep">·</span>
+          <span class="ctx-ob-pill"><i class="fa-solid fa-fingerprint"></i> Your voice</span>
+        </div>
+
+        <!-- Input section -->
+        <div class="ctx-ob-input-section">
+          <div class="ctx-ob-label-row">
+            <span class="ctx-ob-label">Paste your Resume or LinkedIn summary</span>
+            <button id="ctx-ob-upload-btn" class="ctx-ob-upload-btn">
+              <i class="fa-solid fa-file-arrow-up"></i> Upload file
+            </button>
+            <input type="file" id="ctx-ob-file-input" accept=".txt,.pdf,.docx" style="display:none;" />
+          </div>
+          <textarea id="ctx-ob-textarea" class="ctx-ob-textarea" placeholder="Paste your resume, LinkedIn About section, or any background here. Even a short paragraph about your experience helps. The AI will reference your specific projects, skills, and expertise in every answer…"></textarea>
+          <div class="ctx-ob-char-hint" id="ctx-ob-char-hint">0 / 32,768 characters</div>
+        </div>
+
+        <!-- Primary CTA -->
+        <button id="ctx-ob-save-btn" class="ctx-ob-save-btn">
+          <i class="fa-solid fa-sparkles"></i>
+          Save &amp; Personalize My Answers
+        </button>
+
+        <!-- Skip link -->
+        <button id="ctx-ob-skip-btn" class="ctx-ob-skip-btn">
+          Skip — I'll add context later from Profile → Manage Contexts
+        </button>
+
+      </div>
+    </div>
+
+    <!-- WEB ADAPTATION: load the web shim that defines window.electronAPI BEFORE
+         renderer.js so every electronAPI.* call resolves against it. -->
+    <script src="whis-web-api.js"></script>
+    <script src="renderer.js"></script>
+
+    <!-- ══════════════════════════════════════════
+         SUBSCRIPTION DETAILS OVERLAY
+         ══════════════════════════════════════════ -->
+    <div id="subscription-overlay" class="content-overlay no-drag" style="display:none; z-index:6800; align-items:flex-start; padding-top:30px;">
+      <div class="login-card sub-detail-card no-drag">
+
+        <!-- Header -->
+        <div class="sub-detail-hd">
+          <div class="sub-detail-hd-left">
+            <div class="sub-detail-hd-icon"><i class="fa-solid fa-receipt"></i></div>
+            <div>
+              <div class="sub-detail-hd-title">My Subscription</div>
+              <div class="sub-detail-hd-sub">Powered by Razorpay</div>
+            </div>
+          </div>
+          <button id="close-subscription-btn" class="sub-close-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Current plan banner -->
+        <div id="sub-plan-banner" class="sub-plan-banner"></div>
+
+        <!-- Key info grid -->
+        <div id="sub-info-grid" class="sub-info-grid"></div>
+
+        <!-- Divider -->
+        <div class="sub-section-label">Payment History</div>
+
+        <!-- Orders list -->
+        <div id="sub-orders-list" class="sub-orders-list">
+          <div class="sub-empty">No payment records found.</div>
+        </div>
+
+      </div>
+    </div>
+
+
+  </body>
+</html>
