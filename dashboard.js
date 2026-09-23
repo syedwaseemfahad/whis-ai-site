@@ -1,8 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
    Whis-AI — Dashboard (user workspace) logic
    Consumes the backend contract at api.whis-ai.com. Guards all
-   failures gracefully. Sessions, Resumes and Documents are all
-   backed by the live API (no local stubs).
+   failures gracefully. Sessions and Resumes are both backed by
+   the live API (no local stubs). The resume is the single context
+   Whis uses to personalize live-interview answers.
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -413,11 +414,9 @@
 
   // ═══════════ RESUMES (backend) ═══════════
   const RESUME_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg>';
-  const DOC_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4a2 2 0 0 1 2-2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M13 2v5h5"/></svg>';
   const DEL_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
 
   let resumesLoaded = false;
-  let documentsLoaded = false;
 
   function firstText() {
     for (let i = 0; i < arguments.length; i++) {
@@ -479,7 +478,7 @@
       const r = await fetch(`${BACKEND_URL}/api/resumes/${encodeURIComponent(id)}`, { headers: headers() });
       if (!r.ok) throw new Error('resume ' + r.status);
       const it = await r.json();
-      renderViewer(itemTitle(it, 'Resume'), it, itemContent(it), '/resume-maker.html', 'Edit in Resume Maker');
+      renderViewer(itemTitle(it, 'Resume'), it, itemContent(it));
     } catch (e) {
       $('viewerContent').innerHTML = `<div class="viewer-empty">Couldn't load this resume. Try again in a moment.</div>`;
     }

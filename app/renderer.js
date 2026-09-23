@@ -734,7 +734,7 @@ const VAD_VISUAL_THRESHOLD = 0.015;
 // 0.006: real speech peaks well above this, but background music, room tone and video
 // intros usually don't — so fewer non-speech clips reach the model (fewer hallucinations)
 // while genuine interviewer speech still passes.
-const VAD_MIN_SEND_PEAK    = 0.006;
+const VAD_MIN_SEND_PEAK    = 0.018; // raised: quiet room noise/breathing under this is NOT sent — kills "random words from the air" hallucinations on near-silent clips
 // 3 s hangover — covers natural mid-sentence pauses without cutting the recording window
 const VAD_HANGOVER_MS = 1500; // reduced: cuts payload size + gets last segment committed faster
 let vadLastSpeechTime = 0;
@@ -5791,8 +5791,34 @@ function _renderPartialCaption(text) {
 
 // Shared: apply a finalized interviewer transcript to the transcript log + composer.
 // Used by both the streaming "final" event and the WAV-clip fallback.
+// Whisper / gpt-4o-transcribe famously HALLUCINATE fixed phrases on near-silent or
+// noisy clips ("Thank you", "you", "Thanks for watching", music/applause tags, etc.).
+// Drop these so the transcript never fills with "random words from the air".
+const _HALLUCINATION_PHRASES = new Set([
+    'thank you','thanks','thanks for watching','thank you for watching','thank you very much',
+    'thanks for listening','thank you so much','you','bye','bye bye','goodbye','see you',
+    'see you next time','see you later','please subscribe','subscribe','like and subscribe',
+    'so','ok','okay','yeah','yep','yup','mm','mmm','hmm','uh','um','ah','oh','the','i','a','and',
+    'no','yes','right','you know','youre welcome','you re welcome','music','applause','silence',
+    'have a good day','thanks a lot','okay thank you','bye for now'
+]);
+function _isLikelyHallucination(text) {
+    const raw = (text || '').trim();
+    if (!raw) return true;
+    // pure sound tag like "[music]" / "(applause)"
+    if (/^[\[\(][^\]\)]*[\]\)]$/.test(raw)) return true;
+    const t = raw.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+    if (!t || t.length <= 2) return true;
+    if (_HALLUCINATION_PHRASES.has(t)) return true;
+    // same word repeated (e.g. "you you you", "thank you thank you")
+    const w = t.split(' ');
+    if (w.length >= 2 && new Set(w).size === 1) return true;
+    return false;
+}
+
 function _applyTranscribedText(text) {
     if (!text) return;
+    if (_isLikelyHallucination(text)) { try { console.debug('[whis] dropped hallucination:', text); } catch (_) {} return; }
     _appendTranscript('interviewer', text);
     if (isAutoMode) {
         hiddenTranscription += (hiddenTranscription ? " " : "") + text;
@@ -6116,10 +6142,10 @@ async function startListening() {
     // the system-audio cascade below (it would throw and dead-end the UI). A one-time
     // note explains the honest tradeoff. Typed questions remain the primary path.
     // We acquire the stream here, then fall through to the shared audio pipeline.
-    if (window.WHIS_WEB && !window._whisTabAudio) {
-        // MIC-FIRST on web — one click, NO screen-share "Share audio" toggle. The mic
-        // hears you AND the interviewer when the call plays through the laptop speaker.
-        // (Screen/tab audio is an opt-in "Advanced" path via window._whisTabAudio.)
+    if (window.WHIS_WEB && (IS_MOBILE_WEB || window._whisUseMic)) {
+        // MIC path — only on mobile (no getDisplayMedia) or when the user explicitly
+        // chose "use my mic". The mic hears the interviewer only if the call is on the
+        // laptop speaker; it also picks up room noise, so it's the fallback, not default.
         if (IS_MOBILE_WEB) _showMobileCaptureNoteOnce();
         try {
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -6129,18 +6155,24 @@ async function startListening() {
             whisToast('Whis needs microphone access. Enable the mic for this site (address-bar icon), then click Listen again — or just type your question below.', 'warning', 8000);
             return;
         }
-    } else if (window.WHIS_WEB && window._whisTabAudio) {
-        // ADVANCED web option: capture a browser tab's audio directly (for headphone
-        // users who want the interviewer's tab). Cancelling falls back to the friendly
-        // web guidance and resets to mic-first for next time.
+    } else if (window.WHIS_WEB) {
+        // DEFAULT on desktop web: capture the INTERVIEWER via the meeting tab/system
+        // audio (getDisplayMedia). This is clean audio with no room noise — the reason
+        // mic-first was hearing "random words from the air". If the user cancels the
+        // picker or shares without audio, we fall back to the mic so Listen still works.
+        try { _showTabShareHintOnce(); } catch (_) {}
         try {
             stream = await getSystemAudioStreamViaElectron();
         } catch (eTab) {
-            console.warn('Web tab-audio capture cancelled/failed:', eTab);
-            window._whisTabAudio = false;
-            updateListeningUI(false);
-            showScreenPermissionRestartDialog();
-            return;
+            console.warn('Tab-audio capture cancelled/failed — falling back to mic:', eTab);
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                whisToast('Using your microphone for now. For the cleanest interviewer capture, click <strong>Listen</strong> again and pick the <strong>meeting tab</strong> with <strong>“Share tab audio”</strong> checked.', 'info', 9000);
+            } catch (eMic2) {
+                updateListeningUI(false);
+                whisToast('Couldn’t capture audio. Click <strong>Listen</strong> and pick the meeting tab (check <strong>“Share tab audio”</strong>) — or allow your mic, or just type your question.', 'warning', 9000);
+                return;
+            }
         }
     } else {
         audioInputDeviceID = await getSystemAudioOutputDeviceID();
@@ -6426,7 +6458,7 @@ async function _doCommit() {
     // This is below SPEECH_END_MS-triggered utterances (which always carry far
     // more than 256 ms of speech before the 350 ms silence fires), so it never
     // drops or delays a real interviewer utterance — it only kills sub-word blips.
-    const MIN_SPEECH_FRAMES = 10;
+    const MIN_SPEECH_FRAMES = 14;
     if (peakRms < VAD_MIN_SEND_PEAK || speechFrames < MIN_SPEECH_FRAMES) {
         isBackgroundCommitting = false;
         _bgCommitStartedAt = 0;
@@ -7275,6 +7307,18 @@ function _flashShortcutLabel(label) {
 // and answer TYPED questions, but cannot capture the interviewer — that needs a laptop.
 // Encouraging, not a dead-end: the value on mobile is instant answers to what they ask.
 let _mobileCaptureNoteShown = false;
+// One-time coaching so the getDisplayMedia picker isn't confusing: tell the user to
+// pick the MEETING tab and turn ON "Share tab audio" — the key to hearing the interviewer.
+let _tabShareHintShown = false;
+function _showTabShareHintOnce() {
+    if (_tabShareHintShown) return;
+    _tabShareHintShown = true;
+    whisToast('Pick your <strong>meeting tab</strong> (Zoom/Meet/Teams) and turn ON <strong>“Share tab audio”</strong> so Whis hears the interviewer. Prefer your mic instead? <a href="#" id="wh-use-mic" style="color:#38bdf8;font-weight:700;">Use my mic</a>.', 'info', 9000,
+        { action: null });
+    // wire the "use my mic" inline link (best-effort)
+    setTimeout(() => { const a = document.getElementById('wh-use-mic'); if (a) a.addEventListener('click', (e) => { e.preventDefault(); window._whisUseMic = true; whisToast('Switched to microphone. Click Listen again.', 'info', 4000); }); }, 100);
+}
+
 function _showMobileCaptureNoteOnce() {
     if (_mobileCaptureNoteShown) return;
     if (localStorage.getItem('wh_mobile_capture_note') === '1') { _mobileCaptureNoteShown = true; return; }
