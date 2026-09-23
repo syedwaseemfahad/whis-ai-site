@@ -25,6 +25,8 @@
   let currentView = 'grid';
   let currentSessionDetail = null;
   let resumesLoaded = false;
+  let resumesCache = [];              // saved resumes, for the New Session picker
+  let nsUploadedResume = null;        // { name, content } when a PDF is attached inline
 
   // ── Tiny DOM helpers ──
   const $ = (id) => document.getElementById(id);
@@ -378,9 +380,17 @@
       company: $('nsCompany').value.trim(),
       role: $('nsRole').value.trim(),
       language: $('nsLanguage').value,
-      model: $('nsModel').value,
       instructions: $('nsInstructions').value.trim()
     };
+    // Attach a resume for tailored answers: either a saved resume id, or a
+    // freshly uploaded PDF's parsed text. Additive — omitted when none chosen.
+    const resSel = $('nsResume') ? $('nsResume').value : '';
+    if (resSel === '__uploaded' && nsUploadedResume) {
+      payload.resumeName = nsUploadedResume.name;
+      payload.resumeContent = nsUploadedResume.content;
+    } else if (resSel && resSel !== '__upload') {
+      payload.resumeId = resSel;
+    }
     btn.disabled = true;
     const orig = btn.innerHTML;
     btn.textContent = 'Creating…';
@@ -446,6 +456,7 @@
   }
 
   function renderResumes(items) {
+    resumesCache = Array.isArray(items) ? items : [];
     const list = $('resumesList');
     if (!items.length) { list.innerHTML = ''; hide(list); show($('resumesEmpty')); return; }
     hide($('resumesEmpty'));
@@ -605,8 +616,76 @@
 
   function openNewSession() {
     ['nsCompany', 'nsRole', 'nsInstructions'].forEach((f) => { $(f).value = ''; });
+    nsUploadedResume = null;
+    $('nsResumeFile').value = '';
+    populateResumePicker();
     openModal('newSessionModal');
     setTimeout(() => $('nsCompany').focus(), 60);
+  }
+
+  // Fill the New Session "Attach resume" select with the user's saved resumes.
+  // Fetches the list lazily the first time (so the picker works even before the
+  // Resumes screen has been visited). Always keeps "No resume" + "Attach a PDF…".
+  function populateResumePicker() {
+    const sel = $('nsResume');
+    if (!sel) return;
+    renderResumeOptions();
+    if (!resumesLoaded) {
+      fetch(`${BACKEND_URL}/api/resumes`, { headers: headers() })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (!d) return;
+          resumesCache = Array.isArray(d) ? d : (d.resumes || d.items || []);
+          renderResumeOptions();
+        })
+        .catch(() => { /* offline — picker still offers PDF upload */ });
+    }
+  }
+
+  function renderResumeOptions() {
+    const sel = $('nsResume');
+    if (!sel) return;
+    const keep = sel.value;
+    let html = '<option value="">No resume</option>';
+    resumesCache.forEach((it) => {
+      const id = itemId(it);
+      if (!id) return;
+      html += `<option value="${esc(id)}">${esc(itemTitle(it, 'Untitled resume'))}</option>`;
+    });
+    if (nsUploadedResume) {
+      html += `<option value="__uploaded" selected>${esc(nsUploadedResume.name)} (attached)</option>`;
+    }
+    html += '<option value="__upload">Attach a PDF…</option>';
+    sel.innerHTML = html;
+    if (!nsUploadedResume && keep && keep !== '__upload') sel.value = keep;
+  }
+
+  // When the picker is set to "Attach a PDF…", open the file dialog. On pick,
+  // parse the PDF client-side (same as the Resumes screen) and remember it.
+  function onResumePickChange() {
+    const sel = $('nsResume');
+    if (sel.value === '__upload') {
+      sel.value = nsUploadedResume ? '__uploaded' : '';
+      $('nsResumeFile').click();
+    } else if (sel.value !== '__uploaded') {
+      nsUploadedResume = null;
+      renderResumeOptions();
+    }
+  }
+
+  async function onResumeFilePicked(file) {
+    if (!file) return;
+    try {
+      const text = await readPdf(file);
+      nsUploadedResume = { name: file.name.replace(/\.pdf$/i, ''), content: text };
+      renderResumeOptions();
+      $('nsResume').value = '__uploaded';
+    } catch (e) {
+      nsUploadedResume = null;
+      renderResumeOptions();
+      toast('Couldn\'t read that PDF. Add it from the Resumes tab instead.', true);
+    }
+    $('nsResumeFile').value = '';
   }
 
   // ═══════════ SIDEBAR (mobile) ═══════════
@@ -635,6 +714,10 @@
     ['newSessionBtnSide', 'newSessionBtnMain', 'newSessionBtnTop', 'emptyNewBtn']
       .forEach((id) => { const el = $(id); if (el) el.addEventListener('click', openNewSession); });
     $('createSessionBtn').addEventListener('click', createSession);
+
+    // New session — Attach resume picker
+    $('nsResume').addEventListener('change', onResumePickChange);
+    $('nsResumeFile').addEventListener('change', (e) => onResumeFilePicked(e.target.files && e.target.files[0]));
 
     // Nav items (screen switchers only; anchor nav items navigate natively)
     document.querySelectorAll('.nav-item[data-screen]').forEach((n) =>

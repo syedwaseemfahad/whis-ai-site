@@ -801,7 +801,7 @@ function updateMinutesDisplay(status) {
         
         appMinutesPill.style.display = "flex";
         appMinutesPill.innerHTML = `
-            <i class="fa-solid fa-hourglass-half" style="color:#3da8ff; font-size:11px; margin-right:6px;"></i> 
+            <i class="fa-solid fa-hourglass-half" style="color:#c3a9ef; font-size:11px; margin-right:6px;"></i> 
             <span style="font-size:11px; color:#e9ecf5; font-weight:500;">${tierName}: ${mins} mins left</span>
         `;
         appMinutesPill.style.alignItems = "center";
@@ -1089,7 +1089,7 @@ function showTourStep(index) {
 
     if (index === tourSteps.length - 1) {
         tourNextBtn.innerHTML = `Finish <i class="fa-solid fa-check"></i>`;
-        tourNextBtn.style.background = "linear-gradient(135deg, #3da8ff, #4df4b1)";
+        tourNextBtn.style.background = "linear-gradient(135deg, #c3a9ef, #4df4b1)";
         tourNextBtn.style.color = "#000";
     } else {
         tourNextBtn.innerHTML = `Next <i class="fa-solid fa-arrow-right"></i>`;
@@ -1551,7 +1551,7 @@ function _fireTourConfetti() {
     const cx = r.left + r.width / 2;
     const cy = r.top  + r.height / 2;
 
-    const colors  = ['#3da8ff','#4df4b1','#ffffff','#a78bff','#ffd760','#ff6b9d'];
+    const colors  = ['#c3a9ef','#4df4b1','#ffffff','#a78bff','#ffd760','#ff6b9d'];
     const shapes  = ['50%','3px','0']; // circle, pill, square
     const count   = 36;
     const tour    = document.getElementById('whis-tour');
@@ -1846,8 +1846,28 @@ async function handleUserPostLogin(user) {
         showTrialMotivation(false);
         if (isFreeTier && !subscriptionIsActive) {
             if (currentTrialUsage < maxTrialSessions) {
-                // Trials left today — auto-open the modal ONCE per session (re-opening it on
-                // every status refresh is what made the app feel like it was glitching).
+                // WEB TRIAL-FIRST GATE (additive, web-only): on the web build we present
+                // the "Start Your Free Elite Trial" choice UP FRONT — before the copilot
+                // is usable — instead of dropping the user into a working app and popping
+                // the modal after. We show the (locked) subscription surface as the base
+                // so the composer/mic aren't reachable, then open the trial modal on top,
+                // and RETURN before showApp(). Closing the modal ("Maybe Later"/X) leaves
+                // the user on the lock screen, where "Use Free Pass" reopens this modal.
+                // Guarded on window.WHIS_WEB so the DESKTOP flow is unchanged, and only
+                // reached by genuinely non-entitled free users (active/trial users took the
+                // branch above and go straight into showApp()).
+                if (window.WHIS_WEB) {
+                    showSubscriptionLock(user, "Start your free trial to begin — full access, no card needed.");
+                    if (lockStartTrialBtn) lockStartTrialBtn.style.display = "block";
+                    if (!_trialModalAutoShown) {
+                        _trialModalAutoShown = true;
+                        setTimeout(() => openTrialModal(), 250);
+                    }
+                    return;
+                }
+                // Desktop: keep the original behaviour — show the app, auto-open the modal
+                // ONCE per session (re-opening it on every status refresh is what made the
+                // app feel like it was glitching).
                 if (!_trialModalAutoShown) {
                     _trialModalAutoShown = true;
                     setTimeout(() => openTrialModal(), 600);
@@ -3002,8 +3022,8 @@ document.addEventListener('click', (e) => {
     inputEl.dispatchEvent(new Event('input'));
     inputEl.focus();
     // Momentary highlight
-    chip.style.background = 'rgba(61,168,255,0.18)';
-    chip.style.borderColor = 'rgba(61,168,255,0.4)';
+    chip.style.background = 'rgba(195,169,239,0.18)';
+    chip.style.borderColor = 'rgba(195,169,239,0.4)';
     chip.style.color = '#fff';
     setTimeout(() => { chip.style.background = ''; chip.style.borderColor = ''; chip.style.color = ''; }, 600);
 });
@@ -3688,7 +3708,7 @@ const _DEMO_STEPS_ALL = [
     action(zone) {
       zone.innerHTML = `
         <div class="demo-welcome-grid">
-          <div class="demo-welcome-pill"><i class="fa-solid fa-keyboard" style="color:#3da8ff"></i> 7 Shortcuts</div>
+          <div class="demo-welcome-pill"><i class="fa-solid fa-keyboard" style="color:#c3a9ef"></i> 7 Shortcuts</div>
           <div class="demo-welcome-pill"><i class="fa-brands fa-youtube" style="color:#ff4444"></i> Live Audio</div>
           <div class="demo-welcome-pill"><i class="fa-solid fa-camera" style="color:#ffd700"></i> Screenshot OCR</div>
           <div class="demo-welcome-pill"><i class="fa-solid fa-bullseye" style="color:#4df4b1"></i> Crisp Mode</div>
@@ -3703,7 +3723,7 @@ const _DEMO_STEPS_ALL = [
   {
     tag: '⌨️ Step 1 of 7',
     icon: '<i class="fa-solid fa-keyboard"></i>',
-    iconColor: '#3da8ff',
+    iconColor: '#c3a9ef',
     title: 'Shortcuts + The Send Button',
     target: '#send-btn', pos: 'center',
     body: `The <strong style="color:#a78bff;">Send button ↑</strong> (highlighted above) sends your question to AI. The shortcut <strong style="color:#a78bff;">${_CTRL}+↵</strong> does the same thing — hands-free. The app is <span style="color:#4df4b1;">fully interactive</span> during this entire demo.`,
@@ -3711,7 +3731,7 @@ const _DEMO_STEPS_ALL = [
       const sym = _CTRL;
       const shortcuts = [
         { key: `${sym}+L`,      label: 'Listen to interviewer',      color: '#4df4b1', star: true  },
-        { key: `${sym}+J`,      label: 'Screenshot + OCR',           color: '#3da8ff', star: true  },
+        { key: `${sym}+J`,      label: 'Screenshot + OCR',           color: '#c3a9ef', star: true  },
         { key: `${sym}+↵`,      label: 'Send  /  Stop streaming',    color: '#a78bff', star: true  },
         { key: `${sym}+H`,      label: 'Hide from your own screen',  color: '#ffaa00', star: false },
         { key: `${sym}+⌫`,      label: 'Clear chat',                 color: '#ff6b6b', star: false },
@@ -4117,7 +4137,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
       zone.innerHTML = `
         <div class="demo-stealth-explainer">
           <div class="demo-stealth-row">
-            <i class="fa-brands fa-zoom" style="color:#4285f4;font-size:16px;"></i>
+            <i class="fa-brands fa-zoom" style="color:#c3a9ef;font-size:16px;"></i>
             <span><strong>Zoom screen-share</strong> — Whis-AI not visible</span>
             <i class="fa-solid fa-shield-halved" style="color:#4df4b1;"></i>
           </div>
@@ -6856,8 +6876,8 @@ function _startSpeakerIndicator() {
             dot.style.background = '#4df4b1'; dot.style.boxShadow = '0 0 9px rgba(77,244,177,0.9)';
             txt.textContent = 'Hearing you…'; txt.style.color = '#4df4b1';
         } else if (intRecent) {
-            dot.style.background = '#46c8ff'; dot.style.boxShadow = '0 0 9px rgba(70,200,255,0.9)';
-            txt.textContent = 'Interviewer speaking…'; txt.style.color = '#46c8ff';
+            dot.style.background = '#d9c7f7'; dot.style.boxShadow = '0 0 9px rgba(217,199,247,0.9)';
+            txt.textContent = 'Interviewer speaking…'; txt.style.color = '#d9c7f7';
         } else {
             dot.style.background = '#8b93a8'; dot.style.boxShadow = '0 0 6px rgba(139,147,168,0.5)';
             txt.textContent = _liveListenLabel(); txt.style.color = '#aab2c5';
@@ -7330,7 +7350,7 @@ let _tabShareHintShown = false;
 function _showTabShareHintOnce() {
     if (_tabShareHintShown) return;
     _tabShareHintShown = true;
-    whisToast('Pick your <strong>meeting tab</strong> (Zoom/Meet/Teams) and turn ON <strong>“Share tab audio”</strong> so Whis hears the interviewer. Prefer your mic instead? <a href="#" id="wh-use-mic" style="color:#38bdf8;font-weight:700;">Use my mic</a>.', 'info', 9000,
+    whisToast('Pick your <strong>meeting tab</strong> (Zoom/Meet/Teams) and turn ON <strong>“Share tab audio”</strong> so Whis hears the interviewer. Prefer your mic instead? <a href="#" id="wh-use-mic" style="color:#d9c7f7;font-weight:700;">Use my mic</a>.', 'info', 9000,
         { action: null });
     // wire the "use my mic" inline link (best-effort)
     setTimeout(() => { const a = document.getElementById('wh-use-mic'); if (a) a.addEventListener('click', (e) => { e.preventDefault(); window._whisUseMic = true; whisToast('Switched to microphone. Click Listen again.', 'info', 4000); }); }, 100);
@@ -7620,7 +7640,7 @@ const WhisLive = (() => {
     // host stylesheets fail to clone (cross-origin link edge cases).
     const s = doc.createElement('style');
     s.textContent = `
-      :root { --wl-accent:#29b6f6; }
+      :root { --wl-accent:#d9c7f7; }
       html,body { margin:0; padding:0; height:100%; }
       body.wl-body {
         background:#070a14; color:#e8edf5;
@@ -7633,7 +7653,7 @@ const WhisLive = (() => {
         padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); flex:0 0 auto;
       }
       .wl-title { font-size:13px; font-weight:600; letter-spacing:.2px; display:flex; align-items:center; gap:7px; }
-      .wl-dot { width:7px; height:7px; border-radius:50%; background:var(--wl-accent); box-shadow:0 0 0 3px rgba(41,182,246,.18); }
+      .wl-dot { width:7px; height:7px; border-radius:50%; background:var(--wl-accent); box-shadow:0 0 0 3px rgba(217,199,247,.18); }
       .wl-close {
         background:transparent; border:none; color:#8a94a6; font-size:15px; cursor:pointer;
         width:26px; height:26px; border-radius:6px; line-height:1;

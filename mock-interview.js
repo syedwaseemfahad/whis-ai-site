@@ -647,7 +647,7 @@
       saveEl.className = 'save-state ok';
       saveEl.innerHTML = 'Saved to your dashboard. ';
       const a = document.createElement('a');
-      a.href = '/dashboard.html'; a.textContent = 'View it there →';
+      a.href = '/dashboard3.html'; a.textContent = 'View it there →';
       saveEl.appendChild(a);
     } catch (e) {
       saveEl.className = 'save-state warn';
