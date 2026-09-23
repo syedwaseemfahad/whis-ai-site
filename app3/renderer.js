@@ -7926,7 +7926,10 @@ const WhisLive = (() => {
   // without Document PiP (or on mobile), show a disabled note instead of the button.
   function _installEntryButtons() {
     const row = document.querySelector('.input-row');
-    if (!row || document.getElementById('go-live-btn')) return;
+    if (!row || document.getElementById('go-live-btn') || document.getElementById('go-live-note')) return;
+
+    // Smooth web default: use the mic unless a clean shared-audio stream takes over.
+    if (window.WHIS_WEB && window._whisUseMic === undefined) window._whisUseMic = true;
 
     const anchor = document.getElementById('screenshot-btn') || row.firstElementChild;
 
@@ -7960,6 +7963,11 @@ const WhisLive = (() => {
     btn.addEventListener('click', () => goLive(btn));
     if (anchor && anchor.nextSibling) row.insertBefore(btn, anchor.nextSibling);
     else row.appendChild(btn);
+
+    // Web: the main composer needs only Go Live. Listen + Snap are redundant here
+    // and reappear inside the floating live co-pilot once it opens. CSS gates them
+    // by body.whis-web:not(.whis-session-active) so they still work while live.
+    if (window.WHIS_WEB) document.body.classList.add('whis-web');
   }
 
   return { init, goLive, close, mirrorAnswer, endAnswer, isOpen, supported };

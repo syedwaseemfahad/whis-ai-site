@@ -702,50 +702,82 @@ window.WHIS_WEB = true;
     }
   }
 
+  // Keep a live, un-throttled <video> bound to the shared stream so we can always
+  // sample the CURRENT frame — including window/tab shares that Chrome's
+  // ImageCapture.grabFrame() refuses to serve.
+  async function _ensureLiveVideo() {
+    if (_liveVideoEl && _liveVideoEl.srcObject === _liveStream && _liveVideoEl.readyState >= 2) {
+      try { if (_liveVideoEl.paused) await _liveVideoEl.play().catch(() => {}); } catch (_) {}
+      return _liveVideoEl;
+    }
+    try { if (_liveVideoEl) _liveVideoEl.remove(); } catch (_) {}
+    const v = document.createElement("video");
+    v.muted = true; v.playsInline = true; v.autoplay = true;
+    // In-viewport but invisible: an off-screen (-99999px) video gets frame-throttled
+    // by Chrome, which is exactly why moving windows/tabs came back stale or black.
+    v.style.cssText = "position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:-1;";
+    v.srcObject = _liveStream;
+    document.body.appendChild(v);
+    try { await v.play(); } catch (_) {}
+    await new Promise((r) => {
+      if (v.readyState >= 2) return r();
+      v.onloadeddata = () => r();
+      setTimeout(r, 900);
+    });
+    _liveVideoEl = v;
+    return v;
+  }
+
+  // Resolve only once a fresh frame has actually been presented, so a window that
+  // just moved or a tab that just scrolled is captured as it is now.
+  function _waitForFreshFrame(video) {
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      try {
+        if (typeof video.requestVideoFrameCallback === "function") {
+          video.requestVideoFrameCallback(() => finish());
+          setTimeout(finish, 350);
+        } else {
+          requestAnimationFrame(() => requestAnimationFrame(finish));
+          setTimeout(finish, 220);
+        }
+      } catch (_) { finish(); }
+    });
+  }
+
   async function grabLiveFrame() {
     // No persistent stream → fall back to the one-shot (prompts once).
     if (!hasLiveScreen()) return _grabOneFrame();
 
-    // Prefer ImageCapture.grabFrame (works while the tab is backgrounded).
+    // ImageCapture.grabFrame is fast and works backgrounded, but Chrome rejects it
+    // for many window/tab display surfaces. Try it, verify the bitmap, else use video.
     try {
       if (_liveImageCapture) {
         const bitmap = await _liveImageCapture.grabFrame();
-        const canvas = document.createElement("canvas");
-        canvas.width = bitmap.width;
-        canvas.height = bitmap.height;
-        canvas.getContext("2d").drawImage(bitmap, 0, 0);
-        return { dataUrl: canvas.toDataURL("image/png") };
+        if (bitmap && bitmap.width && bitmap.height) {
+          const canvas = document.createElement("canvas");
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          canvas.getContext("2d").drawImage(bitmap, 0, 0);
+          try { bitmap.close && bitmap.close(); } catch (_) {}
+          return { dataUrl: canvas.toDataURL("image/png") };
+        }
       }
     } catch (_) {
-      /* fall through to the <video>+canvas path */
+      /* window/tab source rejected grabFrame → the video path handles it */
     }
 
-    // Fallback: draw the persistent track through a hidden, reused <video>.
+    // Robust path for ALL source types: draw a freshly presented frame.
     try {
-      if (!_liveVideoEl) {
-        const v = document.createElement("video");
-        v.muted = true;
-        v.playsInline = true;
-        v.style.position = "fixed";
-        v.style.left = "-99999px";
-        v.style.top = "0";
-        v.width = 2;
-        v.height = 2;
-        v.srcObject = _liveStream;
-        document.body.appendChild(v);
-        await v.play().catch(() => {});
-        await new Promise((r) => {
-          if (v.readyState >= 2) return r();
-          v.onloadeddata = () => r();
-          setTimeout(r, 500);
-        });
-        _liveVideoEl = v;
-      }
-      const video = _liveVideoEl;
+      const video = await _ensureLiveVideo();
+      await _waitForFreshFrame(video);
+      const w = video.videoWidth, h = video.videoHeight;
+      if (!w || !h) return { error: "Frame not ready" };
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 1920;
-      canvas.height = video.videoHeight || 1080;
-      canvas.getContext("2d").drawImage(video, 0, 0);
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(video, 0, 0, w, h);
       return { dataUrl: canvas.toDataURL("image/png") };
     } catch (err) {
       return { error: "Frame grab failed: " + (err && err.message) };
