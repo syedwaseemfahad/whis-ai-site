@@ -1,349 +1,250 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   WHIS-AI  ·  APP v3  ·  EDITORIAL RESKIN  (dark forest-green)
+   WHIS-AI  ·  APP v3  ·  APP-UNIQUE LAYER  (dark forest-green)
    ----------------------------------------------------------------------------
-   Loaded LAST (after styles.css and app-web.css) so it wins the cascade.
-   This is a PURE VISUAL LAYER. It does NOT change any structure, IDs, classes,
-   or JS behavior — renderer.js / whis-web-api.js are reused verbatim. It only
-   repaints the app to the brand-kit-v3 editorial system:
+   The shared design system now lives in ../whis-v3.css (the wv-* components +
+   tokens), loaded on this page with the app root in `.wv-dark` (forest-green).
+   The homepage (index3), dashboard (dashboard3) and this app therefore all
+   read from ONE source of truth — logo, buttons, badges, pills, chips, inputs
+   and display type are the SAME here as on the other surfaces.
 
-     · base            forest green   --green #12432f / --green-2 #0e3524
-     · text on green   --green-ink #eaf3ec
-     · PRIMARY accent  lavender       --lav-deep #c3a9ef / --lav #d9c7f7
-     · secondary       gold           --gold #c98a1a
-     · borders         hairlines (low-alpha ink)
-     · display type    Fraunces (headlines / welcome title)
-     · UI type         Inter          · code  JetBrains Mono
+   THIS FILE is deliberately thin. It keeps ONLY what is unique to the app and
+   cannot come from the shared system:
 
-   Nearly all of the app's surfaces read from app-web.css variables
-   (--web-bg, --web-panel, --web-accent, …). Redefining those tokens here
-   recolors the whole app in one place; the blocks that follow only mop up the
-   handful of hard-coded sky-blue literals + add the serif display touches.
-   The 90%-output focus layout, transcript ticker, session view, controls and
-   composer are all preserved exactly — only their colors + type change.
+     1. Token bridge — retint app-web.css's own --web-* variables to the shared
+        green + lavender so the app's structural chrome (that predates wv-*)
+        inherits the brand in one place, via the shared --wv-* tokens.
+     2. The 90%-output FOCUS LAYOUT: top transcript ticker + full-height answer
+        area + slim composer, plus the live-session controls (#web-focus-*,
+        .wf-*). This layout is app-only; no shared component covers it.
+
+   Everything the shared system already owns — button fills, input framing,
+   chip/pill/badge looks, the logo, display type — has been REMOVED from here
+   so the app can never drift from index3/dashboard3. renderer.js and
+   whis-web-api.js are reused verbatim; this remains a pure visual layer and
+   changes no IDs, structure, or behavior.
    ══════════════════════════════════════════════════════════════════════════ */
 
-:root {
-  /* ── Editorial v3 palette (mirrors index3.html tokens) ─────────────────── */
-  --green:      #12432f;
-  --green-2:    #0e3524;
-  --green-3:    #0b2b1d;   /* deepest surface (composer/panels) */
-  --green-ink:  #eaf3ec;
-  --lav:        #d9c7f7;
-  --lav-deep:   #c3a9ef;
-  --gold:       #c98a1a;
-  --ink-on-lav: #14231b;   /* dark text that sits on a lavender pill */
 
-  /* Hairline borders — pale lavender/ink at low alpha (never a glowing blue). */
-  --v3-line:        rgba(234, 243, 236, 0.14);
-  --v3-line-strong: rgba(234, 243, 236, 0.22);
-  --v3-line-lav:    rgba(195, 169, 239, 0.30);
-
-  /* ── Retint the app-web.css tokens → forest-green + lavender ───────────── */
-  --web-bg:            var(--green);
-  --web-panel:         var(--green-2);
-  --web-panel-2:       var(--green-3);
-  --web-border:        var(--v3-line);
-  --web-border-strong: var(--v3-line-strong);
-  --web-accent:        var(--lav-deep);
-  --web-accent-bright: var(--lav);
-
-  /* Slightly more generous reading measure feels editorial. */
-  --web-radius: 13px;
-}
-
-/* Base text colors (defined in styles.css) → editorial ink on green. */
+/* ══════════════════════════════════════════════════════════════════════════
+   1. TOKEN BRIDGE  —  point app-web.css's --web-* vars at the shared tokens
+   --------------------------------------------------------------------------
+   All the app's legacy structural surfaces read --web-bg / --web-panel /
+   --web-accent / … . We alias them to the shared --wv-* values (resolved in
+   .wv-dark to forest-green + lavender) so there is a SINGLE palette. No
+   bespoke hex — every value below is a shared token.
+   ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web {
-  --text-main: var(--green-ink);
-  --text-sub:  rgba(234, 243, 236, 0.60);
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  /* surfaces */
+  --web-bg:            var(--wv-bg);
+  --web-panel:         var(--wv-surface-2);
+  --web-panel-2:       var(--wv-green-2);
+  --web-border:        var(--wv-border);
+  --web-border-strong: var(--wv-border-strong);
+  /* accent = shared lavender */
+  --web-accent:        var(--wv-lav-deep);
+  --web-accent-bright: var(--wv-lav);
+  --web-radius:        var(--wv-radius-md);
+
+  /* legacy text tokens (defined in styles.css) → shared editorial ink */
+  --text-main: var(--wv-text);
+  --text-sub:  var(--wv-text-muted);
+
+  font-family: var(--wv-font-ui);
+  color: var(--wv-text);
 }
 
-/* Solid editorial base so no navy bleeds through at the html/body level. */
+/* Solid shared base so no legacy navy bleeds through at html/body level. */
 html:has(body.whis-web),
 body.whis-web,
 body.whis-web #content-area,
 body.whis-web .content-area {
-  background: var(--green) !important;
+  background: var(--wv-bg) !important;
 }
 
 
-/* ── DISPLAY TYPE: Fraunces for the few headline/serif moments ───────────── */
-/* Welcome title, login title, section titles, big numbers. Serif restraint —
-   display only, everything else stays Inter. */
-body.whis-web .web-welcome-title,
-body.whis-web .login-card h2,
-body.whis-web .login-title,
-body.whis-web .free-trial-title,
-body.whis-web .whis-guide-title {
-  font-family: "Fraunces", Georgia, serif !important;
+/* ══════════════════════════════════════════════════════════════════════════
+   2. DYNAMIC CHROME  —  the few bits renderer.js injects that carry legacy
+   class names (not static HTML, so they can't be given wv-* classes here).
+   Map them to shared type/tokens so they still read as one brand.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Welcome empty-state title (renderer-injected) → shared Fraunces display. */
+body.whis-web .web-welcome-title {
+  font-family: var(--wv-font-display) !important;
   font-weight: 500 !important;
-  letter-spacing: -0.01em !important;
-  color: var(--green-ink) !important;
+  letter-spacing: -0.035em !important;
+  color: var(--wv-text) !important;
 }
-
-/* Logo wordmark in Fraunces for the editorial signature. */
-body.whis-web .whis-logo-text {
-  font-family: "Fraunces", Georgia, serif !important;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--green-ink) !important;
-}
-body.whis-web .whis-logo-accent { color: var(--lav-deep) !important; }
-body.whis-web .whis-logo-mark {
-  background: rgba(195, 169, 239, 0.10) !important;
-  border: 1px solid var(--v3-line-lav) !important;
-}
-
-
-/* ── HEADER CHROME ───────────────────────────────────────────────────────── */
-body.whis-web .whis-global-header {
-  background: var(--green-2) !important;
-  border-bottom: 1px solid var(--v3-line) !important;
-  box-shadow: none !important;
-}
-body.whis-web .header-icon-btn,
-body.whis-web .guide-btn,
-body.whis-web .shortcut-dropdown-container .header-icon-btn {
-  color: var(--green-ink) !important;
-  background: transparent !important;
-  border: 1px solid var(--v3-line) !important;
-}
-body.whis-web .header-icon-btn:hover,
-body.whis-web .guide-btn:hover {
-  background: rgba(234, 243, 236, 0.06) !important;
-  border-color: var(--v3-line-lav) !important;
-}
-
-/* Font-size stepper + profile ring — hairline, quiet. */
-body.whis-web .font-controls button,
-body.whis-web .whis-logo-circle {
-  background: rgba(234, 243, 236, 0.05) !important;
-  border: 1px solid var(--v3-line) !important;
-  color: var(--green-ink) !important;
-}
-body.whis-web .whis-logo-circle i { color: var(--lav-deep) !important; }
-
-/* Connection dot uses the green-accent when live. */
-body.whis-web .conn-status-dot { background: #0a7f4f !important; }
-
-
-/* ── PROFILE DROPDOWN ────────────────────────────────────────────────────── */
-body.whis-web .profile-dropdown-menu {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line-strong) !important;
-  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.6) !important;
-}
-body.whis-web .dropdown-header {
-  color: var(--text-sub) !important;
-  border-bottom: 1px solid var(--v3-line) !important;
-}
-body.whis-web .dropdown-item {
-  color: var(--green-ink) !important;
-  font-family: "Inter", sans-serif;
-}
-body.whis-web .dropdown-item:hover {
-  background: rgba(195, 169, 239, 0.10) !important;
-}
-body.whis-web .dropdown-item i { color: var(--lav-deep) !important; }
-body.whis-web .dropdown-item.upgrade-item i { color: var(--gold) !important; }
-body.whis-web .dropdown-item.signout-item i { color: rgba(234,243,236,0.5) !important; }
-
-
-/* ── WELCOME (empty state) ───────────────────────────────────────────────── */
-body.whis-web .web-welcome-eyebrow {
-  color: var(--lav-deep) !important;
-  background: rgba(195, 169, 239, 0.10) !important;
-  border: 1px solid var(--v3-line-lav) !important;
-}
-body.whis-web .web-welcome-title { color: var(--green-ink) !important; }
 body.whis-web .web-welcome-sub,
-body.whis-web .web-welcome-guidance { color: var(--text-sub) !important; }
+body.whis-web .web-welcome-guidance { color: var(--wv-text-muted) !important; }
 
-/* Starter chips — cream-on-green cards with a hairline; lavender on hover. */
+/* Welcome eyebrow → shared lavender pill tone. */
+body.whis-web .web-welcome-eyebrow {
+  color: var(--wv-lav-deep) !important;
+  background: rgba(195, 169, 239, 0.10) !important;
+  border: 1px solid var(--wv-border) !important;
+}
+
+/* Starter chips (renderer-injected) → shared surface + lavender hover. */
 body.whis-web .web-starter-chip {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line) !important;
-  color: var(--green-ink) !important;
+  background: var(--wv-surface-2) !important;
+  border: 1px solid var(--wv-border) !important;
+  color: var(--wv-text) !important;
 }
 body.whis-web .web-starter-chip:hover {
-  border-color: var(--v3-line-lav) !important;
-  background: var(--green-3) !important;
-  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6) !important;
+  border-color: var(--wv-lav-deep) !important;
+  background: var(--wv-green-2) !important;
 }
 body.whis-web .web-starter-icon {
   background: rgba(195, 169, 239, 0.12) !important;
-  color: var(--lav-deep) !important;
+  color: var(--wv-lav-deep) !important;
 }
-body.whis-web .web-starter-chip:hover .web-starter-go { color: var(--lav-deep) !important; }
+body.whis-web .web-starter-chip:hover .web-starter-go { color: var(--wv-lav-deep) !important; }
 
 
-/* ── MESSAGES / ANSWERS (the 90% output focus) ───────────────────────────── */
-/* Keep the readable measure + typography; just recolor ink + the answer rail. */
+/* ══════════════════════════════════════════════════════════════════════════
+   3. MESSAGES / ANSWERS  (the 90%-output focus)  —  app-unique reading rail
+   Only the answer typography + code slab are app-specific; recolor via tokens.
+   ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web .whis-message-bubble,
-body.whis-web .whis-message-bubble * {
-  color: var(--green-ink) !important;
-}
+body.whis-web .whis-message-bubble * { color: var(--wv-text) !important; }
 body.whis-web .whis-message-bubble strong,
 body.whis-web .whis-message-bubble b { color: #ffffff !important; }
 
-/* Code blocks → JetBrains Mono on a deep-green slab with a lavender rail. */
+/* Code blocks → shared mono on a deep-green slab with a lavender rail. */
 body.whis-web .whis-code-block,
 body.whis-web .whis-code-block code,
 body.whis-web .whis-message-bubble pre,
 body.whis-web .whis-message-bubble code {
-  font-family: "JetBrains Mono", ui-monospace, monospace !important;
+  font-family: var(--wv-font-mono) !important;
 }
 body.whis-web .whis-code-block,
 body.whis-web .whis-message-bubble pre {
-  background: var(--green-3) !important;
-  border: 1px solid var(--v3-line) !important;
-  border-left: 3px solid var(--lav-deep) !important;
+  background: var(--wv-green-2) !important;
+  border: 1px solid var(--wv-border) !important;
+  border-left: 3px solid var(--wv-lav-deep) !important;
 }
-
-/* Any AI-answer accent rail / highlight → lavender (matches index3 .ans). */
 body.whis-web .whis-message-bubble.ai,
 body.whis-web .whis-message.assistant .whis-message-bubble {
-  border-left-color: var(--lav-deep) !important;
+  border-left-color: var(--wv-lav-deep) !important;
 }
 
 
-/* ── COMPOSER ────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   4. COMPOSER LAYOUT  —  app-unique slim composer framing
+   (The Send button + textarea now carry wv-btn--primary / wv-input, so their
+    fill/framing come from the shared system. Here we keep only the composer's
+    own gradient fade + the app-only icon buttons the shared kit doesn't cover.)
+   ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web .input-row {
-  border-top: 1px solid var(--v3-line) !important;
-  background: linear-gradient(180deg, rgba(18,67,47,0) 0%, var(--green) 42%) !important;
+  border-top: 1px solid var(--wv-border) !important;
+  background: linear-gradient(180deg, rgba(18,67,47,0) 0%, var(--wv-green) 42%) !important;
 }
-body.whis-web #input {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line-strong) !important;
-  color: var(--green-ink) !important;
-}
-body.whis-web #input:focus {
-  border-color: var(--v3-line-lav) !important;
-  background: var(--green-3) !important;
-  box-shadow: 0 0 0 3px rgba(195, 169, 239, 0.16) !important;
-}
-body.whis-web #input::placeholder { color: rgba(234, 243, 236, 0.38) !important; }
 
-/* Primary send = lavender pill with dark ink (index3's .btn-primary). */
-body.whis-web .send-btn {
-  background: var(--lav-deep) !important;
-  color: var(--ink-on-lav) !important;
-  border: 1px solid var(--lav-deep) !important;
-  box-shadow: 0 8px 20px -10px rgba(195, 169, 239, 0.5) !important;
-}
-body.whis-web .send-btn i { color: var(--ink-on-lav) !important; }
-body.whis-web .send-btn:hover { background: var(--lav) !important; }
-
-/* Listen / Snap / paperclip / crisp icon buttons — hairline, ink. */
+/* Listen / Snap / paperclip / crisp — app-only inline icon buttons. */
 body.whis-web .input-icon-btn,
 body.whis-web .context-quick-btn,
 body.whis-web .crisp-toggle-btn {
-  background: rgba(234, 243, 236, 0.05) !important;
-  border: 1px solid var(--v3-line) !important;
-  color: var(--green-ink) !important;
+  background: var(--wv-surface) !important;
+  border: 1px solid var(--wv-border) !important;
+  color: var(--wv-text) !important;
 }
 body.whis-web .input-icon-btn:hover,
 body.whis-web .context-quick-btn:hover,
 body.whis-web .crisp-toggle-btn:hover {
-  border-color: var(--v3-line-lav) !important;
-  color: var(--lav) !important;
+  border-color: var(--wv-lav-deep) !important;
+  color: var(--wv-lav) !important;
 }
-body.whis-web .btn-mini-label { color: var(--text-sub) !important; }
+body.whis-web .btn-mini-label { color: var(--wv-text-muted) !important; }
 body.whis-web .crisp-toggle-btn.active,
 body.whis-web .crisp-toggle-btn.is-active {
   background: rgba(195, 169, 239, 0.16) !important;
-  color: var(--lav) !important;
-  border-color: var(--v3-line-lav) !important;
+  color: var(--wv-lav) !important;
+  border-color: var(--wv-lav-deep) !important;
 }
 
-/* Quick-prompt chips. */
-body.whis-web .quick-prompt-chip {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line) !important;
-  color: var(--green-ink) !important;
-}
-body.whis-web .quick-prompt-chip:hover {
-  border-color: var(--v3-line-lav) !important;
-  background: var(--green-3) !important;
-}
-
-/* Usage / countdown pills. */
+/* Usage / countdown pills + contextual hint. */
 body.whis-web .mic-usage-pill {
-  background: rgba(234, 243, 236, 0.06) !important;
-  border: 1px solid var(--v3-line) !important;
-  color: var(--text-sub) !important;
+  background: var(--wv-surface) !important;
+  border: 1px solid var(--wv-border) !important;
+  color: var(--wv-text-muted) !important;
 }
-body.whis-web .context-hint { color: var(--text-sub) !important; }
+body.whis-web .context-hint { color: var(--wv-text-muted) !important; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   FOCUS-MODE LIVE SESSION  (body.whis-session-active)
-   The 90%-output layout is untouched — only recolored. Top bar + transcript
-   ticker + full-height answer area + slim composer all remain.
+   5. FOCUS-MODE LIVE SESSION  (body.whis-session-active)  —  APP-ONLY LAYOUT
+   The 90%-output layout: thin top bar + transcript ticker + full-height answer
+   area + slim composer. No shared component covers this; keep it intact and
+   recolor purely from shared tokens.
    ══════════════════════════════════════════════════════════════════════════ */
 
 /* Thin top bar. */
 body.whis-web #web-focus-topbar {
-  border-bottom: 1px solid var(--v3-line) !important;
-  background: var(--green-2) !important;
+  border-bottom: 1px solid var(--wv-border) !important;
+  background: var(--wv-green-2) !important;
 }
 body.whis-web .wf-btn {
-  border: 1px solid var(--v3-line-strong) !important;
-  background: rgba(234, 243, 236, 0.05) !important;
-  color: var(--green-ink) !important;
+  border: 1px solid var(--wv-border-strong) !important;
+  background: var(--wv-surface) !important;
+  color: var(--wv-text) !important;
 }
 body.whis-web .wf-btn:hover { background: rgba(234, 243, 236, 0.10) !important; }
 
-/* Primary session actions (mic-start, Answer) = lavender pills. */
+/* Primary session actions (Start Live Session / mic-start / Answer) = shared
+   lavender pill tone, matching wv-btn--primary. */
 body.whis-web .wf-btn.wf-mic,
 body.whis-web .wf-btn.wf-answer {
-  background: var(--lav-deep) !important;
-  border-color: var(--lav-deep) !important;
-  color: var(--ink-on-lav) !important;
+  background: var(--wv-lav) !important;
+  border-color: var(--wv-lav) !important;
+  color: var(--wv-ink) !important;
 }
 body.whis-web .wf-btn.wf-mic i,
-body.whis-web .wf-btn.wf-answer i { color: var(--ink-on-lav) !important; }
+body.whis-web .wf-btn.wf-answer i { color: var(--wv-ink) !important; }
+body.whis-web .wf-btn.wf-mic:hover,
+body.whis-web .wf-btn.wf-answer:hover { background: var(--wv-lav-deep) !important; }
 
 /* Language selector + live badge. */
 body.whis-web .wf-lang {
-  border: 1px solid var(--v3-line-strong) !important;
-  background: var(--green-3) !important;
-  color: var(--green-ink) !important;
+  border: 1px solid var(--wv-border-strong) !important;
+  background: var(--wv-green-2) !important;
+  color: var(--wv-text) !important;
 }
 body.whis-web .wf-live {
-  color: var(--text-sub) !important;
-  border: 1px solid var(--v3-line) !important;
+  color: var(--wv-text-muted) !important;
+  border: 1px solid var(--wv-border) !important;
 }
 body.whis-web .wf-live.wf-live-on {
   color: #8ff0bd !important;
   border-color: rgba(10, 127, 79, 0.5) !important;
 }
-body.whis-web .wf-live.wf-live-on .wf-live-dot { background: #0a7f4f !important; }
+body.whis-web .wf-live.wf-live-on .wf-live-dot { background: var(--wv-green-accent) !important; }
 
-/* Pulse ring → lavender. */
+/* Pulse ring → shared lavender. */
 @keyframes wf-pulse {
   0%, 100% { box-shadow: 0 0 0 3px rgba(195, 169, 239, 0.18); }
   50%      { box-shadow: 0 0 0 6px rgba(195, 169, 239, 0.05); }
 }
 
-/* Transcript ticker — interviewer words scroll in a hairline strip. */
+/* Transcript ticker — interviewer words scroll in a hairline strip (app-only). */
 body.whis-web #web-focus-ticker {
-  border-bottom: 1px solid var(--v3-line) !important;
-  background: var(--green-3) !important;
-  color: var(--text-sub) !important;
+  border-bottom: 1px solid var(--wv-border) !important;
+  background: var(--wv-green-2) !important;
+  color: var(--wv-text-muted) !important;
 }
-body.whis-web #web-focus-ticker .wf-tick-me { color: var(--lav) !important; }
+body.whis-web #web-focus-ticker .wf-tick-me { color: var(--wv-lav) !important; }
 
-
-/* ── LIVE TRANSCRIPT (desktop bubble, non-focus) ─────────────────────────── */
+/* Live transcript bubble (desktop, non-focus). */
 body.whis-web .live-transcript {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line) !important;
+  background: var(--wv-surface-2) !important;
+  border: 1px solid var(--wv-border) !important;
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   OVERLAYS / CARDS  (login, trial, subscription, context, report, guide)
+   6. OVERLAYS / CARDS  —  app-only modal shells (login, trial, subscription,
+   context, report, guide). Their primary buttons now carry wv-btn classes, so
+   only the CARD/OVERLAY shells + a few app-only accents remain here.
    ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web .content-overlay {
   background: rgba(11, 43, 29, 0.72) !important;
@@ -351,100 +252,106 @@ body.whis-web .content-overlay {
   backdrop-filter: blur(8px);
 }
 body.whis-web .login-card {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line-strong) !important;
-  box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.7) !important;
-  color: var(--green-ink) !important;
+  background: var(--wv-green-2) !important;
+  border: 1px solid var(--wv-border-strong) !important;
+  box-shadow: var(--wv-shadow-elevated) !important;
+  color: var(--wv-text) !important;
 }
-body.whis-web .login-card h2,
-body.whis-web .login-card .login-title { color: var(--green-ink) !important; }
-body.whis-web .login-subtitle { color: var(--text-sub) !important; }
+body.whis-web .login-subtitle { color: var(--wv-text-muted) !important; }
 
-/* Primary card buttons → lavender pill. */
-body.whis-web .login-btn-premium,
-body.whis-web .free-trial-cta-btn,
-body.whis-web .google-sign-in-btn {
-  background: var(--lav-deep) !important;
-  color: var(--ink-on-lav) !important;
-  border: 1px solid var(--lav-deep) !important;
-  box-shadow: 0 10px 24px -12px rgba(195, 169, 239, 0.55) !important;
-}
-body.whis-web .login-btn-premium:hover,
-body.whis-web .free-trial-cta-btn:hover,
-body.whis-web .google-sign-in-btn:hover { background: var(--lav) !important; }
-body.whis-web .google-sign-in-btn .icon { color: var(--ink-on-lav) !important; }
-
-/* Free-trial CTA card. */
+/* Free-trial CTA card shell (its button carries wv-btn--primary). */
 body.whis-web .free-trial-cta-card {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line-strong) !important;
-}
-body.whis-web .free-trial-badge {
-  background: rgba(195, 169, 239, 0.14) !important;
-  color: var(--lav-deep) !important;
-  border: 1px solid var(--v3-line-lav) !important;
+  background: var(--wv-green-2) !important;
+  border: 1px solid var(--wv-border-strong) !important;
 }
 body.whis-web .free-trial-bolt-icon,
-body.whis-web .free-trial-cta-icon-wrap i { color: var(--lav-deep) !important; }
+body.whis-web .free-trial-cta-icon-wrap i { color: var(--wv-lav-deep) !important; }
 body.whis-web .free-trial-desc,
 body.whis-web .free-trial-footnote,
-body.whis-web .free-trial-sessions-row { color: var(--text-sub) !important; }
+body.whis-web .free-trial-sessions-row { color: var(--wv-text-muted) !important; }
 
-/* Upgrade FAB + trial-motivation bar → lavender / gold. */
-body.whis-web .upgrade-fab {
-  background: var(--lav-deep) !important;
-  color: var(--ink-on-lav) !important;
-  border: 1px solid var(--lav-deep) !important;
-}
-body.whis-web .upgrade-fab i { color: var(--ink-on-lav) !important; }
+/* Trial-motivation bar (app-only nudge). */
 body.whis-web .trial-motivation-bar {
-  background: var(--green-2) !important;
-  border: 1px solid var(--v3-line-lav) !important;
-  color: var(--green-ink) !important;
+  background: var(--wv-green-2) !important;
+  border: 1px solid var(--wv-lav-deep) !important;
+  color: var(--wv-text) !important;
 }
-body.whis-web .tmb-dot { background: var(--gold) !important; }
-body.whis-web .tmb-cta { color: var(--lav-deep) !important; }
+body.whis-web .tmb-dot { background: var(--wv-gold) !important; }
+body.whis-web .tmb-cta { color: var(--wv-lav-deep) !important; }
 
-/* Header "Try Free" bolt button. */
-body.whis-web .header-trial-btn {
-  background: var(--lav-deep) !important;
-  color: var(--ink-on-lav) !important;
-  border: 1px solid var(--lav-deep) !important;
-}
-body.whis-web .header-trial-btn i { color: var(--ink-on-lav) !important; }
-
-/* Trial timer badge. */
+/* Trial timer badge (app-only). */
 body.whis-web .timer-badge {
   background: rgba(195, 169, 239, 0.12) !important;
-  border: 1px solid var(--v3-line-lav) !important;
-  color: var(--green-ink) !important;
+  border: 1px solid var(--wv-lav-deep) !important;
+  color: var(--wv-text) !important;
 }
-body.whis-web .interview-timer-dot { background: var(--gold) !important; }
+body.whis-web .interview-timer-dot { background: var(--wv-gold) !important; }
 
 
-/* ── GUIDE OVERLAY ───────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   7. GUIDE OVERLAY + MODE SWITCH + MISC ACCENTS  —  app-only bits
+   ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web .whis-guide-header-icon,
 body.whis-web .whis-guide-nav-item.is-active {
   background: rgba(195, 169, 239, 0.14) !important;
-  color: var(--lav-deep) !important;
-  border-color: var(--v3-line-lav) !important;
+  color: var(--wv-lav-deep) !important;
+  border-color: var(--wv-lav-deep) !important;
 }
 body.whis-web .whis-guide-pill,
-body.whis-web .whis-guide-navhint { color: var(--lav-deep) !important; }
+body.whis-web .whis-guide-navhint { color: var(--wv-lav-deep) !important; }
 
+/* Manual/Auto mode switch. */
+body.whis-web #mode-label-manual { color: var(--wv-lav-deep) !important; }
+body.whis-web .beautiful-switch input:checked + .slider { background: var(--wv-lav-deep) !important; }
 
-/* ── MODE SWITCH + MISC ACCENTS ──────────────────────────────────────────── */
-body.whis-web #mode-label-manual { color: var(--lav-deep) !important; }
-body.whis-web .beautiful-switch input:checked + .slider { background: var(--lav-deep) !important; }
-
-/* Scrollbar thumb → lavender-tinted. */
-body.whis-web #messages::-webkit-scrollbar-thumb {
-  background: rgba(195, 169, 239, 0.22) !important;
+/* Header icon buttons + profile ring (app-only chrome). */
+body.whis-web .whis-global-header {
+  background: var(--wv-green-2) !important;
+  border-bottom: 1px solid var(--wv-border) !important;
+  box-shadow: none !important;
 }
-body.whis-web #messages:hover::-webkit-scrollbar-thumb {
-  background: rgba(195, 169, 239, 0.34) !important;
+body.whis-web .header-icon-btn,
+body.whis-web .guide-btn,
+body.whis-web .shortcut-dropdown-container .header-icon-btn {
+  color: var(--wv-text) !important;
+  background: transparent !important;
+  border: 1px solid var(--wv-border) !important;
 }
+body.whis-web .header-icon-btn:hover,
+body.whis-web .guide-btn:hover {
+  background: rgba(234, 243, 236, 0.06) !important;
+  border-color: var(--wv-lav-deep) !important;
+}
+body.whis-web .font-controls button,
+body.whis-web .whis-logo-circle {
+  background: var(--wv-surface) !important;
+  border: 1px solid var(--wv-border) !important;
+  color: var(--wv-text) !important;
+}
+body.whis-web .whis-logo-circle i { color: var(--wv-lav-deep) !important; }
+body.whis-web .conn-status-dot { background: var(--wv-green-accent) !important; }
 
-/* Blinking stream caret → lavender (index3 .caret). */
+/* Profile dropdown menu (app-only). */
+body.whis-web .profile-dropdown-menu {
+  background: var(--wv-green-2) !important;
+  border: 1px solid var(--wv-border-strong) !important;
+  box-shadow: var(--wv-shadow-elevated) !important;
+}
+body.whis-web .dropdown-header {
+  color: var(--wv-text-muted) !important;
+  border-bottom: 1px solid var(--wv-border) !important;
+}
+body.whis-web .dropdown-item {
+  color: var(--wv-text) !important;
+  font-family: var(--wv-font-ui);
+}
+body.whis-web .dropdown-item:hover { background: rgba(195, 169, 239, 0.10) !important; }
+body.whis-web .dropdown-item i { color: var(--wv-lav-deep) !important; }
+body.whis-web .dropdown-item.upgrade-item i { color: var(--wv-gold) !important; }
+body.whis-web .dropdown-item.signout-item i { color: rgba(234,243,236,0.5) !important; }
+
+/* Scrollbar thumb + stream caret → shared lavender. */
+body.whis-web #messages::-webkit-scrollbar-thumb { background: rgba(195, 169, 239, 0.22) !important; }
+body.whis-web #messages:hover::-webkit-scrollbar-thumb { background: rgba(195, 169, 239, 0.34) !important; }
 body.whis-web .caret,
-body.whis-web .stream-caret { background: var(--lav-deep) !important; }
+body.whis-web .stream-caret { background: var(--wv-lav-deep) !important; }

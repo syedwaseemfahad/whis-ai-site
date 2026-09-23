@@ -42,10 +42,10 @@
   function toast(msg, isErr) {
     const t = $('toast');
     $('toastMsg').textContent = msg;
-    t.classList.toggle('err', !!isErr);
-    t.classList.add('show');
+    t.classList.toggle('wv-toast--error', !!isErr);
+    t.classList.add('wv-show');
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => t.classList.remove('show'), 3200);
+    toast._t = setTimeout(() => t.classList.remove('wv-show'), 3200);
   }
 
   // ═══════════ AUTH ═══════════
@@ -123,7 +123,8 @@
       // Graceful fallback — don't block the dashboard on status.
       nameEl.textContent = 'Free plan';
       badgeEl.textContent = 'Trial';
-      badgeEl.classList.remove('elite');
+      badgeEl.classList.remove('wv-badge--elite');
+      badgeEl.classList.add('wv-badge--trial');
       subEl.textContent = 'Upgrade to unlock unlimited sessions.';
     }
   }
@@ -138,7 +139,8 @@
     if (isElite) {
       nameEl.textContent = s.planName || 'Elite';
       badgeEl.textContent = 'Elite';
-      badgeEl.classList.add('elite');
+      badgeEl.classList.remove('wv-badge--trial');
+      badgeEl.classList.add('wv-badge--elite');
       const hrs = (s.hoursRemaining != null) ? `${s.hoursRemaining}h left` : (s.unlimited ? 'Unlimited hours' : 'Active');
       subEl.textContent = hrs + (s.renewsAt ? ` · renews ${fmtDate(s.renewsAt)}` : '');
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.2 2h-.4a2 2 0 0 0-2 1.7l-.2 1a7.5 7.5 0 0 0-1.7 1l-1-.4a2 2 0 0 0-2.5.9l-.2.3a2 2 0 0 0 .5 2.6l.8.6a7.6 7.6 0 0 0 0 2l-.8.6a2 2 0 0 0-.5 2.6l.2.3a2 2 0 0 0 2.5.9l1-.4a7.5 7.5 0 0 0 1.7 1l.2 1a2 2 0 0 0 2 1.7h.4a2 2 0 0 0 2-1.7l.2-1a7.5 7.5 0 0 0 1.7-1l1 .4a2 2 0 0 0 2.5-.9l.2-.3a2 2 0 0 0-.5-2.6l-.8-.6a7.6 7.6 0 0 0 0-2l.8-.6a2 2 0 0 0 .5-2.6l-.2-.3a2 2 0 0 0-2.5-.9l-1 .4a7.5 7.5 0 0 0-1.7-1l-.2-1A2 2 0 0 0 12.2 2z"/><circle cx="12" cy="12" r="3"/></svg> Manage plan';
@@ -239,14 +241,14 @@
   }
 
   function stateChip(state) {
-    if (isLiveState(state)) return '<span class="chip state-live"><span class="d"></span>Live</span>';
-    return `<span class="chip state-ended">${esc(state || 'Ended')}</span>`;
+    if (isLiveState(state)) return '<span class="wv-badge chip state-live"><span class="d"></span>Live</span>';
+    return `<span class="wv-badge chip state-ended">${esc(state || 'Ended')}</span>`;
   }
 
   function badgesHTML(s) {
-    let out = `<span class="chip mode">${esc(s.mode || 'Session')}</span>`;
+    let out = `<span class="wv-badge chip mode">${esc(s.mode || 'Session')}</span>`;
     if (s.hasTranscript) {
-      out += `<span class="chip tr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Transcript</span>`;
+      out += `<span class="wv-badge wv-badge--gold chip tr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Transcript</span>`;
     }
     return out;
   }
@@ -294,7 +296,7 @@
   async function openTranscript(id) {
     openModal('transcriptModal');
     const content = $('tvContent');
-    content.innerHTML = '<div class="sk sk-line w70"></div><div class="sk sk-line w55"></div><div class="sk sk-line w40"></div>';
+    content.innerHTML = '<div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w55"></div><div class="wv-skeleton sk-line w40"></div>';
     $('tvMeta').innerHTML = '';
     hide($('askBox'));
     $('askAnswer').classList.remove('show');
@@ -309,7 +311,7 @@
       const local = allSessions.find((x) => String(x.sessionId) === String(id));
       if (local) { currentSessionDetail = local; renderTranscript(local, true); }
       else {
-        content.innerHTML = `<div class="state error"><div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><h3 class="serif">Couldn't load this session</h3><p>Try again in a moment.</p></div>`;
+        content.innerHTML = `<div class="state error wv-empty"><div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><h3 class="wv-h3">Couldn't load this session</h3><p class="wv-muted">Try again in a moment.</p></div>`;
       }
     }
   }
@@ -322,7 +324,7 @@
     const content = $('tvContent');
     const turns = normalizeTranscript(s);
     if (!turns.length) {
-      content.innerHTML = `<div class="state"><div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><h3 class="serif">No transcript for this session</h3><p>${degraded ? 'The full transcript is temporarily unavailable.' : 'This session didn\'t capture a transcript.'}</p></div>`;
+      content.innerHTML = `<div class="state wv-empty"><div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><h3 class="wv-h3">No transcript for this session</h3><p class="wv-muted">${degraded ? 'The full transcript is temporarily unavailable.' : 'This session didn\'t capture a transcript.'}</p></div>`;
       hide($('askBox'));
       return;
     }
@@ -485,7 +487,7 @@
     openModal('viewerModal');
     $('viewerTitle').textContent = 'Resume';
     $('viewerSub').textContent = '—';
-    $('viewerContent').innerHTML = '<div class="sk sk-line w70"></div><div class="sk sk-line w55"></div><div class="sk sk-line w40"></div>';
+    $('viewerContent').innerHTML = '<div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w55"></div><div class="wv-skeleton sk-line w40"></div>';
     try {
       const r = await fetch(`${BACKEND_URL}/api/resumes/${encodeURIComponent(id)}`, { headers: headers() });
       if (!r.ok) throw new Error('resume ' + r.status);
@@ -590,7 +592,7 @@
     const target = $('screen-' + name);
     if (target) target.classList.add('active');
     document.querySelectorAll('.nav-item[data-screen]').forEach((n) =>
-      n.classList.toggle('active', n.getAttribute('data-screen') === name));
+      n.classList.toggle('wv-active', n.getAttribute('data-screen') === name));
     if (name === 'resumes' && !resumesLoaded) loadResumes();
     closeSidebar();
     const c = document.querySelector('.content'); if (c) c.scrollTop = 0;
@@ -598,8 +600,8 @@
   }
 
   // ═══════════ MODALS ═══════════
-  function openModal(id) { $(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
-  function closeModal(id) { $(id).classList.remove('open'); document.body.style.overflow = ''; }
+  function openModal(id) { $(id).classList.add('wv-open'); document.body.style.overflow = 'hidden'; }
+  function closeModal(id) { $(id).classList.remove('wv-open'); document.body.style.overflow = ''; }
 
   function openNewSession() {
     ['nsCompany', 'nsRole', 'nsInstructions'].forEach((f) => { $(f).value = ''; });
@@ -641,8 +643,8 @@
     // Filters
     $('sessionFilters').addEventListener('click', (e) => {
       const t = e.target.closest('.filter-tab'); if (!t) return;
-      $('sessionFilters').querySelectorAll('.filter-tab').forEach((x) => x.classList.remove('active'));
-      t.classList.add('active');
+      $('sessionFilters').querySelectorAll('.filter-tab').forEach((x) => x.classList.remove('wv-on'));
+      t.classList.add('wv-on');
       currentFilter = t.getAttribute('data-filter');
       renderSessions();
     });
@@ -681,10 +683,10 @@
     // Modal close buttons + overlay click
     document.querySelectorAll('[data-close]').forEach((b) =>
       b.addEventListener('click', () => closeModal(b.getAttribute('data-close'))));
-    document.querySelectorAll('.modal-overlay').forEach((ov) =>
+    document.querySelectorAll('.wv-modal').forEach((ov) =>
       ov.addEventListener('click', (e) => { if (e.target === ov) closeModal(ov.id); }));
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach((m) => closeModal(m.id));
+      if (e.key === 'Escape') document.querySelectorAll('.wv-modal.wv-open').forEach((m) => closeModal(m.id));
     });
 
     // Mobile sidebar

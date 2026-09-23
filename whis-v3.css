@@ -1,0 +1,573 @@
+/* ==========================================================================
+   WHIS-AI v3 — SHARED DESIGN SYSTEM
+   ==========================================================================
+   The single source of truth that makes every v3 surface pixel-consistent:
+     homepage (index3)  ·  dashboard (dashboard3)  ·  app (app3)
+   Derived EXACTLY from index3.html + brand-kit-v3.md.
+
+   THE FAMILY
+   ----------
+   Light / cream  -> marketing + dashboard  (default)
+   Dark / green   -> the app                (wrap surface in .wv-dark)
+   Both share the SAME components, radii, type, motion, and lavender accent,
+   so cream and green are obviously one brand.
+
+   ALL classes are prefixed `wv-` so they never collide with legacy CSS.
+
+   ----------------------------------------------------------------------------
+   FONTS — add this <link> to every surface's <head> (or use the @import below):
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+   Fraunces = display/headlines (italics for emphasis) · Inter = body/UI ·
+   JetBrains Mono = code/keys.
+   ----------------------------------------------------------------------------
+
+   SECTIONS
+   1.  Tokens (:root)            — colors, spacing, radii, shadows, type, motion
+   2.  Dark mode (.wv-dark)      — flips surfaces to forest-green
+   3.  Base / reset helpers
+   4.  Typography components
+   5.  Buttons
+   6.  Pills · Badges · Tabs · Chips
+   7.  Cards · Panels · Promo banner
+   8.  Forms
+   9.  App/Dashboard chrome (nav · sidebar · topbar)
+   10. Overlays (modal · table · skeleton · empty · toast)
+   11. Logo treatment
+   12. Motion + reduced-motion guard
+   13. Responsive (breakpoints, collapse rules)
+   ========================================================================== */
+
+/* Fonts are best loaded via the <link> above (faster). Uncomment if you must
+   ship a self-contained stylesheet:
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*/
+
+/* ==========================================================================
+   1. TOKENS  (:root)  — the exact values from index3.html
+   ========================================================================== */
+:root{
+  /* --- Palette: cream (light surfaces) --- */
+  --wv-cream:#faf6e9;         /* page background */
+  --wv-cream-2:#f3eeda;       /* secondary surface / tint */
+  --wv-white:#ffffff;         /* raised cards on cream */
+
+  /* --- Palette: ink (text on cream) --- */
+  --wv-ink:#1a1712;           /* primary text */
+  --wv-ink-soft:#5b554a;      /* muted / secondary text */
+
+  /* --- Palette: forest-green (dark surfaces / the app) --- */
+  --wv-green:#12432f;         /* app background */
+  --wv-green-2:#0e3524;       /* deeper green surface */
+  --wv-green-ink:#eaf3ec;     /* text on green */
+  --wv-green-accent:#0a7f4f;  /* positive / success green */
+
+  /* --- Accents (both modes) --- */
+  --wv-lav:#d9c7f7;           /* PRIMARY accent (button fill) */
+  --wv-lav-deep:#c3a9ef;      /* primary accent hover / focus ring */
+  --wv-gold:#c98a1a;          /* secondary accent (ratings, stars) */
+  --wv-terra:#e08a4a;         /* used sparingly */
+  --wv-maroon:#7a1f2b;        /* urgency / warning, sparingly */
+
+  /* --- Hairlines --- */
+  --wv-line:rgba(26,23,18,.14);      /* hairline border on cream */
+  --wv-line-strong:rgba(26,23,18,.24);
+
+  /* --- Semantic surface aliases (remapped by .wv-dark) --- */
+  --wv-bg:var(--wv-cream);           /* page background */
+  --wv-surface:var(--wv-white);      /* raised card surface */
+  --wv-surface-2:var(--wv-cream-2);  /* tinted / recessed surface */
+  --wv-text:var(--wv-ink);           /* body text */
+  --wv-text-muted:var(--wv-ink-soft);/* muted text */
+  --wv-border:var(--wv-line);        /* default border */
+  --wv-border-strong:var(--wv-line-strong);
+
+  /* --- Spacing scale (4-based) --- */
+  --wv-space-1:4px;
+  --wv-space-2:8px;
+  --wv-space-3:12px;
+  --wv-space-4:16px;
+  --wv-space-6:24px;
+  --wv-space-8:32px;
+  --wv-space-12:48px;
+  --wv-space-16:64px;
+
+  /* --- Radii --- */
+  --wv-radius-sm:10px;
+  --wv-radius-md:14px;
+  --wv-radius-lg:20px;
+  --wv-radius-xl:28px;   /* large editorial panels */
+  --wv-radius-pill:999px;
+
+  /* --- Shadows --- */
+  --wv-shadow-hairline:0 1px 0 rgba(26,23,18,.02);           /* soft hairline shadow */
+  --wv-shadow-card:0 10px 30px -18px rgba(26,23,18,.5);       /* resting card */
+  --wv-shadow-elevated:0 24px 60px -28px rgba(26,23,18,.45);  /* hover / modal / featured */
+  --wv-shadow-focus:0 0 0 3px rgba(195,169,239,.55);          /* focus ring glow */
+
+  /* --- Type families --- */
+  --wv-font-display:"Fraunces",Georgia,serif;
+  --wv-font-ui:"Inter",system-ui,-apple-system,sans-serif;
+  --wv-font-mono:"JetBrains Mono",ui-monospace,monospace;
+
+  /* --- Type scale (fluid where it matters) --- */
+  --wv-text-xs:12px;
+  --wv-text-sm:13.5px;
+  --wv-text-base:15px;
+  --wv-text-md:17px;      /* body default */
+  --wv-text-lg:19px;
+  --wv-text-h3:clamp(18px,2.4vw,22px);
+  --wv-text-h2:clamp(26px,3.4vw,34px);
+  --wv-text-h1:clamp(34px,5vw,56px);
+  --wv-text-display:clamp(44px,7.6vw,100px);
+
+  --wv-leading-tight:1.03;
+  --wv-leading-body:1.55;
+  --wv-tracking-tight:-.025em;
+  --wv-tracking-eyebrow:.18em;
+
+  /* --- Motion tokens --- */
+  --wv-ease:cubic-bezier(.2,.7,.2,1);
+  --wv-dur-fast:.16s;
+  --wv-dur-mid:.28s;
+  --wv-dur-slow:.4s;
+  --wv-transition:all var(--wv-dur-fast) var(--wv-ease);
+}
+
+/* ==========================================================================
+   2. DARK MODE  (.wv-dark)  — forest-green surfaces for the app
+   --------------------------------------------------------------------------
+   Wrap the app root in `.wv-dark`. It only remaps the SEMANTIC surface
+   tokens — every component below reads those aliases, so the same markup
+   renders green with the identical lavender accent and layout.
+   ========================================================================== */
+.wv-dark{
+  --wv-bg:var(--wv-green);
+  --wv-surface:rgba(255,255,255,.04);
+  --wv-surface-2:var(--wv-green-2);
+  --wv-text:var(--wv-green-ink);
+  --wv-text-muted:rgba(234,243,236,.7);
+  --wv-border:rgba(255,255,255,.16);
+  --wv-border-strong:rgba(255,255,255,.28);
+  --wv-white:rgba(255,255,255,.06);
+  --wv-cream-2:rgba(255,255,255,.06);
+  --wv-shadow-card:0 10px 30px -18px rgba(0,0,0,.55);
+  --wv-shadow-elevated:0 30px 70px -30px rgba(0,0,0,.7);
+  background:var(--wv-bg);
+  color:var(--wv-text);
+}
+
+/* ==========================================================================
+   3. BASE / RESET HELPERS  (opt-in — apply .wv-root to a surface's body)
+   ========================================================================== */
+.wv-root,.wv-dark{
+  background:var(--wv-bg);
+  color:var(--wv-text);
+  font-family:var(--wv-font-ui);
+  font-size:var(--wv-text-md);
+  line-height:var(--wv-leading-body);
+  -webkit-font-smoothing:antialiased;
+}
+.wv-root *,.wv-dark *{box-sizing:border-box}
+
+.wv-wrap{max-width:1120px;margin:0 auto;padding:0 var(--wv-space-6)}
+.wv-stack>*+*{margin-top:var(--wv-space-4)}     /* vertical rhythm helper */
+::selection{background:var(--wv-lav);color:var(--wv-ink)}
+
+/* ==========================================================================
+   4. TYPOGRAPHY
+   ========================================================================== */
+.wv-display{
+  font-family:var(--wv-font-display);
+  font-weight:500;
+  font-size:var(--wv-text-display);
+  line-height:.97;
+  letter-spacing:-.035em;
+  color:var(--wv-text);
+  text-wrap:balance;
+}
+/* italic Fraunces accent inside a display line, e.g. "Name <span class=wv-italic>your salary.</span>" */
+.wv-italic{font-family:var(--wv-font-display);font-style:italic;font-weight:500}
+
+.wv-h1{font-family:var(--wv-font-display);font-weight:500;font-size:var(--wv-text-h1);line-height:var(--wv-leading-tight);letter-spacing:var(--wv-tracking-tight);color:var(--wv-text);text-wrap:balance}
+.wv-h2{font-family:var(--wv-font-display);font-weight:500;font-size:var(--wv-text-h2);line-height:1.08;letter-spacing:-.02em;color:var(--wv-text)}
+.wv-h3{font-family:var(--wv-font-display);font-weight:500;font-size:var(--wv-text-h3);line-height:1.2;letter-spacing:-.01em;color:var(--wv-text)}
+
+.wv-eyebrow{font-family:var(--wv-font-ui);font-size:var(--wv-text-xs);font-weight:600;letter-spacing:var(--wv-tracking-eyebrow);text-transform:uppercase;color:var(--wv-text-muted)}
+
+.wv-body{font-family:var(--wv-font-ui);font-size:var(--wv-text-md);line-height:var(--wv-leading-body);color:var(--wv-text);text-wrap:pretty}
+.wv-muted{color:var(--wv-text-muted)}
+.wv-mono{font-family:var(--wv-font-mono);font-size:var(--wv-text-sm);letter-spacing:0}
+
+a.wv-link{color:var(--wv-text-muted);font-weight:600;text-decoration:none;transition:color var(--wv-dur-fast) var(--wv-ease)}
+a.wv-link:hover{color:var(--wv-text)}
+
+/* ==========================================================================
+   5. BUTTONS
+   --------------------------------------------------------------------------
+   .wv-btn                base (pill)
+   + .wv-btn--primary     lavender fill, ink text  (PRIMARY action)
+   + .wv-btn--ghost       hairline outline
+   + .wv-btn--dark        ink fill, cream text  (marketing "Get App")
+   sizes: .wv-btn--sm  /  (default)  /  .wv-btn--lg
+   ========================================================================== */
+.wv-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--wv-space-2);
+  font-family:var(--wv-font-ui);font-weight:600;font-size:14.5px;line-height:1;
+  padding:11px 18px;border-radius:var(--wv-radius-pill);
+  border:1px solid transparent;cursor:pointer;white-space:nowrap;
+  transition:background var(--wv-dur-fast) var(--wv-ease),
+             transform var(--wv-dur-fast) var(--wv-ease),
+             filter var(--wv-dur-fast) var(--wv-ease),
+             box-shadow var(--wv-dur-fast) var(--wv-ease),
+             border-color var(--wv-dur-fast) var(--wv-ease);
+}
+.wv-btn:active{transform:scale(.985)}
+.wv-btn:focus-visible{outline:none;box-shadow:var(--wv-shadow-focus)}
+/* arrow that slides on hover: <span class="wv-arw">-></span> */
+.wv-btn .wv-arw{display:inline-block;transition:transform var(--wv-dur-mid) var(--wv-ease)}
+.wv-btn:hover .wv-arw{transform:translateX(4px)}
+
+.wv-btn--primary{background:var(--wv-lav);color:var(--wv-ink)}
+.wv-btn--primary:hover{background:var(--wv-lav-deep);transform:translateY(-1px);box-shadow:0 12px 26px -12px rgba(195,169,239,.9)}
+
+.wv-btn--ghost{background:transparent;border-color:var(--wv-border);color:var(--wv-text)}
+.wv-btn--ghost:hover{background:var(--wv-surface-2);transform:translateY(-1px)}
+
+.wv-btn--dark{background:var(--wv-ink);color:var(--wv-cream)}
+.wv-btn--dark:hover{filter:brightness(1.15);transform:translateY(-1px)}
+/* on green surfaces "dark" reads as a lavender-outlined solid so it stays visible */
+.wv-dark .wv-btn--dark{background:var(--wv-green-2);color:var(--wv-green-ink);border-color:var(--wv-border)}
+.wv-dark .wv-btn--dark:hover{background:rgba(255,255,255,.1)}
+
+.wv-btn--lg{padding:15px 26px;font-size:16px}
+.wv-btn--sm{padding:8px 14px;font-size:13px}
+.wv-btn--block{width:100%}
+
+/* ==========================================================================
+   6. PILLS · BADGES · TABS · CHIPS
+   ========================================================================== */
+/* generic status pill (e.g. FREE plan pill in nav) */
+.wv-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--wv-surface-2);border:1px solid var(--wv-border);
+  color:var(--wv-text-muted);border-radius:var(--wv-radius-pill);padding:3px 9px;
+}
+/* live indicator pill with dot */
+.wv-pill--live{background:var(--wv-surface);color:var(--wv-text-muted);font-size:var(--wv-text-xs);letter-spacing:normal;text-transform:none}
+.wv-pill--live .wv-dot{width:8px;height:8px;border-radius:50%;background:var(--wv-green-accent)}
+
+/* badges (small labels on cards) */
+.wv-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;border-radius:var(--wv-radius-pill);padding:3px 10px;background:rgba(18,67,47,.07);color:var(--wv-green)}
+.wv-dark .wv-badge{background:rgba(234,243,236,.1);color:var(--wv-green-ink)}
+/* named badge styles */
+.wv-badge--trial{background:rgba(224,138,74,.14);color:var(--wv-terra)}
+.wv-badge--elite{background:var(--wv-lav);color:var(--wv-ink)}
+.wv-badge--gold{background:rgba(201,138,26,.14);color:var(--wv-gold)}
+
+/* segmented tabs (Interview / Meetings toggle) */
+.wv-tabs{display:inline-flex;background:var(--wv-surface-2);border:1px solid var(--wv-border);border-radius:var(--wv-radius-pill);padding:3px;gap:2px}
+.wv-tabs a,.wv-tabs button{
+  font-family:var(--wv-font-ui);font-size:13.5px;font-weight:600;
+  padding:6px 15px;border-radius:var(--wv-radius-pill);
+  color:var(--wv-text-muted);background:transparent;border:0;cursor:pointer;
+  transition:var(--wv-transition);
+}
+.wv-tabs a.wv-on,.wv-tabs button.wv-on{background:var(--wv-white);color:var(--wv-text);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.wv-dark .wv-tabs a.wv-on,.wv-dark .wv-tabs button.wv-on{background:rgba(255,255,255,.14);box-shadow:none}
+
+/* chips (filter / tag) */
+.wv-chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--wv-text);background:var(--wv-surface-2);border:1px solid var(--wv-border);border-radius:var(--wv-radius-pill);padding:6px 13px;cursor:pointer;transition:var(--wv-transition)}
+.wv-chip:hover{border-color:var(--wv-lav-deep)}
+.wv-chip.wv-on{background:var(--wv-lav);border-color:var(--wv-lav);color:var(--wv-ink)}
+
+/* ==========================================================================
+   7. CARDS · PANELS · PROMO BANNER
+   ========================================================================== */
+.wv-card{
+  background:var(--wv-surface);
+  border:1px solid var(--wv-border);
+  border-radius:var(--wv-radius-md);
+  padding:var(--wv-space-6);
+  box-shadow:var(--wv-shadow-hairline);
+  transition:transform var(--wv-dur-slow) var(--wv-ease),box-shadow var(--wv-dur-slow) var(--wv-ease);
+}
+.wv-card--hover:hover,a.wv-card:hover{transform:translateY(-4px);box-shadow:var(--wv-shadow-elevated)}
+.wv-dark .wv-card{background:var(--wv-surface);border-color:var(--wv-border)}
+
+/* large rounded editorial panel (spacious sections) */
+.wv-panel{
+  background:var(--wv-surface);
+  border:1px solid var(--wv-border);
+  border-radius:var(--wv-radius-xl);
+  padding:var(--wv-space-12) var(--wv-space-12);
+  box-shadow:var(--wv-shadow-hairline);
+}
+.wv-panel--tint{background:var(--wv-surface-2)}
+
+/* cream promo banner (upgrade / credit callout) */
+.wv-promo{
+  background:var(--wv-surface-2);
+  border:1px solid var(--wv-border);
+  border-radius:var(--wv-radius-md);
+  padding:18px 22px;
+  display:flex;align-items:center;gap:var(--wv-space-4);flex-wrap:wrap;
+  color:var(--wv-text-muted);font-size:14.5px;
+}
+.wv-promo b,.wv-promo strong{color:var(--wv-text)}
+.wv-promo .wv-btn{margin-left:auto}
+
+/* ==========================================================================
+   8. FORMS  (consistent focus rings everywhere)
+   ========================================================================== */
+.wv-input,.wv-textarea,.wv-select,.wv-search input{
+  width:100%;
+  font-family:var(--wv-font-ui);font-size:var(--wv-text-base);
+  color:var(--wv-text);background:var(--wv-white);
+  border:1px solid var(--wv-border);border-radius:var(--wv-radius-sm);
+  padding:12px 14px;outline:none;
+  transition:border-color var(--wv-dur-fast) var(--wv-ease),box-shadow var(--wv-dur-fast) var(--wv-ease);
+}
+.wv-input::placeholder,.wv-textarea::placeholder,.wv-search input::placeholder{color:var(--wv-text-muted)}
+.wv-input:focus,.wv-textarea:focus,.wv-select:focus,.wv-search input:focus{
+  border-color:var(--wv-lav-deep);box-shadow:var(--wv-shadow-focus);
+}
+.wv-textarea{min-height:120px;resize:vertical;line-height:var(--wv-leading-body)}
+
+/* select gets a chevron */
+.wv-select{
+  appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:38px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235b554a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+.wv-dark .wv-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23eaf3ec' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+
+/* search field with leading icon */
+.wv-search{position:relative;display:flex;align-items:center}
+.wv-search .wv-search-ic{position:absolute;left:13px;pointer-events:none;color:var(--wv-text-muted);display:flex}
+.wv-search input{padding-left:38px}
+
+.wv-label{display:block;font-size:var(--wv-text-sm);font-weight:600;color:var(--wv-text-muted);margin-bottom:6px}
+
+/* ==========================================================================
+   9. APP / DASHBOARD CHROME
+   ========================================================================== */
+/* Rounded "pill" top nav (marketing + dashboard) */
+.wv-nav{
+  display:flex;align-items:center;gap:var(--wv-space-4);
+  max-width:1060px;margin:0 auto;
+  background:rgba(250,246,233,.82);backdrop-filter:blur(10px);
+  border:1px solid var(--wv-border);border-radius:var(--wv-radius-pill);
+  padding:10px 12px 10px 20px;
+  box-shadow:0 10px 30px -18px rgba(26,23,18,.5);
+  transition:box-shadow var(--wv-dur-mid) var(--wv-ease);
+}
+.wv-nav.wv-scrolled{box-shadow:0 18px 44px -22px rgba(26,23,18,.65)}
+.wv-dark .wv-nav{background:rgba(14,53,36,.82);border-color:var(--wv-border)}
+/* sticky shell wrapper (optional) */
+.wv-nav-shell{position:sticky;top:16px;z-index:50;padding:0 var(--wv-space-6)}
+.wv-nav .wv-nav-links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:14.5px;font-weight:500}
+.wv-nav .wv-btn{padding:9px 15px}
+
+/* Sidebar (dashboard / app) */
+.wv-sidebar{
+  display:flex;flex-direction:column;gap:2px;
+  width:248px;flex:0 0 248px;
+  padding:var(--wv-space-4);
+  background:var(--wv-surface-2);
+  border-right:1px solid var(--wv-border);
+}
+.wv-sidebar-head{padding:var(--wv-space-2) var(--wv-space-3) var(--wv-space-4)}
+.wv-nav-item{
+  display:flex;align-items:center;gap:var(--wv-space-3);
+  padding:10px 12px;border-radius:var(--wv-radius-sm);
+  font-family:var(--wv-font-ui);font-size:14.5px;font-weight:500;
+  color:var(--wv-text-muted);cursor:pointer;text-decoration:none;
+  transition:var(--wv-transition);
+}
+.wv-nav-item .wv-nav-ic{width:20px;height:20px;display:flex;flex:0 0 20px}
+.wv-nav-item:hover{background:var(--wv-white);color:var(--wv-text)}
+.wv-nav-item.wv-active{background:var(--wv-lav);color:var(--wv-ink);font-weight:600}
+.wv-dark .wv-nav-item:hover{background:rgba(255,255,255,.06)}
+.wv-dark .wv-nav-item.wv-active{background:var(--wv-lav);color:var(--wv-ink)}
+
+/* Topbar (page header inside dashboard/app) */
+.wv-topbar{
+  display:flex;align-items:center;gap:var(--wv-space-4);
+  padding:var(--wv-space-4) var(--wv-space-8);
+  background:var(--wv-bg);
+  border-bottom:1px solid var(--wv-border);
+}
+.wv-topbar .wv-topbar-title{font-family:var(--wv-font-display);font-size:var(--wv-text-h3);letter-spacing:-.01em;color:var(--wv-text)}
+.wv-topbar .wv-topbar-actions{margin-left:auto;display:flex;align-items:center;gap:var(--wv-space-3)}
+
+/* app shell layout helper: sidebar + content */
+.wv-shell{display:flex;min-height:100vh}
+.wv-shell .wv-shell-main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ==========================================================================
+   10. OVERLAYS — modal · table · skeleton · empty · toast
+   ========================================================================== */
+/* Modal + overlay */
+.wv-modal{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(26,23,18,.5);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:22px;
+}
+.wv-modal.wv-open{display:flex}
+.wv-modal .wv-modal-box{
+  position:relative;width:100%;max-width:460px;max-height:92vh;overflow:auto;
+  background:var(--wv-bg);border:1px solid var(--wv-border);
+  border-radius:var(--wv-radius-lg);padding:30px 28px;
+  box-shadow:0 40px 100px -30px rgba(0,0,0,.6);
+}
+.wv-dark .wv-modal .wv-modal-box{background:var(--wv-green-2)}
+.wv-modal .wv-modal-x{
+  position:absolute;top:13px;right:15px;width:30px;height:30px;
+  border-radius:50%;background:var(--wv-surface-2);border:1px solid var(--wv-border);
+  font-size:16px;line-height:1;color:var(--wv-text-muted);cursor:pointer;
+}
+.wv-modal h3{font-family:var(--wv-font-display);font-size:27px;letter-spacing:-.02em;margin-bottom:6px;color:var(--wv-text)}
+
+/* Table */
+.wv-table{width:100%;background:var(--wv-surface);border:1px solid var(--wv-border);border-radius:var(--wv-radius-lg);overflow:hidden;border-collapse:collapse}
+.wv-table th,.wv-table td{padding:16px 18px;text-align:left;font-size:var(--wv-text-base);border-bottom:1px solid var(--wv-border)}
+.wv-table thead th{font-family:var(--wv-font-ui);font-size:var(--wv-text-xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--wv-text-muted)}
+.wv-table tbody tr:last-child td{border-bottom:0}
+.wv-table tbody tr:hover{background:var(--wv-surface-2)}
+
+/* Skeleton (loading) */
+.wv-skeleton{
+  display:block;border-radius:var(--wv-radius-sm);
+  background:linear-gradient(90deg,var(--wv-surface-2),var(--wv-white),var(--wv-surface-2));
+  background-size:200% 100%;animation:wv-sk 1.2s linear infinite;
+  height:14px;
+}
+.wv-skeleton--line{height:14px;margin:8px 0}
+.wv-skeleton--title{height:28px;width:60%}
+.wv-skeleton--block{height:120px}
+@keyframes wv-sk{to{background-position:-200% 0}}
+
+/* Empty state */
+.wv-empty{
+  text-align:center;padding:var(--wv-space-16) var(--wv-space-6);
+  color:var(--wv-text-muted);
+  border:1px dashed var(--wv-border);border-radius:var(--wv-radius-lg);
+  background:var(--wv-surface);
+}
+.wv-empty .wv-empty-ic{color:var(--wv-text-muted);opacity:.6;margin-bottom:var(--wv-space-4)}
+.wv-empty h3{font-family:var(--wv-font-display);font-size:22px;color:var(--wv-text);margin-bottom:var(--wv-space-2)}
+
+/* Toast */
+.wv-toast{
+  position:fixed;right:24px;bottom:24px;z-index:300;
+  display:flex;align-items:center;gap:var(--wv-space-3);
+  background:var(--wv-ink);color:var(--wv-cream);
+  border-radius:var(--wv-radius-md);padding:14px 18px;
+  box-shadow:var(--wv-shadow-elevated);font-size:14.5px;font-weight:500;
+  transform:translateY(16px);opacity:0;pointer-events:none;
+  transition:transform var(--wv-dur-mid) var(--wv-ease),opacity var(--wv-dur-mid) var(--wv-ease);
+}
+.wv-toast.wv-show{transform:none;opacity:1;pointer-events:auto}
+.wv-toast--success{background:var(--wv-green);color:var(--wv-green-ink)}
+.wv-toast--error{background:var(--wv-maroon);color:#fff}
+
+/* ==========================================================================
+   11. LOGO TREATMENT (canonical W-peaks tile + wordmark)
+   --------------------------------------------------------------------------
+   <span class="wv-logo"><span class="wv-logo-tile">W</span> Whis-AI</span>
+   Dark tile on cream · green tile auto-flips on .wv-dark.  NO owl/tiger.
+   ========================================================================== */
+.wv-logo{display:inline-flex;align-items:center;gap:var(--wv-space-2);font-family:var(--wv-font-ui);font-weight:700;font-size:18px;color:var(--wv-text)}
+.wv-logo-tile{
+  width:22px;height:22px;border-radius:6px;
+  background:var(--wv-ink);color:var(--wv-cream);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--wv-font-display);font-size:13px;line-height:1;
+}
+/* on green surfaces the tile becomes green-ink on deep-green so it reads as one family */
+.wv-dark .wv-logo-tile{background:var(--wv-green-2);color:var(--wv-green-ink);border:1px solid var(--wv-border)}
+.wv-logo--lg .wv-logo-tile{width:32px;height:32px;border-radius:8px;font-size:19px}
+.wv-logo--lg{font-size:24px}
+/* editorial wordmark (footer-scale) */
+.wv-wordmark{font-family:var(--wv-font-display);font-weight:600;font-size:clamp(80px,20vw,240px);line-height:.8;letter-spacing:-.04em;color:var(--wv-text)}
+
+/* ==========================================================================
+   12. MOTION + REDUCED-MOTION GUARD
+   ========================================================================== */
+/* scroll reveal choreography (add .wv-reveal, JS toggles .wv-in) */
+.wv-reveal{opacity:0;transform:translateY(26px) scale(.99);filter:blur(2px);
+  transition:opacity .8s var(--wv-ease),transform .8s var(--wv-ease),filter .8s var(--wv-ease)}
+.wv-reveal.wv-in{opacity:1;transform:none;filter:none}
+
+/* shared focus-visible ring for anything not otherwise handled */
+.wv-root :focus-visible,.wv-dark :focus-visible{outline:2px solid var(--wv-lav-deep);outline-offset:3px;border-radius:8px}
+
+@media (prefers-reduced-motion:reduce){
+  .wv-root *,.wv-dark *{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;scroll-behavior:auto !important;
+  }
+  .wv-reveal{opacity:1;transform:none;filter:none}
+  .wv-skeleton{animation:none;background:var(--wv-surface-2)}
+}
+
+/* ==========================================================================
+   13. RESPONSIVE  — every surface collapses the same way
+   --------------------------------------------------------------------------
+   Breakpoints:  tablet <= 900px  ·  mobile <= 720px  ·  small <= 520px
+   ========================================================================== */
+
+/* grid helpers used by every surface */
+.wv-grid{display:grid;gap:var(--wv-space-6)}
+.wv-grid--2{grid-template-columns:repeat(2,1fr)}
+.wv-grid--3{grid-template-columns:repeat(3,1fr)}
+.wv-grid--4{grid-template-columns:repeat(4,1fr)}
+
+@media (max-width:900px){
+  .wv-grid--4{grid-template-columns:repeat(2,1fr)}
+  .wv-grid--3{grid-template-columns:repeat(2,1fr)}
+  /* sidebar becomes a top row on tablet */
+  .wv-shell{flex-direction:column}
+  .wv-sidebar{width:auto;flex:none;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--wv-border)}
+  .wv-sidebar-head{display:none}
+}
+
+@media (max-width:720px){
+  .wv-wrap{padding:0 var(--wv-space-4)}
+  .wv-grid--2,.wv-grid--3,.wv-grid--4{grid-template-columns:1fr}
+  .wv-panel{padding:var(--wv-space-8) var(--wv-space-6);border-radius:var(--wv-radius-lg)}
+  .wv-topbar{padding:var(--wv-space-4) var(--wv-space-4)}
+  /* collapse pill-nav inline links; toggle via .wv-open on .wv-nav (JS + .wv-hamb) */
+  .wv-nav{position:relative}
+  .wv-nav .wv-nav-links{
+    position:absolute;top:calc(100% + 10px);left:0;right:0;margin:0;
+    flex-direction:column;align-items:stretch;gap:2px;
+    background:var(--wv-bg);border:1px solid var(--wv-border);
+    border-radius:var(--wv-radius-lg);padding:12px;box-shadow:var(--wv-shadow-card);
+  }
+  .wv-nav:not(.wv-open) .wv-nav-links{display:none}
+  .wv-nav .wv-nav-links a{padding:12px 14px;border-radius:var(--wv-radius-md);font-size:15px}
+  .wv-hamb{display:inline-flex}
+}
+
+/* hamburger toggle (hidden on desktop, shown by the query above) */
+.wv-hamb{
+  display:none;margin-left:auto;width:40px;height:40px;
+  align-items:center;justify-content:center;
+  background:var(--wv-surface-2);border:1px solid var(--wv-border);
+  border-radius:var(--wv-radius-sm);cursor:pointer;color:var(--wv-text);
+}
+
+@media (max-width:520px){
+  .wv-btn--lg{padding:13px 20px;font-size:15px}
+  .wv-modal .wv-modal-box{padding:24px 20px}
+}
+
+/* ==========================================================================
+   END — whis-v3.css
+   ========================================================================== */

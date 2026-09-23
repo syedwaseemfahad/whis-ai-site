@@ -13,28 +13,31 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1712'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' fill='%23faf6e9' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231a1712'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' fill='%23faf6e9' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
 
+  <!-- Fraunces / Inter / JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+  <!-- Shared design system (source of truth) — loaded BEFORE page-specific layout -->
+  <link rel="stylesheet" href="/whis-v3.css" />
   <link rel="stylesheet" href="/dashboard3.css" />
 
   <!-- pdf.js: parse uploaded PDFs to text, client-side -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script>try{ if(window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js'; }catch(e){}</script>
 </head>
-<body>
+<body class="wv-root">
   <div class="grain" aria-hidden="true"></div>
 
   <!-- ── Sign-in gate (shown when no whisUser) ── -->
   <div class="gate hidden" id="signInGate">
-    <div class="gate-card">
-      <a class="brand" href="/index3.html" aria-label="Whis-AI home">
-        <span class="mark">W</span> Whis<span class="accent">-AI</span>
+    <div class="gate-card wv-card">
+      <a class="wv-logo" href="/index3.html" aria-label="Whis-AI home">
+        <span class="wv-logo-tile">W</span> Whis-AI
       </a>
-      <h2 class="serif">Sign in to <span class="it">continue.</span></h2>
-      <p>Your sessions, transcripts and resumes live here. Continue with your Google account — no password, takes a second.</p>
-      <a class="g-btn" id="gateGoogleBtn" href="#">
+      <h2 class="wv-h2">Sign in to <span class="wv-italic">continue.</span></h2>
+      <p class="wv-muted">Your sessions, transcripts and resumes live here. Continue with your Google account — no password, takes a second.</p>
+      <a class="g-btn wv-btn wv-btn--dark wv-btn--block" id="gateGoogleBtn" href="#">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -43,27 +46,26 @@
         </svg>
         Continue with Google
       </a>
-      <p class="g-note">You'll return to your dashboard after signing in.</p>
+      <p class="g-note wv-muted">You'll return to your dashboard after signing in.</p>
     </div>
   </div>
 
   <!-- ── App shell ── -->
-  <div class="shell hidden" id="appShell">
+  <div class="shell wv-shell hidden" id="appShell">
 
     <!-- backdrop for mobile drawer -->
     <div class="sb-backdrop" id="sbBackdrop"></div>
 
     <!-- ─────────── Sidebar ─────────── -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sb-top">
-        <a class="brand" href="/index3.html" aria-label="Whis-AI home">
-          <span class="mark">W</span>
-          <span>Whis<span class="accent">-AI</span></span>
+    <aside class="sidebar wv-sidebar" id="sidebar">
+      <div class="sb-top wv-sidebar-head">
+        <a class="wv-logo" href="/index3.html" aria-label="Whis-AI home">
+          <span class="wv-logo-tile">W</span> Whis-AI
         </a>
       </div>
 
       <div class="sb-new">
-        <button class="btn btn-primary" id="newSessionBtnSide">
+        <button class="wv-btn wv-btn--primary wv-btn--block" id="newSessionBtnSide">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           New Session
         </button>
@@ -71,35 +73,35 @@
 
       <nav class="sb-nav">
         <div class="sb-group">
-          <div class="sb-label">Live</div>
-          <button class="nav-item active" data-screen="sessions" id="navSessions">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+          <div class="sb-label wv-eyebrow">Live</div>
+          <button class="nav-item wv-nav-item wv-active" data-screen="sessions" id="navSessions">
+            <span class="wv-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></span>
             Sessions
             <span class="live-dot"><span class="d"></span>Live</span>
           </button>
-          <button class="nav-item" data-screen="resumes">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h4"/></svg>
+          <button class="nav-item wv-nav-item" data-screen="resumes">
+            <span class="wv-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><path d="M9 13h6M9 17h4"/></svg></span>
             Resumes
           </button>
         </div>
 
         <div class="sb-group">
-          <div class="sb-label">Prepare</div>
-          <a class="nav-item" href="/mock-interview.html">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          <div class="sb-label wv-eyebrow">Prepare</div>
+          <a class="nav-item wv-nav-item" href="/mock-interview.html">
+            <span class="wv-nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
             Mock Interview
           </a>
         </div>
       </nav>
 
       <div class="sb-bottom">
-        <div class="plan-card" id="planCard">
+        <div class="plan-card wv-card" id="planCard">
           <div class="pc-row">
             <span class="pc-name" id="pcName">Free plan</span>
-            <span class="pc-badge" id="pcBadge">Trial</span>
+            <span class="pc-badge wv-badge wv-badge--trial" id="pcBadge">Trial</span>
           </div>
-          <div class="pc-sub" id="pcSub">Checking your plan…</div>
-          <a class="btn btn-primary btn-sm" id="upgradeBtn" href="/index3.html#pricing">
+          <div class="pc-sub wv-muted" id="pcSub">Checking your plan…</div>
+          <a class="wv-btn wv-btn--primary wv-btn--sm wv-btn--block" id="upgradeBtn" href="/index3.html#pricing">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg>
             Upgrade
           </a>
@@ -109,7 +111,7 @@
           <div class="avatar" id="profAvatar">?</div>
           <div class="p-meta">
             <div class="p-name" id="profName">—</div>
-            <div class="p-email" id="profEmail">—</div>
+            <div class="p-email wv-muted" id="profEmail">—</div>
           </div>
           <button class="p-out" id="logoutBtn" title="Sign out" aria-label="Sign out">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
@@ -119,13 +121,13 @@
     </aside>
 
     <!-- ─────────── Main ─────────── -->
-    <main class="main">
-      <div class="topbar">
-        <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <main class="main wv-shell-main">
+      <div class="topbar wv-topbar">
+        <button class="hamburger wv-hamb" id="hamburger" aria-label="Open menu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
         </button>
-        <a class="brand" href="/index3.html" aria-label="Whis-AI home"><span class="mark">W</span> <span>Whis<span class="accent">-AI</span></span></a>
-        <button class="btn btn-primary btn-sm" id="newSessionBtnTop">
+        <a class="wv-logo" href="/index3.html" aria-label="Whis-AI home"><span class="wv-logo-tile">W</span> Whis-AI</a>
+        <button class="wv-btn wv-btn--primary wv-btn--sm" id="newSessionBtnTop">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           New
         </button>
@@ -137,44 +139,44 @@
         <section class="screen active" id="screen-sessions">
           <div class="screen-head">
             <div>
-              <div class="eyebrow">Your workspace</div>
-              <h1 class="sh-title serif">Sessions.</h1>
-              <div class="sh-sub">Go live in one click, then come back to review every transcript.</div>
+              <div class="wv-eyebrow">Your workspace</div>
+              <h1 class="sh-title wv-display">Sessions.</h1>
+              <div class="sh-sub wv-body wv-muted">Go live in one click, then come back to review every transcript.</div>
             </div>
             <div class="sh-actions">
-              <a class="btn btn-ghost" href="/app3/" id="goLiveBtn">
+              <a class="wv-btn wv-btn--ghost" href="/app3/" id="goLiveBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
                 Go live
               </a>
-              <button class="btn btn-primary" id="newSessionBtnMain">
+              <button class="wv-btn wv-btn--primary" id="newSessionBtnMain">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
                 New Session
               </button>
             </div>
           </div>
 
-          <div class="promo" id="mockPromo">
+          <div class="promo wv-promo" id="mockPromo">
             <div class="pr-left">
               <div class="pr-ico">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 1 4 4v3a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
               </div>
               <div>
-                <div class="pr-h serif">Warm up with a <span class="it">free Mock Interview.</span></div>
-                <div class="pr-p">Practice real questions and get instant feedback before the call that matters.</div>
+                <div class="pr-h wv-h3">Warm up with a <span class="wv-italic">free Mock Interview.</span></div>
+                <div class="pr-p wv-muted">Practice real questions and get instant feedback before the call that matters.</div>
               </div>
             </div>
-            <a class="btn btn-ghost btn-sm" id="promoMockBtn" href="/mock-interview.html">Try it free</a>
+            <a class="wv-btn wv-btn--ghost wv-btn--sm" id="promoMockBtn" href="/mock-interview.html">Try it free</a>
           </div>
 
           <div class="toolbar">
-            <div class="filters" id="sessionFilters">
-              <button class="filter-tab active" data-filter="all">All</button>
+            <div class="filters wv-tabs" id="sessionFilters">
+              <button class="filter-tab wv-on" data-filter="all">All</button>
               <button class="filter-tab" data-filter="interview">Interview</button>
               <button class="filter-tab" data-filter="meeting">Meeting</button>
               <button class="filter-tab" data-filter="mock">Mock</button>
             </div>
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <div class="search-box wv-search">
+              <span class="wv-search-ic"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
               <input type="text" id="sessionSearch" placeholder="Search by role or company…" autocomplete="off" />
             </div>
             <div class="view-toggle" id="viewToggle">
@@ -189,9 +191,9 @@
 
           <!-- loading skeletons -->
           <div class="sk-grid" id="sessionsSkeleton">
-            <div class="sk-card"><div class="sk sk-ico"></div><div class="sk sk-line w70"></div><div class="sk sk-line w40"></div><div class="sk sk-line w55"></div></div>
-            <div class="sk-card"><div class="sk sk-ico"></div><div class="sk sk-line w70"></div><div class="sk sk-line w40"></div><div class="sk sk-line w55"></div></div>
-            <div class="sk-card"><div class="sk sk-ico"></div><div class="sk sk-line w70"></div><div class="sk sk-line w40"></div><div class="sk sk-line w55"></div></div>
+            <div class="sk-card wv-card"><div class="wv-skeleton sk-ico"></div><div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w40"></div><div class="wv-skeleton sk-line w55"></div></div>
+            <div class="sk-card wv-card"><div class="wv-skeleton sk-ico"></div><div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w40"></div><div class="wv-skeleton sk-line w55"></div></div>
+            <div class="sk-card wv-card"><div class="wv-skeleton sk-ico"></div><div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w40"></div><div class="wv-skeleton sk-line w55"></div></div>
           </div>
 
           <!-- grid -->
@@ -200,7 +202,7 @@
           <!-- table -->
           <div class="session-table-wrap hidden" id="sessionsTableWrap">
             <div class="table-scroll">
-              <table class="session-table">
+              <table class="session-table wv-table">
                 <thead>
                   <tr>
                     <th>Date</th><th>Company &amp; Role</th><th>Type</th><th>State</th><th>Duration</th><th></th>
@@ -212,29 +214,29 @@
           </div>
 
           <!-- empty state -->
-          <div class="state hidden" id="sessionsEmpty">
-            <div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
-            <h3 class="serif">No sessions <span class="it">yet.</span></h3>
-            <p>Start your first session and Whis will listen, read your screen, and feed you the right answer in real time.</p>
-            <button class="btn btn-primary" id="emptyNewBtn">
+          <div class="state wv-empty hidden" id="sessionsEmpty">
+            <div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+            <h3 class="wv-h3">No sessions <span class="wv-italic">yet.</span></h3>
+            <p class="wv-muted">Start your first session and Whis will listen, read your screen, and feed you the right answer in real time.</p>
+            <button class="wv-btn wv-btn--primary" id="emptyNewBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
               Start your first session
             </button>
           </div>
 
           <!-- no results (from search/filter) -->
-          <div class="state hidden" id="sessionsNoResults">
-            <div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
-            <h3 class="serif">No matching sessions</h3>
-            <p>Try a different filter or search term.</p>
+          <div class="state wv-empty hidden" id="sessionsNoResults">
+            <div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+            <h3 class="wv-h3">No matching sessions</h3>
+            <p class="wv-muted">Try a different filter or search term.</p>
           </div>
 
           <!-- error state -->
-          <div class="state error hidden" id="sessionsError">
-            <div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
-            <h3 class="serif">Couldn't load your sessions</h3>
-            <p>We couldn't reach the Whis-AI servers. Check your connection and try again.</p>
-            <button class="btn btn-ghost" id="retrySessionsBtn">
+          <div class="state error wv-empty hidden" id="sessionsError">
+            <div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+            <h3 class="wv-h3">Couldn't load your sessions</h3>
+            <p class="wv-muted">We couldn't reach the Whis-AI servers. Check your connection and try again.</p>
+            <button class="wv-btn wv-btn--ghost" id="retrySessionsBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
               Retry
             </button>
@@ -245,12 +247,12 @@
         <section class="screen" id="screen-resumes">
           <div class="screen-head">
             <div>
-              <div class="eyebrow">Your context</div>
-              <h1 class="sh-title serif">Resumes.</h1>
-              <div class="sh-sub">Add your resume so Whis gives personalized answers in your live interviews.</div>
+              <div class="wv-eyebrow">Your context</div>
+              <h1 class="sh-title wv-display">Resumes.</h1>
+              <div class="sh-sub wv-body wv-muted">Add your resume so Whis gives personalized answers in your live interviews.</div>
             </div>
             <div class="sh-actions">
-              <button class="btn btn-primary" id="newResumeBtn">
+              <button class="wv-btn wv-btn--primary" id="newResumeBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                 Add resume
               </button>
@@ -259,28 +261,28 @@
 
           <!-- loading -->
           <div class="doc-list" id="resumesSkeleton">
-            <div class="doc-row sk-row"><div class="sk sk-ico" style="margin:0"></div><div style="flex:1"><div class="sk sk-line w40"></div><div class="sk sk-line w70" style="margin:0"></div></div></div>
-            <div class="doc-row sk-row"><div class="sk sk-ico" style="margin:0"></div><div style="flex:1"><div class="sk sk-line w40"></div><div class="sk sk-line w70" style="margin:0"></div></div></div>
-            <div class="doc-row sk-row"><div class="sk sk-ico" style="margin:0"></div><div style="flex:1"><div class="sk sk-line w40"></div><div class="sk sk-line w70" style="margin:0"></div></div></div>
+            <div class="doc-row sk-row wv-card"><div class="wv-skeleton sk-ico" style="margin:0"></div><div style="flex:1"><div class="wv-skeleton sk-line w40"></div><div class="wv-skeleton sk-line w70" style="margin:0"></div></div></div>
+            <div class="doc-row sk-row wv-card"><div class="wv-skeleton sk-ico" style="margin:0"></div><div style="flex:1"><div class="wv-skeleton sk-line w40"></div><div class="wv-skeleton sk-line w70" style="margin:0"></div></div></div>
+            <div class="doc-row sk-row wv-card"><div class="wv-skeleton sk-ico" style="margin:0"></div><div style="flex:1"><div class="wv-skeleton sk-line w40"></div><div class="wv-skeleton sk-line w70" style="margin:0"></div></div></div>
           </div>
 
           <div class="doc-list hidden" id="resumesList"></div>
 
-          <div class="state hidden" id="resumesEmpty">
-            <div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></div>
-            <h3 class="serif">No resume <span class="it">yet.</span></h3>
-            <p>Add your resume so Whis gives personalized answers in your live interviews.</p>
-            <button class="btn btn-primary" id="resumesEmptyBtn">
+          <div class="state wv-empty hidden" id="resumesEmpty">
+            <div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></div>
+            <h3 class="wv-h3">No resume <span class="wv-italic">yet.</span></h3>
+            <p class="wv-muted">Add your resume so Whis gives personalized answers in your live interviews.</p>
+            <button class="wv-btn wv-btn--primary" id="resumesEmptyBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
               Add your resume
             </button>
           </div>
 
-          <div class="state error hidden" id="resumesError">
-            <div class="st-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
-            <h3 class="serif">Couldn't load your resumes</h3>
-            <p>We couldn't reach the Whis-AI servers. Check your connection and try again.</p>
-            <button class="btn btn-ghost" id="retryResumesBtn">
+          <div class="state error wv-empty hidden" id="resumesError">
+            <div class="st-ico wv-empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+            <h3 class="wv-h3">Couldn't load your resumes</h3>
+            <p class="wv-muted">We couldn't reach the Whis-AI servers. Check your connection and try again.</p>
+            <button class="wv-btn wv-btn--ghost" id="retryResumesBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>
               Retry
             </button>
@@ -292,21 +294,21 @@
   </div>
 
   <!-- ─────────── New Session modal ─────────── -->
-  <div class="modal-overlay" id="newSessionModal">
-    <div class="modal">
+  <div class="modal-overlay wv-modal" id="newSessionModal">
+    <div class="modal wv-modal-box">
       <div class="modal-head">
         <div>
-          <div class="mh-title serif">New session</div>
-          <div class="mh-sub">Set the context, then launch the live app to run it.</div>
+          <div class="mh-title wv-h3">New session</div>
+          <div class="mh-sub wv-muted">Set the context, then launch the live app to run it.</div>
         </div>
-        <button class="modal-close" data-close="newSessionModal" aria-label="Close">
+        <button class="modal-close wv-modal-x" data-close="newSessionModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
       <div class="modal-body">
         <div class="field">
-          <label for="nsMode">Mode</label>
-          <select id="nsMode">
+          <label class="wv-label" for="nsMode">Mode</label>
+          <select class="wv-select" id="nsMode">
             <option value="interview">Interview</option>
             <option value="meeting">Meeting</option>
             <option value="mock">Mock interview</option>
@@ -315,18 +317,18 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label for="nsCompany">Company</label>
-            <input type="text" id="nsCompany" placeholder="e.g. Stripe" autocomplete="off" />
+            <label class="wv-label" for="nsCompany">Company</label>
+            <input class="wv-input" type="text" id="nsCompany" placeholder="e.g. Stripe" autocomplete="off" />
           </div>
           <div class="field">
-            <label for="nsRole">Role</label>
-            <input type="text" id="nsRole" placeholder="e.g. Backend Engineer" autocomplete="off" />
+            <label class="wv-label" for="nsRole">Role</label>
+            <input class="wv-input" type="text" id="nsRole" placeholder="e.g. Backend Engineer" autocomplete="off" />
           </div>
         </div>
         <div class="field-row">
           <div class="field">
-            <label for="nsLanguage">Language</label>
-            <select id="nsLanguage">
+            <label class="wv-label" for="nsLanguage">Language</label>
+            <select class="wv-select" id="nsLanguage">
               <option value="en">English</option>
               <option value="es">Spanish</option>
               <option value="hi">Hindi</option>
@@ -336,8 +338,8 @@
             </select>
           </div>
           <div class="field">
-            <label for="nsModel">Model</label>
-            <select id="nsModel">
+            <label class="wv-label" for="nsModel">Model</label>
+            <select class="wv-select" id="nsModel">
               <option value="fast">Fast</option>
               <option value="balanced" selected>Balanced</option>
               <option value="pro">Pro (highest quality)</option>
@@ -345,13 +347,13 @@
           </div>
         </div>
         <div class="field">
-          <label for="nsInstructions">Custom instructions <span class="dim">(optional)</span></label>
-          <textarea id="nsInstructions" placeholder="Anything Whis should keep in mind — tone, focus areas, things to avoid…"></textarea>
+          <label class="wv-label" for="nsInstructions">Custom instructions <span class="dim">(optional)</span></label>
+          <textarea class="wv-textarea" id="nsInstructions" placeholder="Anything Whis should keep in mind — tone, focus areas, things to avoid…"></textarea>
         </div>
       </div>
       <div class="modal-foot">
-        <button class="btn btn-ghost" data-close="newSessionModal">Cancel</button>
-        <button class="btn btn-primary" id="createSessionBtn">
+        <button class="wv-btn wv-btn--ghost" data-close="newSessionModal">Cancel</button>
+        <button class="wv-btn wv-btn--primary" id="createSessionBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           Create &amp; launch
         </button>
@@ -360,14 +362,14 @@
   </div>
 
   <!-- ─────────── Transcript viewer modal ─────────── -->
-  <div class="modal-overlay" id="transcriptModal">
-    <div class="modal wide">
+  <div class="modal-overlay wv-modal" id="transcriptModal">
+    <div class="modal wide wv-modal-box">
       <div class="modal-head">
         <div>
-          <div class="mh-title serif" id="tvTitle">Session transcript</div>
-          <div class="mh-sub" id="tvSub">—</div>
+          <div class="mh-title wv-h3" id="tvTitle">Session transcript</div>
+          <div class="mh-sub wv-muted" id="tvSub">—</div>
         </div>
-        <button class="modal-close" data-close="transcriptModal" aria-label="Close">
+        <button class="modal-close wv-modal-x" data-close="transcriptModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
@@ -383,7 +385,7 @@
           </div>
           <div class="ask-input">
             <input type="text" id="askInput" placeholder="e.g. What did I miss? How could I answer better?" autocomplete="off" />
-            <button class="btn btn-primary btn-sm" id="askBtn">Ask</button>
+            <button class="wv-btn wv-btn--primary wv-btn--sm" id="askBtn">Ask</button>
           </div>
           <div class="ask-answer" id="askAnswer"></div>
         </div>
@@ -392,24 +394,24 @@
   </div>
 
   <!-- ─────────── Add resume modal ─────────── -->
-  <div class="modal-overlay" id="resumeModal">
-    <div class="modal">
+  <div class="modal-overlay wv-modal" id="resumeModal">
+    <div class="modal wv-modal-box">
       <div class="modal-head">
         <div>
-          <div class="mh-title serif">Add your resume</div>
-          <div class="mh-sub">Upload a PDF or paste your resume text. Whis reads it to give personalized answers in your live interviews.</div>
+          <div class="mh-title wv-h3">Add your resume</div>
+          <div class="mh-sub wv-muted">Upload a PDF or paste your resume text. Whis reads it to give personalized answers in your live interviews.</div>
         </div>
-        <button class="modal-close" data-close="resumeModal" aria-label="Close">
+        <button class="modal-close wv-modal-x" data-close="resumeModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
       <div class="modal-body">
         <div class="field">
-          <label for="resName">Title</label>
-          <input type="text" id="resName" placeholder="e.g. Backend Engineer — 2026" autocomplete="off" />
+          <label class="wv-label" for="resName">Title</label>
+          <input class="wv-input" type="text" id="resName" placeholder="e.g. Backend Engineer — 2026" autocomplete="off" />
         </div>
         <div class="field">
-          <label>Upload a PDF <span class="dim">(optional)</span></label>
+          <label class="wv-label">Upload a PDF <span class="dim">(optional)</span></label>
           <label class="dropzone" id="resDrop">
             <input type="file" id="resFile" accept=".pdf,application/pdf" hidden />
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
@@ -417,26 +419,26 @@
           </label>
         </div>
         <div class="field">
-          <label for="resBody">Resume text</label>
-          <textarea id="resBody" placeholder="Paste your resume text here…"></textarea>
+          <label class="wv-label" for="resBody">Resume text</label>
+          <textarea class="wv-textarea" id="resBody" placeholder="Paste your resume text here…"></textarea>
         </div>
       </div>
       <div class="modal-foot">
-        <button class="btn btn-ghost" data-close="resumeModal">Cancel</button>
-        <button class="btn btn-primary" id="saveResumeBtn">Save resume</button>
+        <button class="wv-btn wv-btn--ghost" data-close="resumeModal">Cancel</button>
+        <button class="wv-btn wv-btn--primary" id="saveResumeBtn">Save resume</button>
       </div>
     </div>
   </div>
 
   <!-- ─────────── Viewer modal (resume) ─────────── -->
-  <div class="modal-overlay" id="viewerModal">
-    <div class="modal wide">
+  <div class="modal-overlay wv-modal" id="viewerModal">
+    <div class="modal wide wv-modal-box">
       <div class="modal-head">
         <div>
-          <div class="mh-title serif" id="viewerTitle">Resume</div>
-          <div class="mh-sub" id="viewerSub">—</div>
+          <div class="mh-title wv-h3" id="viewerTitle">Resume</div>
+          <div class="mh-sub wv-muted" id="viewerSub">—</div>
         </div>
-        <button class="modal-close" data-close="viewerModal" aria-label="Close">
+        <button class="modal-close wv-modal-x" data-close="viewerModal" aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
       </div>
@@ -446,7 +448,7 @@
     </div>
   </div>
 
-  <div class="toast" id="toast"><span id="toastMsg"></span></div>
+  <div class="toast wv-toast" id="toast"><span id="toastMsg"></span></div>
 
   <script src="/dashboard3.js"></script>
 </body>

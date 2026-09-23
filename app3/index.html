@@ -69,6 +69,12 @@
     <!-- WEB ADAPTATION: loaded LAST so it overrides styles.css AND the inline block above.
          Turns the narrow desktop-overlay column into a real, responsive web/mobile app. -->
     <link rel="stylesheet" href="app-web.css" />
+    <!-- SHARED v3 DESIGN SYSTEM: the single source of truth shared with index3 +
+         dashboard3. Provides the canonical wv-* components (logo, buttons, badges,
+         pills, chips, inputs, display type) + tokens. The app root carries
+         `wv-dark` so these render in the forest-green variant. Path is ../ because
+         app3 is a subfolder. -->
+    <link rel="stylesheet" href="../whis-v3.css" />
     <!-- EDITORIAL v3 RESKIN: loaded LAST so it overrides styles.css AND app-web.css.
          Repaints the app to the dark forest-green editorial system (brand-kit-v3):
          green base, lavender accent, Fraunces display type, hairline borders.
@@ -76,7 +82,11 @@
          are unchanged — this is a pure visual layer. -->
     <link rel="stylesheet" href="app3-editorial.css" />
   </head>
-  <body>
+  <!-- `wv-dark` puts the shared v3 design system in forest-green mode so the
+       canonical wv-* components (logo, buttons, badges, pills, inputs) render
+       in the same brand as index3/dashboard3. renderer/whis-web-api.js add
+       `whis-web` alongside it at runtime. -->
+  <body class="wv-dark">
 
     <!-- Animated gradient border — SVG fill:none so only the stroke line is visible -->
     <svg id="whis-border-ring" xmlns="http://www.w3.org/2000/svg">
@@ -105,18 +115,11 @@
     <div class="whis-global-header">
        
        <div class="header-left no-drag">
-           <a class="whis-logo-container" href="/index3.html" title="Whis-AI home" style="text-decoration:none;">
-                <!-- Canonical W-peaks brand mark (recolored to the v3 lavender accent). -->
-                <span class="whis-logo-mark">
-                    <svg class="whis-logo-svg" width="22" height="18" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 9 L7.5 2 L10 9" fill="rgba(195,169,239,0.24)"/>
-                        <path d="M14 9 L16.5 2 L19 9" fill="rgba(195,169,239,0.24)"/>
-                        <path d="M2 5 L6 17 L12 9 L18 17 L22 5" stroke="#eaf3ec" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                        <circle cx="8.5" cy="12" r="1.8" fill="#c3a9ef"/>
-                        <circle cx="15.5" cy="12" r="1.8" fill="#c3a9ef"/>
-                    </svg>
-                </span>
-                <span class="whis-logo-text">Whis<span class="whis-logo-accent">-AI</span></span>
+           <!-- Canonical shared logo (whis-v3.css .wv-logo): W-peaks tile + wordmark,
+                identical to index3/dashboard3. Tile auto-flips to green on .wv-dark. -->
+           <a class="whis-logo-container wv-logo" href="/index3.html" title="Whis-AI home" style="text-decoration:none;">
+                <span class="wv-logo-tile">W</span>
+                <span>Whis-AI</span>
            </a>
        </div>
 
@@ -172,7 +175,7 @@
            </div>
 
            <!-- One-click trial button visible in header for free users -->
-           <button id="header-trial-btn" class="header-trial-btn" style="display:none;" title="Start your free 5-minute trial">
+           <button id="header-trial-btn" class="header-trial-btn wv-btn wv-btn--primary wv-btn--sm" style="display:none;" title="Start your free 5-minute trial">
              <i class="fa-solid fa-bolt"></i> Try Free
            </button>
 
@@ -804,9 +807,9 @@
 
     <div id="login-overlay" class="content-overlay no-drag" style="display: flex;">
       <div class="login-card no-drag">
-        <h1>Whis-AI</h1>
+        <h1 class="wv-h2">Whis-AI</h1>
         <p class="login-subtitle">Sign in to access your live call copilot.</p>
-        <button id="login-btn" class="login-btn-premium google-sign-in-btn">
+        <button id="login-btn" class="login-btn-premium google-sign-in-btn wv-btn wv-btn--primary wv-btn--block">
           <span class="icon">G</span> Sign in with Google
         </button>
         <button id="login-cancel-btn" style="display:none; background:transparent; border:none; color:var(--text-sub); margin-top:10px; cursor:default; font-size:12px; width:100%; text-decoration:underline;">
@@ -822,21 +825,21 @@
         <div class="whis-logo-circle" style="width:40px; height:40px; font-size:18px; margin:0 auto 10px; background: radial-gradient(circle at 15% 15%, #ffaa00, #ff4d4d);">
           <span>🔒</span>
         </div>
-        <h1>Limit Reached</h1>
+        <h1 class="wv-h2">Limit Reached</h1>
         <p class="login-subtitle">Your free usage or subscription has ended.</p>
         <div class="stakes-line">The job you're interviewing for is worth <b>1000×</b> this. Don't lose the offer over one frozen answer.</div>
         <div class="stakes-guarantee"><i class="fa-solid fa-shield-halved"></i> 7-day money-back guarantee</div>
-        <button id="lock-start-trial-btn" class="login-btn-premium" style="margin-bottom:10px; background: linear-gradient(135deg, #0288d6, #29b6f6); color: #000; display:none;">
+        <button id="lock-start-trial-btn" class="login-btn-premium wv-btn wv-btn--primary wv-btn--block" style="margin-bottom:10px; display:none;">
            <i class="fa-solid fa-bolt"></i> Use 10-Min Free Pass
         </button>
-        <button id="sub-btn" class="login-btn-premium" style="background: linear-gradient(135deg, #0288d6, #29b6f6); color: #000;">
+        <button id="sub-btn" class="login-btn-premium wv-btn wv-btn--primary wv-btn--block">
           Upgrade to Pro
         </button>
         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;">
-          <button id="sub-refresh-btn" class="login-btn-premium" style="flex:1; background: rgba(255, 255, 255, 0.1); color: var(--text-main);">
+          <button id="sub-refresh-btn" class="login-btn-premium wv-btn wv-btn--ghost" style="flex:1;">
             <i class="fa-solid fa-arrows-rotate"></i> Check Status
           </button>
-          <button id="sub-logout-btn" class="login-btn-premium" style="flex:1; background: rgba(255, 255, 255, 0.1); color: var(--text-main);">
+          <button id="sub-logout-btn" class="login-btn-premium wv-btn wv-btn--ghost" style="flex:1;">
             <i class="fa-solid fa-right-from-bracket"></i> Sign out
           </button>
         </div>
@@ -849,7 +852,7 @@
             <button id="trial-modal-x" class="overlay-close-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
             <div class="trial-header">
                 <i class="fa-solid fa-bolt trial-main-icon"></i>
-                <h2>Start Your Free Elite Trial</h2>
+                <h2 class="wv-h3">Start Your Free Elite Trial</h2>
                 <p id="trial-sessions-left" class="trial-sessions-count">2 free trials left today</p>
             </div>
 
@@ -881,7 +884,7 @@
             </div>
             <div class="trial-offer-badge"><i class="fa-solid fa-circle-check"></i> Trial Complete</div>
 
-            <h2 class="trial-offer-title">Walk in ready.<br>Walk out hired.</h2>
+            <h2 class="trial-offer-title wv-h2">Walk in ready.<br>Walk out hired.</h2>
             <p class="trial-offer-recap" id="trial-offer-recap">You just felt the edge. Keep it for the interview that counts.</p>
 
             <!-- Personalized deadline — populated by renderer only when the user gave an interview date -->
@@ -926,19 +929,19 @@
         <div class="login-card io-card no-drag">
             <button id="io-x" class="overlay-close-x" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
             <div class="trial-offer-hero"><span class="trial-offer-hero-ring"><i class="fa-solid fa-calendar-check"></i></span></div>
-            <h2 class="io-title">When's your interview?</h2>
+            <h2 class="io-title wv-h3">When's your interview?</h2>
             <p class="io-sub">Whis will count down with you — so you walk in ready, not rushed.</p>
 
             <div class="io-chips" id="io-chips">
-                <button type="button" class="io-chip" data-days="4">This week</button>
-                <button type="button" class="io-chip" data-days="10">Next week</button>
-                <button type="button" class="io-chip" data-days="21">2–4 weeks</button>
-                <button type="button" class="io-chip" data-days="">Just exploring</button>
+                <button type="button" class="io-chip wv-chip" data-days="4">This week</button>
+                <button type="button" class="io-chip wv-chip" data-days="10">Next week</button>
+                <button type="button" class="io-chip wv-chip" data-days="21">2–4 weeks</button>
+                <button type="button" class="io-chip wv-chip" data-days="">Just exploring</button>
             </div>
 
             <div class="io-field">
                 <i class="fa-regular fa-building io-field-ic"></i>
-                <input id="io-company" class="io-input" type="text" placeholder="Company (optional)" maxlength="120" aria-label="Company" />
+                <input id="io-company" class="io-input wv-input" type="text" placeholder="Company (optional)" maxlength="120" aria-label="Company" />
             </div>
 
             <button id="io-save" class="trial-option-btn elite io-save-btn">
@@ -961,7 +964,7 @@
                 <i class="fa-solid fa-plus"></i> Add New Context
             </button>
             <div id="context-editor-view" style="display:none; flex-direction:column; height:100%;">
-                <input type="text" id="ctx-name-input" placeholder="Context Name (e.g., Resume)" class="ctx-input" maxlength="30" />
+                <input type="text" id="ctx-name-input" placeholder="Context Name (e.g., Resume)" class="ctx-input wv-input" maxlength="30" />
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding: 0 4px;">
                     <span style="font-size: 12px; color: var(--text-sub);">Or upload file (TXT, PDF, DOCX):</span>
                     <input type="file" id="ctx-file-input" accept=".txt,.pdf,.docx" style="display:none;" />
@@ -969,10 +972,10 @@
                         <i class="fa-solid fa-file-arrow-up"></i> Upload
                     </button>
                 </div>
-                <textarea id="ctx-content-input" placeholder="Paste your content here (Resume text, Job description, Meeting notes, etc)..." class="ctx-input" style="flex:1; margin-top:10px; resize:none;"></textarea>
+                <textarea id="ctx-content-input" placeholder="Paste your content here (Resume text, Job description, Meeting notes, etc)..." class="ctx-input wv-textarea" style="flex:1; margin-top:10px; resize:none;"></textarea>
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button id="cancel-ctx-btn" class="login-btn-premium" style="background:rgba(255,255,255,0.1);">Cancel</button>
-                    <button id="save-ctx-btn" class="login-btn-premium" style="background:linear-gradient(135deg, #0288d6, #29b6f6); color:#000;">Save Context</button>
+                    <button id="cancel-ctx-btn" class="login-btn-premium wv-btn wv-btn--ghost">Cancel</button>
+                    <button id="save-ctx-btn" class="login-btn-premium wv-btn wv-btn--primary">Save Context</button>
                 </div>
             </div>
         </div>
@@ -985,14 +988,14 @@
                 <button id="close-report-btn" style="background:none; border:none; color:var(--text-sub); cursor:default; font-size:18px;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Please describe the inappropriate content generated by the AI.</p>
-            <select id="report-reason" class="ctx-input" style="width: 100%; margin-bottom: 10px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px;">
+            <select id="report-reason" class="ctx-input wv-select" style="width: 100%; margin-bottom: 10px;">
                 <option value="Offensive or Abusive">Offensive or Abusive</option>
                 <option value="Inaccurate or Misleading">Inaccurate or Misleading</option>
                 <option value="Harmful or Dangerous">Harmful or Dangerous</option>
                 <option value="Other">Other</option>
             </select>
-            <textarea id="report-details" class="ctx-input" placeholder="Additional details (optional)..." rows="4" style="width: 100%; resize: none; margin-bottom: 15px;"></textarea>
-            <button id="submit-report-btn" class="login-btn-premium" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.5);">Submit Report</button>
+            <textarea id="report-details" class="ctx-input wv-textarea" placeholder="Additional details (optional)..." rows="4" style="width: 100%; resize: none; margin-bottom: 15px;"></textarea>
+            <button id="submit-report-btn" class="login-btn-premium wv-btn wv-btn--ghost">Submit Report</button>
             <div id="report-status" class="login-error" style="margin-top: 10px; text-align: center;"></div>
         </div>
     </div>
@@ -1003,8 +1006,8 @@
             <h2 style="margin:0 0 10px 0; font-size: 20px; color: #fff;">Usage Warning</h2>
             <p style="font-size: 14px; color: #aaa; margin-bottom: 25px;">You have been using the app for the last 60 minutes. Please close the app to save your minutes.</p>
             <div style="display: flex; gap: 15px; justify-content: center;">
-                <button id="usage-warning-continue-btn" class="login-btn-premium" style="background: rgba(255,255,255,0.1); color: var(--text-main); flex: 1;">No, continue</button>
-                <button id="usage-warning-close-btn" class="login-btn-premium" style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; flex: 1;">Close App</button>
+                <button id="usage-warning-continue-btn" class="login-btn-premium wv-btn wv-btn--ghost" style="flex: 1;">No, continue</button>
+                <button id="usage-warning-close-btn" class="login-btn-premium wv-btn wv-btn--ghost" style="flex: 1;">Close App</button>
             </div>
             <div id="usage-warning-countdown" style="margin-top: 15px; font-size: 12px; color: #ff6b6b;">Auto-closing in <span id="usage-warning-sec">60</span>s...</div>
         </div>
@@ -1014,7 +1017,7 @@
 
        <!-- Persistent "buy anytime" pill — always visible for non-Elite users.
             Opens the exact same offer card shown when a trial completes. -->
-       <button id="upgrade-fab" class="upgrade-fab no-drag" style="display:none;" title="Upgrade to Whis Elite">
+       <button id="upgrade-fab" class="upgrade-fab no-drag wv-btn wv-btn--primary" style="display:none;" title="Upgrade to Whis Elite">
          <i class="fa-solid fa-bolt"></i><span>Upgrade to Elite</span>
        </button>
 
@@ -1024,14 +1027,14 @@
            <div class="free-trial-cta-icon-wrap">
              <i class="fa-solid fa-bolt free-trial-bolt-icon"></i>
            </div>
-           <div class="free-trial-badge">Free Tier</div>
-           <h3 class="free-trial-title">Start Your Free Trial</h3>
+           <div class="free-trial-badge wv-badge">Free Tier</div>
+           <h3 class="free-trial-title wv-h3">Start Your Free Trial</h3>
            <p class="free-trial-desc">Get <strong>2 × 5-minute trials per day</strong> of full access — unlimited answers, advanced AI, and context personalization.</p>
            <div class="free-trial-sessions-row">
              <i class="fa-solid fa-stopwatch"></i>
              <span id="free-trial-sessions-text">2 free 5-min trials today</span>
            </div>
-           <button id="free-trial-cta-btn" class="free-trial-cta-btn">
+           <button id="free-trial-cta-btn" class="free-trial-cta-btn wv-btn wv-btn--primary wv-btn--block">
              <i class="fa-solid fa-play"></i> Start Free Trial Now
            </button>
            <p class="free-trial-footnote">No credit card required &nbsp;·&nbsp; Full Pro features included</p>
@@ -1079,13 +1082,14 @@
        </div>
 
        <!-- Quick prompt chips — hidden during active session -->
+       <!-- Quick prompts → shared wv-chip pills (whis-v3.css). -->
        <div id="quick-prompts" class="quick-prompts no-drag">
-         <button class="quick-prompt-chip" data-prompt="Answer in STAR format">STAR format</button>
-         <button class="quick-prompt-chip" data-prompt="Give me Python code">Python code</button>
-         <button class="quick-prompt-chip" data-prompt="Be more concise">Be concise</button>
-         <button class="quick-prompt-chip" data-prompt="Explain simply">Explain simply</button>
-         <button class="quick-prompt-chip" data-prompt="Walk me through the trade-offs">Trade-offs</button>
-         <button class="quick-prompt-chip" data-prompt="What are the edge cases?">Edge cases</button>
+         <button class="quick-prompt-chip wv-chip" data-prompt="Answer in STAR format">STAR format</button>
+         <button class="quick-prompt-chip wv-chip" data-prompt="Give me Python code">Python code</button>
+         <button class="quick-prompt-chip wv-chip" data-prompt="Be more concise">Be concise</button>
+         <button class="quick-prompt-chip wv-chip" data-prompt="Explain simply">Explain simply</button>
+         <button class="quick-prompt-chip wv-chip" data-prompt="Walk me through the trade-offs">Trade-offs</button>
+         <button class="quick-prompt-chip wv-chip" data-prompt="What are the edge cases?">Edge cases</button>
        </div>
 
        <div class="input-row no-drag">
@@ -1101,7 +1105,7 @@
           </button>
                 
           <div class="input-container">
-            <textarea id="input" rows="1" placeholder="Ask a question..."></textarea>
+            <textarea id="input" class="wv-input" rows="1" placeholder="Ask a question..."></textarea>
             <button id="context-quick-btn" class="context-quick-btn" title="Add your resume / context for tailored answers">
                 <i class="fa-solid fa-paperclip"></i>
             </button>
@@ -1110,7 +1114,8 @@
             </button>
           </div>
           
-          <button id="send-btn" class="send-btn">
+          <!-- PRIMARY action → shared lavender pill (whis-v3.css). -->
+          <button id="send-btn" class="send-btn wv-btn wv-btn--primary">
              <i class="fa-solid fa-paper-plane"></i>
           </button>
 
@@ -1219,8 +1224,8 @@
         </div>
       </div>
       <div class="support-chat-input-row">
-        <input type="text" id="support-chat-input" class="support-chat-input" placeholder="Type a message…" autocomplete="off" />
-        <button id="support-chat-send-btn" class="support-chat-send-btn">
+        <input type="text" id="support-chat-input" class="support-chat-input wv-input" placeholder="Type a message…" autocomplete="off" />
+        <button id="support-chat-send-btn" class="support-chat-send-btn wv-btn wv-btn--primary">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
@@ -1451,7 +1456,7 @@
         </div>
 
         <!-- Headline -->
-        <h2 class="ctx-ob-title">Make Whis-AI Sound Like <span class="ctx-ob-title-you">You</span></h2>
+        <h2 class="ctx-ob-title wv-h3">Make Whis-AI Sound Like <span class="ctx-ob-title-you">You</span></h2>
         <p class="ctx-ob-subtitle">A 30-second setup that transforms every answer from generic to unmistakably yours — referencing your real projects, stack, and experience.</p>
 
         <!-- Benefit row -->
@@ -1472,12 +1477,12 @@
             </button>
             <input type="file" id="ctx-ob-file-input" accept=".txt,.pdf,.docx" style="display:none;" />
           </div>
-          <textarea id="ctx-ob-textarea" class="ctx-ob-textarea" placeholder="Paste your resume, LinkedIn About section, or any background here. Even a short paragraph about your experience helps. The AI will reference your specific projects, skills, and expertise in every answer…"></textarea>
+          <textarea id="ctx-ob-textarea" class="ctx-ob-textarea wv-textarea" placeholder="Paste your resume, LinkedIn About section, or any background here. Even a short paragraph about your experience helps. The AI will reference your specific projects, skills, and expertise in every answer…"></textarea>
           <div class="ctx-ob-char-hint" id="ctx-ob-char-hint">0 / 32,768 characters</div>
         </div>
 
         <!-- Primary CTA -->
-        <button id="ctx-ob-save-btn" class="ctx-ob-save-btn">
+        <button id="ctx-ob-save-btn" class="ctx-ob-save-btn wv-btn wv-btn--primary wv-btn--block">
           <i class="fa-solid fa-sparkles"></i>
           Save &amp; Personalize My Answers
         </button>
