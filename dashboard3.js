@@ -125,7 +125,7 @@
     } catch (e) {
       // Graceful fallback, don't block the dashboard on status.
       nameEl.textContent = 'Free plan';
-      badgeEl.textContent = 'Trial';
+      badgeEl.textContent = 'Free session';
       badgeEl.classList.remove('wv-badge--elite');
       badgeEl.classList.add('wv-badge--trial');
       subEl.textContent = 'Upgrade to unlock unlimited sessions.';
@@ -149,7 +149,7 @@
       btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.2 2h-.4a2 2 0 0 0-2 1.7l-.2 1a7.5 7.5 0 0 0-1.7 1l-1-.4a2 2 0 0 0-2.5.9l-.2.3a2 2 0 0 0 .5 2.6l.8.6a7.6 7.6 0 0 0 0 2l-.8.6a2 2 0 0 0-.5 2.6l.2.3a2 2 0 0 0 2.5.9l1-.4a7.5 7.5 0 0 0 1.7 1l.2 1a2 2 0 0 0 2 1.7h.4a2 2 0 0 0 2-1.7l.2-1a7.5 7.5 0 0 0 1.7-1l1 .4a2 2 0 0 0 2.5-.9l.2-.3a2 2 0 0 0-.5-2.6l-.8-.6a7.6 7.6 0 0 0 0-2l.8-.6a2 2 0 0 0 .5-2.6l-.2-.3a2 2 0 0 0-2.5-.9l-1 .4a7.5 7.5 0 0 0-1.7-1l-.2-1A2 2 0 0 0 12.2 2z"/><circle cx="12" cy="12" r="3"/></svg> Manage plan';
     } else {
       nameEl.textContent = 'Free plan';
-      badgeEl.textContent = isTrial ? 'Trial' : 'Free';
+      badgeEl.textContent = isTrial ? 'Free session' : 'Free';
       badgeEl.classList.remove('elite');
       let sub = 'Upgrade to unlock unlimited sessions.';
       if (s.trialMinutesLeft != null) sub = `${s.trialMinutesLeft} trial minutes left.`;
