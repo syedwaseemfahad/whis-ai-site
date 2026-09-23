@@ -253,8 +253,8 @@
   .toggle button{font-family:inherit;font-weight:600;font-size:14px;border:0;background:transparent;color:var(--ink-soft);padding:9px 16px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
   .toggle button.on{background:var(--lav);color:var(--ink)}
   .toggle .save{background:var(--ink);color:var(--cream);font-size:10px;padding:2px 6px;border-radius:999px;font-weight:600}
-  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start;margin-top:28px}
-  .plan{position:relative;background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px 26px}
+  .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch;margin-top:28px}
+  .plan{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px 26px}
   .plan.featured{border-color:var(--ink);box-shadow:var(--shadow)}
   .sticker{position:absolute;top:-15px;left:50%;transform:translateX(-50%) rotate(-3deg);font-weight:700;font-size:13.5px;padding:6px 15px;border-radius:999px;color:#fff;box-shadow:0 6px 16px -6px rgba(0,0,0,.4)}
   .sticker.free{background:var(--terra)} .sticker.elite{background:var(--lav);color:var(--ink)} .sticker.team{background:var(--maroon);transform:translateX(-50%) rotate(3deg)}
@@ -1020,18 +1020,19 @@
     }catch(e){ console.error('config',e); }
   }
   function renderPricing(){ if(!PRICING)return;
-    // Show every Elite card as a comparable per-month price, then spell out exactly
-    // what is charged and when — so quarterly never reads as an extra or hidden fee.
+    // Headline shows the REAL amount charged for that plan (monthly = per month,
+    // quarterly = the true 3-month payment), with the per-month equivalent + savings
+    // in the sub, so nothing reads as an extra or hidden fee.
     [['monthly','pm'],['quarterly','pq'],['semiannual','ps']].forEach(([cyc,pre])=>{
       const v=elitePrice(cyc,false); if(v==null)return;
       const months=cyc==='monthly'?1:cyc==='quarterly'?3:6;
-      const perMo=v/months;
-      const perShown=IS_INDIA?Math.round(perMo).toLocaleString('en-IN'):perMo.toFixed(2);
-      const tot=document.getElementById(pre+'Total'); if(tot) tot.innerHTML=`${sym()}${perShown}<small>/mo</small>`;
+      const per=cyc==='monthly'?'/mo':cyc==='quarterly'?'/3 mo':'/6 mo';
+      const tot=document.getElementById(pre+'Total'); if(tot) tot.innerHTML=`${sym()}${money(v)}<small>${per}</small>`;
       const sup=document.getElementById(pre+'Support');
-      if(sup){ if(cyc==='monthly'){ sup.innerHTML='One charge of <b>'+sym()+money(v)+'</b> each month'; }
-        else{ const m=elitePrice('monthly',false),save=m?Math.round((1-perMo/m)*100):0;
-          sup.innerHTML=`One payment of <b>${sym()}${money(v)}</b> for ${months} months · <span style="color:#0a7f4f;font-weight:800">save ${save}% vs monthly</span>`; } }
+      if(sup){ if(cyc==='monthly'){ sup.innerHTML='Billed once a month'; }
+        else{ const m=elitePrice('monthly',false),perMo=v/months,save=m?Math.round((1-perMo/m)*100):0;
+          const shown=IS_INDIA?Math.round(perMo).toLocaleString('en-IN'):perMo.toFixed(2);
+          sup.innerHTML=`One payment for ${months} months · just ${sym()}${shown}/mo · <span style="color:#0a7f4f;font-weight:800">save ${save}% vs monthly</span>`; } }
     });
   }
   function renderHours(){ const mh=(SITE_CONFIG&&SITE_CONFIG.micHours)||{monthly:10,quarterly:15,semiannual:20},order=['monthly','quarterly','semiannual'];
