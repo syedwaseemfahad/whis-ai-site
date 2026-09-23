@@ -5956,6 +5956,14 @@ function _appendTranscript(role, text) {
         liveTranscript.push({ role, text: text.trim(), ts: Date.now() });
     }
     _renderLiveTranscript();
+    // WEB: persist this finalized segment to the user's session so the dashboard's
+    // "View transcript" is real. No-op on desktop and for signed-out users;
+    // fire-and-forget so it never blocks capture.
+    try {
+        if (window.WHIS_WEB && typeof WhisTranscriptSync !== 'undefined') {
+            WhisTranscriptSync.noteSegment(role, text.trim());
+        }
+    } catch (_) {}
 }
 
 function _renderLiveTranscript() {
@@ -6131,6 +6139,15 @@ async function startListening() {
   if (!hasPermission) return;
 
   if (isListening) return;
+
+  // WEB: a live session has begun → make sure a dashboard session exists (uses the
+  // URL's sessionId if the dashboard passed one, else creates one lazily, once).
+  // No-op on desktop / signed-out users; never blocks the capture path.
+  try {
+    if (window.WHIS_WEB && typeof WhisTranscriptSync !== 'undefined') {
+      WhisTranscriptSync.ensureSession();
+    }
+  } catch (_) {}
 
   try {
     let stream;
@@ -8139,6 +8156,10 @@ const WhisSession = (() => {
     // Stop capture cleanly (silent — no toast spam).
     try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
 
+    // WEB: persist the end of this live session to the dashboard (flushes any
+    // buffered transcript, then POSTs /end with durationSec). Best-effort.
+    try { if (typeof WhisTranscriptSync !== 'undefined') WhisTranscriptSync.end(false); } catch (_) {}
+
     document.body.classList.remove('whis-session-active');
     // Back to the normal welcome / empty state.
     try { renderMessages(); } catch (_) {}
@@ -8159,6 +8180,207 @@ const WhisSession = (() => {
   return { init, enter, exit, isActive, mirrorTranscript };
 })();
 
+// ============================================================================
+// WEB: LIVE SESSION → DASHBOARD TRANSCRIPT PERSISTENCE  (WhisTranscriptSync)
+// ============================================================================
+// Makes the dashboard's "View transcript" real for the LIVE web app. The backend
+// already exposes the session contract (POST /api/sessions, .../transcript,
+// .../end; GET /api/sessions/:id) and Mock Interview already uses it — the live
+// app did not. This module wires it in, entirely web-gated (window.WHIS_WEB) and
+// only for real signed-in users (googleId), so the desktop build and mock's own
+// saving are untouched.
+//
+// Flow:
+//   • Session id: read ?sessionId=… from the URL (the dashboard passes it). If
+//     absent, create one lazily the first time the user starts listening OR a
+//     transcript segment is produced — POST /api/sessions {mode:'interview'} —
+//     exactly once per page session, and reflect it back into the URL.
+//   • Append: _appendTranscript() calls noteSegment(role,text). Segments are
+//     buffered and flushed (debounced ~5s, or immediately once ≥8 are queued)
+//     to /api/sessions/:id/transcript {entries:[{ts,speaker,text}]}. speaker is
+//     'interviewer' | 'you' (role 'user' → 'you'). Fire-and-forget, try/catch,
+//     never blocks the UI.
+//   • End: on Exit / stop / pagehide, flush what's buffered and POST
+//     /api/sessions/:id/end {durationSec}. On pagehide we use navigator.sendBeacon
+//     so it survives the tab closing.
+const WhisTranscriptSync = (() => {
+  if (!window.WHIS_WEB) {
+    return { init(){}, ensureSession(){}, noteSegment(){}, flush(){}, end(){} };
+  }
+
+  let sessionId = null;          // resolved session id (URL or lazily created)
+  let creating = null;           // in-flight create promise (dedupe)
+  let createTried = false;       // guard: only ever attempt create once per page
+  let startedAt = 0;             // ms epoch of first activity (for durationSec)
+  let ended = false;             // guard: only end once
+  let buffer = [];               // queued {ts,speaker,text} awaiting flush
+  let flushTimer = null;
+  const FLUSH_MS = 5000;         // debounce window
+  const FLUSH_AT = 8;            // hard flush once this many segments queued
+
+  function _googleId() {
+    try {
+      if (currentUser) return currentUser.googleId || currentUser.id || null;
+    } catch (_) {}
+    return null;
+  }
+
+  function _headers() {
+    const h = { 'Content-Type': 'application/json' };
+    const gid = _googleId();
+    if (gid) h['x-google-id'] = gid;
+    if (typeof APP_AUTH_TOKEN === 'string' && APP_AUTH_TOKEN) h['x-whis-auth'] = APP_AUTH_TOKEN;
+    return h;
+  }
+
+  // Read a pre-provisioned session id from the URL (dashboard → "resume/view").
+  function _sessionIdFromUrl() {
+    try {
+      const q = new URLSearchParams(window.location.search || '');
+      const v = (q.get('sessionId') || '').trim();
+      return v || null;
+    } catch (_) { return null; }
+  }
+
+  // Reflect the resolved session id back into the URL (no reload) so a refresh
+  // keeps appending to the same session instead of orphaning it.
+  function _reflectUrl(id) {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('sessionId') === id) return;
+      url.searchParams.set('sessionId', id);
+      window.history.replaceState(null, '', url.toString());
+    } catch (_) {}
+  }
+
+  // Ensure we have a session id: prefer the URL, else create once. Returns a
+  // promise resolving to the id (or null if we can't — not signed in / failed).
+  function ensureSession() {
+    if (sessionId) return Promise.resolve(sessionId);
+    if (!_googleId()) return Promise.resolve(null); // real signed-in users only
+    const fromUrl = _sessionIdFromUrl();
+    if (fromUrl) {
+      sessionId = fromUrl;
+      if (!startedAt) startedAt = Date.now();
+      return Promise.resolve(sessionId);
+    }
+    if (creating) return creating;
+    if (createTried) return Promise.resolve(null);
+    createTried = true;
+    if (!startedAt) startedAt = Date.now();
+    creating = (async () => {
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/sessions`, {
+          method: 'POST', headers: _headers(),
+          body: JSON.stringify({ mode: 'interview', company: '', role: '' })
+        });
+        if (!r.ok) throw new Error('create ' + r.status);
+        const d = await r.json();
+        const id = d.sessionId || d.id || '';
+        if (!id) throw new Error('no session id');
+        sessionId = id;
+        _reflectUrl(id);
+        return id;
+      } catch (e) {
+        try { console.debug('[whis] session create failed', e); } catch (_) {}
+        return null;
+      } finally {
+        creating = null;
+      }
+    })();
+    return creating;
+  }
+
+  // Called from _appendTranscript() for every finalized segment. Buffers + schedules
+  // a flush. Never throws, never blocks.
+  function noteSegment(role, text) {
+    try {
+      if (!_googleId()) return;                 // signed-in web users only
+      const clean = (text || '').trim();
+      if (!clean) return;
+      if (!startedAt) startedAt = Date.now();
+      const speaker = (role === 'user') ? 'you' : 'interviewer';
+      buffer.push({ ts: Date.now() - startedAt, speaker, text: clean });
+      // Kick off session creation early so the id is ready by first flush.
+      ensureSession();
+      if (buffer.length >= FLUSH_AT) { flush(); return; }
+      if (!flushTimer) flushTimer = setTimeout(flush, FLUSH_MS);
+    } catch (_) {}
+  }
+
+  // Flush the buffered entries to the transcript endpoint. Fire-and-forget.
+  async function flush() {
+    if (flushTimer) { clearTimeout(flushTimer); flushTimer = null; }
+    if (!buffer.length) return;
+    try {
+      const id = await ensureSession();
+      if (!id) return;                          // no session → keep buffer for later
+      const entries = buffer;
+      buffer = [];
+      const r = await fetch(`${BACKEND_URL}/api/sessions/${encodeURIComponent(id)}/transcript`, {
+        method: 'POST', headers: _headers(), body: JSON.stringify({ entries })
+      });
+      if (!r.ok) { buffer = entries.concat(buffer); } // re-queue on failure
+    } catch (e) {
+      try { console.debug('[whis] transcript flush failed', e); } catch (_) {}
+    }
+  }
+
+  // End the session. `viaBeacon` uses sendBeacon (tab-close safe) and cannot set
+  // custom headers, so the id is enough there (best-effort). Only ends once.
+  function end(viaBeacon) {
+    try {
+      if (ended) return;
+      if (!sessionId) return;                   // nothing was ever created
+      ended = true;
+      const durationSec = Math.max(0, Math.round((Date.now() - (startedAt || Date.now())) / 1000));
+      const url = `${BACKEND_URL}/api/sessions/${encodeURIComponent(sessionId)}/end`;
+      // Best-effort: push any buffered lines first (non-beacon path awaits nothing).
+      const pending = buffer.slice();
+      buffer = [];
+      if (viaBeacon && navigator.sendBeacon) {
+        try {
+          if (pending.length) {
+            navigator.sendBeacon(
+              `${BACKEND_URL}/api/sessions/${encodeURIComponent(sessionId)}/transcript`,
+              new Blob([JSON.stringify({ entries: pending })], { type: 'application/json' })
+            );
+          }
+          navigator.sendBeacon(url, new Blob([JSON.stringify({ durationSec })], { type: 'application/json' }));
+        } catch (_) {}
+        return;
+      }
+      // Normal path: flush buffered lines, then end.
+      (async () => {
+        try {
+          if (pending.length) {
+            await fetch(`${BACKEND_URL}/api/sessions/${encodeURIComponent(sessionId)}/transcript`, {
+              method: 'POST', headers: _headers(), body: JSON.stringify({ entries: pending })
+            });
+          }
+          await fetch(url, { method: 'POST', headers: _headers(), body: JSON.stringify({ durationSec }) });
+        } catch (e) {
+          try { console.debug('[whis] session end failed', e); } catch (_) {}
+        }
+      })();
+    } catch (_) {}
+  }
+
+  function init() {
+    // If the dashboard handed us a session id, adopt it immediately.
+    const fromUrl = _sessionIdFromUrl();
+    if (fromUrl && _googleId()) { sessionId = fromUrl; startedAt = Date.now(); }
+    // Tab close / navigate away → best-effort end via beacon.
+    window.addEventListener('pagehide', () => { try { end(true); } catch (_) {} });
+    document.addEventListener('visibilitychange', () => {
+      // On hide, flush what we have so an idle-but-open tab still persists progress.
+      if (document.visibilityState === 'hidden') { try { flush(); } catch (_) {} }
+    });
+  }
+
+  return { init, ensureSession, noteSegment, flush, end };
+})();
+
 // START APP
 (async () => {
     await loadEnvVariables();
@@ -8171,4 +8393,5 @@ const WhisSession = (() => {
     if (_savedDraft) { inputEl.value = _savedDraft; updateContextHint(); }
     try { if (window.WHIS_WEB) WhisLive.init(); } catch (_) {}
     try { if (window.WHIS_WEB) WhisSession.init(); } catch (_) {}
+    try { if (window.WHIS_WEB) WhisTranscriptSync.init(); } catch (_) {}
 })();

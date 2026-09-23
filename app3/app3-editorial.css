@@ -51,6 +51,37 @@ body.whis-web {
 
   font-family: var(--wv-font-ui);
   color: var(--wv-text);
+
+  /* ────────────────────────────────────────────────────────────────────────
+     MASTER BLUE KILL SWITCH — styles.css (the base overlay CSS we do NOT own)
+     defines an app-wide SKY-BLUE accent ramp and consumes it in hundreds of
+     rules (send button, upgrade FAB, transcript colours, pills, borders …).
+     We can't edit styles.css, but its rules read these CSS variables, so we
+     REDEFINE every one of them here on body.whis-web to the editorial lavender
+     / gold / green. This retints all of styles.css to the v3 palette at the
+     source — no blue can survive downstream. -------------------------------- */
+  --accent-color-1:    var(--wv-lav-deep);                 /* was #0288d6 */
+  --accent-color-2:    var(--wv-lav);                      /* was #29b6f6 */
+  --accent-gradient:   linear-gradient(135deg, var(--wv-lav) 0%, var(--wv-lav-deep) 100%);
+  --accent-glow:       rgba(195, 169, 239, 0.40);
+  --accent-glow-strong:rgba(195, 169, 239, 0.60);
+
+  /* the dark-theme accent ramp (--accent-300..600 + soft/line) */
+  --accent-300:  var(--wv-lav);
+  --accent-400:  var(--wv-lav);
+  --accent-500:  var(--wv-lav-deep);
+  --accent-600:  var(--wv-lav-deep);
+  --accent-soft: rgba(195, 169, 239, 0.12);
+  --accent-line: rgba(195, 169, 239, 0.28);
+
+  /* neutral surface ramp styles.css uses for panels/cards → forest-green so
+     no "blue-undertone" navy bleeds onto modals, dropdowns, code slabs. */
+  --bg-0:      var(--wv-green);
+  --surface-1: var(--wv-green-2);
+  --surface-2: var(--wv-green-2);
+  --surface-3: rgba(255,255,255,0.06);
+  --card-bg-1: var(--wv-green-2);
+  --card-bg-2: var(--wv-green);
 }
 
 /* Solid shared base so no legacy navy bleeds through at html/body level. */
@@ -355,3 +386,295 @@ body.whis-web #messages::-webkit-scrollbar-thumb { background: rgba(195, 169, 23
 body.whis-web #messages:hover::-webkit-scrollbar-thumb { background: rgba(195, 169, 239, 0.34) !important; }
 body.whis-web .caret,
 body.whis-web .stream-caret { background: var(--wv-lav-deep) !important; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   8. HARD BLUE OVERRIDES  —  beat styles.css's hardcoded-hex !important rules
+   --------------------------------------------------------------------------
+   styles.css (which we do NOT own) paints a handful of buttons/accents with
+   LITERAL sky-blue hex + !important in its tail (e.g. `.upgrade-fab{background:
+   linear-gradient(#29b6f6…)!important}`, `.send-btn`, the composer focus ring,
+   the footer hairline, code-syntax keywords). Those ignore CSS variables, so
+   the token bridge above can't reach them. We re-specify each here with equal-
+   or-higher specificity (body.whis-web prefix / ID selectors) + !important.
+   This file loads LAST, so these win. Result: NOTHING renders blue.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Upgrade FAB (the "money button") → clean lavender editorial pill ─────── */
+body.whis-web .upgrade-fab,
+body.whis-web #upgrade-fab {
+  background: var(--wv-lav) !important;
+  color: var(--wv-ink) !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+  border: 1px solid var(--wv-lav) !important;
+  box-shadow: 0 10px 26px -10px rgba(195,169,239,0.75),
+              inset 0 1px 0 rgba(255,255,255,0.35) !important;
+  animation: none !important;
+}
+body.whis-web .upgrade-fab:hover,
+body.whis-web #upgrade-fab:hover {
+  background: var(--wv-lav-deep) !important;
+  box-shadow: 0 14px 32px -10px rgba(195,169,239,0.9),
+              inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+body.whis-web .upgrade-fab i,
+body.whis-web #upgrade-fab i {
+  color: var(--wv-ink) !important;
+  -webkit-text-fill-color: var(--wv-ink) !important;
+}
+/* the "ending" (last-minute) urgent state stays warm gold, never blue */
+body.whis-web .upgrade-fab.ending {
+  background: var(--wv-gold) !important;
+  color: #1a0f00 !important;
+}
+
+/* ── Header "Try Free" trial button → lavender primary ───────────────────── */
+body.whis-web .header-trial-btn {
+  background: var(--wv-lav) !important;
+  color: var(--wv-ink) !important;
+  border: 1px solid var(--wv-lav) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+body.whis-web .header-trial-btn:hover { background: var(--wv-lav-deep) !important; }
+body.whis-web .header-trial-btn i { color: var(--wv-ink) !important; }
+
+/* ── Send button → lavender fill + lavender glow (kills royal-blue gradient) ─ */
+body.whis-web .send-btn {
+  background: var(--wv-lav) !important;
+  color: var(--wv-ink) !important;
+  border: 1px solid var(--wv-lav) !important;
+  box-shadow: 0 6px 18px -6px rgba(195,169,239,0.7),
+              inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  text-shadow: none !important;
+}
+body.whis-web .send-btn:hover {
+  background: var(--wv-lav-deep) !important;
+  box-shadow: 0 10px 26px -6px rgba(195,169,239,0.85),
+              inset 0 1px 0 rgba(255,255,255,0.32) !important;
+}
+body.whis-web .send-btn i {
+  color: var(--wv-ink) !important;
+  -webkit-text-fill-color: var(--wv-ink) !important;
+  text-shadow: none !important;
+}
+/* the red "clear" variant keeps its own inline red — leave it. */
+
+/* ── Sign In / premium buttons in overlays → lavender primary ────────────── */
+body.whis-web #login-btn,
+body.whis-web .login-btn-premium.google-sign-in-btn,
+body.whis-web .login-btn-premium {
+  background: var(--wv-lav) !important;
+  color: var(--wv-ink) !important;
+  border: 1px solid var(--wv-lav) !important;
+  box-shadow: 0 8px 22px -12px rgba(195,169,239,0.8) !important;
+}
+body.whis-web #login-btn:hover,
+body.whis-web .login-btn-premium:hover {
+  background: var(--wv-lav-deep) !important;
+  filter: none !important;
+}
+body.whis-web #login-btn .icon,
+body.whis-web .google-sign-in-btn .icon,
+body.whis-web .login-btn-premium i { color: var(--wv-ink) !important; }
+/* ghost/secondary premium buttons (Cancel / Check Status / Sign out) that ALSO
+   carry wv-btn--ghost must stay hairline-outlined, not lavender-filled. */
+body.whis-web .login-btn-premium.wv-btn--ghost {
+  background: transparent !important;
+  color: var(--wv-text) !important;
+  border: 1px solid var(--wv-border) !important;
+  box-shadow: none !important;
+}
+body.whis-web .login-btn-premium.wv-btn--ghost:hover {
+  background: rgba(234,243,236,0.06) !important;
+  border-color: var(--wv-lav-deep) !important;
+}
+body.whis-web .login-btn-premium.wv-btn--ghost i { color: var(--wv-text) !important; }
+
+/* ── Composer focus ring + footer hairline → lavender / editorial line ───── */
+body.whis-web .input-container:focus-within {
+  border-color: var(--wv-lav-deep) !important;
+  box-shadow: 0 0 0 3px rgba(195,169,239,0.16) !important;
+}
+body.whis-web .input-row { border-top: 1px solid var(--wv-border) !important; }
+body.whis-web #input:focus {
+  border-color: var(--wv-lav-deep) !important;
+  box-shadow: 0 0 0 3px rgba(195,169,239,0.16) !important;
+}
+
+/* ── Mode label + trial motivation bar → lavender / green (no blue tint) ──── */
+body.whis-web .mode-label[style*="38bdf8"],
+body.whis-web #mode-label-manual { color: var(--wv-lav-deep) !important; }
+body.whis-web .trial-motivation-bar {
+  background: var(--wv-green-2) !important;
+  border: 1px solid var(--wv-lav-deep) !important;
+  color: var(--wv-text) !important;
+}
+
+/* ── Answer chrome: list markers, assist label, code-syntax keyword blue ──── */
+body.whis-web .whis-message-bubble ol li::marker { color: var(--wv-lav-deep) !important; }
+body.whis-web .assist-label i { color: var(--wv-lav-deep) !important; }
+/* recolour only the BLUE syntax tokens; leave green/orange/comment families. */
+body.whis-web .whis-code-block .hl-kw,
+body.whis-web .whis-message-bubble .hl-kw { color: var(--wv-lav) !important; }
+body.whis-web .whis-code-block .hl-typ,
+body.whis-web .whis-message-bubble .hl-typ { color: #8fe3d3 !important; }
+
+/* ── Connection dot / status badges / plan tiers that used blue ──────────── */
+body.whis-web .conn-status-dot[data-status="online"] {
+  background: var(--wv-green-accent) !important;
+  box-shadow: 0 0 6px rgba(10,127,79,0.6) !important;
+}
+body.whis-web .sub-plan-name.tier-pro,
+body.whis-web .sub-plan-name.tier-elite { color: var(--wv-lav-deep) !important; }
+body.whis-web .sub-status-badge.active {
+  background: rgba(195,169,239,0.15) !important;
+  color: var(--wv-lav-deep) !important;
+  border: 1px solid rgba(195,169,239,0.3) !important;
+}
+
+/* ── Live transcript interviewer accent (was #29b6f6 / #38bdf8) ──────────── */
+body.whis-web .lt-interviewer .lt-dot {
+  background: var(--wv-lav-deep) !important;
+  box-shadow: 0 0 6px rgba(195,169,239,0.7) !important;
+}
+body.whis-web .lt-interviewer .lt-label { color: var(--wv-lav) !important; }
+body.whis-web .lt-cursor { background: var(--wv-lav) !important; }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   9. VISUAL ELEVATION  —  premium editorial polish (calm, not "dark SaaS")
+   --------------------------------------------------------------------------
+   Refines the pieces that carry the "feel": the welcome empty-state, the
+   one-tap starter cards, the composer, the focus-mode chrome, and the modal
+   shells — with Fraunces display type, generous hairlines, restrained shadow,
+   and slow, soft motion. Everything reads from shared --wv-* tokens.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Welcome empty-state: editorial masthead, not a centered SaaS blurb ───── */
+body.whis-web .web-welcome { padding: 9vh 24px 44px; }
+body.whis-web .web-welcome-head { margin-bottom: 34px; }
+
+body.whis-web .web-welcome-eyebrow {
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  padding: 5px 13px !important;
+  border-radius: var(--wv-radius-pill) !important;
+}
+
+body.whis-web .web-welcome-title {
+  font-size: clamp(30px, 4.6vw, 42px) !important;
+  line-height: 1.02 !important;
+  margin-bottom: 14px !important;
+}
+
+body.whis-web .web-welcome-sub {
+  font-family: var(--wv-font-ui);
+  font-size: 16.5px !important;
+  line-height: 1.55 !important;
+  max-width: 480px;
+}
+
+/* Starter cards — hairline surfaces with a slow lift + a lavender rail on hover. */
+body.whis-web .web-starter-grid { gap: 14px; }
+body.whis-web .web-starter-chip {
+  min-height: 60px;
+  padding: 15px 17px !important;
+  border-radius: var(--wv-radius-md) !important;
+  box-shadow: var(--wv-shadow-hairline) !important;
+  transition: transform var(--wv-dur-slow) var(--wv-ease),
+              border-color var(--wv-dur-mid) var(--wv-ease),
+              background var(--wv-dur-mid) var(--wv-ease),
+              box-shadow var(--wv-dur-slow) var(--wv-ease) !important;
+}
+body.whis-web .web-starter-chip:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: var(--wv-shadow-elevated) !important;
+}
+body.whis-web .web-starter-icon { border-radius: 10px !important; }
+
+/* ── Composer: a calm, tactile field on the green surface ─────────────────── */
+body.whis-web #input {
+  border-radius: var(--wv-radius-md) !important;
+  background: var(--wv-surface-2) !important;
+  border: 1px solid var(--wv-border) !important;
+  line-height: 1.55 !important;
+}
+body.whis-web #input::placeholder { color: var(--wv-text-muted) !important; opacity: 0.8; }
+
+/* Inline composer icon buttons: consistent radius + soft lavender-on-hover. */
+body.whis-web .input-icon-btn,
+body.whis-web .context-quick-btn,
+body.whis-web .crisp-toggle-btn {
+  border-radius: var(--wv-radius-sm) !important;
+  transition: var(--wv-transition) !important;
+}
+
+/* ── Header: quieter, more editorial top bar ─────────────────────────────── */
+body.whis-web .whis-global-header {
+  min-height: 58px;
+  background: rgba(14, 53, 36, 0.86) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  backdrop-filter: saturate(140%) blur(14px);
+}
+body.whis-web .whis-logo-container.wv-logo { letter-spacing: -0.01em; }
+
+/* ── Focus-mode chrome: thin, precise, gallery-calm ──────────────────────── */
+body.whis-web #web-focus-topbar { min-height: 50px; }
+body.whis-web .wf-btn {
+  border-radius: var(--wv-radius-sm) !important;
+  font-weight: 600 !important;
+  transition: background var(--wv-dur-fast) var(--wv-ease),
+              border-color var(--wv-dur-fast) var(--wv-ease),
+              transform var(--wv-dur-fast) var(--wv-ease) !important;
+}
+body.whis-web .wf-btn:active { transform: translateY(1px); }
+body.whis-web .wf-lang { border-radius: var(--wv-radius-sm) !important; }
+body.whis-web #web-focus-ticker .wf-tick-track {
+  font-family: var(--wv-font-ui);
+  letter-spacing: 0.005em;
+}
+
+/* Answer reading rail: Fraunces is display-only; body stays Inter, generous. */
+body.whis-web.whis-session-active #messages .whis-message-bubble {
+  font-size: 16px !important;
+  line-height: 1.62 !important;
+}
+body.whis-web .whis-code-block,
+body.whis-web .whis-message-bubble pre {
+  border-radius: var(--wv-radius-md) !important;
+}
+
+/* ── Modal shells: raised editorial cards with a Fraunces headline ───────── */
+body.whis-web .login-card {
+  border-radius: var(--wv-radius-lg) !important;
+}
+body.whis-web .login-card h1,
+body.whis-web .login-card h2,
+body.whis-web .login-card .wv-h2,
+body.whis-web .login-card .wv-h3 {
+  font-family: var(--wv-font-display) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--wv-text) !important;
+}
+
+/* Quick-prompt chips already use wv-chip; keep them airy in the composer. */
+body.whis-web .quick-prompts { gap: 8px; }
+
+/* Softer, slower selection + focus rings everywhere in the app. */
+body.whis-web ::selection { background: var(--wv-lav); color: var(--wv-ink); }
+body.whis-web button:focus-visible,
+body.whis-web a:focus-visible,
+body.whis-web input:focus-visible,
+body.whis-web textarea:focus-visible {
+  outline: 2px solid var(--wv-lav-deep) !important;
+  outline-offset: 2px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.whis-web .web-starter-chip,
+  body.whis-web .wf-btn { transition: none !important; }
+}
