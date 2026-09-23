@@ -8057,7 +8057,7 @@ const WhisSession = (() => {
 
     // ── HIDDEN behavior source: the original focus top bar. It's no longer shown
     //    on web (the new two-pane UI owns the visible controls) but its buttons stay
-    //    as the CANONICAL wiring for mic / Answer / Screenshot / language — the new
+    //    as the CANONICAL wiring for mic / Answer / Screenshot / language, the new
     //    controls simply proxy clicks onto these, so the proven pipelines are reused
     //    verbatim. Class .wf-hidden-source is display:none in CSS. ─────────────────
     topbarEl = document.createElement('div');
@@ -8103,7 +8103,7 @@ const WhisSession = (() => {
     leftPaneEl = document.createElement('aside');
     leftPaneEl.id = 'web-live-preview';
     leftPaneEl.className = 'web-live-preview web-live-pane no-drag';
-    leftPaneEl.setAttribute('aria-label', 'Live session — shared tab and transcript');
+    leftPaneEl.setAttribute('aria-label', 'Live session, shared tab and transcript');
     previewEl = leftPaneEl; // keep the historical name for _attach/_detachPreview
     leftPaneEl.innerHTML = `
       <div class="wlp-stagewrap">

@@ -4,21 +4,21 @@
    The shared design system now lives in ../whis-v3.css (the wv-* components +
    tokens), loaded on this page with the app root in `.wv-dark` (forest-green).
    The homepage (index3), dashboard (dashboard3) and this app therefore all
-   read from ONE source of truth — logo, buttons, badges, pills, chips, inputs
+   read from ONE source of truth, logo, buttons, badges, pills, chips, inputs
    and display type are the SAME here as on the other surfaces.
 
    THIS FILE is deliberately thin. It keeps ONLY what is unique to the app and
    cannot come from the shared system:
 
-     1. Token bridge — retint app-web.css's own --web-* variables to the shared
+     1. Token bridge, retint app-web.css's own --web-* variables to the shared
         green + lavender so the app's structural chrome (that predates wv-*)
         inherits the brand in one place, via the shared --wv-* tokens.
      2. The 90%-output FOCUS LAYOUT: top transcript ticker + full-height answer
         area + slim composer, plus the live-session controls (#web-focus-*,
         .wf-*). This layout is app-only; no shared component covers it.
 
-   Everything the shared system already owns — button fills, input framing,
-   chip/pill/badge looks, the logo, display type — has been REMOVED from here
+   Everything the shared system already owns, button fills, input framing,
+   chip/pill/badge looks, the logo, display type, has been REMOVED from here
    so the app can never drift from index3/dashboard3. renderer.js and
    whis-web-api.js are reused verbatim; this remains a pure visual layer and
    changes no IDs, structure, or behavior.
@@ -26,12 +26,12 @@
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   1. TOKEN BRIDGE  —  point app-web.css's --web-* vars at the shared tokens
+   1. TOKEN BRIDGE, point app-web.css's --web-* vars at the shared tokens
    --------------------------------------------------------------------------
    All the app's legacy structural surfaces read --web-bg / --web-panel /
    --web-accent / … . We alias them to the shared --wv-* values (resolved in
    .wv-dark to forest-green + lavender) so there is a SINGLE palette. No
-   bespoke hex — every value below is a shared token.
+   bespoke hex, every value below is a shared token.
    ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web {
   /* surfaces */
@@ -53,13 +53,13 @@ body.whis-web {
   color: var(--wv-text);
 
   /* ────────────────────────────────────────────────────────────────────────
-     MASTER BLUE KILL SWITCH — styles.css (the base overlay CSS we do NOT own)
+     MASTER BLUE KILL SWITCH, styles.css (the base overlay CSS we do NOT own)
      defines an app-wide SKY-BLUE accent ramp and consumes it in hundreds of
      rules (send button, upgrade FAB, transcript colours, pills, borders …).
      We can't edit styles.css, but its rules read these CSS variables, so we
      REDEFINE every one of them here on body.whis-web to the editorial lavender
      / gold / green. This retints all of styles.css to the v3 palette at the
-     source — no blue can survive downstream. -------------------------------- */
+     source, no blue can survive downstream. -------------------------------- */
   --accent-color-1:    var(--wv-lav-deep);                 /* was deep sky-blue */
   --accent-color-2:    var(--wv-lav);                      /* was bright sky-blue */
   --accent-gradient:   linear-gradient(135deg, var(--wv-lav) 0%, var(--wv-lav-deep) 100%);
@@ -94,7 +94,7 @@ body.whis-web .content-area {
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   2. DYNAMIC CHROME  —  the few bits renderer.js injects that carry legacy
+   2. DYNAMIC CHROME, the few bits renderer.js injects that carry legacy
    class names (not static HTML, so they can't be given wv-* classes here).
    Map them to shared type/tokens so they still read as one brand.
    ══════════════════════════════════════════════════════════════════════════ */
@@ -134,7 +134,7 @@ body.whis-web .web-starter-chip:hover .web-starter-go { color: var(--wv-lav-deep
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   3. MESSAGES / ANSWERS  (the 90%-output focus)  —  app-unique reading rail
+   3. MESSAGES / ANSWERS  (the 90%-output focus), app-unique reading rail
    Only the answer typography + code slab are app-specific; recolor via tokens.
    ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web .whis-message-bubble,
@@ -162,7 +162,7 @@ body.whis-web .whis-message.assistant .whis-message-bubble {
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   4. COMPOSER LAYOUT  —  app-unique slim composer framing
+   4. COMPOSER LAYOUT, app-unique slim composer framing
    (The Send button + textarea now carry wv-btn--primary / wv-input, so their
     fill/framing come from the shared system. Here we keep only the composer's
     own gradient fade + the app-only icon buttons the shared kit doesn't cover.)
@@ -172,7 +172,7 @@ body.whis-web .input-row {
   background: linear-gradient(180deg, rgba(18,67,47,0) 0%, var(--wv-green) 42%) !important;
 }
 
-/* Listen / Snap / paperclip / crisp — app-only inline icon buttons. */
+/* Listen / Snap / paperclip / crisp, app-only inline icon buttons. */
 body.whis-web .input-icon-btn,
 body.whis-web .context-quick-btn,
 body.whis-web .crisp-toggle-btn {
@@ -204,7 +204,7 @@ body.whis-web .context-hint { color: var(--wv-text-muted) !important; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   5. FOCUS-MODE LIVE SESSION  (body.whis-session-active)  —  APP-ONLY LAYOUT
+   5. FOCUS-MODE LIVE SESSION  (body.whis-session-active), APP-ONLY LAYOUT
    The 90%-output layout: thin top bar + transcript ticker + full-height answer
    area + slim composer. No shared component covers this; keep it intact and
    recolor purely from shared tokens.
@@ -257,7 +257,7 @@ body.whis-web .wf-live.wf-live-on .wf-live-dot { background: var(--wv-green-acce
   50%      { box-shadow: 0 0 0 6px rgba(195, 169, 239, 0.05); }
 }
 
-/* Transcript ticker — interviewer words scroll in a hairline strip (app-only). */
+/* Transcript ticker, interviewer words scroll in a hairline strip (app-only). */
 body.whis-web #web-focus-ticker {
   border-bottom: 1px solid var(--wv-border) !important;
   background: var(--wv-green-2) !important;
@@ -275,10 +275,10 @@ body.whis-web .live-transcript {
 /* ══════════════════════════════════════════════════════════════════════════
    5b. TWO-PANE LIVE VIEW  (body.whis-session-active, WEB ONLY)
    A calm editorial two-column live view under the global header:
-     LEFT  (~40%) — a large shared-tab stage (with Fullscreen / Change Tab), a
+     LEFT  (~40%), a large shared-tab stage (with Fullscreen / Change Tab), a
                     control row (Start·Stop / Clear / Language) and a readable
                     diarized live-transcript panel, on a deeper-green surface.
-     RIGHT (~60%) — session timer + ⋮ menu + Exit, the scrollable answers area
+     RIGHT (~60%), session timer + ⋮ menu + Exit, the scrollable answers area
                     (the shared #messages), then the composer + Answer/Screenshot.
    Desktop Electron never gets `.whis-session-active` + `.whis-web` together, so
    every rule here is web-gated + additive; the non-live web view is untouched.
@@ -325,7 +325,7 @@ body.whis-web .web-live-pane {
 }
 body.whis-web.whis-session-active .web-live-pane { display: flex; }
 
-/* Big 16:9 shared-tab stage — the focus of the left column. */
+/* Big 16:9 shared-tab stage, the focus of the left column. */
 body.whis-web .web-live-pane .wlp-stagewrap { flex: 0 0 auto; }
 body.whis-web .web-live-pane .wlp-stage {
   position: relative;
@@ -498,7 +498,7 @@ body.whis-web .web-live-pane .wlp-lang {
   font-size: 12.5px;
 }
 
-/* Readable live-transcript panel — fills the remaining left height, scrolls. */
+/* Readable live-transcript panel, fills the remaining left height, scrolls. */
 body.whis-web .web-live-pane .wlp-transcript {
   flex: 1 1 auto;
   min-height: 0;
@@ -917,7 +917,7 @@ body.whis-web .wf-exit-choice--danger .wf-exit-choice-head i { color: #c9737f; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   6. OVERLAYS / CARDS  —  app-only modal shells (login, trial, subscription,
+   6. OVERLAYS / CARDS, app-only modal shells (login, trial, subscription,
    context, report, guide). Their primary buttons now carry wv-btn classes, so
    only the CARD/OVERLAY shells + a few app-only accents remain here.
    ══════════════════════════════════════════════════════════════════════════ */
@@ -964,7 +964,7 @@ body.whis-web .interview-timer-dot { background: var(--wv-gold) !important; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   7. GUIDE OVERLAY + MODE SWITCH + MISC ACCENTS  —  app-only bits
+   7. GUIDE OVERLAY + MODE SWITCH + MISC ACCENTS, app-only bits
    ══════════════════════════════════════════════════════════════════════════ */
 body.whis-web .whis-guide-header-icon,
 body.whis-web .whis-guide-nav-item.is-active {
@@ -1033,7 +1033,7 @@ body.whis-web .stream-caret { background: var(--wv-lav-deep) !important; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   8. HARD BLUE OVERRIDES  —  beat styles.css's hardcoded-hex !important rules
+   8. HARD BLUE OVERRIDES, beat styles.css's hardcoded-hex !important rules
    --------------------------------------------------------------------------
    styles.css (which we do NOT own) paints a handful of buttons/accents with
    LITERAL sky-blue hex + !important in its tail (e.g. a sky-blue gradient on
@@ -1103,7 +1103,7 @@ body.whis-web .send-btn i {
   -webkit-text-fill-color: var(--wv-ink) !important;
   text-shadow: none !important;
 }
-/* the red "clear" variant keeps its own inline red — leave it. */
+/* the red "clear" variant keeps its own inline red, leave it. */
 
 /* ── Sign In / premium buttons in overlays → lavender primary ────────────── */
 body.whis-web #login-btn,
@@ -1126,8 +1126,7 @@ body.whis-web .login-btn-premium i { color: var(--wv-ink) !important; }
 /* ── Google sign-in → clean cream pill w/ ink text + multicolour "G" glyph ── */
 /* Google's brand button reads as a white/cream pill, never a blue fill. We keep
    it distinct from the lavender primaries so it clearly says "Sign in with
-   Google", and paint the "G" with Google's four brand colours (no blue field —
-   the blue lives only INSIDE the tiny glyph, which is the real Google mark). */
+   Google", and paint the "G" with Google's four brand colours (no blue field, the blue lives only INSIDE the tiny glyph, which is the real Google mark). */
 body.whis-web #login-btn.google-sign-in-btn,
 body.whis-web .login-btn-premium.google-sign-in-btn {
   background: #f4efe6 !important;              /* warm cream */
@@ -1151,7 +1150,7 @@ body.whis-web .google-sign-in-btn .icon {
       #ea4335 0deg 90deg,     /* red   */
       #fbbc05 90deg 180deg,   /* yellow*/
       #34a853 180deg 270deg,  /* green */
-      #4285f4 270deg 360deg   /* the Google-mark blue — inside the glyph only */
+      #4285f4 270deg 360deg   /* the Google-mark blue, inside the glyph only */
     ) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
@@ -1222,11 +1221,11 @@ body.whis-web .lt-cursor { background: var(--wv-lav) !important; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
-   9. VISUAL ELEVATION  —  premium editorial polish (calm, not "dark SaaS")
+   9. VISUAL ELEVATION, premium editorial polish (calm, not "dark SaaS")
    --------------------------------------------------------------------------
    Refines the pieces that carry the "feel": the welcome empty-state, the
    one-tap starter cards, the composer, the focus-mode chrome, and the modal
-   shells — with Fraunces display type, generous hairlines, restrained shadow,
+   shells, with Fraunces display type, generous hairlines, restrained shadow,
    and slow, soft motion. Everything reads from shared --wv-* tokens.
    ══════════════════════════════════════════════════════════════════════════ */
 
@@ -1255,7 +1254,7 @@ body.whis-web .web-welcome-sub {
   max-width: 480px;
 }
 
-/* Starter cards — hairline surfaces with a slow lift + a lavender rail on hover. */
+/* Starter cards, hairline surfaces with a slow lift + a lavender rail on hover. */
 body.whis-web .web-starter-grid { gap: 14px; }
 body.whis-web .web-starter-chip {
   min-height: 60px;
@@ -1364,7 +1363,7 @@ body.whis-web textarea:focus-visible {
 body.whis-web:not(.whis-session-active) #voice-btn,
 body.whis-web:not(.whis-session-active) #screenshot-btn { display: none !important; }
 
-/* Modernized capture controls (mic / capture / go-live) — premium, not naive */
+/* Modernized capture controls (mic / capture / go-live), premium, not naive */
 body.whis-web .input-icon-btn {
   min-width: 0 !important;
   height: 46px !important;

@@ -1,5 +1,5 @@
 /* =============================================================================
- * whis-web-api.js  —  BROWSER SHIM for the Whis-AI desktop renderer
+ * whis-web-api.js, BROWSER SHIM for the Whis-AI desktop renderer
  * -----------------------------------------------------------------------------
  * The desktop app talks to the OS through Electron's preload bridge
  * (`window.electronAPI`, defined in whis/preload.js). This file re-implements
@@ -17,19 +17,19 @@
  *     and the in-page keyboard shortcuts (Cmd/Ctrl + L / J / Enter / Backspace).
  *
  * WHAT IS AN INTENTIONAL NO-OP (a browser tab simply cannot do these):
- *   - STEALTH / content-protection (setWindowProtection) — a web page can never
+ *   - STEALTH / content-protection (setWindowProtection), a web page can never
  *     hide itself from a screen-share. This is impossible by design, not a bug.
  *   - WINDOW MANAGEMENT (startWindowDrag, moveWindow, hideApp, minimizeToPill,
- *     shrinkForPermission, restoreAfterPermission, quitApp) — no OS window here.
+ *     shrinkForPermission, restoreAfterPermission, quitApp), no OS window here.
  *   - Native OS settings deep-links (openMicSettings, openScreenRecordingSettings,
- *     etc.) — browsers grant permission via their own prompts, not System Settings.
- *   - getScreenSourceId — Electron-only concept; resolves null.
+ *     etc.), browsers grant permission via their own prompts, not System Settings.
+ *   - getScreenSourceId, Electron-only concept; resolves null.
  *
  * Every method that exists on the desktop bridge exists here, returns a Promise
  * where the desktop returned a Promise, and NEVER throws synchronously.
  * ========================================================================== */
 
-// Single source of truth for "am I running as the web app?" — set BEFORE renderer.js
+// Single source of truth for "am I running as the web app?", set BEFORE renderer.js
 // runs. The renderer must NOT infer web-ness from the presence/absence of a bridge
 // method (we intentionally provide captureScreen via getDisplayMedia), so it keys off
 // this flag instead. Desktop never defines it → falsy there.
@@ -45,7 +45,7 @@ window.WHIS_WEB = true;
   // ---- Adopt the user returned from the OAuth callback ---------------------
   // After Google sign-in the backend bounces back to /app/?auth_success=true&user=...
   // (because loginGoogle sends ret:"/app/"). Persist that user to localStorage and
-  // clean the URL — SYNCHRONOUSLY at load, before renderer.js boots and calls
+  // clean the URL, SYNCHRONOUSLY at load, before renderer.js boots and calls
   // checkAuth(). Mirrors the marketing site's auth_success handler exactly.
   (function _adoptUserFromCallback() {
     try {
@@ -138,7 +138,7 @@ window.WHIS_WEB = true;
 
   async function checkAuth() {
     // MUST mirror the desktop shape: renderer does `const { user } = await checkAuth()`.
-    // Returning a raw user (or null) breaks destructuring — {user:null} / {user} instead.
+    // Returning a raw user (or null) breaks destructuring, {user:null} / {user} instead.
     const user = storedUser();
     if (!user) return { user: null };
     // Best-effort validation; the stored user is authoritative for the UI.
@@ -148,12 +148,12 @@ window.WHIS_WEB = true;
         headers: { "x-google-id": user.googleId || "", "x-whis-web": "1" },
       });
       if (res && !res.ok && res.status === 401) {
-        // Session revoked server-side — drop the stale user.
+        // Session revoked server-side, drop the stale user.
         localStorage.removeItem("whisUser");
         return null;
       }
     } catch (_) {
-      /* offline / transient — keep the local user */
+      /* offline / transient, keep the local user */
     }
     return { user };
   }
@@ -175,7 +175,7 @@ window.WHIS_WEB = true;
   // carrying attribution in `state`. The backend then bounces back to the app
   // with ?auth_success=true&user=<encoded json>, which we persist as whisUser.
   async function loginGoogle() {
-    // If we're already signed in (e.g. from the marketing site — same origin, shared
+    // If we're already signed in (e.g. from the marketing site, same origin, shared
     // localStorage), just hand the user back in the SAME { user } shape the desktop
     // returns, so the renderer's `if (result.user)` branch fires instead of no-op.
     const already = storedUser();
@@ -205,7 +205,7 @@ window.WHIS_WEB = true;
       `&state=${stateParam}`;
 
     // Full-page redirect (identical to the site's <a href> flow). This navigates
-    // away, so the returned Promise never resolves in this page instance — the
+    // away, so the returned Promise never resolves in this page instance, the
     // renderer re-checks auth on reload via checkAuth().
     try {
       window.location.href = authUrl;
@@ -243,7 +243,7 @@ window.WHIS_WEB = true;
         }
       }
     } catch (_) {}
-    // Stub fallback — never throw.
+    // Stub fallback, never throw.
     try {
       return localStorage.getItem("whisSid") || "";
     } catch (_) {
@@ -252,7 +252,7 @@ window.WHIS_WEB = true;
   }
 
   // =========================================================================
-  // STREAMING CHAT  (critical — matches the desktop callback contract)
+  // STREAMING CHAT  (critical, matches the desktop callback contract)
   // Desktop: chat-with-openai-stream POSTs /api/chat-stream with body
   //   { conversationId, message }  and headers x-google-id / x-app-version.
   // Confirmed in whis/main.js line ~1395 and whis/server.js /api/chat-stream.
@@ -447,7 +447,7 @@ window.WHIS_WEB = true;
   }
 
   // extractFileText: the desktop parsed PDF/DOCX/TXT with Node modules. On the web we
-  // do it IN THE BROWSER — pdf.js for PDF, mammoth for DOCX (both loaded from CDN in
+  // do it IN THE BROWSER, pdf.js for PDF, mammoth for DOCX (both loaded from CDN in
   // index.html), TextDecoder for txt. No server round-trip, no resume upload needed.
   async function extractFileText(buffer, ext) {
     try {
@@ -462,7 +462,7 @@ window.WHIS_WEB = true;
       // PDF via pdf.js
       if (extension === "pdf") {
         try {
-          if (!window.pdfjsLib) return { text: "", error: "PDF reader still loading — please try again in a moment." };
+          if (!window.pdfjsLib) return { text: "", error: "PDF reader still loading, please try again in a moment." };
           const pdf = await window.pdfjsLib.getDocument({ data: new Uint8Array(ab) }).promise;
           let out = "";
           for (let i = 1; i <= pdf.numPages; i++) {
@@ -480,7 +480,7 @@ window.WHIS_WEB = true;
       // DOCX via mammoth
       if (extension === "docx") {
         try {
-          if (!window.mammoth) return { text: "", error: "Doc reader still loading — please try again in a moment." };
+          if (!window.mammoth) return { text: "", error: "Doc reader still loading, please try again in a moment." };
           const result = await window.mammoth.extractRawText({ arrayBuffer: ab });
           return { text: (result && result.value ? result.value : "").trim() };
         } catch (e) {
@@ -494,7 +494,7 @@ window.WHIS_WEB = true;
         const t = new TextDecoder("utf-8").decode(ab).replace(/[^\x09\x0A\x0D\x20-\x7E]+/g, " ").trim();
         if (t && t.length > 40) return { text: t };
       } catch (_) {}
-      return { text: "", error: "Unsupported file. Upload a PDF, DOCX, or TXT — or paste your resume text." };
+      return { text: "", error: "Unsupported file. Upload a PDF, DOCX, or TXT, or paste your resume text." };
     } catch (_) {
       return { text: "" };
     }
@@ -595,7 +595,7 @@ window.WHIS_WEB = true;
   }
 
   // -------------------------------------------------------------------------
-  // LIVE MODE — persistent screen stream (share once, grab frames repeatedly).
+  // LIVE MODE, persistent screen stream (share once, grab frames repeatedly).
   // Unlike _grabOneFrame() which prompts + stops each time, this keeps ONE
   // getDisplayMedia stream alive so frames can be grabbed while the Whis tab is
   // backgrounded (during a real interview). Powers the Document PiP "Capture".
@@ -617,7 +617,7 @@ window.WHIS_WEB = true;
 
   // Does the shared stream carry a usable audio track (tab audio / system audio)?
   // Some pickers (whole-screen without "share audio", or a window on macOS) share
-  // no audio — the renderer uses this to fall back to the mic and hint the user.
+  // no audio, the renderer uses this to fall back to the mic and hint the user.
   function liveHasAudio() {
     return !!(_liveAudioTrack &&
       _liveAudioTrack.readyState === "live" &&
@@ -625,7 +625,7 @@ window.WHIS_WEB = true;
       _liveAudioTrack.muted !== true);
   }
 
-  // The full persistent MediaStream (video + audio) — for a live preview <video>.
+  // The full persistent MediaStream (video + audio), for a live preview <video>.
   function getLiveStream() {
     return hasLiveScreen() ? _liveStream : null;
   }
@@ -703,7 +703,7 @@ window.WHIS_WEB = true;
   }
 
   // Keep a live, un-throttled <video> bound to the shared stream so we can always
-  // sample the CURRENT frame — including window/tab shares that Chrome's
+  // sample the CURRENT frame, including window/tab shares that Chrome's
   // ImageCapture.grabFrame() refuses to serve.
   async function _ensureLiveVideo() {
     if (_liveVideoEl && _liveVideoEl.srcObject === _liveStream && _liveVideoEl.readyState >= 2) {
@@ -932,7 +932,7 @@ window.WHIS_WEB = true;
     }
     googleId = googleId || (u && u.googleId) || "";
     // The backend serves a PRE-AUTHED Razorpay sheet at /checkout that validates gid+sid
-    // (currentSessionId from the OAuth callback) and opens payment directly — the same
+    // (currentSessionId from the OAuth callback) and opens payment directly, the same
     // sheet the desktop app used. (The old '/#pricing?params' put the query AFTER the
     // hash, so the site never received gid/tier/coupon and checkout silently failed.)
     const sid = (u && (u.currentSessionId || u.sessionId)) ||
@@ -1029,7 +1029,7 @@ window.WHIS_WEB = true;
   );
 
   // =========================================================================
-  // EXPOSE  — mirror every method name the desktop preload exposed.
+  // EXPOSE, mirror every method name the desktop preload exposed.
   // =========================================================================
   window.electronAPI = {
     // Window drag / control (no-ops on web)
@@ -1081,7 +1081,7 @@ window.WHIS_WEB = true;
     captureScreenDemo,
     getScreenSourceId,
 
-    // Live Mode — persistent screen stream (Document PiP + web 75/25 live view)
+    // Live Mode, persistent screen stream (Document PiP + web 75/25 live view)
     startLiveScreen,
     grabLiveFrame,
     stopLiveScreen,
