@@ -602,6 +602,7 @@ window.WHIS_WEB = true;
   // -------------------------------------------------------------------------
   let _liveStream = null;
   let _liveTrack = null;
+  let _liveAudioTrack = null; // shared tab/window/system audio track (the interviewer)
   let _liveImageCapture = null;
   let _liveVideoEl = null; // reusable hidden <video> fallback for grabFrame
   const _liveEndedCbs = []; // onLiveScreenEnded
@@ -612,6 +613,29 @@ window.WHIS_WEB = true;
 
   function hasLiveScreen() {
     return !!(_liveTrack && _liveTrack.readyState === "live");
+  }
+
+  // Does the shared stream carry a usable audio track (tab audio / system audio)?
+  // Some pickers (whole-screen without "share audio", or a window on macOS) share
+  // no audio — the renderer uses this to fall back to the mic and hint the user.
+  function liveHasAudio() {
+    return !!(_liveAudioTrack &&
+      _liveAudioTrack.readyState === "live" &&
+      _liveAudioTrack.enabled !== false &&
+      _liveAudioTrack.muted !== true);
+  }
+
+  // The full persistent MediaStream (video + audio) — for a live preview <video>.
+  function getLiveStream() {
+    return hasLiveScreen() ? _liveStream : null;
+  }
+
+  // A MediaStream containing ONLY the shared audio track, for routing the
+  // interviewer's clean tab/system audio into the transcription pipeline. Null
+  // when the share carries no audio.
+  function getLiveAudioStream() {
+    if (!liveHasAudio()) return null;
+    try { return new MediaStream([_liveAudioTrack]); } catch (_) { return null; }
   }
 
   function _teardownLive() {
@@ -627,18 +651,23 @@ window.WHIS_WEB = true;
     } catch (_) {}
     _liveStream = null;
     _liveTrack = null;
+    _liveAudioTrack = null;
     _liveImageCapture = null;
     _liveVideoEl = null;
   }
 
   async function startLiveScreen(withAudio) {
     // Reuse an existing live stream (never double-prompt).
-    if (hasLiveScreen()) return { ok: true, reused: true };
+    if (hasLiveScreen()) return { ok: true, reused: true, hasAudio: liveHasAudio() };
     _teardownLive();
     try {
+      // ALWAYS request audio: the shared tab/window/system audio is the interviewer's
+      // clean voice and is the PRIMARY transcription source on web. `withAudio` is kept
+      // for back-compat but audio is always requested now; the browser picker still lets
+      // the user decline "share tab audio" (handled via liveHasAudio()).
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
-        audio: !!withAudio,
+        audio: true,
       });
       const track = stream.getVideoTracks()[0];
       if (!track) {
@@ -647,6 +676,7 @@ window.WHIS_WEB = true;
       }
       _liveStream = stream;
       _liveTrack = track;
+      _liveAudioTrack = stream.getAudioTracks()[0] || null;
       try {
         if (typeof ImageCapture !== "undefined") {
           _liveImageCapture = new ImageCapture(track);
@@ -659,7 +689,12 @@ window.WHIS_WEB = true;
         _teardownLive();
         fireAll(_liveEndedCbs);
       });
-      return { ok: true };
+      // If the audio track ends on its own (rare), drop the reference so the renderer
+      // knows to fall back to the mic on the next check.
+      if (_liveAudioTrack) {
+        _liveAudioTrack.addEventListener("ended", () => { _liveAudioTrack = null; });
+      }
+      return { ok: true, hasAudio: liveHasAudio() };
     } catch (err) {
       _teardownLive();
       const msg = err && err.message ? err.message : "cancelled";
@@ -1014,12 +1049,15 @@ window.WHIS_WEB = true;
     captureScreenDemo,
     getScreenSourceId,
 
-    // Live Mode — persistent screen stream (Document PiP)
+    // Live Mode — persistent screen stream (Document PiP + web 75/25 live view)
     startLiveScreen,
     grabLiveFrame,
     stopLiveScreen,
     onLiveScreenEnded,
     hasLiveScreen,
+    liveHasAudio,        // web: does the share carry tab/system audio?
+    getLiveStream,       // web: full video+audio stream for the 25% preview <video>
+    getLiveAudioStream,  // web: audio-only stream → transcription pipeline
     openScreenRecordingSettings,
     openSoundSettings,
     openAudioMidiSetup,

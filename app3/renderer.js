@@ -1207,10 +1207,12 @@ const _WHIS_TOUR_STEPS_ALL = [
         position: 'top-right',
     },
     {
-        title: 'Snap solves what is on your screen',
+        title: window.WHIS_WEB ? 'Snap reads your shared tab' : 'Snap solves what is on your screen',
         tag: '📸 The Snap button',
-        body: 'Snap grabs whatever coding question is on your screen, reads it, and solves it. Great for LeetCode, HackerRank, or a shared doc.',
-        tip: window.WHIS_WEB ? 'Shortcut: <strong>⌘/Ctrl + J</strong>.' : 'Shortcut: <strong>⌘/Ctrl + J</strong>. The app hides itself so it never shows up in your own screenshot.',
+        body: window.WHIS_WEB
+            ? 'Once you share your interview tab or window, Snap grabs the current frame from that share, reads the coding question, and solves it. No new pop-up each time — one share, then just Snap. Great for LeetCode, HackerRank, or a shared doc.'
+            : 'Snap grabs whatever coding question is on your screen, reads it, and solves it. Great for LeetCode, HackerRank, or a shared doc.',
+        tip: window.WHIS_WEB ? 'Shortcut: <strong>⌘/Ctrl + J</strong>. It samples the tab you shared, not a fresh screenshot.' : 'Shortcut: <strong>⌘/Ctrl + J</strong>. The app hides itself so it never shows up in your own screenshot.',
         target: '#screenshot-btn',
         position: 'top-right',
     },
@@ -1262,7 +1264,9 @@ const _WHIS_TOUR_STEPS_ALL = [
     {
         title: 'Try it right now',
         tag: '⚡ A 30 second test drive',
-        body: 'See it for real.<br>1. Open a coding question &nbsp;<button id="wt-try-leetcode" class="wt-inline-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open a LeetCode</button><br>2. Press <strong>Snap</strong> and watch it solve the question.<br>3. Turn on <strong>Listen</strong> and ask a question out loud, then watch Whis hear you and answer.',
+        body: window.WHIS_WEB
+            ? 'See it for real.<br>1. Open a coding question &nbsp;<button id="wt-try-leetcode" class="wt-inline-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open a LeetCode</button><br>2. Share that tab (Whis previews it on the right), then press <strong>Snap</strong> to read and solve the question.<br>3. With the tab shared, Whis also hears the interviewer from it and answers as they finish.'
+            : 'See it for real.<br>1. Open a coding question &nbsp;<button id="wt-try-leetcode" class="wt-inline-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open a LeetCode</button><br>2. Press <strong>Snap</strong> and watch it solve the question.<br>3. Turn on <strong>Listen</strong> and ask a question out loud, then watch Whis hear you and answer.',
         tip: 'The Snap and Listen buttons are live right now, go ahead and press them.',
         target: null,
         position: 'center',
@@ -3842,7 +3846,9 @@ const _DEMO_STEPS_ALL = [
     iconColor: '#ffd700',
     title: 'Screenshot → Live AI Solution',
     target: '#screenshot-btn', pos: 'center',
-    body: `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) hides Whis-AI, scans your screen, reads the problem with OCR, then fires the answer live — all in under 3 seconds.`,
+    body: window.WHIS_WEB
+      ? `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) grabs the current frame from your shared tab, reads the problem with OCR, then fires the answer live — all in under 3 seconds.`
+      : `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) hides Whis-AI, scans your screen, reads the problem with OCR, then fires the answer live — all in under 3 seconds.`,
     async action(zone) {
       zone.innerHTML = `
         <div style="display:flex; gap:7px; margin-bottom:11px;">
@@ -5202,8 +5208,9 @@ function _renderWebWelcome(container) {
   // interviewer on speaker; true screenshare-invisible live capture is the desktop app.
   const guidance = IS_MOBILE_WEB
     ? 'or tap the mic to practice out loud. Live interview capture needs the desktop app.'
-    : 'or click Listen — the mic hears you and your interviewer (on speaker). '
-      + '<a href="#" id="web-adv-tabaudio" class="web-adv-link">Advanced: capture a tab’s audio</a>';
+    : 'or Start a Live Session — share your interview tab once, and Whis hears the '
+      + 'interviewer straight from that tab (cleanest capture) and reads the screen. '
+      + '<a href="#" id="web-adv-tabaudio" class="web-adv-link">Prefer your mic instead?</a>';
 
   const chips = _WEB_STARTER_QUESTIONS.map((q, i) => `
     <button class="web-starter-chip" data-starter-idx="${i}" style="--i:${i}">
@@ -5227,7 +5234,7 @@ function _renderWebWelcome(container) {
       <button type="button" class="web-session-enter web-session-enter-cta" id="web-session-enter-cta">
         <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
         Start Live Session
-        <span class="wsec-sub">Focus mode · tiny transcript, full-screen answers</span>
+        <span class="wsec-sub">Share your interview tab · answers left, live tab preview right</span>
       </button>
       <div class="web-welcome-guidance">${guidance}</div>
       ${(typeof WhisLive !== 'undefined' && WhisLive.supported())
@@ -5251,13 +5258,13 @@ function _renderWebWelcome(container) {
     });
   });
 
-  // Advanced: opt into capturing a browser tab's audio (headphone users). Sets the
-  // flag then starts listening via the getDisplayMedia path. Default stays mic-first.
+  // Fallback: use the laptop mic instead of the shared tab audio (headphone users, or
+  // no tab audio available). Sets the mic flag, then starts listening on the mic path.
   const adv = container.querySelector('#web-adv-tabaudio');
   if (adv) adv.addEventListener('click', (e) => {
     e.preventDefault();
-    window._whisTabAudio = true;
-    whisToast('Advanced mode: pick the interviewer’s tab and check “Share tab audio”. Prefer the simple way? Just click Listen for mic capture.', 'info', 7000);
+    window._whisUseMic = true;
+    whisToast('Using your microphone. The mic hears you and the interviewer if they’re on speaker — for the cleanest capture, Start a Live Session and share the tab instead.', 'info', 7000);
     try { startListening(); } catch (_) {}
   });
 
@@ -5732,6 +5739,10 @@ let audioChunks = [];
 let currentLength = 0;
 const SAMPLE_RATE = 16000;
 let activeMediaStream = null;
+// WEB: true when startListening() is reading the PERSISTENT shared-screen audio track
+// (the interviewer's tab/system audio). In that case stop/teardown must NOT stop the
+// track — the shim owns the shared stream's lifecycle (also feeds the preview + Snap).
+let _usingSharedLiveAudio = false;
 
 // ── Reliability: stream auto-recovery + stuck-guard ──
 let _streamRestartAttempts = 0;
@@ -6171,6 +6182,7 @@ async function startListening() {
 
   try {
     let stream;
+    _usingSharedLiveAudio = false; // reset; set true only when reusing the shared live audio track
 
     // ── MOBILE WEB PATH: mic-only ──
     // Phones cannot capture the interviewer's tab/system audio (no getDisplayMedia).
@@ -6193,10 +6205,33 @@ async function startListening() {
             return;
         }
     } else if (window.WHIS_WEB) {
-        // DEFAULT on desktop web: capture the INTERVIEWER via the meeting tab/system
-        // audio (getDisplayMedia). This is clean audio with no room noise — the reason
-        // mic-first was hearing "random words from the air". If the user cancels the
-        // picker or shares without audio, we fall back to the mic so Listen still works.
+        // DEFAULT on desktop web: capture the INTERVIEWER via the shared tab/window/
+        // system audio. This is clean, line-level audio with no room noise — the reason
+        // mic-first was mishearing ("random words from the air"). If the user cancels
+        // the picker or shares without audio, we fall back to the mic so Listen works.
+        //
+        // PRIMARY (ParakeetAI-style): if a persistent screen share is already live
+        // (started by the 75/25 live view) AND it carries audio, reuse THAT audio track
+        // directly — no second picker, one share for the whole session. This is the core
+        // "not hearing clearly" fix: the shared tab audio is the interviewer's own feed.
+        let usedSharedLiveAudio = false;
+        try {
+            if (window.electronAPI && window.electronAPI.hasLiveScreen &&
+                window.electronAPI.hasLiveScreen() &&
+                window.electronAPI.liveHasAudio && window.electronAPI.liveHasAudio() &&
+                window.electronAPI.getLiveAudioStream) {
+                const shared = window.electronAPI.getLiveAudioStream();
+                if (shared && shared.getAudioTracks().length) {
+                    stream = shared;
+                    usedSharedLiveAudio = true;
+                    _usingSharedLiveAudio = true;
+                }
+            }
+        } catch (_) { /* fall through to the getDisplayMedia path */ }
+
+        if (usedSharedLiveAudio) {
+            // Skip the picker + hint entirely — we already have the interviewer's audio.
+        } else {
         try { _showTabShareHintOnce(); } catch (_) {}
         try {
             stream = await getSystemAudioStreamViaElectron();
@@ -6211,6 +6246,7 @@ async function startListening() {
                 return;
             }
         }
+        } // end getDisplayMedia picker path (skipped when reusing the shared live audio)
     } else {
         audioInputDeviceID = await getSystemAudioOutputDeviceID();
 
@@ -6428,8 +6464,10 @@ async function _handleStreamEnded() {
     stopUserMicCapture();
     try { if (processor)         { processor.disconnect(); processor.onaudioprocess = null; } } catch(_) {}
     try { if (inputStream)       { inputStream.disconnect(); }                               } catch(_) {}
-    try { activeMediaStream?.getTracks().forEach(t => t.stop());                            } catch(_) {}
+    // WEB: don't stop the persistent shared-screen audio track (shim-owned).
+    try { if (!_usingSharedLiveAudio) activeMediaStream?.getTracks().forEach(t => t.stop());  } catch(_) {}
     activeMediaStream = null;
+    _usingSharedLiveAudio = false;
     processor = null;
     inputStream = null;
     if (audioCtx && audioCtx.state !== 'closed') { audioCtx.close().catch(() => {}); audioCtx = null; }
@@ -6748,11 +6786,15 @@ async function stopAndCommitAudio(silentStop = false) {
     if (inputStream) inputStream.disconnect();
 
     try {
-        if (activeMediaStream) {
+        // WEB: never stop the PERSISTENT shared-screen audio track — the shim owns it
+        // (it also drives the live preview + Snap). Just drop our reference; the audio
+        // graph was already disconnected above.
+        if (activeMediaStream && !_usingSharedLiveAudio) {
             activeMediaStream.getTracks().forEach(t => { try { t.stop(); } catch (_) {} });
         }
     } catch (_) {}
     activeMediaStream = null;
+    _usingSharedLiveAudio = false;
 
     try {
         if (audioCtx && audioCtx.state !== 'closed') {
@@ -7110,6 +7152,40 @@ async function silentScreenshotCapture(opts = {}) {
 
 async function handleScreenshotStage() {
   if (isProcessingSend || isAutoMode) return;
+
+  // WEB (ParakeetAI-style): "Snap" no longer fires a fresh getDisplayMedia prompt each
+  // time. If a screen is already shared (the persistent live stream), sample the CURRENT
+  // frame from that video track and send it (one share, then Snap just grabs frames).
+  // If nothing is shared yet, trigger the share first, then the next Snap samples it.
+  // Desktop Electron keeps its original one-shot captureScreen() behavior (untouched).
+  if (window.WHIS_WEB && !IS_MOBILE_WEB) {
+    const shared = window.electronAPI && window.electronAPI.hasLiveScreen &&
+      window.electronAPI.hasLiveScreen();
+    if (shared) {
+      await silentScreenshotCapture({ fromLive: true });
+      finalizeAndSend();
+      return;
+    }
+    // No share yet → start one (inside this click gesture) so Snap can sample it. If the
+    // session preview owns the share flow, defer to it; otherwise prompt directly.
+    if (typeof WhisSession !== 'undefined' && WhisSession.isActive() && window._whisSessionStartShare) {
+      try { await window._whisSessionStartShare(); } catch (_) {}
+    } else if (window.electronAPI && window.electronAPI.startLiveScreen) {
+      let res;
+      try { res = await window.electronAPI.startLiveScreen(true); } catch (e) { res = { error: e && e.message }; }
+      if (!res || res.error) {
+        try { whisToast('Share your interview tab/window first, then click <strong>Snap</strong> to capture the question.', 'info', 6000); } catch (_) {}
+        return;
+      }
+    }
+    // Now that a share exists, grab the frame and send.
+    if (window.electronAPI && window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen()) {
+      await silentScreenshotCapture({ fromLive: true });
+      finalizeAndSend();
+    }
+    return;
+  }
+
   const hasPermission = await checkAndRequestPermission('screen');
   if (!hasPermission) return;
 
@@ -7931,6 +8007,11 @@ const WhisSession = (() => {
   let langSelect = null;
   let dotEl = null;
   let overlayTimer = null;
+  // 75/25 live view: the 25% right column previewing the shared tab/window.
+  let previewEl = null;      // <aside> wrapper
+  let previewVideoEl = null; // <video> playing the shared stream's video track
+  let previewHintEl = null;  // inline "re-share with audio" hint
+  let sharePromptEl = null;  // in-view "Share your interview tab" CTA (pre-share)
 
   const LANG_KEY = 'wh_session_lang';
 
@@ -7972,8 +8053,8 @@ const WhisSession = (() => {
       <button type="button" id="wf-answer" class="wf-btn wf-answer" title="Answer the current question">
         <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span class="wf-btn-label">Answer</span>
       </button>
-      <button type="button" id="wf-shot" class="wf-btn wf-shot" title="Snap a coding/question screenshot for the AI">
-        <i class="fa-solid fa-crop-simple" aria-hidden="true"></i><span class="wf-btn-label">Screenshot</span>
+      <button type="button" id="wf-shot" class="wf-btn wf-shot" title="Capture the current frame from your shared tab for the AI to read">
+        <i class="fa-solid fa-crop-simple" aria-hidden="true"></i><span class="wf-btn-label">Capture frame</span>
       </button>
       <button type="button" id="wf-exit" class="wf-btn wf-exit" title="Exit live session">
         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span class="wf-btn-label">Exit</span>
@@ -8001,11 +8082,46 @@ const WhisSession = (() => {
     overlayEl.className = 'wf-overlay no-drag';
     overlayEl.innerHTML = `<div class="wf-overlay-inner" id="wf-overlay-inner"></div>`;
 
-    // Insert ticker + topbar + overlay as the first children of #content-area so
-    // they sit above #messages; CSS stacks them (topbar, ticker, overlay, msgs).
+    // ── 25% LIVE PREVIEW column (ParakeetAI-style) ────────────────────────────
+    // A fixed-position aside on the right showing the shared tab/window video so the
+    // user can monitor exactly what they're sharing. CSS (body.whis-session-active)
+    // reserves the right 25% for this and pads #content-area's main column to 75%.
+    // Web-only: it's built inside WhisSession, which is a no-op on desktop Electron.
+    previewEl = document.createElement('aside');
+    previewEl.id = 'web-live-preview';
+    previewEl.className = 'web-live-preview no-drag';
+    previewEl.setAttribute('aria-label', 'Shared tab preview');
+    previewEl.innerHTML = `
+      <div class="wlp-head">
+        <span class="wlp-label">Shared tab</span>
+        <span class="wlp-live"><span class="wlp-live-dot"></span>Live</span>
+      </div>
+      <div class="wlp-stage">
+        <video id="wlp-video" class="wlp-video" autoplay muted playsinline></video>
+        <div class="wlp-share" id="wlp-share">
+          <div class="wlp-share-icon"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></div>
+          <div class="wlp-share-title">Share your interview tab</div>
+          <div class="wlp-share-sub">Pick the meeting tab / window and tick <strong>Share tab audio</strong>. Whis hears the interviewer and reads the screen from here.</div>
+          <button type="button" class="wlp-share-btn" id="wlp-share-btn">
+            <i class="fa-solid fa-desktop" aria-hidden="true"></i> Share tab / window
+          </button>
+        </div>
+      </div>
+      <div class="wlp-hint" id="wlp-hint" style="display:none;"></div>`;
+
+    // Insert ticker + topbar + overlay + preview as the first children of
+    // #content-area; CSS stacks the left column (topbar, ticker, overlay, msgs) and
+    // floats the preview into the reserved right 25%.
+    content.insertBefore(previewEl, content.firstChild);
     content.insertBefore(overlayEl, content.firstChild);
     content.insertBefore(tickerEl, content.firstChild);
     content.insertBefore(topbarEl, content.firstChild);
+
+    previewVideoEl = previewEl.querySelector('#wlp-video');
+    previewHintEl  = previewEl.querySelector('#wlp-hint');
+    sharePromptEl  = previewEl.querySelector('#wlp-share');
+    const shareBtn = previewEl.querySelector('#wlp-share-btn');
+    if (shareBtn) shareBtn.addEventListener('click', () => { _startShare(true); });
 
     tickerTrackEl = tickerEl.querySelector('#wf-tick-track');
     micBtn        = topbarEl.querySelector('#wf-mic');
@@ -8153,6 +8269,108 @@ const WhisSession = (() => {
   // Exposed so other listening-state changes (startListening/stop) can refresh us.
   window._whisSessionSync = _syncListenState;
 
+  // Bind the persistent shared stream's VIDEO to the 25% preview <video> so the
+  // user can monitor exactly what they're sharing. Muted (no echo) + playsinline.
+  function _attachPreview() {
+    try {
+      if (!previewVideoEl || !(window.electronAPI && window.electronAPI.getLiveStream)) return;
+      const s = window.electronAPI.getLiveStream();
+      if (!s) return;
+      previewVideoEl.srcObject = s;
+      previewVideoEl.muted = true;      // never echo the interviewer through the preview
+      previewVideoEl.play().catch(() => {});
+      if (sharePromptEl) sharePromptEl.style.display = 'none';
+      previewEl && previewEl.classList.add('wlp-sharing');
+    } catch (_) {}
+  }
+
+  function _detachPreview() {
+    try {
+      if (previewVideoEl) { previewVideoEl.pause(); previewVideoEl.srcObject = null; }
+    } catch (_) {}
+    if (sharePromptEl) sharePromptEl.style.display = '';
+    if (previewHintEl) { previewHintEl.style.display = 'none'; previewHintEl.textContent = ''; }
+    previewEl && previewEl.classList.remove('wlp-sharing');
+  }
+
+  // Show/clear the inline "re-share with audio" hint in the preview column.
+  function _showPreviewHint(html) {
+    if (!previewHintEl) return;
+    if (!html) { previewHintEl.style.display = 'none'; previewHintEl.innerHTML = ''; return; }
+    previewHintEl.innerHTML = html;
+    previewHintEl.style.display = 'block';
+  }
+
+  // Share the interview tab/window ONCE (persistent stream, video + audio). Must run
+  // inside a user gesture (both getDisplayMedia and the picker require it). Then bind
+  // the preview and start listening (which reuses the shared audio as PRIMARY). If the
+  // share carries no audio, hint to re-share with audio and fall back to the mic so the
+  // user is never stuck.
+  async function _startShare(fromGesture) {
+    if (!(window.electronAPI && window.electronAPI.startLiveScreen)) {
+      // No screen-capture on this device (mobile) → mic-only fallback.
+      try { startListening(); } catch (_) {}
+      return;
+    }
+    // Already sharing → just make sure preview + listening are wired.
+    if (window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen()) {
+      _attachPreview();
+      if (!(typeof isListening !== 'undefined' && isListening)) { try { startListening(); } catch (_) {} }
+      setTimeout(_syncListenState, 120);
+      return;
+    }
+
+    let res;
+    try {
+      res = await window.electronAPI.startLiveScreen(true);
+    } catch (e) {
+      res = { error: e && e.message };
+    }
+
+    if (!res || res.error) {
+      // User cancelled the picker → keep the pre-share CTA and let them retry (or type).
+      _detachPreview();
+      try { whisToast('Screen share cancelled. Click <strong>Share tab / window</strong> to capture the interviewer — or just type your question.', 'warning', 6000); } catch (_) {}
+      return;
+    }
+
+    _attachPreview();
+
+    // No audio in the share → hint to re-share with audio, and fall back to the mic so
+    // Listen still works (never stuck).
+    const hasAudio = !!res.hasAudio ||
+      (window.electronAPI.liveHasAudio && window.electronAPI.liveHasAudio());
+    if (!hasAudio) {
+      window._whisUseMic = true; // route startListening to the mic fallback
+      _showPreviewHint('No tab audio detected. For the cleanest interviewer capture, click <strong>Share tab / window</strong> again and tick <strong>“Share tab audio.”</strong> Using your mic for now.');
+      try { whisToast('No tab audio in that share. Re-share and tick <strong>“Share tab audio”</strong> for the cleanest capture — using your mic for now.', 'info', 8000); } catch (_) {}
+    } else {
+      window._whisUseMic = false;   // prefer the clean shared audio
+      window._whisTabAudio = true;  // reflect the honest "listening — interviewer's tab" label
+      _showPreviewHint('');
+    }
+
+    // Begin listening — startListening() reuses the shared audio track as PRIMARY.
+    if (!(typeof isListening !== 'undefined' && isListening)) {
+      try { startListening(); } catch (_) {}
+    }
+    setTimeout(_syncListenState, 120);
+  }
+
+  // The browser "Stop sharing" fired while the 75/25 view is open → drop the preview,
+  // stop listening, and reset back to the pre-share CTA (session stays open).
+  function _onShareEnded() {
+    if (!active) return;
+    _detachPreview();
+    try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
+    setTimeout(_syncListenState, 60);
+    try { whisToast('Screen sharing stopped. Click <strong>Share tab / window</strong> to resume live capture.', 'info', 6000); } catch (_) {}
+  }
+  window._whisSessionOnShareEnded = _onShareEnded;
+  // Exposed so Snap (handleScreenshotStage) can trigger the share via the session's
+  // flow (which also binds the preview + audio) instead of a bare getDisplayMedia call.
+  window._whisSessionStartShare = () => _startShare(true);
+
   function enter() {
     _build();
     if (!built) return;
@@ -8162,9 +8380,24 @@ const WhisSession = (() => {
     mirrorTranscript();
     _syncListenState();
 
-    // Mic-first: begin listening automatically so the transcript starts flowing.
-    if (!(typeof isListening !== 'undefined' && isListening)) {
-      try { startListening(); } catch (_) {}
+    // WEB (ParakeetAI-style): the PRIMARY input is the shared tab/window. On desktop
+    // web, prompt the share right away (inside the enter() click gesture) so audio +
+    // video + Snap all come from one share. If the user cancels, the preview column
+    // keeps a "Share tab / window" CTA so they can start whenever they're ready.
+    const canShare = !IS_MOBILE_WEB && window.electronAPI && window.electronAPI.startLiveScreen;
+    if (canShare) {
+      if (window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen()) {
+        // Reuse an already-live share (e.g. from Go Live / Snap).
+        _attachPreview();
+        if (!(typeof isListening !== 'undefined' && isListening)) { try { startListening(); } catch (_) {} }
+      } else {
+        _startShare(true);
+      }
+    } else {
+      // Mobile / no screen-capture: mic-first, no preview column.
+      if (!(typeof isListening !== 'undefined' && isListening)) {
+        try { startListening(); } catch (_) {}
+      }
     }
     setTimeout(_syncListenState, 120);
     try { _trackFunnel && _trackFunnel('web_session_enter'); } catch (_) {}
@@ -8175,6 +8408,10 @@ const WhisSession = (() => {
     _hideOverlay();
     // Stop capture cleanly (silent — no toast spam).
     try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
+
+    // Tear down the persistent shared screen + preview (the session is ending).
+    _detachPreview();
+    try { if (window.electronAPI && window.electronAPI.stopLiveScreen) window.electronAPI.stopLiveScreen(); } catch (_) {}
 
     // WEB: persist the end of this live session to the dashboard (flushes any
     // buffered transcript, then POSTs /end with durationSec). Best-effort.
@@ -8195,6 +8432,13 @@ const WhisSession = (() => {
       const t = e.target && e.target.closest ? e.target.closest('.web-session-enter') : null;
       if (t) { e.preventDefault(); enter(); }
     });
+    // React to the browser "Stop sharing" while the 75/25 view is open (in addition to
+    // WhisLive's PiP handler — the shim supports multiple onLiveScreenEnded callbacks).
+    try {
+      if (window.electronAPI && window.electronAPI.onLiveScreenEnded) {
+        window.electronAPI.onLiveScreenEnded(() => { if (active) _onShareEnded(); });
+      }
+    } catch (_) {}
   }
 
   return { init, enter, exit, isActive, mirrorTranscript };

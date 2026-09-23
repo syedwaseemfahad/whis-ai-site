@@ -273,6 +273,175 @@ body.whis-web .live-transcript {
 
 
 /* ══════════════════════════════════════════════════════════════════════════
+   5b. 75 / 25 LIVE VIEW  (body.whis-session-active, WEB ONLY)
+   ParakeetAI-style split: the answer/output rail owns ~75% of the width; a
+   ~25% right column previews the shared interview tab/window (live <video>) so
+   the user can monitor exactly what they're sharing. Desktop Electron never gets
+   `.whis-session-active` + `.whis-web` together, so this is web-gated + additive.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Widen the app column out of its centered 900px cap for the split view, and
+   reserve the right 25% for the preview aside (padding, since children flow in a
+   normal column and the aside is absolutely positioned into that reserved gutter). */
+body.whis-web.whis-session-active #content-area {
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-right: calc(25% + 20px) !important;
+}
+
+/* The 25% preview column — pinned to the right edge, full session height. */
+body.whis-web .web-live-preview {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  bottom: 8px;
+  width: 25%;
+  max-width: 420px;
+  min-width: 220px;
+  display: none;                 /* only shown during an active session */
+  flex-direction: column;
+  gap: 8px;
+  background: var(--wv-green-2);
+  border: 1px solid var(--wv-border-strong);
+  border-radius: var(--wv-radius-md);
+  box-shadow: var(--wv-shadow-elevated);
+  padding: 10px;
+  overflow: hidden;
+  z-index: 5;
+}
+body.whis-web.whis-session-active .web-live-preview { display: flex; }
+
+body.whis-web .web-live-preview .wlp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+}
+body.whis-web .web-live-preview .wlp-label {
+  font-family: var(--wv-font-display);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  color: var(--wv-text-muted);
+}
+body.whis-web .web-live-preview .wlp-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--wv-text-muted);
+  opacity: 0.5;
+}
+body.whis-web .web-live-preview.wlp-sharing .wlp-live { opacity: 1; color: #8ff0bd; }
+body.whis-web .web-live-preview .wlp-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--wv-text-muted);
+}
+body.whis-web .web-live-preview.wlp-sharing .wlp-live-dot { background: var(--wv-green-accent); }
+
+/* Video stage: 16:9-ish, dark, hairline framed. */
+body.whis-web .web-live-preview .wlp-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--wv-radius-sm);
+  border: 1px solid var(--wv-border);
+  background: var(--wv-green);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.whis-web .web-live-preview .wlp-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
+/* Pre-share CTA overlay (shown until a stream is bound). */
+body.whis-web .web-live-preview .wlp-share {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+  background: var(--wv-green-2);
+}
+body.whis-web .web-live-preview.wlp-sharing .wlp-share { display: none; }
+body.whis-web .web-live-preview .wlp-share-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(195, 169, 239, 0.12);
+  color: var(--wv-lav);
+  font-size: 16px;
+}
+body.whis-web .web-live-preview .wlp-share-title {
+  font-family: var(--wv-font-display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--wv-text);
+}
+body.whis-web .web-live-preview .wlp-share-sub {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--wv-text-muted);
+}
+body.whis-web .web-live-preview .wlp-share-btn {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: var(--wv-radius-sm);
+  border: 1px solid var(--wv-lav);
+  background: var(--wv-lav);
+  color: var(--wv-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--wv-dur-fast) var(--wv-ease);
+}
+body.whis-web .web-live-preview .wlp-share-btn:hover { background: var(--wv-lav-deep); }
+
+/* Inline "re-share with audio" hint. */
+body.whis-web .web-live-preview .wlp-hint {
+  flex: 0 0 auto;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--wv-gold);
+  background: rgba(201, 138, 26, 0.10);
+  border: 1px solid rgba(201, 138, 26, 0.35);
+  border-radius: var(--wv-radius-sm);
+  padding: 7px 9px;
+}
+body.whis-web .web-live-preview .wlp-hint strong { color: var(--wv-text); }
+
+/* Responsive: on narrow viewports, stack the preview under the answers as a short
+   strip so it never crushes the reading rail. */
+@media (max-width: 860px) {
+  body.whis-web.whis-session-active #content-area {
+    padding-right: 12px !important;
+  }
+  body.whis-web .web-live-preview {
+    position: static;
+    width: auto;
+    max-width: none;
+    height: 150px;
+    margin: 0 0 8px 0;
+    order: -1;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
    6. OVERLAYS / CARDS  —  app-only modal shells (login, trial, subscription,
    context, report, guide). Their primary buttons now carry wv-btn classes, so
    only the CARD/OVERLAY shells + a few app-only accents remain here.
