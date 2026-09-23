@@ -258,7 +258,9 @@
   .plan.featured{border-color:var(--ink);box-shadow:var(--shadow)}
   .sticker{position:absolute;top:-15px;left:50%;transform:translateX(-50%) rotate(-3deg);font-weight:700;font-size:13.5px;padding:6px 15px;border-radius:999px;color:#fff;box-shadow:0 6px 16px -6px rgba(0,0,0,.4)}
   .sticker.free{background:var(--terra)} .sticker.elite{background:var(--lav);color:var(--ink)} .sticker.team{background:var(--maroon);transform:translateX(-50%) rotate(3deg)}
-  .plan .who{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:14px 0 10px;text-align:center}
+  .plan .cyc-label{display:block;text-align:center;margin:14px auto 0;font-family:"Fraunces",serif;font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .plan .who{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:4px 0 10px;text-align:center}
+  .bill-clarity{max-width:60ch;margin:0 auto 30px;text-align:center;font-size:13px;line-height:1.55;color:var(--ink-soft);background:rgba(217,199,247,.16);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
   .plan .price{font-family:"Fraunces",serif;font-size:46px;text-align:center;letter-spacing:-.02em}
   .plan .price small{font-size:15px;color:var(--ink-soft);font-family:"Inter"}
   .plan .sub2{text-align:center;font-size:12.5px;color:var(--ink-soft);margin-top:2px}
@@ -696,9 +698,10 @@
   <!-- PRICING -->
   <section id="pricing" style="background:var(--cream-2)"><div class="wrap">
     <div class="sec-head" style="max-width:16ch"><h2 class="serif">Choose your <span class="it">edge.</span></h2></div>
-    <p class="sec-sub">Join 7,000+ engineers who turned interviews into offers. Less than an hour of the salary you’re about to earn.</p>
-    <div class="urgency"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launch pricing ends soon · prices go up after</div>
-    <p id="smartPickText" class="sec-sub" style="margin:-22px auto 30px;max-width:62ch">Smart pick: go <span style="color:var(--green);font-weight:800;">Quarterly</span>. A job search rarely wraps up in 30 days, pay once, stay covered, and <span style="color:var(--ink);font-weight:800;">save vs monthly</span>.</p>
+    <p class="sec-sub">Over 7,000 engineers turned interviews into offers with Whis. It costs less than one hour of the salary you are about to earn.</p>
+    <div class="urgency"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Launch pricing ends soon. Prices go up after that.</div>
+    <p id="smartPickText" class="sec-sub" style="margin:-22px auto 12px;max-width:62ch">Smart pick: go <span style="color:var(--green);font-weight:800;">Quarterly</span>. Most job searches run longer than 30 days, so you pay once and pay <span style="color:var(--ink);font-weight:800;">less per month</span>.</p>
+    <p class="bill-clarity">You pay once for the plan you choose. Quarterly is a single payment that covers 3 months at a lower monthly rate. It is never an extra or a hidden charge.</p>
     <div class="plans">
 
       <!-- FREE -->
@@ -718,9 +721,10 @@
       <!-- ELITE MONTHLY -->
       <div class="plan wv-card" id="cardMonthly">
         <span class="sticker elite wv-badge wv-badge--elite" id="badgeMonthly">Elite</span>
-        <div class="who">Flexible</div>
+        <div class="cyc-label">Monthly</div>
+        <div class="who">Flexible, cancel anytime</div>
         <div class="price" id="pmTotal"><span class="sk"></span></div>
-        <div class="sub2" id="pmSupport">Billed monthly</div>
+        <div class="sub2" id="pmSupport">Billed once a month</div>
         <a class="btn btn-dark wv-btn wv-btn--dark" id="ctaMonthly" onclick="buyElite('monthly')">Get Started →</a>
         <ul>
           <li><span class="ck">✓</span> Invisible on Zoom, Teams &amp; proctoring</li>
@@ -736,9 +740,10 @@
       <!-- ELITE QUARTERLY (hero) -->
       <div class="plan featured wv-card" id="cardQuarterly">
         <span class="sticker elite" id="badgeQuarterly">Elite · Most Popular</span>
+        <div class="cyc-label">Quarterly · 3 months</div>
         <div class="who">Best for a job hunt</div>
         <div class="price" id="pqTotal"><span class="sk"></span></div>
-        <div class="sub2" id="pqSupport">one payment · 3 months</div>
+        <div class="sub2" id="pqSupport">one payment for 3 months</div>
         <a class="btn btn-primary" id="ctaQuarterly" onclick="buyElite('quarterly')">Get Started →</a>
         <ul>
           <li><span class="ck">✓</span> Invisible on Zoom, Teams &amp; proctoring</li>
@@ -754,6 +759,7 @@
       <!-- ELITE 6-MONTH (shown outside India) -->
       <div class="plan wv-card" id="cardSemiannual" style="display:none">
         <span class="sticker team" id="badgeSemiannual">Best Value</span>
+        <div class="cyc-label">6-Month · 6 months</div>
         <div class="who">Maximum coverage</div>
         <div class="price" id="psTotal"><span class="sk"></span></div>
         <div class="sub2" id="psSupport">one payment · 6 months</div>
@@ -1014,15 +1020,18 @@
     }catch(e){ console.error('config',e); }
   }
   function renderPricing(){ if(!PRICING)return;
+    // Show every Elite card as a comparable per-month price, then spell out exactly
+    // what is charged and when — so quarterly never reads as an extra or hidden fee.
     [['monthly','pm'],['quarterly','pq'],['semiannual','ps']].forEach(([cyc,pre])=>{
       const v=elitePrice(cyc,false); if(v==null)return;
-      const per=cyc==='monthly'?'/mo':cyc==='quarterly'?'/3mo':'/6mo';
-      const tot=document.getElementById(pre+'Total'); if(tot) tot.innerHTML=`${sym()}${money(v)}<small>${per}</small>`;
+      const months=cyc==='monthly'?1:cyc==='quarterly'?3:6;
+      const perMo=v/months;
+      const perShown=IS_INDIA?Math.round(perMo).toLocaleString('en-IN'):perMo.toFixed(2);
+      const tot=document.getElementById(pre+'Total'); if(tot) tot.innerHTML=`${sym()}${perShown}<small>/mo</small>`;
       const sup=document.getElementById(pre+'Support');
-      if(sup){ if(cyc==='monthly'){ sup.textContent='Billed monthly'; }
-        else{ const months=cyc==='quarterly'?3:6,m=elitePrice('monthly',false),perMo=v/months,save=m?Math.round((1-perMo/m)*100):0;
-          const shown=IS_INDIA?Math.floor(perMo).toLocaleString('en-IN'):perMo.toFixed(2);
-          sup.innerHTML=`Just ${sym()}${shown}/mo · <span style="color:#0a7f4f;font-weight:800">save ${save}% vs monthly</span>`; } }
+      if(sup){ if(cyc==='monthly'){ sup.innerHTML='One charge of <b>'+sym()+money(v)+'</b> each month'; }
+        else{ const m=elitePrice('monthly',false),save=m?Math.round((1-perMo/m)*100):0;
+          sup.innerHTML=`One payment of <b>${sym()}${money(v)}</b> for ${months} months · <span style="color:#0a7f4f;font-weight:800">save ${save}% vs monthly</span>`; } }
     });
   }
   function renderHours(){ const mh=(SITE_CONFIG&&SITE_CONFIG.micHours)||{monthly:10,quarterly:15,semiannual:20},order=['monthly','quarterly','semiannual'];
@@ -1085,7 +1094,7 @@
     const cm=document.getElementById('couponMessage'); if(cm)cm.classList.add('hidden');
     const cr=document.getElementById('couponRow'); if(cr)cr.style.display='none';
     const cl=document.getElementById('showCouponLink'); if(cl)cl.style.display='inline';
-    const lbl=currentCycle==='monthly'?'Monthly':currentCycle==='quarterly'?'3-Month':'6-Month';
+    const lbl=currentCycle==='monthly'?'Monthly · one charge each month':currentCycle==='quarterly'?'Quarterly · one payment for 3 months':'6-Month · one payment for 6 months';
     document.getElementById('payPlanCycle').textContent='Elite · '+lbl; refreshPayPrice();
     const inf=document.getElementById('influencerDiscountMsg'),ref=localStorage.getItem('whisRef'),refName=localStorage.getItem('whisRefName')||ref;
     if(inf){ if(ref){ inf.innerHTML=`<b>${refName} link active</b><br>Your 10% partner discount is applied automatically at checkout.`; inf.classList.remove('hidden'); } else inf.classList.add('hidden'); }
