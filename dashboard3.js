@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
-   Whis-AI — Dashboard v3 (editorial) logic
+   Whis-AI, Dashboard v3 (editorial) logic
    Same live backend contract as the current dashboard
    (api.whis-ai.com). Sessions + Resumes are backed by the real API.
    The resume is the single context Whis uses to personalize live
    interview answers. Documents / Resume-Maker / Headshots are
    intentionally NOT part of this surface.
-   NEW FILE — touches nothing existing.
+   NEW FILE, touches nothing existing.
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -27,6 +27,7 @@
   let resumesLoaded = false;
   let resumesCache = [];              // saved resumes, for the New Session picker
   let nsUploadedResume = null;        // { name, content } when a PDF is attached inline
+  let resUploadedContent = null;      // extracted PDF text (kept internal, never shown to the user)
 
   // ── Tiny DOM helpers ──
   const $ = (id) => document.getElementById(id);
@@ -81,7 +82,7 @@
         const d = await r.json();
         GOOGLE_CLIENT_ID = d.googleClientId || null;
       }
-    } catch (e) { /* offline — sign-in button still built below */ }
+    } catch (e) { /* offline, sign-in button still built below */ }
   }
 
   function buildGoogleAuthUrl() {
@@ -122,7 +123,7 @@
       const s = await r.json();
       renderPlan(s);
     } catch (e) {
-      // Graceful fallback — don't block the dashboard on status.
+      // Graceful fallback, don't block the dashboard on status.
       nameEl.textContent = 'Free plan';
       badgeEl.textContent = 'Trial';
       badgeEl.classList.remove('wv-badge--elite');
@@ -257,7 +258,7 @@
 
   function cardHTML(s) {
     const title = s.company || 'Untitled session';
-    const role = s.role || '—';
+    const role = s.role || ', ';
     return `
       <div class="s-card" data-id="${esc(s.sessionId)}">
         <div class="sc-top">
@@ -280,7 +281,7 @@
     return `
       <tr data-id="${esc(s.sessionId)}">
         <td>${esc(fmtDate(s.createdAt))}</td>
-        <td><div class="td-co">${esc(s.company || 'Untitled session')}</div><div class="td-role">${esc(s.role || '—')}</div></td>
+        <td><div class="td-co">${esc(s.company || 'Untitled session')}</div><div class="td-role">${esc(s.role || ', ')}</div></td>
         <td><div class="td-badges">${badgesHTML(s)}</div></td>
         <td>${stateChip(s.state)}</td>
         <td>${esc(fmtDuration(s.durationSec))}</td>
@@ -319,7 +320,7 @@
   }
 
   function renderTranscript(s, degraded) {
-    $('tvTitle').textContent = (s.company || 'Session') + (s.role ? ` — ${s.role}` : '');
+    $('tvTitle').textContent = (s.company || 'Session') + (s.role ? `, ${s.role}` : '');
     $('tvSub').textContent = `${fmtDate(s.createdAt)} · ${fmtDuration(s.durationSec)}`;
     $('tvMeta').innerHTML = `${badgesHTML(s)} ${stateChip(s.state)}`;
 
@@ -332,7 +333,7 @@
     }
     content.innerHTML = `<div class="transcript">${turns.map(turnHTML).join('')}</div>`;
 
-    // Ask AI is best-effort — only surface it when the backend advertises it.
+    // Ask AI is best-effort, only surface it when the backend advertises it.
     if (s.canAsk || s.askEnabled) { show($('askBox')); } else { hide($('askBox')); }
   }
 
@@ -383,7 +384,7 @@
       instructions: $('nsInstructions').value.trim()
     };
     // Attach a resume for tailored answers: either a saved resume id, or a
-    // freshly uploaded PDF's parsed text. Additive — omitted when none chosen.
+    // freshly uploaded PDF's parsed text. Additive, omitted when none chosen.
     const resSel = $('nsResume') ? $('nsResume').value : '';
     if (resSel === '__uploaded' && nsUploadedResume) {
       payload.resumeName = nsUploadedResume.name;
@@ -497,7 +498,7 @@
   async function openResume(id) {
     openModal('viewerModal');
     $('viewerTitle').textContent = 'Resume';
-    $('viewerSub').textContent = '—';
+    $('viewerSub').textContent = ', ';
     $('viewerContent').innerHTML = '<div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w55"></div><div class="wv-skeleton sk-line w40"></div>';
     try {
       const r = await fetch(`${BACKEND_URL}/api/resumes/${encodeURIComponent(id)}`, { headers: headers() });
@@ -524,7 +525,7 @@
     const bits = [];
     if (it.updatedAt || it.createdAt) bits.push(fmtDate(it.updatedAt || it.createdAt));
     if (content) bits.push(`${content.length} chars`);
-    $('viewerSub').textContent = bits.join(' · ') || '—';
+    $('viewerSub').textContent = bits.join(' · ') || ', ';
     $('viewerContent').innerHTML = content
       ? `<div class="viewer-body">${esc(content)}</div>`
       : `<div class="viewer-empty">This resume has no saved text content.</div>`;
@@ -535,6 +536,7 @@
     $('resName').value = '';
     $('resBody').value = '';
     $('resFile').value = '';
+    resUploadedContent = null;
     $('resDropText').textContent = 'Click to choose a PDF, or paste text below';
     $('resDrop').classList.remove('has-file');
     openModal('resumeModal');
@@ -560,11 +562,12 @@
     $('resDropText').textContent = `Reading ${file.name}…`;
     try {
       const text = await readPdf(file);
-      $('resBody').value = text;
+      // Keep the extracted text internal, never dump the raw parse into the visible box.
+      resUploadedContent = text;
       if (!$('resName').value.trim()) {
         $('resName').value = file.name.replace(/\.pdf$/i, '');
       }
-      $('resDropText').textContent = `${file.name} · ${text.length} chars loaded`;
+      $('resDropText').textContent = `${file.name} · ready`;
       drop.classList.add('has-file');
     } catch (e) {
       $('resDropText').textContent = 'Couldn\'t read that PDF. Paste the text instead.';
@@ -575,7 +578,8 @@
 
   async function saveResume() {
     const title = $('resName').value.trim();
-    const content = $('resBody').value.trim();
+    // Prefer anything the user typed/pasted; otherwise use the extracted PDF text held internally.
+    const content = ($('resBody').value.trim()) || (resUploadedContent || '').trim();
     if (!title) { $('resName').focus(); toast('Give your resume a title.', true); return; }
     if (!content) { $('resBody').focus(); toast('Add some content or upload a PDF.', true); return; }
     const btn = $('saveResumeBtn');
@@ -638,7 +642,7 @@
           resumesCache = Array.isArray(d) ? d : (d.resumes || d.items || []);
           renderResumeOptions();
         })
-        .catch(() => { /* offline — picker still offers PDF upload */ });
+        .catch(() => { /* offline, picker still offers PDF upload */ });
     }
   }
 
@@ -694,14 +698,14 @@
 
   // ═══════════ FORMATTERS ═══════════
   function fmtDate(v) {
-    if (!v) return '—';
+    if (!v) return ', ';
     const d = new Date(v);
-    if (isNaN(d)) return '—';
+    if (isNaN(d)) return ', ';
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   }
   function fmtDuration(sec) {
     sec = Number(sec) || 0;
-    if (sec <= 0) return '—';
+    if (sec <= 0) return ', ';
     const m = Math.floor(sec / 60), s = sec % 60;
     if (m >= 60) { const h = Math.floor(m / 60); return `${h}h ${m % 60}m`; }
     if (m > 0) return `${m}m ${s}s`;
@@ -715,7 +719,7 @@
       .forEach((id) => { const el = $(id); if (el) el.addEventListener('click', openNewSession); });
     $('createSessionBtn').addEventListener('click', createSession);
 
-    // New session — Attach resume picker
+    // New session, Attach resume picker
     $('nsResume').addEventListener('change', onResumePickChange);
     $('nsResumeFile').addEventListener('change', (e) => onResumeFilePicked(e.target.files && e.target.files[0]));
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   Whis-AI — Free Mock Interview (lead magnet)
+   Whis-AI, Free Mock Interview (lead magnet)
    Flow: Setup → ask-aloud (TTS) → answer (mic + STT) → coach → loop
          → save the whole mock to the dashboard (/api/sessions).
    Live backend (deployed): /api/mock/next-question drives the questions
@@ -75,7 +75,7 @@
     try {
       const r = await fetch(`${BACKEND_URL}/api/config`);
       if (r.ok) { const d = await r.json(); GOOGLE_CLIENT_ID = d.googleClientId || null; }
-    } catch (e) { /* offline — button still routes */ }
+    } catch (e) { /* offline, button still routes */ }
   }
 
   function buildGoogleAuthUrl() {
@@ -148,7 +148,7 @@
         if (res.text || res.content) opt.dataset.text = res.text || res.content;
         sel.appendChild(opt);
       });
-    } catch (e) { /* network hiccup — paste/upload still works */ }
+    } catch (e) { /* network hiccup, paste/upload still works */ }
   }
 
   async function resolveSavedResumeText(id) {
@@ -190,13 +190,13 @@
       } else if (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
         text = await extractPdfText(file);
       } else {
-        // .doc/.docx — can't parse client-side reliably; ask user to paste.
-        nameEl.textContent = `${file.name} added — please paste the text below if questions seem generic.`;
+        // .doc/.docx, can't parse client-side reliably; ask user to paste.
+        nameEl.textContent = `${file.name} added, please paste the text below if questions seem generic.`;
         return;
       }
       if (text && text.trim()) {
         $('fResume').value = text.trim().slice(0, 20000);
-        nameEl.textContent = `${file.name} — loaded ✓`;
+        nameEl.textContent = `${file.name}, loaded ✓`;
       } else {
         nameEl.textContent = `Couldn't read ${file.name}. Please paste the text below.`;
       }
@@ -318,7 +318,7 @@
     speakQuestion(question);
   }
 
-  // Silent safety net — only used if a live /api/mock/next-question call fails.
+  // Silent safety net, only used if a live /api/mock/next-question call fails.
   function fallbackQuestion(n) {
     const role = config.role || 'this role';
     const bank = [
@@ -343,7 +343,7 @@
     }
   }
 
-  // ═══════════ TTS — ask the question aloud ═══════════
+  // ═══════════ TTS, ask the question aloud ═══════════
   let cachedVoice = null;
   function pickVoice() {
     if (!ttsSupported) return null;
@@ -376,19 +376,19 @@
       if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = LANG_TAGS[config.language] || 'en-US'; }
       u.rate = 1.0; u.pitch = 1.0;
       u.onstart = () => setQState('speaking', 'Asking…');
-      u.onend = () => { setQState('idle', 'Your turn — press Start answering.'); $('replayBtn').disabled = false; };
-      u.onerror = () => { setQState('idle', 'Your turn — press Start answering.'); $('replayBtn').disabled = false; };
+      u.onend = () => { setQState('idle', 'Your turn, press Start answering.'); $('replayBtn').disabled = false; };
+      u.onerror = () => { setQState('idle', 'Your turn, press Start answering.'); $('replayBtn').disabled = false; };
       window.speechSynthesis.speak(u);
       $('replayBtn').disabled = false;
     } catch (e) {
-      setQState('idle', 'Your turn — press Start answering.');
+      setQState('idle', 'Your turn, press Start answering.');
       $('replayBtn').disabled = false;
     }
   }
 
   function replayQuestion() { if (currentQuestion) speakQuestion(currentQuestion); }
 
-  // ═══════════ STT — capture the spoken answer ═══════════
+  // ═══════════ STT, capture the spoken answer ═══════════
   function initSTT() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { sttSupported = false; return; }
@@ -409,10 +409,10 @@
     };
     recognition.onerror = (e) => {
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        $('ansHint').textContent = 'Mic blocked — allow microphone access, or type your answer below.';
+        $('ansHint').textContent = 'Mic blocked, allow microphone access, or type your answer below.';
         fallbackToTyped();
       } else if (e.error === 'no-speech') {
-        $('ansHint').textContent = 'Didn\'t catch that — try speaking again.';
+        $('ansHint').textContent = 'Didn\'t catch that, try speaking again.';
       }
     };
     recognition.onend = () => {
@@ -452,7 +452,7 @@
     $('ansTyped').addEventListener('input', () => {
       $('submitAnswerBtn').disabled = !$('ansTyped').value.trim();
     }, { once: false });
-    if (!$('ansHint').textContent) $('ansHint').textContent = 'Speech recognition isn\'t available here — type your answer, then submit.';
+    if (!$('ansHint').textContent) $('ansHint').textContent = 'Speech recognition isn\'t available here, type your answer, then submit.';
   }
 
   function setMic(live) {
@@ -471,7 +471,7 @@
         stream.getTracks().forEach((t) => t.stop()); // we only needed the permission grant
       }
     } catch (e) {
-      $('ansHint').textContent = 'Microphone access is needed to answer aloud — or type your answer below.';
+      $('ansHint').textContent = 'Microphone access is needed to answer aloud, or type your answer below.';
       fallbackToTyped();
       return;
     }
@@ -486,7 +486,7 @@
     const rb = $('recordBtn');
     rb.classList.add('recording');
     $('recordBtnText').textContent = 'Stop';
-    $('ansHint').textContent = 'Listening — speak naturally. Press Stop when you\'re done.';
+    $('ansHint').textContent = 'Listening, speak naturally. Press Stop when you\'re done.';
     try { recognition.lang = LANG_TAGS[config.language] || 'en-US'; recognition.start(); }
     catch (e) { /* already started */ }
   }
@@ -498,7 +498,7 @@
     rb.classList.remove('recording');
     $('recordBtnText').textContent = finalTranscript.trim() ? 'Answer again' : 'Start answering';
     try { recognition.stop(); } catch (e) {}
-    $('ansHint').textContent = finalTranscript.trim() ? 'Looks good — submit to get coaching, or answer again to redo.' : '';
+    $('ansHint').textContent = finalTranscript.trim() ? 'Looks good, submit to get coaching, or answer again to redo.' : '';
   }
 
   function currentAnswerText() {
@@ -509,7 +509,7 @@
   // ═══════════ SUBMIT ANSWER → COACHING ═══════════
   async function submitAnswer() {
     const answer = currentAnswerText();
-    if (!answer) { $('ansHint').textContent = 'Add an answer first — speak or type a response.'; return; }
+    if (!answer) { $('ansHint').textContent = 'Add an answer first, speak or type a response.'; return; }
     if (recording) stopRecording();
     if (ttsSupported) window.speechSynthesis.cancel();
 
@@ -575,7 +575,7 @@
     $('sumCount').textContent = String(history.length);
     const list = $('reviewList');
     if (!history.length) {
-      list.innerHTML = '<div class="rev-item"><div class="rev-q">No answers recorded this time — run another mock to practice.</div></div>';
+      list.innerHTML = '<div class="rev-item"><div class="rev-q">No answers recorded this time, run another mock to practice.</div></div>';
       return;
     }
     list.innerHTML = history.map((h, i) => `
@@ -598,7 +598,7 @@
   async function saveMock() {
     const saveEl = $('saveState');
     if (!currentUser) {
-      // Gate saving behind sign-in — but the mock itself already ran for free.
+      // Gate saving behind sign-in, but the mock itself already ran for free.
       saveEl.className = 'save-state warn';
       saveEl.innerHTML = 'Sign in to save this mock to your dashboard so you can review it later. ';
       const a = document.createElement('a');
@@ -651,7 +651,7 @@
       saveEl.appendChild(a);
     } catch (e) {
       saveEl.className = 'save-state warn';
-      saveEl.textContent = 'Couldn\'t save to the dashboard right now — your review below is still here.';
+      saveEl.textContent = 'Couldn\'t save to the dashboard right now, your review below is still here.';
     }
   }
 
@@ -712,7 +712,7 @@
       if (!sttSupported) notes.push('Your browser doesn\'t support speech-to-text, so you\'ll type answers (works everywhere).');
       if (!ttsSupported) notes.push('Spoken questions aren\'t supported here, so questions show as text.');
       const el = $('capNoteText');
-      if (el) el.textContent = notes.join(' ') + ' Sign in to save this mock to your dashboard — optional to start.';
+      if (el) el.textContent = notes.join(' ') + ' Sign in to save this mock to your dashboard, optional to start.';
     }
 
     // Warm up voices (Chrome loads them async).

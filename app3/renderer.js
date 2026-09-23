@@ -264,7 +264,7 @@ function _startConnectionMonitor() {
 }
 
 // ================================================================
-// WHIS TOAST — premium in-app notifications
+// WHIS TOAST, premium in-app notifications
 // ================================================================
 function whisToast(message, type = 'info', duration = 3000, opts = {}) {
     let container = document.getElementById('whis-toast-container');
@@ -296,7 +296,7 @@ function whisToast(message, type = 'info', duration = 3000, opts = {}) {
 }
 
 // ================================================================
-// WHIS CONFIRM — premium async confirm dialog
+// WHIS CONFIRM, premium async confirm dialog
 // ================================================================
 function whisConfirm(message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', danger = false, title = '') {
     return new Promise(resolve => {
@@ -339,7 +339,7 @@ function updateContextHint(override) {
         text = override.text;
         type = override.type || 'neutral';
     } else {
-        // Hide hint when mic is active — listening-status owns that slot
+        // Hide hint when mic is active, listening-status owns that slot
         if (typeof isListening !== 'undefined' && isListening) {
             el.style.display = 'none';
             _updateChipsVisibility();
@@ -614,7 +614,7 @@ let audioInputDeviceID = 'default';
             });
             fetchHistory();
         } catch (_) {
-            whisToast('Could not send message — check your connection', 'error', 3000);
+            whisToast('Could not send message, check your connection', 'error', 3000);
         } finally {
             sendBtn.style.opacity = '';
         }
@@ -697,7 +697,7 @@ isCrisp = localStorage.getItem('wh_crisp') === '1';
 
 function updateFontScale() {
     // Keep the CSS vars at their neutral 1.0 baseline. Do NOT read/write
-    // wh_fontScale as a scaler anymore — content zoom in main handles sizing.
+    // wh_fontScale as a scaler anymore, content zoom in main handles sizing.
     const root = document.documentElement;
     root.style.setProperty('--base-font-size', '13px');
     root.style.setProperty('--code-font-size', '11px');
@@ -726,16 +726,16 @@ if (window.electronAPI && window.electronAPI.onZoomChanged) window.electronAPI.o
 // --- VAD CONFIGURATION ---
 // ========================================================
 // Two separate thresholds:
-// RECORD — anything above this gets buffered (catches quiet video-call audio)
-// VISUAL — only above this do the wave bars animate (prevents noise from triggering UI)
+// RECORD, anything above this gets buffered (catches quiet video-call audio)
+// VISUAL, only above this do the wave bars animate (prevents noise from triggering UI)
 const VAD_RECORD_THRESHOLD = 0.002; // lowered: video-call audio is heavily compressed and quiet
 const VAD_VISUAL_THRESHOLD = 0.015;
 // Minimum peak in a buffer before we send it to transcription. Raised from 0.003 →
 // 0.006: real speech peaks well above this, but background music, room tone and video
-// intros usually don't — so fewer non-speech clips reach the model (fewer hallucinations)
+// intros usually don't, so fewer non-speech clips reach the model (fewer hallucinations)
 // while genuine interviewer speech still passes.
-const VAD_MIN_SEND_PEAK    = 0.018; // raised: quiet room noise/breathing under this is NOT sent — kills "random words from the air" hallucinations on near-silent clips
-// 3 s hangover — covers natural mid-sentence pauses without cutting the recording window
+const VAD_MIN_SEND_PEAK    = 0.018; // raised: quiet room noise/breathing under this is NOT sent, kills "random words from the air" hallucinations on near-silent clips
+// 3 s hangover, covers natural mid-sentence pauses without cutting the recording window
 const VAD_HANGOVER_MS = 1500; // reduced: cuts payload size + gets last segment committed faster
 let vadLastSpeechTime = 0;
 let _currentRmsLevel  = 0; // for real-time level meter
@@ -825,7 +825,7 @@ function updateMinutesDisplay(status) {
 // --- PERMISSION FLOW (macOS) ---
 // ========================================================
 
-// Shared helper — starts the 10-second ring countdown and quits the app.
+// Shared helper, starts the 10-second ring countdown and quits the app.
 // Returns a cancel function. Drives the SVG ring and the number.
 function _startPermCountdown(onCancel) {
     // WEB: never run the desktop "reopen the app" countdown-and-quit. There is no OS
@@ -863,16 +863,16 @@ function _startPermCountdown(onCancel) {
     return () => { cancelled = true; clearInterval(interval); };
 }
 
-// Called when audio capture fails on macOS — screen recording not granted.
+// Called when audio capture fails on macOS, screen recording not granted.
 function showScreenPermissionRestartDialog() {
     // WEB ADAPTATION: on the web build there is no macOS TCC screen-recording grant to
-    // fix in System Settings — capturing interviewer audio just means picking a tab/window
+    // fix in System Settings, capturing interviewer audio just means picking a tab/window
     // (with "Share tab audio" checked) in the browser's own picker. Show a plain retry
     // message instead of the macOS "open System Settings / reopen app" countdown overlay.
-    // (WHIS_WEB, not captureScreen — the web shim PROVIDES captureScreen, so keying off
+    // (WHIS_WEB, not captureScreen, the web shim PROVIDES captureScreen, so keying off
     // it here would wrongly run the desktop 10-second countdown-and-quit on the web.)
     if (window.WHIS_WEB) {
-        whisToast('To hear the interviewer, click <strong>Listen</strong> again and choose the meeting tab/window in the picker — make sure <strong>"Share tab audio"</strong> is checked.', 'warning', 8000);
+        whisToast('To hear the interviewer, click <strong>Listen</strong> again and choose the meeting tab/window in the picker, make sure <strong>"Share tab audio"</strong> is checked.', 'warning', 8000);
         return;
     }
 
@@ -908,7 +908,7 @@ function showScreenPermissionRestartDialog() {
 // Show the permission overlay, open System Settings, then close the app after
 // a short countdown so macOS can apply the new permission on relaunch.
 function showPermissionOverlay(type, resolveCallback) {
-    // WEB: the browser grants mic/screen via its own prompt at capture time — never show
+    // WEB: the browser grants mic/screen via its own prompt at capture time, never show
     // the macOS "open System Settings, reopen the app" overlay. Resolve so any awaiting
     // flow continues cleanly.
     if (window.WHIS_WEB) { if (typeof resolveCallback === 'function') resolveCallback(true); return; }
@@ -939,7 +939,7 @@ function showPermissionOverlay(type, resolveCallback) {
     permOverlay.style.display = "flex";
     const cancel = _startPermCountdown();
 
-    // X button cancels the countdown — user can stay without granting
+    // X button cancels the countdown, user can stay without granting
     const closeBtn = document.getElementById('perm-v2-close-btn');
     if (closeBtn) {
         closeBtn.onclick = () => {
@@ -955,7 +955,7 @@ function showPermissionOverlay(type, resolveCallback) {
 }
 
 async function checkAndRequestPermission(type) {
-    // WEB: there is no OS-level TCC/permission bridge in a browser — the browser's own
+    // WEB: there is no OS-level TCC/permission bridge in a browser, the browser's own
     // getUserMedia/getDisplayMedia prompt handles consent inline. Return true so the
     // capture call proceeds and the native prompt appears (no desktop settings overlay).
     if (window.WHIS_WEB) return true;
@@ -969,10 +969,10 @@ async function checkAndRequestPermission(type) {
 
     return new Promise(async (resolve) => {
         if (type === 'mic' && status === 'not-determined') {
-            // askForMediaAccess — main process lowers window before showing dialog
+            // askForMediaAccess, main process lowers window before showing dialog
             const granted = await window.electronAPI.requestMicPermission();
             if (granted) return resolve(true);
-            // User denied the in-app dialog — fall through to settings overlay
+            // User denied the in-app dialog, fall through to settings overlay
         } else if (type === 'screen' && status === 'not-determined') {
             // Trigger the TCC prompt (no-op on macOS 12+ but harmless)
             // main process lowers window before calling getSources
@@ -982,7 +982,7 @@ async function checkAndRequestPermission(type) {
             if (perms2.screen === 'granted') return resolve(true);
         }
 
-        // Either still not-determined, or denied — guide user to System Settings
+        // Either still not-determined, or denied, guide user to System Settings
         showPermissionOverlay(type, resolve);
     });
 }
@@ -1210,7 +1210,7 @@ const _WHIS_TOUR_STEPS_ALL = [
         title: window.WHIS_WEB ? 'Snap reads your shared tab' : 'Snap solves what is on your screen',
         tag: '📸 The Snap button',
         body: window.WHIS_WEB
-            ? 'Once you share your interview tab or window, Snap grabs the current frame from that share, reads the coding question, and solves it. No new pop-up each time — one share, then just Snap. Great for LeetCode, HackerRank, or a shared doc.'
+            ? 'Once you share your interview tab or window, Snap grabs the current frame from that share, reads the coding question, and solves it. No new pop-up each time, one share, then just Snap. Great for LeetCode, HackerRank, or a shared doc.'
             : 'Snap grabs whatever coding question is on your screen, reads it, and solves it. Great for LeetCode, HackerRank, or a shared doc.',
         tip: window.WHIS_WEB ? 'Shortcut: <strong>⌘/Ctrl + J</strong>. It samples the tab you shared, not a fresh screenshot.' : 'Shortcut: <strong>⌘/Ctrl + J</strong>. The app hides itself so it never shows up in your own screenshot.',
         target: '#screenshot-btn',
@@ -1623,7 +1623,7 @@ function updateFreeTrialCTA() {
 
     // Single trial prompt only: the premium trial MODAL is the one banner users see
     // (it auto-opens on launch). The old floating center card was a second, mismatched
-    // banner — keep it permanently hidden so there's never two competing prompts.
+    // banner, keep it permanently hidden so there's never two competing prompts.
     if (cta) cta.style.display = 'none';
 
     // Header "Try Free" button: a small, non-blocking re-entry point (not a banner) so
@@ -1654,7 +1654,7 @@ function updateShortcutsUI() {
     const backSym = isMac ? '⌫' : 'Del';
     
     // Core shortcuts available in all modes.
-    // WEB: a browser tab can't hide/quit/move the window — only Clear Chat works.
+    // WEB: a browser tab can't hide/quit/move the window, only Clear Chat works.
     const baseShortcuts = window.WHIS_WEB
         ? [ { key: `${CTRL}+${backSym}`, label: 'Clear Chat' } ]
         : [
@@ -1713,8 +1713,8 @@ function updateShortcutsUI() {
     }
 
     if (IS_MOBILE_WEB) {
-        // Phones have no keyboard shortcuts — keep the prompt simple and action-led.
-        inputEl.placeholder = isAutoMode ? 'Add a note or follow-up…' : 'Ask anything — tap the mic to speak…';
+        // Phones have no keyboard shortcuts, keep the prompt simple and action-led.
+        inputEl.placeholder = isAutoMode ? 'Add a note or follow-up…' : 'Ask anything, tap the mic to speak…';
     } else if (isAutoMode) {
         inputEl.placeholder = `Add a note or follow-up… (${CTRL}+↵ to send)`;
     } else {
@@ -1724,7 +1724,7 @@ function updateShortcutsUI() {
     updateContextHint();
 }
 
-// Wire up keyboard shortcuts — L = Listen (mic), J = Jot (screenshot)
+// Wire up keyboard shortcuts, L = Listen (mic), J = Jot (screenshot)
 document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'l') {
         if (!isAutoMode) { e.preventDefault(); toggleRecording(); }
@@ -1832,7 +1832,7 @@ async function handleUserPostLogin(user) {
     if (typeof _applyComposerLock === 'function') _applyComposerLock();
 
     // Free users and Elite (pro_plus) users get OS-level screenshare invisibility.
-    // Pro users do not — content protection is deliberately not set for them.
+    // Pro users do not, content protection is deliberately not set for them.
     const shouldProtect = isFreeTier || (subscriptionTier === "pro_plus" && isActive);
     await window.electronAPI.setWindowProtection(shouldProtect);
     _updateStealthBadge(shouldProtect);
@@ -1851,8 +1851,8 @@ async function handleUserPostLogin(user) {
         if (isFreeTier && !subscriptionIsActive) {
             if (currentTrialUsage < maxTrialSessions) {
                 // WEB TRIAL-FIRST GATE (additive, web-only): on the web build we present
-                // the "Start Your Free Elite Trial" choice UP FRONT — before the copilot
-                // is usable — instead of dropping the user into a working app and popping
+                // the "Start Your Free Elite Trial" choice UP FRONT, before the copilot
+                // is usable, instead of dropping the user into a working app and popping
                 // the modal after. We show the (locked) subscription surface as the base
                 // so the composer/mic aren't reachable, then open the trial modal on top,
                 // and RETURN before showApp(). Closing the modal ("Maybe Later"/X) leaves
@@ -1861,7 +1861,7 @@ async function handleUserPostLogin(user) {
                 // reached by genuinely non-entitled free users (active/trial users took the
                 // branch above and go straight into showApp()).
                 if (window.WHIS_WEB) {
-                    showSubscriptionLock(user, "Start your free trial to begin — full access, no card needed.");
+                    showSubscriptionLock(user, "Start your free trial to begin, full access, no card needed.");
                     if (lockStartTrialBtn) lockStartTrialBtn.style.display = "block";
                     if (!_trialModalAutoShown) {
                         _trialModalAutoShown = true;
@@ -1869,7 +1869,7 @@ async function handleUserPostLogin(user) {
                     }
                     return;
                 }
-                // Desktop: keep the original behaviour — show the app, auto-open the modal
+                // Desktop: keep the original behaviour, show the app, auto-open the modal
                 // ONCE per session (re-opening it on every status refresh is what made the
                 // app feel like it was glitching).
                 if (!_trialModalAutoShown) {
@@ -1877,7 +1877,7 @@ async function handleUserPostLogin(user) {
                     setTimeout(() => openTrialModal(), 600);
                 }
             } else {
-                // Both trials exhausted — hard lock, do NOT show app
+                // Both trials exhausted, hard lock, do NOT show app
                 _showTrialsExhausted(user);
                 return;
             }
@@ -1930,8 +1930,8 @@ async function handleUserPostLogin(user) {
         }
     }
 
-    // Persistent upgrade pill — show for everyone EXCEPT genuine paid Elite users.
-    // Trial users (Elite trial: tier is pro_plus) MUST still see it — that's when
+    // Persistent upgrade pill, show for everyone EXCEPT genuine paid Elite users.
+    // Trial users (Elite trial: tier is pro_plus) MUST still see it, that's when
     // most people decide to buy.
     const upgradeFab = document.getElementById('upgrade-fab');
     if (upgradeFab) {
@@ -1955,7 +1955,7 @@ async function handleUserPostLogin(user) {
 // old local math used the 5-min "subsequent trial" value). Clock skew between the
 // device and server is corrected using the server's reported `serverTime`, so the
 // countdown is both accurate and consistent from the very first frame.
-// ── Trial motivation bar — a slim, glowing top nudge toward Elite during the trial.
+// ── Trial motivation bar, a slim, glowing top nudge toward Elite during the trial.
 // 100% noticeable (gentle pulse + rotating lines) but never blocks or interrupts.
 const _TMB_LINES = [
     "Size doesn't matter, but your salary does.",
@@ -1999,7 +1999,7 @@ function showTrialMotivation(on) {
 // REAL upcoming interview. We capture it once at onboarding (stored locally so it
 // always powers the in-app countdown, plus best-effort synced to the backend for
 // personalized win-back emails), then weave a personalized deadline into the paywall.
-// Everything here is additive and defensive — any failure is swallowed so nothing
+// Everything here is additive and defensive, any failure is swallowed so nothing
 // the user relies on can break.
 // ═══════════════════════════════════════════════════════════════════════════════
 const WH_INTERVIEW_KEY  = 'wh_interview';       // JSON { date, company, role }
@@ -2096,7 +2096,7 @@ function _saveInterviewFromModal() {
     if (x)    x.addEventListener('click', _closeInterviewOnboarding);
 })();
 
-// Personalized deadline line on the paywall — only when the user gave a future date.
+// Personalized deadline line on the paywall, only when the user gave a future date.
 function _renderInterviewCountdown() {
     const el = document.getElementById('trial-offer-countdown');
     if (!el) return;
@@ -2107,9 +2107,9 @@ function _renderInterviewCountdown() {
     if (days === null || days < 0) { el.style.display = 'none'; return; }
     const who = iv.company ? `Your ${iv.company} interview` : 'Your interview';
     let phrase;
-    if (days === 0)      phrase = `${who} is <span class="io-days">today</span> — walk in with Whis.`;
-    else if (days === 1) phrase = `${who} is <span class="io-days">tomorrow</span> — don't go in without your edge.`;
-    else                 phrase = `${who} is in <span class="io-days">${days} days</span> — be the one who walks in ready.`;
+    if (days === 0)      phrase = `${who} is <span class="io-days">today</span>, walk in with Whis.`;
+    else if (days === 1) phrase = `${who} is <span class="io-days">tomorrow</span>, don't go in without your edge.`;
+    else                 phrase = `${who} is in <span class="io-days">${days} days</span>, be the one who walks in ready.`;
     el.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> ${phrase}`;
     el.style.display = '';
     // Occupy the same slot as the recap (zero net height added to the fitted card).
@@ -2117,7 +2117,7 @@ function _renderInterviewCountdown() {
 }
 
 // Persistent header pill: a live countdown to the user's interview. This is the
-// visible payoff for the onboarding question — the app quietly becomes "their
+// visible payoff for the onboarding question, the app quietly becomes "their
 // interview tool." Shows only when a future date exists; hidden otherwise.
 function _renderInterviewCountdownPill() {
     const pill = document.getElementById('interview-countdown-pill');
@@ -2150,7 +2150,7 @@ function _maybeShowPeakEmotionNudge() {
         _trackFunnel('peak_nudge_shown');
         whisToast('That’s the answer that gets offers. Keep it for the interview that counts.', 'info', 6000,
             { action: { label: 'Get Elite', fn: () => { _trackFunnel('peak_nudge_clicked'); try { _showTrialEndedOffer(true); } catch (_) {} } } });
-    } catch (_) { /* nudge is a bonus — never break the chat */ }
+    } catch (_) { /* nudge is a bonus, never break the chat */ }
 }
 
 function startTrialTimer(expiryIsoString, serverTimeIso) {
@@ -2173,7 +2173,7 @@ function startTrialTimer(expiryIsoString, serverTimeIso) {
             stopTrialTimer();
             trialTimerText.textContent = "0:00";
             try { localStorage.removeItem('trialStartLocal'); } catch (_) {}
-            // Lock immediately and locally — no glitchy "Refreshing status…" round-trip.
+            // Lock immediately and locally, no glitchy "Refreshing status…" round-trip.
             lockAfterEntitlementEnd();
             // Sync with the server once in the background (authoritative; no UI churn).
             checkAuth(false);
@@ -2193,7 +2193,7 @@ function startTrialTimer(expiryIsoString, serverTimeIso) {
             const urgent = diff < 60000;
             _fab.classList.toggle('ending', urgent);
             const _lbl = _fab.querySelector('span');
-            const wanted = urgent ? 'Trial ending — keep your edge' : 'Upgrade to Elite';
+            const wanted = urgent ? 'Trial ending, keep your edge' : 'Upgrade to Elite';
             if (_lbl && _lbl.textContent !== wanted) _lbl.textContent = wanted;
         }
     };
@@ -2210,7 +2210,7 @@ function stopTrialTimer() {
 }
 
 // CRITICAL (revenue): the instant a trial or paid plan ends, lock the app HARD and
-// locally — do not wait on async status round-trips (that left a window where usage
+// locally, do not wait on async status round-trips (that left a window where usage
 // felt available). Flips entitlement to free/locked, stops live capture, locks the
 // composer, and shows one upgrade CTA. Idempotent via _entitlementEnded so it can't
 // spam; re-armed when a new trial/plan becomes active in handleUserPostLogin.
@@ -2238,7 +2238,7 @@ function lockAfterEntitlementEnd() {
 // Premium "trial complete" reward: surface the quarterly discount the user has
 // unlocked (server-provided % via status.trialQuarterlyDiscount) with a single
 // beautiful CTA straight to the pricing page. Shows whether the trial completed
-// fully or the user ended it early — both count as "done".
+// fully or the user ended it early, both count as "done".
 function _showTrialEndedOffer(manual) {
     const s = subscriptionStatusObj || {};
     const pct  = s.trialRewardPct ?? s.trialQuarterlyDiscount ?? 10;
@@ -2269,15 +2269,15 @@ function _showTrialEndedOffer(manual) {
     const finalCode = code || (cycle === 'semiannual' ? 'WHIS10H' : 'WHIS10Q');
     if (codeText) codeText.textContent = finalCode;
     if (codeBtn)  { codeBtn.style.display = ''; codeBtn.classList.remove('copied'); }
-    if (codeLbl)  { codeLbl.style.display = ''; codeLbl.textContent = 'Your coupon code — tap to copy'; }
+    if (codeLbl)  { codeLbl.style.display = ''; codeLbl.textContent = 'Your coupon code, tap to copy'; }
     if (applyEl)  applyEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> Copy this code and apply it during payment to get your discount.';
 
-    // ── Personalized recap — proof of what THEY just did in the trial. This is the
+    // ── Personalized recap, proof of what THEY just did in the trial. This is the
     // most persuasive line on the card: it credits the user, then the headline turns
     // that into aspiration ("now imagine that for real"). Real answers use `assistant-`
     // IDs (the welcome/demo bubbles don't), so we count only genuine trial answers.
     try {
-        // Manual opens (the persistent "Get Elite" pill) aren't a trial ending — hide the
+        // Manual opens (the persistent "Get Elite" pill) aren't a trial ending, hide the
         // "Trial Complete" badge and skip the "you just answered N" recap.
         const badgeEl = document.querySelector('#trial-offer-overlay .trial-offer-badge');
         if (badgeEl) badgeEl.style.display = manual ? 'none' : '';
@@ -2295,7 +2295,7 @@ function _showTrialEndedOffer(manual) {
             }
             recapEl.style.display = '';
         }
-    } catch (_) { /* recap is a bonus — never block the offer */ }
+    } catch (_) { /* recap is a bonus, never block the offer */ }
 
     try { _renderInterviewCountdown(); } catch (_) { /* countdown is a bonus */ }
     _trackFunnel('paywall_shown', manual ? 'manual' : 'trial_end');
@@ -2310,7 +2310,7 @@ function _showTrialEndedOffer(manual) {
 // straight to the pre-authenticated payment sheet (no website re-login).
 let _tpCycle = 'monthly';
 let _tpConf  = null;
-let _tpCur   = 'INR';   // currency the user is shown (by timezone) — passed to checkout so the charge matches
+let _tpCur   = 'INR';   // currency the user is shown (by timezone), passed to checkout so the charge matches
 
 // Minimal user object the website needs to auto-login (same shape the backend OAuth
 // encodes): googleId + display fields. The website's fetchUserStatus re-syncs the rest.
@@ -2328,23 +2328,23 @@ async function _tpLoadPricing() {
     try {
         if (!_tpConf) _tpConf = await (await fetch(`${BACKEND_URL}/api/config`)).json();
         _tpRenderPricing();
-        // Live social proof — a real-feeling "others are using it right now" count.
+        // Live social proof, a real-feeling "others are using it right now" count.
         const liveEl = document.getElementById('trial-offer-live');
         if (liveEl) {
             const lo = _tpConf.liveUsersMin || 850, hi = _tpConf.liveUsersMax || 1400;
             liveEl.textContent = Math.floor(lo + Math.random() * (hi - lo)).toLocaleString();
         }
-    } catch (_) { /* leave the '…' placeholder — the order is still priced server-side */ }
+    } catch (_) { /* leave the '…' placeholder, the order is still priced server-side */ }
 }
 
-// Charm-rounding — identical to the server + website so the app shows the exact
+// Charm-rounding, identical to the server + website so the app shows the exact
 // price that will be charged (e.g. 2249 → 2299/2199 band, USD → x.99).
 function _charmINR(p) { const n = Math.round(p); return (n % 100 === 99) ? n : Math.round(n / 100) * 100 - 1; }
 function _charmUSD(p) { if (Math.round(p * 100) % 100 === 99) return +p.toFixed(2); return +Math.max(Math.round(p / 5) * 5 - 0.01, 0.99).toFixed(2); }
 
 function _tpRenderPricing() {
     if (!_tpConf) return;
-    // Region by the user's TIMEZONE — same as the website (index_website.html IS_INDIA),
+    // Region by the user's TIMEZONE, same as the website (index_website.html IS_INDIA),
     // NOT server IP-geo, which can fail or default to India for non-India users.
     // IST = Asia/Kolkata / Asia/Calcutta / UTC+5:30 (getTimezoneOffset() === -330).
     const _tz  = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
@@ -2362,7 +2362,7 @@ function _tpRenderPricing() {
 
     const base = pp[_tpCycle] ?? pp.monthly ?? 0;
     const disc = pp.discount || 0;
-    // Apply the backend-configured discount, then charm-round — matches create-order.
+    // Apply the backend-configured discount, then charm-round, matches create-order.
     const final = disc > 0 ? (isIN ? _charmINR(base * (1 - disc / 100)) : _charmUSD(base * (1 - disc / 100))) : base;
     const fmt   = v => isIN ? Math.round(v).toLocaleString('en-IN') : Number(v).toFixed(2);
 
@@ -2438,7 +2438,7 @@ async function _copyToClipboard(text) {
     const codeBtn    = document.getElementById('trial-offer-code');
     const upgradeBtn = document.getElementById('trial-offer-upgrade');
     const closeBtn   = document.getElementById('trial-offer-close');
-    // Top-right X — a plain, quiet close (no nag), same as clicking outside.
+    // Top-right X, a plain, quiet close (no nag), same as clicking outside.
     const xBtn       = document.getElementById('trial-offer-x');
     if (xBtn) xBtn.addEventListener('click', () => { _tpStopAutoCycle(); if (overlay) overlay.style.display = 'none'; });
 
@@ -2451,13 +2451,13 @@ async function _copyToClipboard(text) {
 
     if (codeBtn) codeBtn.addEventListener('click', async () => {
         const code = (document.getElementById('trial-offer-code-text') || {}).textContent || '';
-        if (!code || code === '—') return;
+        if (!code || code === ', ') return;
         const ok = await _copyToClipboard(code);
         codeBtn.classList.add('copied');
-        whisToast(ok ? 'Coupon copied — apply it at checkout' : `Copy this code: ${code}`, ok ? 'success' : 'info', 2500);
+        whisToast(ok ? 'Coupon copied, apply it at checkout' : `Copy this code: ${code}`, ok ? 'success' : 'info', 2500);
     });
 
-    // Plan cycle toggle (Monthly / 3-Month) — re-price in place.
+    // Plan cycle toggle (Monthly / 3-Month), re-price in place.
     document.querySelectorAll('.tp-cyc').forEach(b => b.addEventListener('click', () => {
         _tpCycle = b.dataset.cycle; _tpRenderPricing();
     }));
@@ -2465,7 +2465,7 @@ async function _copyToClipboard(text) {
     if (upgradeBtn) upgradeBtn.addEventListener('click', async () => {
         const gid = currentUser ? (currentUser.googleId || currentUser.id) : null;
         // Fewest clicks: open the pre-authed payment sheet IN the app, carrying the
-        // exact plan/cycle they picked here so they don't re-decide. No coupon — the
+        // exact plan/cycle they picked here so they don't re-decide. No coupon, the
         // price they saw is exactly what they pay. Fall back to website if needed.
         try {
             if (window.electronAPI.openInAppCheckout) {
@@ -2479,7 +2479,7 @@ async function _copyToClipboard(text) {
         window.electronAPI.openSubscriptionPage({ user: _buildCheckoutUser() });
     });
 
-    // When the in-app checkout window closes, re-check entitlement — if they paid,
+    // When the in-app checkout window closes, re-check entitlement, if they paid,
     // this unlocks the app instantly with no manual restart.
     if (window.electronAPI.onCheckoutClosed) {
         window.electronAPI.onCheckoutClosed(() => { try { checkAuth(false); } catch (_) {} });
@@ -2489,11 +2489,11 @@ async function _copyToClipboard(text) {
     if (closeBtn) closeBtn.addEventListener('click', () => {
         _tpStopAutoCycle();
         if (overlay) overlay.style.display = 'none';
-        // Gentle, one-time recovery — point them to the always-there banner instead of
+        // Gentle, one-time recovery, point them to the always-there banner instead of
         // losing them silently. Never nags (shows at most once per session).
         if (!_maybeLaterShown) {
             _maybeLaterShown = true;
-            try { whisToast('No rush — the "Upgrade to Elite" button stays up top whenever you\'re ready.', 'info', 4500); } catch (_) {}
+            try { whisToast('No rush, the "Upgrade to Elite" button stays up top whenever you\'re ready.', 'info', 4500); } catch (_) {}
         }
     });
 
@@ -2512,7 +2512,7 @@ if(endTrialBtn) {
                  const googleId = currentUser.googleId || currentUser.id;
                  await window.electronAPI.endTrial(googleId);
             }
-            // Ending early counts as "done" — lock immediately AND show the discount offer.
+            // Ending early counts as "done", lock immediately AND show the discount offer.
             lockAfterEntitlementEnd();
             // Sync with server quietly (no "Refreshing status…" flicker).
             checkAuth(false);
@@ -2531,7 +2531,7 @@ function startSessionHeartbeat(googleId) {
             if (status.sessionInvalid) {
                 // Tolerate a transient mismatch (session rotation right after a trial
                 // start can briefly look invalid). Only act after 2 consecutive strikes,
-                // and LOCK rather than quit — the app must never vanish abruptly.
+                // and LOCK rather than quit, the app must never vanish abruptly.
                 _sessionInvalidStrikes++;
                 if (_sessionInvalidStrikes >= 2) {
                     stopSessionHeartbeat();
@@ -2552,7 +2552,7 @@ function startSessionHeartbeat(googleId) {
             }
 
             // Server is the source of truth. If it reports the user is no longer
-            // active (trial expired OR paid plan lapsed), lock the app — the safety
+            // active (trial expired OR paid plan lapsed), lock the app, the safety
             // net against infinite free usage. Require TWO consecutive inactive reads
             // so a single transient blip right after starting a trial can't false-lock;
             // the trial timer remains the instant, authoritative end at true expiry.
@@ -2664,10 +2664,10 @@ function showApp(user) {
   
   updateCrispToggleUI();
 
-  // Show initial contextual hint — slight delay so localContexts are loaded
+  // Show initial contextual hint, slight delay so localContexts are loaded
   setTimeout(() => { _lastHint = null; updateContextHint(); }, 600);
 
-  // One-time position hint — tells new users the window is moveable/resizable.
+  // One-time position hint, tells new users the window is moveable/resizable.
   // Desktop-only: a browser tab has no draggable/resizable app window.
   if (!window.WHIS_WEB && !localStorage.getItem('wh_pos_hint_shown')) {
     localStorage.setItem('wh_pos_hint_shown', '1');
@@ -2796,24 +2796,24 @@ function showApp(user) {
       localStorage.setItem('wh_pro_risk_notified', '1');
       setTimeout(() => {
           whisToast(
-              '⚠ <strong>Screenshare Risk:</strong> You\'re on Pro — Whis-AI IS visible to your interviewer. Upgrade to Elite for full OS-level stealth.',
+              '⚠ <strong>Screenshare Risk:</strong> You\'re on Pro, Whis-AI IS visible to your interviewer. Upgrade to Elite for full OS-level stealth.',
               'warning', 0,
               { action: { label: 'Upgrade to Elite', fn: () => window.electronAPI.openSubscriptionPage() } }
           );
       }, 1200);
   }
 
-  // First-run stealth wizard — shown once ever, before the tour
+  // First-run stealth wizard, shown once ever, before the tour
   if (window.WHIS_WEB) {
       // WEB: value-first for conversion. Do NOT open the stealth or resume-onboarding
-      // walls on arrival — the welcome + one-tap starter questions must be the first
+      // walls on arrival, the welcome + one-tap starter questions must be the first
       // thing a trial user sees, so they reach an answer in one tap. Personalizing with
       // a resume stays available later from Profile → Manage Contexts.
       try { localStorage.setItem('wh_stealth_ok', '1'); } catch (_) {}
   } else if (!localStorage.getItem('wh_stealth_ok')) {
       setTimeout(_showStealthOnboard, 600);
   } else {
-      // Context onboarding — auto-shown at most once (and only if the user has no
+      // Context onboarding, auto-shown at most once (and only if the user has no
       // saved context). _showContextOnboarding() enforces this so we never nag.
       setTimeout(_showContextOnboarding, 1200);
   }
@@ -2837,14 +2837,14 @@ profileBtn.addEventListener("click", (event) => {
 // ================================================================
 
 function _fmtAmount(amount, currency) {
-    if (amount == null || amount === '') return '—';
-    // Server stores amounts in actual currency units (INR rupees, USD dollars) — no conversion needed
+    if (amount == null || amount === '') return ', ';
+    // Server stores amounts in actual currency units (INR rupees, USD dollars), no conversion needed
     const sym = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '₹';
     return sym + Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 function _fmtDate(d) {
-    if (!d) return '—';
+    if (!d) return ', ';
     return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
@@ -2894,9 +2894,9 @@ function openSubscriptionDetail() {
 
     // ── Info grid ──
     const validUntil = subscriptionValidUntil;
-    const validStr = validUntil ? _fmtDate(validUntil) : (tier === 'free' ? 'No expiry' : '—');
+    const validStr = validUntil ? _fmtDate(validUntil) : (tier === 'free' ? 'No expiry' : ', ');
 
-    let usageStr = '—';
+    let usageStr = ', ';
     if (s) {
         if (s.micRemainingSeconds != null) {
             const mins = Math.floor(s.micRemainingSeconds / 60);
@@ -2942,7 +2942,7 @@ function openSubscriptionDetail() {
             const title = cycle ? `${orderTier} · ${cycle}` : orderTier;
             const amount = _fmtAmount(o.amount, o.currency || 'INR');
             const date = _fmtDate(o.date);
-            const payId = o.paymentId ? o.paymentId.slice(-8) : '—';
+            const payId = o.paymentId ? o.paymentId.slice(-8) : ', ';
 
             return `<div class="sub-order-row">
                 <div class="sub-order-icon ${iconClass}">
@@ -2970,7 +2970,7 @@ function openSubscriptionDetail() {
 const subDetailBtn = document.getElementById('subscription-detail-btn');
 if (subDetailBtn) subDetailBtn.addEventListener('click', openSubscriptionDetail);
 
-// Close button uses delegation — the overlay HTML loads after this script
+// Close button uses delegation, the overlay HTML loads after this script
 document.addEventListener('click', (e) => {
     if (e.target.closest('#close-subscription-btn')) {
         const ov = document.getElementById('subscription-overlay');
@@ -3011,7 +3011,7 @@ document.addEventListener('click', (e) => {
     if (action === 'thumbdown') {
         const isActive = btn.classList.toggle('thumbed-down');
         actions.querySelector('[data-action="thumbup"]')?.classList.remove('thumbed-up');
-        if (isActive) whisToast('Thanks — we\'ll improve this', 'info', 2500);
+        if (isActive) whisToast('Thanks, we\'ll improve this', 'info', 2500);
     }
 });
 
@@ -3022,7 +3022,7 @@ document.addEventListener('click', (e) => {
     const prompt = chip.dataset.prompt;
     if (!prompt || !inputEl) return;
     const cur = inputEl.value.trim();
-    inputEl.value = cur ? cur + ' — ' + prompt : prompt;
+    inputEl.value = cur ? cur + ', ' + prompt : prompt;
     inputEl.dispatchEvent(new Event('input'));
     inputEl.focus();
     // Momentary highlight
@@ -3131,7 +3131,7 @@ logoutBtn.addEventListener("click", handleLogout);
 upgradeBtn.addEventListener("click", () => {
   profileDropdownMenu.style.display = "none";
   // Open the real website pricing, pre-authenticated (passes the user so the site
-  // auto-logs-in — no re-login). Falls back to the plain pricing page if no identity.
+  // auto-logs-in, no re-login). Falls back to the plain pricing page if no identity.
   const user = _buildCheckoutUser();
   if (user) window.electronAPI.openSubscriptionPage({ user });
   else window.electronAPI.openSubscriptionPage();
@@ -3360,7 +3360,7 @@ function openTrialModal() {
     if (profileDropdownMenu) profileDropdownMenu.style.display = "none";
 
     const left = maxTrialSessions - currentTrialUsage;
-    // Don't reveal the running count — just present it as a free trial. We only surface
+    // Don't reveal the running count, just present it as a free trial. We only surface
     // the limit once they've actually used them all (below).
     trialSessionsLeftEl.textContent = `Free ${trialDurationMinutes}-minute trial · full access`;
     trialErrorEl.textContent = "";
@@ -3401,7 +3401,7 @@ async function activateTrial() {
             localStorage.setItem('trialStartLocal', Date.now().toString());
             trialModal.style.display = "none";
             await checkAuth(true);
-            // WEB: make the very next step obvious — drop the user straight into the
+            // WEB: make the very next step obvious, drop the user straight into the
             // composer and surface a short first-run hint so they know what to do.
             if (window.WHIS_WEB) {
                 try { _applyComposerLock(); } catch (_) {}
@@ -3411,13 +3411,13 @@ async function activateTrial() {
             // Every new trial user gets the guided walkthrough the moment their trial
             // starts. Guarded so it shows once per session (won't double with the
             // first-run wizard, which sets the same flag). On mobile the multi-step tour
-            // is too heavy for a small screen — the concise first-run hint covers it.
+            // is too heavy for a small screen, the concise first-run hint covers it.
             if (!hasShownTourThisSession && !IS_MOBILE_WEB) {
                 hasShownTourThisSession = true;
                 setTimeout(() => { try { openWhisTour(); } catch (_) {} }, 700);
             }
         } else {
-            // Clear, friendly next step — never a dead UI. If the trial is already used
+            // Clear, friendly next step, never a dead UI. If the trial is already used
             // up, point the user at the plans instead of leaving a bare error string.
             const msg = data.error || "Failed to start trial.";
             trialErrorEl.textContent = msg;
@@ -3436,7 +3436,7 @@ async function activateTrial() {
 menuStartTrialBtn.addEventListener("click", openTrialModal);
 lockStartTrialBtn.addEventListener("click", openTrialModal);
 
-// OPTIONAL resume personalization — opens the Context Manager over the trial modal.
+// OPTIONAL resume personalization, opens the Context Manager over the trial modal.
 // Purely additive: they can add a resume for tailored answers, or just skip and start.
 const trialPersonalizeLink = document.getElementById("trial-personalize-link");
 if (trialPersonalizeLink) trialPersonalizeLink.addEventListener("click", () => {
@@ -3447,7 +3447,7 @@ if (trialPersonalizeLink) trialPersonalizeLink.addEventListener("click", () => {
 // Manager straight into the editor AND fires the file picker synchronously (within
 // the click gesture, or the browser blocks it), so the user can pick their resume
 // instantly. The existing change-handler extracts the text and drops it in for
-// review + save. Reuses all tested logic — nothing new in the save path.
+// review + save. Reuses all tested logic, nothing new in the save path.
 const contextQuickBtn = document.getElementById("context-quick-btn");
 if (contextQuickBtn) contextQuickBtn.addEventListener("click", () => {
     try { if (contextOverlay) contextOverlay.style.display = "flex"; } catch (_) {}
@@ -3593,7 +3593,7 @@ async function saveContext() {
         } else {
             const wasNew = !editingContextId; // capture before closeEditor() resets it
             localContexts = data.contexts;
-            // Find the context just saved — prefer the server-returned id, then name, then newest.
+            // Find the context just saved, prefer the server-returned id, then name, then newest.
             const savedCtx = (data.context && data.context.id)
                 ? data.contexts.find(c => c.id === data.context.id)
                 : (data.contexts.find(c => c.name === name) || data.contexts[data.contexts.length - 1]);
@@ -3610,7 +3610,7 @@ async function saveContext() {
         }
     } catch (e) {
         console.error("Context Save Error:", e);
-        whisToast("Save failed — check your connection", "error");
+        whisToast("Save failed, check your connection", "error");
     } finally {
         saveCtxBtn.innerHTML = "Save Context";
         saveCtxBtn.disabled = false;
@@ -3672,7 +3672,7 @@ function updateActiveContextBadge() {
         // Flash a hint confirming context is active and what it means
         if (!state.isSending && !isListening) {
             _flashHint(
-                `✓ <strong>${escapeHTML(active.name)}</strong> active — every answer will reference your background`,
+                `✓ <strong>${escapeHTML(active.name)}</strong> active, every answer will reference your background`,
                 'ready', 4000
             );
         }
@@ -3708,7 +3708,7 @@ const _DEMO_STEPS_ALL = [
     iconColor: '#a78bff',
     title: 'See Every Feature Live',
     target: null, pos: 'center',
-    body: `A <strong>real, hands-on tour</strong> of Whis-AI. Every step triggers the actual feature — nothing is faked or mocked.`,
+    body: `A <strong>real, hands-on tour</strong> of Whis-AI. Every step triggers the actual feature, nothing is faked or mocked.`,
     action(zone) {
       zone.innerHTML = `
         <div class="demo-welcome-grid">
@@ -3730,7 +3730,7 @@ const _DEMO_STEPS_ALL = [
     iconColor: '#c3a9ef',
     title: 'Shortcuts + The Send Button',
     target: '#send-btn', pos: 'center',
-    body: `The <strong style="color:#a78bff;">Send button ↑</strong> (highlighted above) sends your question to AI. The shortcut <strong style="color:#a78bff;">${_CTRL}+↵</strong> does the same thing — hands-free. The app is <span style="color:#4df4b1;">fully interactive</span> during this entire demo.`,
+    body: `The <strong style="color:#a78bff;">Send button ↑</strong> (highlighted above) sends your question to AI. The shortcut <strong style="color:#a78bff;">${_CTRL}+↵</strong> does the same thing, hands-free. The app is <span style="color:#4df4b1;">fully interactive</span> during this entire demo.`,
     action(zone) {
       const sym = _CTRL;
       const shortcuts = [
@@ -3745,7 +3745,7 @@ const _DEMO_STEPS_ALL = [
       zone.innerHTML = `
         <div class="demo-interact-hint">
           <i class="fa-solid fa-hand-pointer" style="color:#4df4b1;"></i>
-          You can type, send, scroll and use everything right now — the demo won't block you
+          You can type, send, scroll and use everything right now, the demo won't block you
         </div>
         <div class="demo-shortcuts-grid" style="margin-top:8px;">
           ${shortcuts.map(s => `
@@ -3764,7 +3764,7 @@ const _DEMO_STEPS_ALL = [
     iconColor: '#ff9500',
     title: 'It Hears You AND the Interviewer',
     target: '#voice-btn', pos: 'center',
-    body: `The <strong style="color:#ff9500;">Listen button ↑</strong> (glowing orange) hears <strong>both voices</strong> — the interviewer through your speakers <em>and you through your mic</em>. It knows who's speaking, so in a real interview it answers the interviewer's question the instant it's asked. <strong style="color:#4df4b1;">Turn it on and ask a question out loud yourself</strong> to watch it work.`,
+    body: `The <strong style="color:#ff9500;">Listen button ↑</strong> (glowing orange) hears <strong>both voices</strong>, the interviewer through your speakers <em>and you through your mic</em>. It knows who's speaking, so in a real interview it answers the interviewer's question the instant it's asked. <strong style="color:#4df4b1;">Turn it on and ask a question out loud yourself</strong> to watch it work.`,
     async action(zone) {
       zone.innerHTML = `
         <div style="display:flex; gap:7px; margin-bottom:11px;">
@@ -3802,7 +3802,7 @@ const _DEMO_STEPS_ALL = [
         btn.style.background = 'rgba(77,244,177,0.05)';
         btn.style.borderColor = 'rgba(77,244,177,0.25)';
         btn.style.boxShadow = '0 4px 14px rgba(77,244,177,0.12)';
-        btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#4df4b1;"></i> Opened — press Play to begin';
+        btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#4df4b1;"></i> Opened, press Play to begin';
 
         const listeningDiv = zone.querySelector('#da-yt-listening');
         listeningDiv.style.display = 'block';
@@ -3820,7 +3820,7 @@ const _DEMO_STEPS_ALL = [
               ${[1,2,3,4,5,6,7,8,9,10,11,12].map((_, i) => `<div style="flex:1; background:rgba(255,68,68,${0.2 + Math.random()*0.6}); border-radius:2px; height:${6 + Math.random()*14}px; animation:soundWave ${0.6 + i*0.08}s ease-in-out infinite alternate;"></div>`).join('')}
             </div>
             <div style="color:rgba(255,255,255,0.5); font-size:11px; line-height:1.55;">
-              Now <strong style="color:#ff9f43;">speak a question out loud yourself</strong> — Whis hears you too. When you (or the interviewer) finish, press
+              Now <strong style="color:#ff9f43;">speak a question out loud yourself</strong>, Whis hears you too. When you (or the interviewer) finish, press
               <kbd style="color:#a78bff; font-size:10px; background:rgba(167,139,255,0.14); padding:1px 7px; border-radius:4px; border:1px solid rgba(167,139,255,0.32); font-weight:700;">${_CTRL}+↵</kbd>
               and the answer streams instantly.
             </div>
@@ -3847,8 +3847,8 @@ const _DEMO_STEPS_ALL = [
     title: 'Screenshot → Live AI Solution',
     target: '#screenshot-btn', pos: 'center',
     body: window.WHIS_WEB
-      ? `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) grabs the current frame from your shared tab, reads the problem with OCR, then fires the answer live — all in under 3 seconds.`
-      : `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) hides Whis-AI, scans your screen, reads the problem with OCR, then fires the answer live — all in under 3 seconds.`,
+      ? `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) grabs the current frame from your shared tab, reads the problem with OCR, then fires the answer live, all in under 3 seconds.`
+      : `The <strong style="color:#ffd700;">camera button ↑</strong> (glowing gold) hides Whis-AI, scans your screen, reads the problem with OCR, then fires the answer live, all in under 3 seconds.`,
     async action(zone) {
       zone.innerHTML = `
         <div style="display:flex; gap:7px; margin-bottom:11px;">
@@ -3955,7 +3955,7 @@ const _DEMO_STEPS_ALL = [
         btn.style.background = 'rgba(77,244,177,0.06)';
         btn.style.borderColor = 'rgba(77,244,177,0.3)';
         btn.style.boxShadow   = '0 4px 16px rgba(77,244,177,0.15)';
-        btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#4df4b1;"></i> AI is answering — scroll up ↑';
+        btn.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#4df4b1;"></i> AI is answering, scroll up ↑';
         status.innerHTML = `
           <div style="padding:12px 14px; background:linear-gradient(135deg,rgba(77,244,177,0.09),rgba(77,244,177,0.02)); border:1.5px solid rgba(77,244,177,0.28); border-radius:11px; display:flex; align-items:center; gap:12px; animation:demoFadeIn 0.3s ease;">
             <div style="width:32px; height:32px; border-radius:50%; background:rgba(77,244,177,0.14); border:1.5px solid rgba(77,244,177,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
@@ -3975,12 +3975,12 @@ const _DEMO_STEPS_ALL = [
     tag: '🎯 Step 4 of 7',
     icon: '<i class="fa-solid fa-bullseye"></i>',
     iconColor: '#4df4b1',
-    title: 'Crisp Mode — Same Question, Two Answer Styles',
+    title: 'Crisp Mode, Same Question, Two Answer Styles',
     target: '#crisp-toggle', pos: 'center',
-    body: `The <strong style="color:#4df4b1;">Crisp toggle ↑</strong> (highlighted above) changes answer depth. Watch the same question answered both ways — type it yourself or click the auto-fill button.`,
+    body: `The <strong style="color:#4df4b1;">Crisp toggle ↑</strong> (highlighted above) changes answer depth. Watch the same question answered both ways, type it yourself or click the auto-fill button.`,
     action(zone) {
       const QUESTION = 'What is memoization?';
-      const LONG_ANS = `**Memoization** is an optimization technique where you cache the result of an expensive function call so the same computation isn't repeated for the same input.\n\n**How it works:**\nThe function checks a cache (usually a hash map) before computing. If the result already exists for the given input, it returns the cached value immediately — O(1) lookup. If not, it computes, stores the result, then returns.\n\n**Classic example:** Fibonacci without memoization is O(2ᴺ). With memoization it drops to **O(N)** because each sub-problem is solved exactly once.`;
+      const LONG_ANS = `**Memoization** is an optimization technique where you cache the result of an expensive function call so the same computation isn't repeated for the same input.\n\n**How it works:**\nThe function checks a cache (usually a hash map) before computing. If the result already exists for the given input, it returns the cached value immediately, O(1) lookup. If not, it computes, stores the result, then returns.\n\n**Classic example:** Fibonacci without memoization is O(2ᴺ). With memoization it drops to **O(N)** because each sub-problem is solved exactly once.`;
       const SHORT_ANS = `• Cache function results to avoid repeated computation\n• Check cache first → compute only on cache miss\n• Fibonacci: O(2ᴺ) → O(N) with memoization`;
 
       let crispState = false; // demo always starts with Crisp OFF to show the contrast clearly
@@ -4015,7 +4015,7 @@ const _DEMO_STEPS_ALL = [
               <i class="fa-solid fa-keyboard"></i> Auto-type the question
             </button>
             <button class="demo-action-btn ${crispState ? 'demo-action-btn-green' : 'demo-action-btn-blue'}" id="da-crisp-tog">
-              <i class="fa-solid fa-bullseye"></i> Crisp is ${crispState ? 'ON' : 'OFF'} — Toggle
+              <i class="fa-solid fa-bullseye"></i> Crisp is ${crispState ? 'ON' : 'OFF'}, Toggle
             </button>
           </div>
           <div class="demo-crisp-split">
@@ -4051,9 +4051,9 @@ const _DEMO_STEPS_ALL = [
     tag: '📄 Step 5 of 7',
     icon: '<i class="fa-solid fa-layer-group"></i>',
     iconColor: '#ff9f43',
-    title: 'Context Manager — Add Your Background',
+    title: 'Context Manager, Add Your Background',
     target: null, pos: 'center',
-    body: `Paste your resume once. From that moment, every single AI answer is personalised to <em>your</em> actual experience, skills and projects — not generic advice for a random candidate.`,
+    body: `Paste your resume once. From that moment, every single AI answer is personalised to <em>your</em> actual experience, skills and projects, not generic advice for a random candidate.`,
     async action(zone) {
       const TEMPLATE = `Name: [Your Name]
 Role: [Your Current / Target Role]
@@ -4118,7 +4118,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
             <i class="fa-solid fa-lightbulb"></i> Why this matters
           </div>
           <div style="color:rgba(255,255,255,0.65); font-size:12px; line-height:1.55;">
-            Without context — generic answers. With your resume — AI references your <strong style="color:#fff;">actual projects, skills and stack</strong> in every answer.
+            Without context, generic answers. With your resume, AI references your <strong style="color:#fff;">actual projects, skills and stack</strong> in every answer.
           </div>
         </div>
         <button class="demo-action-btn" id="da-ctx-open" style="width:100%; padding:13px; font-size:13px; font-weight:700; gap:9px; background:linear-gradient(135deg,rgba(255,159,67,0.12),rgba(167,139,255,0.08)); border-color:rgba(255,159,67,0.35);">
@@ -4136,25 +4136,25 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
     tag: '🛡️ Step 6 of 7',
     icon: '<i class="fa-solid fa-shield-halved"></i>',
     iconColor: '#4df4b1',
-    title: 'Stealth — Invisible in Every Screen Recording',
+    title: 'Stealth, Invisible in Every Screen Recording',
     target: '#stealth-header-badge', pos: 'center',
-    body: 'Whis-AI is blocked at the <strong>OS compositor level</strong> — Zoom, Meet, Teams and any recording software literally cannot capture it. Take a real screenshot right now to prove it.',
+    body: 'Whis-AI is blocked at the <strong>OS compositor level</strong>, Zoom, Meet, Teams and any recording software literally cannot capture it. Take a real screenshot right now to prove it.',
     async action(zone) {
       zone.innerHTML = `
         <div class="demo-stealth-explainer">
           <div class="demo-stealth-row">
             <i class="fa-brands fa-zoom" style="color:#c3a9ef;font-size:16px;"></i>
-            <span><strong>Zoom screen-share</strong> — Whis-AI not visible</span>
+            <span><strong>Zoom screen-share</strong>, Whis-AI not visible</span>
             <i class="fa-solid fa-shield-halved" style="color:#4df4b1;"></i>
           </div>
           <div class="demo-stealth-row">
             <i class="fa-solid fa-video" style="color:#ea4335;font-size:16px;"></i>
-            <span><strong>Screen recording</strong> — Whis-AI not captured</span>
+            <span><strong>Screen recording</strong>, Whis-AI not captured</span>
             <i class="fa-solid fa-shield-halved" style="color:#4df4b1;"></i>
           </div>
           <div class="demo-stealth-row">
             <i class="fa-solid fa-camera" style="color:#ffd700;font-size:16px;"></i>
-            <span><strong>Screenshot</strong> — proves it right now</span>
+            <span><strong>Screenshot</strong>, proves it right now</span>
             <i class="fa-solid fa-shield-halved" style="color:#4df4b1;"></i>
           </div>
         </div>
@@ -4166,7 +4166,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
               <span>This is exactly what your interviewer's recording would capture</span>
             </div>
             <button class="demo-action-btn demo-action-btn-green" id="da-st-shot">
-              <i class="fa-solid fa-camera"></i> Prove It — Screenshot Now
+              <i class="fa-solid fa-camera"></i> Prove It, Screenshot Now
             </button>
           </div>
           <div id="da-st-result" style="display:none; flex-direction:column; gap:8px; width:100%;">
@@ -4184,7 +4184,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Capturing…';
         btn.disabled  = true;
 
-        // captureScreen() returns { dataUrl } — content protection makes the
+        // captureScreen() returns { dataUrl }, content protection makes the
         // Whis-AI window appear as a solid black rectangle in the screenshot.
         // That black area IS the stealth proof.
         try {
@@ -4200,16 +4200,16 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
               result.style.gap         = '8px';
               result.style.width       = '100%';
               zone.querySelector('#da-st-1').style.opacity = '0.5';
-              btn.innerHTML = '<i class="fa-solid fa-check"></i> Captured — see proof below ↓';
+              btn.innerHTML = '<i class="fa-solid fa-check"></i> Captured, see proof below ↓';
             };
             img.onload = _showResult;
             img.onerror = () => {
-              // Still show result area even if image fails — the text proof is enough
+              // Still show result area even if image fails, the text proof is enough
               _showResult();
-              btn.innerHTML = '<i class="fa-solid fa-check"></i> Captured — see proof below ↓';
+              btn.innerHTML = '<i class="fa-solid fa-check"></i> Captured, see proof below ↓';
             };
             img.src              = screenDataUrl;
-            // data: URLs decode synchronously in Electron — fire immediately if already complete
+            // data: URLs decode synchronously in Electron, fire immediately if already complete
             if (img.complete && img.naturalWidth > 0) _showResult();
             img.style.display    = 'block';
             img.style.width      = '100%';
@@ -4220,7 +4220,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
             img.style.marginTop  = '4px';
           } else {
             btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Nothing returned';
-            whisToast('captureScreen returned empty — check Screen Recording permission.', 'warning', 4000);
+            whisToast('captureScreen returned empty, check Screen Recording permission.', 'warning', 4000);
           }
         } catch(e) {
           btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Permission needed';
@@ -4237,10 +4237,10 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
     iconColor: '#ffd700',
     title: 'You\'re Ready. Go Get Hired.',
     target: null, pos: 'center',
-    body: 'You just saw every feature work live — the exact edge you\'ll have in the real room. One quick checklist:',
+    body: 'You just saw every feature work live, the exact edge you\'ll have in the real room. One quick checklist:',
     action(zone) {
       const _stealthLines = window.WHIS_WEB ? '' : `
-          <div class="demo-check-item"><i class="fa-solid fa-check"></i> Stealth active — invisible to interviewers</div>
+          <div class="demo-check-item"><i class="fa-solid fa-check"></i> Stealth active, invisible to interviewers</div>
           <div class="demo-check-item"><i class="fa-solid fa-check"></i> ${_CTRL}+H if you ever need to hide instantly</div>`;
       zone.innerHTML = `
         <div class="demo-checklist">
@@ -4249,7 +4249,7 @@ Interview focus: [e.g. System Design, Frontend, ML, Backend]`;
           <div class="demo-check-item"><i class="fa-solid fa-check"></i> Crisp Mode ON for short glanceable hints</div>${_stealthLines}
         </div>
         <div class="demo-sales-close">
-          <div class="demo-sales-line">This is your unfair advantage. The candidates who walk in with Whis walk out with the offer — don't face the interview that changes your life without it.</div>
+          <div class="demo-sales-line">This is your unfair advantage. The candidates who walk in with Whis walk out with the offer, don't face the interview that changes your life without it.</div>
           <div class="demo-sales-btns">
             <button class="demo-sales-elite" id="da-get-elite"><i class="fa-solid fa-bolt"></i> Get Elite, Land the Offer</button>
             <button class="demo-sales-skip" id="da-finish-btn">Keep exploring the trial</button>
@@ -4313,7 +4313,7 @@ function _demoSpotlight(el) {
     hole.setAttribute('rx', '11');
   }
 
-  // SVG glow border — exact same coordinates as the hole, always pixel-perfect
+  // SVG glow border, exact same coordinates as the hole, always pixel-perfect
   const glow = document.getElementById('demo-spot-glow');
   if (glow) {
     const IN = 1.5; // inset slightly so the stroke hugs the inside of the hole edge
@@ -4384,13 +4384,13 @@ function _demoGoTo(index) {
 
   // Step-specific side effects before rendering
   if (_demoStep === 3) {
-    // Entering LeetCode step — stop mic so audio doesn't bleed into capture
+    // Entering LeetCode step, stop mic so audio doesn't bleed into capture
     if (typeof isListening !== 'undefined' && isListening && typeof toggleRecording === 'function') {
       toggleRecording();
     }
   }
   if (_demoStep === 4) {
-    // Entering Crisp step — always start with Crisp OFF so user sees the contrast
+    // Entering Crisp step, always start with Crisp OFF so user sees the contrast
     if (typeof isCrisp !== 'undefined' && isCrisp && crispToggleBtn) {
       crispToggleBtn.click();
     }
@@ -4452,7 +4452,7 @@ function _demoGoTo(index) {
     step.action(zone);
   }
 
-  // Spotlight + card position — run inside rAF so the action zone has
+  // Spotlight + card position, run inside rAF so the action zone has
   // fully painted before we measure element positions and card height.
   _demoClearSpotlight();
   requestAnimationFrame(() => {
@@ -4468,7 +4468,7 @@ function _demoGoTo(index) {
       if (fill) fill.setAttribute('fill', 'rgba(3,5,16,0.42)');
     }
 
-    // Center the card — safe for all window sizes
+    // Center the card, safe for all window sizes
     if (card) {
       card.style.opacity = '0';
       card.style.transform = 'translateY(8px) scale(0.97)';
@@ -4535,7 +4535,7 @@ function closeWhisDemo() {
 })();
 
 // ================================================================
-// CONTEXT ONBOARDING — shown once after stealth wizard, before tour
+// CONTEXT ONBOARDING, shown once after stealth wizard, before tour
 // ================================================================
 function _showContextOnboarding() {
     const overlay = document.getElementById('ctx-onboard-overlay');
@@ -4602,10 +4602,10 @@ function _closeContextOnboarding(skipToTour = true) {
                 return;
             }
             if (content.length > 32768) {
-                whisToast('Content is too long — please trim to under 32,768 characters.', 'warning', 3500);
+                whisToast('Content is too long, please trim to under 32,768 characters.', 'warning', 3500);
                 return;
             }
-            if (!currentUser) { whisToast('Not signed in — please reload.', 'error'); return; }
+            if (!currentUser) { whisToast('Not signed in, please reload.', 'error'); return; }
 
             saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
             saveBtn.disabled = true;
@@ -4631,7 +4631,7 @@ function _closeContextOnboarding(skipToTour = true) {
                     if (data.contexts) {
                         localContexts = data.contexts;
 
-                        // Find the newly saved context — prefer server-returned id,
+                        // Find the newly saved context, prefer server-returned id,
                         // fall back to name match, then the most-recently-created item.
                         const newCtx = (data.context && data.context.id)
                             ? data.contexts.find(c => c.id === data.context.id)
@@ -4639,7 +4639,7 @@ function _closeContextOnboarding(skipToTour = true) {
                               || data.contexts[data.contexts.length - 1];
 
                         if (newCtx) {
-                            // Only toggle if not already active — toggle flips the state
+                            // Only toggle if not already active, toggle flips the state
                             if (!newCtx.active) {
                                 await toggleContextActive(newCtx.id);
                             } else {
@@ -4653,12 +4653,12 @@ function _closeContextOnboarding(skipToTour = true) {
                     }
                     _closeContextOnboarding(true);
                     setTimeout(() => {
-                        whisToast('✓ Context saved &amp; activated — every answer will now reference your background!', 'success', 4500);
+                        whisToast('✓ Context saved &amp; activated, every answer will now reference your background!', 'success', 4500);
                     }, 400);
                 }
             } catch (e) {
                 console.error('Context onboard save error:', e);
-                whisToast('Save failed — check your connection and try again.', 'error');
+                whisToast('Save failed, check your connection and try again.', 'error');
             } finally {
                 saveBtn.innerHTML = '<i class="fa-solid fa-sparkles"></i> Save &amp; Personalize My Answers';
                 saveBtn.disabled = false;
@@ -4676,7 +4676,7 @@ function _closeContextOnboarding(skipToTour = true) {
                 whisToast('Only TXT, PDF, and DOCX files are supported.', 'warning'); return;
             }
             if (file.size > 5 * 1024 * 1024) {
-                whisToast('File is too large — maximum 5 MB.', 'warning'); return;
+                whisToast('File is too large, maximum 5 MB.', 'warning'); return;
             }
             const origBtnHtml = uploadBtn.innerHTML;
             uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing…';
@@ -4694,7 +4694,7 @@ function _closeContextOnboarding(skipToTour = true) {
                     whisToast(`"${file.name}" loaded successfully.`, 'success', 2500);
                 }
             } catch (err) {
-                whisToast('Could not read this file — please paste the text manually.', 'error');
+                whisToast('Could not read this file, please paste the text manually.', 'error');
             } finally {
                 uploadBtn.innerHTML = origBtnHtml;
                 uploadBtn.disabled = false;
@@ -4743,7 +4743,7 @@ if (ctxUploadBtn && ctxFileInput) {
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            whisToast("File is too large — maximum 5 MB", "warning");
+            whisToast("File is too large, maximum 5 MB", "warning");
             ctxFileInput.value = '';
             return;
         }
@@ -4762,20 +4762,20 @@ if (ctxUploadBtn && ctxFileInput) {
                 let text = result.text.trim();
                 const cleanedText = text.replace(/\s+/g, ' ');
                 if (cleanedText.length > 20000) {
-                    whisToast("File has too much text — upload a 1–2 page resume or JD", "warning");
+                    whisToast("File has too much text, upload a 1–2 page resume or JD", "warning");
                 } else {
                     if (cleanedText.length > 32768) {
                         whisToast("Text truncated to fit the 32,768 character limit", "info", 3500);
                     }
                     ctxContentInput.value = text.replace(/\n{3,}/g, '\n\n').substring(0, 32768);
-                    whisToast("File loaded — review and save", "success", 3000);
+                    whisToast("File loaded, review and save", "success", 3000);
                 }
             } else {
                 whisToast("No text could be extracted from this file", "warning");
             }
         } catch (err) {
             console.error("File extraction error:", err);
-            whisToast("Failed to process file — try a different format", "error");
+            whisToast("Failed to process file, try a different format", "error");
         } finally {
             ctxUploadBtn.innerHTML = originalBtnText;
             ctxUploadBtn.disabled = false;
@@ -4802,7 +4802,7 @@ let _streamLastTokenAt = 0;
 let _streamStuckTimer  = null;
 let _partialAnswerBuffer = '';
 let _streamStartAt  = 0;
-// Streaming render throttle — re-rendering the whole answer on EVERY token runs a
+// Streaming render throttle, re-rendering the whole answer on EVERY token runs a
 // heavy markdown parse on the main thread, which starves the ScriptProcessor audio
 // callback and drops 2–4s of interviewer audio. Coalesce to ~11 renders/sec so the
 // audio thread keeps up. Tokens still accumulate every message; only the DOM paint
@@ -4852,7 +4852,7 @@ function cleanupStreamState() {
         'ready', 5000
     );
 
-    // Peak-emotion upgrade nudge — once per trial, right after a strong answer lands.
+    // Peak-emotion upgrade nudge, once per trial, right after a strong answer lands.
     try { _maybeShowPeakEmotionNudge(); } catch (_) {}
 
     if (listeningStatusEl.classList.contains("active") &&
@@ -4885,12 +4885,12 @@ function cleanupStreamState() {
         const chips = document.createElement('div');
         chips.className = 'followup-chips';
         [
-            { label: 'Simpler',    prompt: 'Simplify the previous answer — use plain language and keep it under 4 bullet points.' },
+            { label: 'Simpler',    prompt: 'Simplify the previous answer, use plain language and keep it under 4 bullet points.' },
             { label: 'Show code',  prompt: 'Show a concrete code example for the previous answer.' },
-            { label: 'Explain code', prompt: 'Explain the code from the previous answer line by line in plain English — what each part does and why, so I can narrate it out loud.' },
+            { label: 'Explain code', prompt: 'Explain the code from the previous answer line by line in plain English, what each part does and why, so I can narrate it out loud.' },
             { label: 'STAR',       prompt: 'Rewrite the previous answer in STAR format (Situation, Task, Action, Result).' },
-            { label: 'Shorter',    prompt: 'Make the previous answer shorter — 3 bullet points max, no fluff.' },
-            { label: 'Deeper',     prompt: 'Go deeper on the previous answer — add technical depth, edge cases, and trade-offs.' },
+            { label: 'Shorter',    prompt: 'Make the previous answer shorter, 3 bullet points max, no fluff.' },
+            { label: 'Deeper',     prompt: 'Go deeper on the previous answer, add technical depth, edge cases, and trade-offs.' },
         ].forEach(({ label, prompt }) => {
             const btn = document.createElement('button');
             btn.className = 'followup-chip';
@@ -5004,7 +5004,7 @@ function escapeHTML(str) {
     .replace(/'/g, "&#39;");
 }
 
-// For support (AI) messages only — escape HTML then turn bare URLs into clickable links.
+// For support (AI) messages only, escape HTML then turn bare URLs into clickable links.
 function formatSupportMessage(str) {
   if (!str) return "";
   const escaped = escapeHTML(str);
@@ -5042,7 +5042,7 @@ function highlightCode(escaped) {
 // real paragraphs (blank line = new paragraph, not a wall of <br>), proper numbered
 // and bulleted lists, headings, inline `code`, and fenced code blocks. The goal is a
 // reader can glance at one block, say it, and move to the next with zero friction.
-// Pull the model's private "ASSIST_CUE: <topic>" first line — a refined, concise
+// Pull the model's private "ASSIST_CUE: <topic>" first line, a refined, concise
 // summary of what was asked (e.g. "Java code for prime numbers"). Shown as the Assist
 // label, never in the spoken answer.
 function _extractAssistTopic(text) {
@@ -5072,7 +5072,7 @@ function formatMessageContent(text) {
     return `IC${inlineCode.length - 1}`;
   });
 
-  // Inline emphasis (bold only — safe for technical prose with stray asterisks).
+  // Inline emphasis (bold only, safe for technical prose with stray asterisks).
   const inline = (s) => s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
   // 3. Walk line by line, grouping into paragraphs / lists / headings.
@@ -5182,7 +5182,7 @@ document.addEventListener('click', async (e) => {
 // A confident welcome with 6 one-tap starter questions. Tapping one sends it
 // through the exact same path a typed question uses (set #input, dispatch
 // 'input', call finalizeAndSend) so the user sees a streaming answer within
-// seconds — the fastest route to the "aha". If the composer is locked (no
+// seconds, the fastest route to the "aha". If the composer is locked (no
 // active trial/plan), we start the free trial first, one tap → trial → answer.
 // WEB-only; never rendered on desktop Electron.
 // ================================================================
@@ -5197,18 +5197,17 @@ const _WEB_STARTER_QUESTIONS = [
 
 // Honest listening-status label per platform/mode (web = mic-first).
 function _liveListenLabel() {
-  if (!window.WHIS_WEB) return 'Listening — interviewer & you';
-  if (IS_MOBILE_WEB) return 'Listening (mic) — ask your question';
-  return window._whisTabAudio ? 'Listening — interviewer’s tab' : 'Listening (mic) — you & interviewer on speaker';
+  if (!window.WHIS_WEB) return 'Listening, interviewer & you';
+  if (IS_MOBILE_WEB) return 'Listening (mic), ask your question';
+  return window._whisTabAudio ? 'Listening, interviewer’s tab' : 'Listening (mic), you & interviewer on speaker';
 }
 
 function _renderWebWelcome(container) {
-  // Honest framing: on a phone, live meeting/interviewer capture isn't possible —
-  // it's practice by voice/text. On desktop web, the mic hears you and your
+  // Honest framing: on a phone, live meeting/interviewer capture isn't possible, // it's practice by voice/text. On desktop web, the mic hears you and your
   // interviewer on speaker; true screenshare-invisible live capture is the desktop app.
   const guidance = IS_MOBILE_WEB
     ? 'or tap the mic to practice out loud. Live interview capture needs the desktop app.'
-    : 'or Start a Live Session — share your interview tab once, and Whis hears the '
+    : 'or Start a Live Session, share your interview tab once, and Whis hears the '
       + 'interviewer straight from that tab (cleanest capture) and reads the screen. '
       + '<a href="#" id="web-adv-tabaudio" class="web-adv-link">Prefer your mic instead?</a>';
 
@@ -5220,7 +5219,7 @@ function _renderWebWelcome(container) {
     </button>`).join('');
 
   const _sub = IS_MOBILE_WEB
-    ? 'Practice interview answers by voice or text — anywhere.'
+    ? 'Practice interview answers by voice or text, anywhere.'
     : 'Practice and get instant, interview-ready answers.';
 
   container.innerHTML = `
@@ -5240,7 +5239,7 @@ function _renderWebWelcome(container) {
       ${(typeof WhisLive !== 'undefined' && WhisLive.supported())
         ? `<button type="button" class="web-golive-cta wl-golive-btn" id="web-golive-cta">
              <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
-             Go Live — float a co-pilot over your interview
+             Go Live, float a co-pilot over your interview
              <i class="fa-solid fa-arrow-right" aria-hidden="true" style="font-size:11px;"></i>
            </button>`
         : ''}
@@ -5264,7 +5263,7 @@ function _renderWebWelcome(container) {
   if (adv) adv.addEventListener('click', (e) => {
     e.preventDefault();
     window._whisUseMic = true;
-    whisToast('Using your microphone. The mic hears you and the interviewer if they’re on speaker — for the cleanest capture, Start a Live Session and share the tab instead.', 'info', 7000);
+    whisToast('Using your microphone. The mic hears you and the interviewer if they’re on speaker, for the cleanest capture, Start a Live Session and share the tab instead.', 'info', 7000);
     try { startListening(); } catch (_) {}
   });
 
@@ -5314,13 +5313,13 @@ async function _sendStarterQuestion(text) {
     try { openTrialModal(); return; } catch (_) {}
   }
   try {
-    whisToast('Start Elite to ask this — one tap.', 'info', 5000,
+    whisToast('Start Elite to ask this, one tap.', 'info', 5000,
       { action: { label: 'See Plans', fn: () => { try { window.electronAPI.openSubscriptionPage(); } catch (_) {} } } });
   } catch (_) {}
 }
 
 function renderMessages(activeMessageId = null, isFirstChunk = false) {
-  // Hot-path: streaming update — only patch the active bubble, never rebuild
+  // Hot-path: streaming update, only patch the active bubble, never rebuild
   if (activeMessageId && !isFirstChunk) {
     const activeEl = document.getElementById(`msg-${activeMessageId}`);
     if (activeEl) {
@@ -5344,11 +5343,11 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
 
   messagesContainer.innerHTML = "";
 
-  // Empty state — show when there are no real messages
+  // Empty state, show when there are no real messages
   const realMessages = state.messages.filter(m => m.id !== 'welcome' && m.content !== 'Ready.');
   if (realMessages.length === 0) {
     // WEB: replace the desktop ⌘L/⌘J "void" with a confident, conversion-focused
-    // welcome — one-tap starter questions that send immediately for the fastest
+    // welcome, one-tap starter questions that send immediately for the fastest
     // possible time-to-value (the "aha"). Guarded so desktop Electron is untouched.
     if (window.WHIS_WEB) {
       _renderWebWelcome(messagesContainer);
@@ -5370,7 +5369,7 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
             return `<div class="stealth-confirm-block stealth-confirm-risk" id="empty-stealth-verify" title="Click to upgrade to Elite for full stealth">
                <i class="fa-solid fa-triangle-exclamation stealth-confirm-icon"></i>
                <div class="stealth-confirm-text">
-                 <span class="stealth-confirm-label">Screenshare Risk — Pro Plan</span>
+                 <span class="stealth-confirm-label">Screenshare Risk, Pro Plan</span>
                  <span class="stealth-confirm-sub">You may be visible to interviewers · Upgrade to Elite for full stealth</span>
                </div>
              </div>`;
@@ -5411,7 +5410,7 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
     if (isStreaming && !msg.content) {
         bubbleEl.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
     } else if (msg.role === 'user') {
-        // Never show the raw transcribed words — show a refined, concise cue of what was
+        // Never show the raw transcribed words, show a refined, concise cue of what was
         // asked (pulled from the answer's ASSIST_CUE line), falling back to "Assist" until
         // it streams in. The real content still goes to the AI; this is just the label.
         const next = _arr[_idx + 1];
@@ -5496,7 +5495,7 @@ function _hideSessionPrompt() { const el = document.getElementById('session-exte
 function _endSession() {
     _hideSessionPrompt(); stopSessionTimer();
     try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch(_) {}
-    try { whisToast('Session ended — your minutes are saved. Press Listen to start again.', 'info', 5000); } catch(_) {}
+    try { whisToast('Session ended, your minutes are saved. Press Listen to start again.', 'info', 5000); } catch(_) {}
 }
 
 async function finalizeAndSend() {
@@ -5509,7 +5508,7 @@ async function finalizeAndSend() {
   isProcessingSend = true;
 
   startInterviewTimer();
-  try { startSessionTimer(); } catch (_) {} // 30-min session guard (paid users) — never wedge a send
+  try { startSessionTimer(); } catch (_) {} // 30-min session guard (paid users), never wedge a send
   updateContextHint(); // show "streaming" hint immediately
 
   const wasListeningBeforeSend = isListening;
@@ -5598,7 +5597,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
       if (currentTrialUsage < maxTrialSessions) {
           openTrialModal();
       } else {
-          whisToast('Your free trials for today are used up — upgrade to keep going.', 'warning', 5000,
+          whisToast('Your free trials for today are used up, upgrade to keep going.', 'warning', 5000,
               { action: { label: 'See Plans', fn: () => window.electronAPI.openSubscriptionPage() } });
       }
       return;
@@ -5637,7 +5636,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
       if (!state.isSending) { clearInterval(_streamStuckTimer); _streamStuckTimer = null; return; }
       if (Date.now() - _streamLastTokenAt > 10000) {
           clearInterval(_streamStuckTimer); _streamStuckTimer = null;
-          whisToast('Response is taking longer than usual — tap <strong>■ Stop</strong> then retry if needed', 'warning', 8000);
+          whisToast('Response is taking longer than usual, tap <strong>■ Stop</strong> then retry if needed', 'warning', 8000);
       }
   }, 2000);
   _logHealth('send_start');
@@ -5648,7 +5647,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
   try {
     let payloadContent = userContent;
 
-    // Attach live conversation transcript if we have one — gives the AI full context
+    // Attach live conversation transcript if we have one, gives the AI full context
     // of what the interviewer said AND what the user said before pressing Send
     if (liveTranscript.length > 0) {
         const log = liveTranscript.map(s =>
@@ -5704,7 +5703,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
 
       if (_partialAnswerBuffer && _partialAnswerBuffer.length > 40) {
           const partialMsg = state.messages.find((m) => m.id === assistantId);
-          if (partialMsg) { partialMsg.content = _partialAnswerBuffer + '\n\n*— Connection dropped, partial answer —*'; }
+          if (partialMsg) { partialMsg.content = _partialAnswerBuffer + '\n\n*, Connection dropped, partial answer, *'; }
       }
 
       cleanupStreamState();
@@ -5713,7 +5712,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
   } catch (err) {
     if (_partialAnswerBuffer && _partialAnswerBuffer.length > 40) {
         const partialMsg = state.messages.find((m) => m.id === assistantId);
-        if (partialMsg) { partialMsg.content = _partialAnswerBuffer + '\n\n*— Connection dropped, partial answer —*'; }
+        if (partialMsg) { partialMsg.content = _partialAnswerBuffer + '\n\n*, Connection dropped, partial answer, *'; }
     }
     const isNetworkErr = err instanceof TypeError || (err.message && (err.message.toLowerCase().includes('fetch') || err.message.toLowerCase().includes('network')));
     if (isNetworkErr) {
@@ -5741,7 +5740,7 @@ const SAMPLE_RATE = 16000;
 let activeMediaStream = null;
 // WEB: true when startListening() is reading the PERSISTENT shared-screen audio track
 // (the interviewer's tab/system audio). In that case stop/teardown must NOT stop the
-// track — the shim owns the shared stream's lifecycle (also feeds the preview + Snap).
+// track, the shim owns the shared stream's lifecycle (also feeds the preview + Snap).
 let _usingSharedLiveAudio = false;
 
 // ── Reliability: stream auto-recovery + stuck-guard ──
@@ -5749,7 +5748,7 @@ let _streamRestartAttempts = 0;
 let _bgCommitStartedAt     = 0;  // epoch ms when isBackgroundCommitting was last set
 
 // ── Speech-end detection: VAD-triggered commit ──
-// Fire _doCommit after SPEECH_END_MS of silence. 350 ms was too eager — it cut mid-
+// Fire _doCommit after SPEECH_END_MS of silence. 350 ms was too eager, it cut mid-
 // sentence on natural thinking pauses ("So… the way I'd do it…"), sending 1-2s scraps
 // that transcribe poorly. 750 ms waits for a real end-of-phrase, so each clip is a
 // whole thought → far better accuracy (the realtime socket still streams words live).
@@ -5770,7 +5769,7 @@ let _speechEndFired       = false; // prevents double-firing per utterance
 const RT_TARGET_RATE = 24000; // OpenAI Realtime pcm16 expects 24 kHz mono
 let _rtSocket = null;
 let _rtReady = false;              // true only between the server "ready" event and socket close
-let _rtManualClose = false;       // set when WE close it (stop listening) — suppresses reconnect
+let _rtManualClose = false;       // set when WE close it (stop listening), suppresses reconnect
 let _rtReconnectTimer = null;
 let _rtReconnectAttempts = 0;
 let _rtPartialText = '';           // accumulates delta text for the in-progress segment
@@ -5810,11 +5809,11 @@ function _sendPcmFrame(float32) {
     try { _rtSocket.send(pcm.buffer); } catch (_) {}
 }
 
-// Live caption of the current (not-yet-final) words — the "instant" feel. Manual
+// Live caption of the current (not-yet-final) words, the "instant" feel. Manual
 // mode only; auto mode keeps its own pill and just consumes finals.
 function _renderPartialCaption(text) {
     // The interviewer's live (partial) words now stream straight into the transcript
-    // panel, so there's one seamless place to watch the conversation — no separate caption.
+    // panel, so there's one seamless place to watch the conversation, no separate caption.
     const stray = document.getElementById('rt-cap');
     if (stray) stray.remove();
     _renderLiveTranscript();
@@ -5855,7 +5854,7 @@ function _applyTranscribedText(text) {
         hiddenTranscription += (hiddenTranscription ? " " : "") + text;
     }
     // Manual mode: the interviewer's words are captured for the AI (liveTranscript) but
-    // deliberately NOT written into the composer — the box stays clean for the user's
+    // deliberately NOT written into the composer, the box stays clean for the user's
     // own typed follow-ups. No more mixing two voices into one box.
 }
 
@@ -5870,12 +5869,12 @@ function _applyUserVoiceText(text) {
         hiddenTranscription += (hiddenTranscription ? " " : "") + text;
     }
     // Manual mode: your spoken words are captured for the AI but NOT dumped into the
-    // composer — the box is yours alone, for typed follow-ups.
+    // composer, the box is yours alone, for typed follow-ups.
 }
 
 function openRealtimeTranscription() {
     if (!APP_AUTH_TOKEN) return; // no token → stay on HTTP fallback
-    // Same entitlement gate as _doCommit — don't open a paid stream for free users
+    // Same entitlement gate as _doCommit, don't open a paid stream for free users
     // outside an active trial (the server would reject it anyway).
     if (isFreeTier && !subscriptionIsActive && !subscriptionIsTrial) return;
     _rtManualClose = false;
@@ -5914,7 +5913,7 @@ function openRealtimeTranscription() {
 function _scheduleRtReconnect() {
     if (_rtReconnectTimer) return;
     _rtReconnectAttempts++;
-    // After 5 failed attempts, stop retrying — the WAV-clip fallback keeps working,
+    // After 5 failed attempts, stop retrying, the WAV-clip fallback keeps working,
     // so the user still gets transcription, just not word-by-word.
     if (_rtReconnectAttempts > 5) { _rtReconnectAttempts = 0; return; }
     const delay = Math.min(4000, _rtReconnectAttempts * 800);
@@ -5945,7 +5944,7 @@ let isCapturingUserVoice = false;
 // ── Live speaker awareness ──────────────────────────────────────────────────
 // Two physical sources = perfect diarization: system audio IS the interviewer,
 // the mic IS you. We stamp the last moment each source had real speech energy so
-// the UI can show, in real time, WHO is talking — instant proof the app hears both.
+// the UI can show, in real time, WHO is talking, instant proof the app hears both.
 let _lastInterviewerAudioAt = 0;
 let _lastUserAudioAt        = 0;
 let _speakerUiTimer         = null;
@@ -5962,11 +5961,11 @@ const MIC_CLEARLY_YOU_LEVEL    = 0.05;  // this loud = unmistakably YOU → capt
 // in as YOU. 700 ms bridges those gaps so the mic only opens on a REAL turn-end pause.
 const CROSSTALK_GUARD_MS       = 700;
 // Mic-silence watchdog: if the mic never delivers any signal while listening, it's a
-// dead stream (almost always macOS mic permission) — tell the user exactly how to fix it.
+// dead stream (almost always macOS mic permission), tell the user exactly how to fix it.
 let _micEverHadSignal       = false;
 let _micWatchdog            = null;
 let _micWarnedThisRun       = false;
-// Mic mixed straight into the interviewer's audio node — one shared live pipeline.
+// Mic mixed straight into the interviewer's audio node, one shared live pipeline.
 let _micSourceNode          = null;
 let _micGainNode            = null;
 let _micAnalyser            = null;
@@ -6016,7 +6015,7 @@ function _renderLiveTranscript() {
         return `<div class="lt-seg ${cls}"><span class="lt-dot"></span><span class="lt-label">${label}</span><span class="lt-text">${escapeHTML(seg.text)}</span></div>`;
     }).join('');
 
-    // Live interviewer line — word-by-word with a pulsing cursor for the seamless feel.
+    // Live interviewer line, word-by-word with a pulsing cursor for the seamless feel.
     if (partial) {
         html += `<div class="lt-seg lt-interviewer lt-live"><span class="lt-dot"></span><span class="lt-label">Interviewer</span><span class="lt-text">${escapeHTML(partial)}<span class="lt-cursor"></span></span></div>`;
     }
@@ -6029,7 +6028,7 @@ function _renderLiveTranscript() {
 }
 
 // Silent system audio capture via getDisplayMedia, intercepted by
-// setDisplayMediaRequestHandler in main.js — no picker ever shown.
+// setDisplayMediaRequestHandler in main.js, no picker ever shown.
 // getUserMedia+chromeMediaSource is broken in Electron 31/Chromium 126:
 // it sends an IPC message the browser process rejects (bad_message reason 263),
 // killing the renderer. getDisplayMedia uses a separate, validated code path.
@@ -6045,7 +6044,7 @@ async function getSystemAudioStreamViaElectron() {
     // the tiny 1x1 video to minimize GPU work. Web is detected by the absence of the
     // desktop-only captureScreen bridge.
     const _isWeb = !!window.WHIS_WEB;
-    // MOBILE: phones have no getDisplayMedia at all — calling it throws (or is
+    // MOBILE: phones have no getDisplayMedia at all, calling it throws (or is
     // undefined). Interviewer/system-audio capture is physically impossible on a
     // phone, so bail early and let startListening() fall through to mic-only.
     if (IS_MOBILE_WEB || !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
@@ -6087,13 +6086,13 @@ async function findLoopbackDeviceId() {
   return match?.deviceId || null;
 }
 
-// Pick the user's REAL microphone — never a virtual/loopback device. On machines set
+// Pick the user's REAL microphone, never a virtual/loopback device. On machines set
 // up for system-audio capture, the OS default input is often BlackHole/Stereo Mix/etc,
 // which is silent when the user talks (their voice goes to the physical mic). Grabbing
 // the default there = 0% pickup. So we explicitly find a physical input and use it.
 async function pickRealMicDeviceId() {
   if (!navigator.mediaDevices?.enumerateDevices) return null;
-  // Virtual / loopback devices are silent for the user's own voice — never pick them.
+  // Virtual / loopback devices are silent for the user's own voice, never pick them.
   const virtualKeywords = [
     "stereo mix", "what u hear", "loopback", "vb-audio", "vb cable",
     "cable output", "cable", "blackhole", "soundflower", "loopback audio",
@@ -6107,7 +6106,7 @@ async function pickRealMicDeviceId() {
   // Earphones/headsets: deprioritized. When the interviewer's voice plays into the
   // user's earphones, the built-in mic gives cleaner separation and avoids Bluetooth
   // hands-free (SCO) quality drop. NOTE: this only affects capture of the USER's own
-  // voice — the INTERVIEWER is captured via system loopback, independent of the mic.
+  // voice, the INTERVIEWER is captured via system loopback, independent of the mic.
   const earphoneKeywords = [
     "airpod", "headset", "headphone", "earphone", "earbud", "buds", "beats",
     "bluetooth", "wireless", "hands-free", "handsfree", "bt "
@@ -6192,7 +6191,7 @@ async function startListening() {
     // note explains the honest tradeoff. Typed questions remain the primary path.
     // We acquire the stream here, then fall through to the shared audio pipeline.
     if (window.WHIS_WEB && (IS_MOBILE_WEB || window._whisUseMic)) {
-        // MIC path — only on mobile (no getDisplayMedia) or when the user explicitly
+        // MIC path, only on mobile (no getDisplayMedia) or when the user explicitly
         // chose "use my mic". The mic hears the interviewer only if the call is on the
         // laptop speaker; it also picks up room noise, so it's the fallback, not default.
         if (IS_MOBILE_WEB) _showMobileCaptureNoteOnce();
@@ -6201,18 +6200,18 @@ async function startListening() {
         } catch (eMic) {
             console.warn('Web mic capture failed:', eMic);
             updateListeningUI(false);
-            whisToast('Whis needs microphone access. Enable the mic for this site (address-bar icon), then click Listen again — or just type your question below.', 'warning', 8000);
+            whisToast('Whis needs microphone access. Enable the mic for this site (address-bar icon), then click Listen again, or just type your question below.', 'warning', 8000);
             return;
         }
     } else if (window.WHIS_WEB) {
         // DEFAULT on desktop web: capture the INTERVIEWER via the shared tab/window/
-        // system audio. This is clean, line-level audio with no room noise — the reason
+        // system audio. This is clean, line-level audio with no room noise, the reason
         // mic-first was mishearing ("random words from the air"). If the user cancels
         // the picker or shares without audio, we fall back to the mic so Listen works.
         //
         // PRIMARY (ParakeetAI-style): if a persistent screen share is already live
         // (started by the 75/25 live view) AND it carries audio, reuse THAT audio track
-        // directly — no second picker, one share for the whole session. This is the core
+        // directly, no second picker, one share for the whole session. This is the core
         // "not hearing clearly" fix: the shared tab audio is the interviewer's own feed.
         let usedSharedLiveAudio = false;
         try {
@@ -6230,19 +6229,19 @@ async function startListening() {
         } catch (_) { /* fall through to the getDisplayMedia path */ }
 
         if (usedSharedLiveAudio) {
-            // Skip the picker + hint entirely — we already have the interviewer's audio.
+            // Skip the picker + hint entirely, we already have the interviewer's audio.
         } else {
         try { _showTabShareHintOnce(); } catch (_) {}
         try {
             stream = await getSystemAudioStreamViaElectron();
         } catch (eTab) {
-            console.warn('Tab-audio capture cancelled/failed — falling back to mic:', eTab);
+            console.warn('Tab-audio capture cancelled/failed, falling back to mic:', eTab);
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 whisToast('Using your microphone for now. For the cleanest interviewer capture, click <strong>Listen</strong> again and pick the <strong>meeting tab</strong> with <strong>“Share tab audio”</strong> checked.', 'info', 9000);
             } catch (eMic2) {
                 updateListeningUI(false);
-                whisToast('Couldn’t capture audio. Click <strong>Listen</strong> and pick the meeting tab (check <strong>“Share tab audio”</strong>) — or allow your mic, or just type your question.', 'warning', 9000);
+                whisToast('Couldn’t capture audio. Click <strong>Listen</strong> and pick the meeting tab (check <strong>“Share tab audio”</strong>), or allow your mic, or just type your question.', 'warning', 9000);
                 return;
             }
         }
@@ -6260,7 +6259,7 @@ async function startListening() {
 
         const loopbackId = await findLoopbackDeviceId();
 
-        // ── Attempt 1: Electron chromeMediaSource — silent, no picker, most reliable ──
+        // ── Attempt 1: Electron chromeMediaSource, silent, no picker, most reliable ──
         try {
             stream = await getSystemAudioStreamViaElectron();
         } catch (e1) {
@@ -6285,15 +6284,15 @@ async function startListening() {
             }
         }
 
-        // No further fallback — getDisplayMedia is intentionally excluded because it
+        // No further fallback, getDisplayMedia is intentionally excluded because it
         // triggers the macOS native screen picker which causes the NSPanel window to hide.
         if (!stream) {
             if (window.WHIS_WEB) {
                 // Desktop-web (laptop browser): the browser tab/screen picker was
-                // dismissed or shared no audio. Give a browser-appropriate nudge — no
+                // dismissed or shared no audio. Give a browser-appropriate nudge, no
                 // OS Settings / restart talk (that's desktop-app-only friction).
                 updateListeningUI(false);
-                whisToast('To capture the meeting, click <strong>Listen</strong> again and pick the interviewer’s tab or window — and be sure to check <strong>“Share tab audio.”</strong> Or just type your question below.', 'warning', 9000);
+                whisToast('To capture the meeting, click <strong>Listen</strong> again and pick the interviewer’s tab or window, and be sure to check <strong>“Share tab audio.”</strong> Or just type your question below.', 'warning', 9000);
                 return;
             } else if (isMac) {
                 updateListeningUI(false);
@@ -6380,7 +6379,7 @@ async function startListening() {
         const ringLevel = Math.min(1, rms / 0.035).toFixed(3);
         if (voiceBtn) voiceBtn.style.setProperty('--aring', ringLevel);
 
-        // First-time audio detected — silently note it (the live dot already shows
+        // First-time audio detected, silently note it (the live dot already shows
         // status; no toast needed).
         if (!_audioDetectedOnce && rms > VAD_RECORD_THRESHOLD) {
             _audioDetectedOnce = true;
@@ -6397,7 +6396,7 @@ async function startListening() {
             }
         }
 
-        // RECORD at the lower threshold — captures compressed video-call audio
+        // RECORD at the lower threshold, captures compressed video-call audio
         // that sits below the visual threshold but is real speech
         if (rms > VAD_RECORD_THRESHOLD) {
             vadLastSpeechTime = now; // also extend the recording window
@@ -6415,7 +6414,7 @@ async function startListening() {
         }
 
         // ── VAD-triggered commit: fire as soon as SPEECH_END_MS of silence detected ──
-        // Fires the moment the interviewer stops speaking — no timer wait.
+        // Fires the moment the interviewer stops speaking, no timer wait.
         if (rms > VAD_RECORD_THRESHOLD) {
             // Active speech: reset silence tracker, allow next end to trigger again
             _speechEndAt   = 0;
@@ -6437,7 +6436,7 @@ async function startListening() {
 }
 
 // ── Auto-recovery when the OS drops the audio stream ──
-// Triggered by track.onended or stream inactive — backs off and retries up to 3×
+// Triggered by track.onended or stream inactive, backs off and retries up to 3×
 async function _handleStreamEnded() {
     if (!isListening) return;
 
@@ -6475,14 +6474,14 @@ async function _handleStreamEnded() {
     isListening = false;
 
     whisToast(
-        `Audio stream dropped — reconnecting (${attempt}/${MAX_RESTARTS})…`,
+        `Audio stream dropped, reconnecting (${attempt}/${MAX_RESTARTS})…`,
         'warning', delay + 800
     );
 
     setTimeout(async () => {
         await startListening();
         if (isListening) {
-            _streamRestartAttempts = 0; // reconnected silently — the dot shows we're live
+            _streamRestartAttempts = 0; // reconnected silently, the dot shows we're live
         }
     }, delay);
 }
@@ -6495,7 +6494,7 @@ async function _doCommit() {
         audioCtx.resume().catch(() => {});
         return;
     }
-    // Real-time streaming is live — it's handling transcription. Drain the fallback
+    // Real-time streaming is live, it's handling transcription. Drain the fallback
     // buffer so it can't grow, and skip the HTTP commit entirely. If the socket
     // drops, _rtReady flips false and this path resumes automatically.
     if (_rtReady) { audioChunks = []; currentLength = 0; return; }
@@ -6517,7 +6516,7 @@ async function _doCommit() {
     // Skip API call if the buffer contains only silence / fan noise.
     // We track BOTH peak (loudest moment) and how many frames actually contain
     // speech. A lone click/blip can clear the peak check while carrying no real
-    // words — that wastes a Gemini call and often returns empty. Requiring a
+    // words, that wastes a Gemini call and often returns empty. Requiring a
     // minimum amount of speech-energy frames filters those out.
     let peakRms = 0;
     let speechFrames = 0;
@@ -6532,7 +6531,7 @@ async function _doCommit() {
     // MIN_SPEECH_FRAMES = 8 frames ≈ 256 ms of cumulative speech energy.
     // This is below SPEECH_END_MS-triggered utterances (which always carry far
     // more than 256 ms of speech before the 350 ms silence fires), so it never
-    // drops or delays a real interviewer utterance — it only kills sub-word blips.
+    // drops or delays a real interviewer utterance, it only kills sub-word blips.
     const MIN_SPEECH_FRAMES = 14;
     if (peakRms < VAD_MIN_SEND_PEAK || speechFrames < MIN_SPEECH_FRAMES) {
         isBackgroundCommitting = false;
@@ -6616,7 +6615,7 @@ function startChunkCommitTimer() {
     // interval is a pure watchdog for the rare "speaker never pauses" case.
     // Raising it 500→2000 cuts timer-driven _doCommit calls 75% and eliminates the
     // double-fire where a fresh trailing-noise buffer was committed right after a
-    // VAD commit — with zero latency impact on interviewer audio.
+    // VAD commit, with zero latency impact on interviewer audio.
 }
 
 function stopChunkCommitTimer() {
@@ -6631,7 +6630,7 @@ function stopChunkCommitTimer() {
 async function startUserMicCapture() {
     try {
         // Force the REAL mic (not a loopback), and drop the strict sampleRate constraint
-        // that can hand back a dead/silent track on hardware that can't do 16 kHz — the
+        // that can hand back a dead/silent track on hardware that can't do 16 kHz, the
         // AudioContext below resamples for us, so native capture is both safer and cleaner.
         const realMicId = await pickRealMicDeviceId();
         const micAudio = {
@@ -6646,7 +6645,7 @@ async function startUserMicCapture() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ audio: micAudio, video: false });
         } catch (devErr) {
-            // Device-specific request failed — fall back to the plainest possible ask.
+            // Device-specific request failed, fall back to the plainest possible ask.
             console.warn("Mic capture with selected device failed, retrying default:", devErr);
             stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         }
@@ -6654,7 +6653,7 @@ async function startUserMicCapture() {
         userMicStream = stream;
         // Give the mic its OWN capture graph (independent of the flaky system-audio
         // loopback), then transcribe it exactly like the interviewer and drop the text
-        // straight into the composer via _applyTranscribedText — that's what makes it
+        // straight into the composer via _applyTranscribedText, that's what makes it
         // "show up in the box like it does".
         if (!userMicCtx) userMicCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
         if (userMicCtx.state === 'suspended') { try { await userMicCtx.resume(); } catch (_) {} }
@@ -6678,13 +6677,13 @@ async function startUserMicCapture() {
             const now  = Date.now();
             // Count this as YOU only if your mic is at speech level AND the interviewer
             // is NOT speaking right now. While they speak, ANY mic energy is their voice
-            // bleeding out your speakers into your mic — never you — so we drop it. You're
+            // bleeding out your speakers into your mic, never you, so we drop it. You're
             // captured in the gaps (your turn). Headphones remove bleed entirely.
             const interviewerTalking = (now - _interviewerLoudAt) < CROSSTALK_GUARD_MS;
             if (rms > MIC_SPEECH_LEVEL && !interviewerTalking) {
                 _lastUserAudioAt = now; _micEverHadSignal = true; userSpeechLast = now;
             }
-            // Buffer around your speech (VAD hangover) so whole words are captured — but
+            // Buffer around your speech (VAD hangover) so whole words are captured, but
             // never while the interviewer is talking, so their bleed can't leak into a
             // mic clip during the hangover tail.
             if (userSpeechLast && now - userSpeechLast <= VAD_HANGOVER_MS && !interviewerTalking) {
@@ -6714,8 +6713,7 @@ async function startUserMicCapture() {
                 if (s > peak) peak = s;
                 if (s > MIC_SPEECH_LEVEL) speechFrames++;   // real close-mic speech, not bleed/noise
             }
-            // Require a clear, sustained speech burst at YOUR mic level before sending —
-            // 9 frames (~290 ms) drops single stray short words ("if", "then") that bleed
+            // Require a clear, sustained speech burst at YOUR mic level before sending, // 9 frames (~290 ms) drops single stray short words ("if", "then") that bleed
             // through a micro-gap, while your real answers easily clear it.
             if (peak < MIC_SPEECH_LEVEL || speechFrames < 9) return;
 
@@ -6738,7 +6736,7 @@ async function startUserMicCapture() {
 
     } catch (err) {
         console.warn("User mic capture failed:", err);
-        // Tell the user instead of failing silently — a dead mic is exactly the
+        // Tell the user instead of failing silently, a dead mic is exactly the
         // "it's not picking my voice" complaint, and it's almost always a permission issue.
         const denied = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
         try {
@@ -6786,7 +6784,7 @@ async function stopAndCommitAudio(silentStop = false) {
     if (inputStream) inputStream.disconnect();
 
     try {
-        // WEB: never stop the PERSISTENT shared-screen audio track — the shim owns it
+        // WEB: never stop the PERSISTENT shared-screen audio track, the shim owns it
         // (it also drives the live preview + Snap). Just drop our reference; the audio
         // graph was already disconnected above.
         if (activeMediaStream && !_usingSharedLiveAudio) {
@@ -6956,7 +6954,7 @@ function updateListeningUI(active) {
         let content = `<div class="wave-and-text" style="display: flex; align-items: center; gap: 8px;">`;
         content += `<div class="wave-container" style="margin: 0;"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>`;
         content += `<span id="ls-dot" style="width:7px;height:7px;border-radius:50%;background:#8b93a8;box-shadow:0 0 6px rgba(139,147,168,0.55);flex:0 0 auto;transition:background .12s,box-shadow .12s;"></span>`;
-        content += `<span id="ls-text" class="status-text listening-indicator" style="font-size:10px; margin:0; line-height:1; text-transform:none; letter-spacing:0.2px; color:#aab2c5;">${window.WHIS_WEB ? _liveListenLabel() : 'Listening — interviewer &amp; you'}</span>`;
+        content += `<span id="ls-text" class="status-text listening-indicator" style="font-size:10px; margin:0; line-height:1; text-transform:none; letter-spacing:0.2px; color:#aab2c5;">${window.WHIS_WEB ? _liveListenLabel() : 'Listening, interviewer &amp; you'}</span>`;
         content += `</div>`;
         listeningStatusEl.innerHTML = content;
 
@@ -6967,7 +6965,7 @@ function updateListeningUI(active) {
 
         voiceBtn.classList.add("active");
         _startSpeakerIndicator();
-        // The box is for extra input now — guide the user without cluttering it with the
+        // The box is for extra input now, guide the user without cluttering it with the
         // live transcript. (Don't override the locked/free-trial placeholder.)
         if (inputEl && !inputEl.readOnly) inputEl.placeholder = 'Press Send for an answer, or type a follow-up…';
       } else {
@@ -7089,14 +7087,14 @@ let isCapturingScreen = false;
 
 async function silentScreenshotCapture(opts = {}) {
     if (isCapturingScreen) return;
-    // Demo already captured via captureScreenDemo() — skip to avoid the
+    // Demo already captured via captureScreenDemo(), skip to avoid the
     // desktopCapturer.getSources() blink that occurs on content-protected windows.
     if (_demoActive) return;
     if (!window.electronAPI || !window.electronAPI.captureScreen) return;
 
     // WEB Live Mode: when a persistent shared-screen stream exists, grab a frame
     // from it (no re-prompt, works while the Whis tab is backgrounded) instead of
-    // the one-shot captureScreen(). Also skip the body-hide blink — the shared
+    // the one-shot captureScreen(). Also skip the body-hide blink, the shared
     // window is the interview, not this tab.
     const useLive = window.WHIS_WEB && opts.fromLive === true &&
         window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen();
@@ -7107,7 +7105,7 @@ async function silentScreenshotCapture(opts = {}) {
     const targetOpacity = slider ? slider.value : "1";
 
     try {
-        // Never hide the body during the interactive demo — it blacks out the entire overlay
+        // Never hide the body during the interactive demo, it blacks out the entire overlay
         if (!_demoActive && !useLive) {
             document.body.style.transition = "opacity 0.15s ease-out";
             document.body.style.opacity = "0";
@@ -7143,7 +7141,7 @@ async function silentScreenshotCapture(opts = {}) {
     } catch (err) {
         console.error("Silent capture failed", err);
     } finally {
-        // Always restore — if body was set to 0, ensure it comes back regardless of demo state
+        // Always restore, if body was set to 0, ensure it comes back regardless of demo state
         document.body.style.opacity = targetOpacity;
         document.body.style.pointerEvents = "auto";
         isCapturingScreen = false;
@@ -7300,7 +7298,7 @@ inputEl.addEventListener("keydown", (e) => {
 
 // Trial-only model: a user without an active trial/plan can't type into a void.
 // Locking the composer (readOnly + clear placeholder) and routing focus to the
-// trial keeps the experience clean — no typing that leads nowhere.
+// trial keeps the experience clean, no typing that leads nowhere.
 function _isEntitledToUse() {
     return !(isFreeTier && !subscriptionIsActive && !subscriptionIsTrial);
 }
@@ -7316,7 +7314,7 @@ inputEl.addEventListener("focus", () => {
     if (currentTrialUsage < maxTrialSessions) {
         openTrialModal();
     } else {
-        whisToast('Your free trials for today are used up — upgrade to keep going.', 'warning', 5000,
+        whisToast('Your free trials for today are used up, upgrade to keep going.', 'warning', 5000,
             { action: { label: 'See Plans', fn: () => window.electronAPI.openSubscriptionPage() } });
     }
 });
@@ -7346,7 +7344,7 @@ function _saveSession() {
 }
 
 function _tryRestoreSession() {
-    // Restore-session prompt disabled by request — never show the "Restore?" popup.
+    // Restore-session prompt disabled by request, never show the "Restore?" popup.
     // Clear any previously saved session so stale data doesn't accumulate.
     try { localStorage.removeItem(_SESSION_KEY); } catch(_) {}
 }
@@ -7369,13 +7367,13 @@ let _retryWatchInterval = null;
 
 function _queueRetry(payload, googleId) {
     _pendingRetryPayload = { payload, googleId };
-    whisToast('Network error — will retry automatically when reconnected', 'warning', 0);
+    whisToast('Network error, will retry automatically when reconnected', 'warning', 0);
     _retryWatchInterval = setInterval(async () => {
         if (_connStatus !== 'online' || !_pendingRetryPayload) return;
         const { payload: p, googleId: g } = _pendingRetryPayload;
         _pendingRetryPayload = null;
         clearInterval(_retryWatchInterval); _retryWatchInterval = null;
-        whisToast('Reconnected — sending…', 'info', 3000);
+        whisToast('Reconnected, sending…', 'info', 3000);
         await sendMessage({ overrideText: p.content, screenshotDataURL: p.screenshot });
     }, 4000);
 }
@@ -7417,11 +7415,11 @@ function _flashShortcutLabel(label) {
 // ── Pre-interview checklist (CHANGE 9) ──
 // ── Mobile capture note (shown once, honest about the tradeoff) ──
 // The first time a mobile user taps Listen, explain that a phone can hear THEM (mic)
-// and answer TYPED questions, but cannot capture the interviewer — that needs a laptop.
+// and answer TYPED questions, but cannot capture the interviewer, that needs a laptop.
 // Encouraging, not a dead-end: the value on mobile is instant answers to what they ask.
 let _mobileCaptureNoteShown = false;
 // One-time coaching so the getDisplayMedia picker isn't confusing: tell the user to
-// pick the MEETING tab and turn ON "Share tab audio" — the key to hearing the interviewer.
+// pick the MEETING tab and turn ON "Share tab audio", the key to hearing the interviewer.
 let _tabShareHintShown = false;
 function _showTabShareHintOnce() {
     if (_tabShareHintShown) return;
@@ -7455,7 +7453,7 @@ function _showWebFirstRunHintOnce() {
     _webFirstRunHintShown = true;
     localStorage.setItem('wh_web_firstrun_hint', '1');
     const msg = IS_MOBILE_WEB
-        ? 'You’re in. <strong>Type your question and press Enter</strong> for an instant answer — or tap the mic to ask by voice.'
+        ? 'You’re in. <strong>Type your question and press Enter</strong> for an instant answer, or tap the mic to ask by voice.'
         : 'You’re in. <strong>Type your question and press Enter</strong>, or click <strong>Listen</strong> to capture the meeting tab’s audio.';
     setTimeout(() => whisToast(msg, 'info', 8000), 400);
 }
@@ -7468,17 +7466,17 @@ function _showPreflightChecklist() {
     const items = [];
     items.push(_connStatus === 'online' ? '✓ Backend connected' : '⚠ Backend unreachable');
     const hasCtx = typeof localContexts !== 'undefined' && localContexts.some(c => c.isActive);
-    items.push(hasCtx ? '✓ Context loaded' : '⚠ No context — add resume for personalized answers');
+    items.push(hasCtx ? '✓ Context loaded' : '⚠ No context, add resume for personalized answers');
     items.push(isCrisp ? '✓ Crisp mode ON (concise answers)' : '✓ Full mode (detailed answers)');
     const allOk = items.every(i => i.startsWith('✓'));
-    // Don't nag when everything is fine — only surface real issues (e.g. no context).
+    // Don't nag when everything is fine, only surface real issues (e.g. no context).
     if (allOk) return;
     const warnings = items.filter(i => i.startsWith('⚠'));
     whisToast(warnings.join('  ·  '), 'warning', 6000);
 }
 
 // ── Stealth self-verification (CHANGE 11) ──
-// ── Shared stealth verification — called from header badge, dropdown, and empty state ──
+// ── Shared stealth verification, called from header badge, dropdown, and empty state ──
 // ── Stealth protection helpers ──
 function _isStealthActive() {
     return isFreeTier || (subscriptionTier === 'pro_plus' && subscriptionIsActive);
@@ -7494,7 +7492,7 @@ function _updateStealthBadge(isProtected) {
         badge.onclick = _runStealthVerify;
     } else {
         badge.className = 'stealth-header-badge stealth-badge-risk';
-        badge.title = 'Pro plan — Whis-AI IS visible in screenshares. Click to upgrade to Elite.';
+        badge.title = 'Pro plan, Whis-AI IS visible in screenshares. Click to upgrade to Elite.';
         badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>Screenshare Risk</span>';
         badge.onclick = () => {
             whisToast('Upgrade to Elite to activate full OS-level stealth invisibility.', 'warning', 5000, {
@@ -7505,7 +7503,7 @@ function _updateStealthBadge(isProtected) {
 }
 
 // ── Shared stealth capture helper ──
-// desktopCapturer is a privileged Electron API — it sees this window even though
+// desktopCapturer is a privileged Electron API, it sees this window even though
 // content-protection hides it from *other* apps (Zoom, OBS, OS screenshot tools).
 // We must hide the Whis body first so the captured image shows what the interviewer
 // actually sees (the desktop/other windows behind Whis, with no trace of Whis).
@@ -7527,7 +7525,7 @@ async function _captureStealthProof() {
         const res = await window.electronAPI.captureScreen();
         return res && res.dataUrl ? res.dataUrl : null;
     } finally {
-        // Always restore body — no matter what happens during capture
+        // Always restore body, no matter what happens during capture
         document.body.style.transition  = 'opacity 0.1s ease-in';
         document.body.style.opacity     = targetOpacity;
         document.body.style.pointerEvents = 'auto';
@@ -7536,7 +7534,7 @@ async function _captureStealthProof() {
 
 async function _runStealthVerify() {
     if (profileDropdownMenu) profileDropdownMenu.style.display = 'none';
-    whisToast('Taking stealth screenshot — app will blink once…', 'info', 2500);
+    whisToast('Taking stealth screenshot, app will blink once…', 'info', 2500);
     const dataUrl = await _captureStealthProof();
     if (!dataUrl) { whisToast('Screenshot failed', 'error', 3000); return; }
     const ov = document.createElement('div');
@@ -7562,13 +7560,13 @@ if (stealthTestBtn) stealthTestBtn.addEventListener('click', _runStealthVerify);
 
 // Badge click is set dynamically by _updateStealthBadge() after subscription loads:
 // Elite/Free → _runStealthVerify   Pro → upgrade toast
-// No permanent listener here — that would fire _runStealthVerify for Pro users too.
+// No permanent listener here, that would fire _runStealthVerify for Pro users too.
 
 // ── Audio device change auto-recovery (CHANGE 8) ──
 if (navigator.mediaDevices) {
     navigator.mediaDevices.addEventListener('devicechange', async () => {
         if (!isListening) return;
-        _streamRestartAttempts = 0; // audio device changed — reconnect silently
+        _streamRestartAttempts = 0; // audio device changed, reconnect silently
         await _handleStreamEnded();
     });
 }
@@ -7616,7 +7614,7 @@ function _showStealthOnboard() {
     }
 
     async function _doScreenshot() {
-        whisToast('App will blink once — that\'s the proof moment', 'info', 2200);
+        whisToast('App will blink once, that\'s the proof moment', 'info', 2200);
         const dataUrl = await _captureStealthProof();
         if (!dataUrl) { whisToast('Screenshot failed', 'error', 3000); return; }
         document.getElementById('stealth-shot-img').src = dataUrl;
@@ -7643,7 +7641,7 @@ function _showStealthOnboard() {
 // ── Responsive scale: everything shrinks proportionally as the window narrows ──
 (function initResponsiveScale() {
     const DESIGN_WIDTH = 620;  // px at which the layout looks perfect at scale 1.0
-    const MIN_SCALE    = 0.42; // floor — never shrink below this factor
+    const MIN_SCALE    = 0.42; // floor, never shrink below this factor
     let raf = null;            // RAF handle for coalescing multiple resize events
 
     function applyScale() {
@@ -7665,7 +7663,7 @@ function _showStealthOnboard() {
     }
 
     // Coalesce all resize events fired within the same animation frame into one
-    // applyScale call — ensures 60 fps max and zero jank during window drag-resize
+    // applyScale call, ensures 60 fps max and zero jank during window drag-resize
     window.addEventListener('resize', () => {
         if (!raf) raf = requestAnimationFrame(applyScale);
     }, { passive: true });
@@ -7674,7 +7672,7 @@ function _showStealthOnboard() {
 })();
 
 // =====================================================================
-// WEB LIVE MODE — Document Picture-in-Picture co-pilot
+// WEB LIVE MODE, Document Picture-in-Picture co-pilot
 // ---------------------------------------------------------------------
 // A browser tab can't overlay the interview. Instead: the user shares
 // their interview screen ONCE (persistent stream), and we float a small
@@ -7704,7 +7702,7 @@ const WhisLive = (() => {
     try { whisToast(msg, type || 'info', dur || 4000); } catch (_) {}
   }
 
-  // Copy the host document's styles into the PiP doc — Document PiP windows do
+  // Copy the host document's styles into the PiP doc, Document PiP windows do
   // NOT inherit the opener's stylesheets. Clone <link rel=stylesheet> + <style>.
   function _copyStyles(doc) {
     try {
@@ -7778,7 +7776,7 @@ const WhisLive = (() => {
         <button class="wl-close" id="wl-close" title="Close Live">&times;</button>
       </div>
       <div class="wl-status" id="wl-status"><span class="wl-live-dot"></span><span id="wl-status-text">Sharing your screen</span></div>
-      <div class="wl-answer" id="wl-answer"><div class="wl-placeholder">Click <b>Capture question</b> when the interviewer shows a question — or turn on the mic to listen. The answer appears here.</div></div>
+      <div class="wl-answer" id="wl-answer"><div class="wl-placeholder">Click <b>Capture question</b> when the interviewer shows a question, or turn on the mic to listen. The answer appears here.</div></div>
       <div class="wl-actions">
         <button class="wl-btn wl-primary" id="wl-capture"><span>&#128247;</span> Capture question</button>
         <button class="wl-btn" id="wl-mic"><span>&#127908;</span> Mic</button>
@@ -7796,7 +7794,7 @@ const WhisLive = (() => {
       try {
         await handleLiveCaptureStage();
       } catch (_) {
-        _toast('Capture failed — try again.', 'error');
+        _toast('Capture failed, try again.', 'error');
       }
       _syncStatus();
     });
@@ -7853,12 +7851,12 @@ const WhisLive = (() => {
   async function goLive(triggerEl) {
     if (isOpen()) { try { pip.focus(); } catch (_) {} return; }
     if (!supported()) {
-      _toast('Live Mode needs Chrome or Edge on desktop — or put Whis on a second screen.', 'info', 6000);
+      _toast('Live Mode needs Chrome or Edge on desktop, or put Whis on a second screen.', 'info', 6000);
       return;
     }
 
     // Share the interview screen ONCE (persistent stream). Must be in the click
-    // handler's user gesture — both getDisplayMedia and requestWindow require it.
+    // handler's user gesture, both getDisplayMedia and requestWindow require it.
     let shareRes;
     try {
       shareRes = await window.electronAPI.startLiveScreen(window._whisTabAudio === true);
@@ -7874,7 +7872,7 @@ const WhisLive = (() => {
     try {
       pip = await window.documentPictureInPicture.requestWindow({ width: 400, height: 560 });
     } catch (e) {
-      // PiP failed after sharing — stop the stream so we don't leave it dangling.
+      // PiP failed after sharing, stop the stream so we don't leave it dangling.
       try { window.electronAPI.stopLiveScreen(); } catch (_) {}
       pip = null;
       _toast('Could not open the Live panel. Try Chrome/Edge on desktop.', 'error', 5000);
@@ -7933,19 +7931,19 @@ const WhisLive = (() => {
     const anchor = document.getElementById('screenshot-btn') || row.firstElementChild;
 
     if (!supported()) {
-      // Not supported here — a small, honest note (no false promises).
+      // Not supported here, a small, honest note (no false promises).
       const note = document.createElement('button');
       note.id = 'go-live-note';
       note.className = 'input-icon-btn wl-golive-note';
       note.type = 'button';
       note.title = IS_MOBILE_WEB
         ? 'Live Mode needs Chrome or Edge on a desktop.'
-        : 'Live Mode needs Chrome or Edge — or put Whis on a second screen.';
+        : 'Live Mode needs Chrome or Edge, or put Whis on a second screen.';
       note.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i><span class="btn-mini-label">Live</span>';
       note.addEventListener('click', () => {
         _toast(IS_MOBILE_WEB
           ? 'Live Mode needs Chrome or Edge on a desktop computer.'
-          : 'Live Mode needs Chrome or Edge on desktop — or put Whis on a second screen next to your interview.',
+          : 'Live Mode needs Chrome or Edge on desktop, or put Whis on a second screen next to your interview.',
           'info', 6000);
       });
       if (anchor && anchor.nextSibling) row.insertBefore(note, anchor.nextSibling);
@@ -7973,19 +7971,19 @@ const WhisLive = (() => {
 // A space-optimized "90% output" layout. Owner's top priority: the AI answer/
 // code area should own almost the whole viewport, while the live transcript
 // steals ~zero vertical space. We beat ParakeetAI where reviewers say it's
-// weakest: their generated code overflows and can't scroll — here #messages and
+// weakest: their generated code overflows and can't scroll, here #messages and
 // every code <pre> scroll cleanly, never truncated.
 //
 // LAYOUT (vertical stack, all web-gated by body.whis-session-active):
-//   • Global header (reused) — trial timer + Exit live here (one thin row).
-//   • #web-focus-topbar (~thin) — live dot, mic Start/Stop, language, Answer,
+//   • Global header (reused), trial timer + Exit live here (one thin row).
+//   • #web-focus-topbar (~thin), live dot, mic Start/Stop, language, Answer,
 //                                 Screenshot, Exit fallback.
-//   • #web-focus-ticker (~32px) — single-line news-crawl of the live transcript,
+//   • #web-focus-ticker (~32px), single-line news-crawl of the live transcript,
 //                                 "Listening…" with a pulsing dot; hover/click
 //                                 drops #wf-overlay (last ~6 lines) that auto-
 //                                 collapses. An "expand" affordance is present.
-//   • #messages — ~90% of the view, full-width, generous type, scrollable code.
-//   • .input-row (reused) — slim manual message + Send + screenshot affordance.
+//   • #messages, ~90% of the view, full-width, generous type, scrollable code.
+//   • .input-row (reused), slim manual message + Send + screenshot affordance.
 //
 // Everything reuses the EXISTING systems: startListening/stopAndCommitAudio,
 // liveTranscript/_rtPartialText/_renderLiveTranscript, finalizeAndSend,
@@ -8066,7 +8064,7 @@ const WhisSession = (() => {
     tickerEl.className = 'web-focus-ticker no-drag';
     tickerEl.setAttribute('role', 'button');
     tickerEl.setAttribute('tabindex', '0');
-    tickerEl.setAttribute('aria-label', 'Live transcript — click to expand recent lines');
+    tickerEl.setAttribute('aria-label', 'Live transcript, click to expand recent lines');
     tickerEl.innerHTML = `
       <span class="wf-tick-dot" id="wf-tick-dot" aria-hidden="true"></span>
       <div class="wf-tick-viewport">
@@ -8189,7 +8187,7 @@ const WhisSession = (() => {
 
     if (segs.length === 0 && !partial) {
       inner.innerHTML = `<div class="wf-ov-empty">${
-        (typeof isListening !== 'undefined' && isListening) ? 'Listening… nothing transcribed yet.' : 'Not listening yet — press Start.'
+        (typeof isListening !== 'undefined' && isListening) ? 'Listening… nothing transcribed yet.' : 'Not listening yet, press Start.'
       }</div>`;
     } else {
       const recent = segs.slice(-6);
@@ -8330,7 +8328,7 @@ const WhisSession = (() => {
     if (!res || res.error) {
       // User cancelled the picker → keep the pre-share CTA and let them retry (or type).
       _detachPreview();
-      try { whisToast('Screen share cancelled. Click <strong>Share tab / window</strong> to capture the interviewer — or just type your question.', 'warning', 6000); } catch (_) {}
+      try { whisToast('Screen share cancelled. Click <strong>Share tab / window</strong> to capture the interviewer, or just type your question.', 'warning', 6000); } catch (_) {}
       return;
     }
 
@@ -8343,14 +8341,14 @@ const WhisSession = (() => {
     if (!hasAudio) {
       window._whisUseMic = true; // route startListening to the mic fallback
       _showPreviewHint('No tab audio detected. For the cleanest interviewer capture, click <strong>Share tab / window</strong> again and tick <strong>“Share tab audio.”</strong> Using your mic for now.');
-      try { whisToast('No tab audio in that share. Re-share and tick <strong>“Share tab audio”</strong> for the cleanest capture — using your mic for now.', 'info', 8000); } catch (_) {}
+      try { whisToast('No tab audio in that share. Re-share and tick <strong>“Share tab audio”</strong> for the cleanest capture, using your mic for now.', 'info', 8000); } catch (_) {}
     } else {
       window._whisUseMic = false;   // prefer the clean shared audio
-      window._whisTabAudio = true;  // reflect the honest "listening — interviewer's tab" label
+      window._whisTabAudio = true;  // reflect the honest "listening, interviewer's tab" label
       _showPreviewHint('');
     }
 
-    // Begin listening — startListening() reuses the shared audio track as PRIMARY.
+    // Begin listening, startListening() reuses the shared audio track as PRIMARY.
     if (!(typeof isListening !== 'undefined' && isListening)) {
       try { startListening(); } catch (_) {}
     }
@@ -8406,7 +8404,7 @@ const WhisSession = (() => {
   function exit() {
     active = false;
     _hideOverlay();
-    // Stop capture cleanly (silent — no toast spam).
+    // Stop capture cleanly (silent, no toast spam).
     try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
 
     // Tear down the persistent shared screen + preview (the session is ending).
@@ -8433,7 +8431,7 @@ const WhisSession = (() => {
       if (t) { e.preventDefault(); enter(); }
     });
     // React to the browser "Stop sharing" while the 75/25 view is open (in addition to
-    // WhisLive's PiP handler — the shim supports multiple onLiveScreenEnded callbacks).
+    // WhisLive's PiP handler, the shim supports multiple onLiveScreenEnded callbacks).
     try {
       if (window.electronAPI && window.electronAPI.onLiveScreenEnded) {
         window.electronAPI.onLiveScreenEnded(() => { if (active) _onShareEnded(); });
@@ -8449,7 +8447,7 @@ const WhisSession = (() => {
 // ============================================================================
 // Makes the dashboard's "View transcript" real for the LIVE web app. The backend
 // already exposes the session contract (POST /api/sessions, .../transcript,
-// .../end; GET /api/sessions/:id) and Mock Interview already uses it — the live
+// .../end; GET /api/sessions/:id) and Mock Interview already uses it, the live
 // app did not. This module wires it in, entirely web-gated (window.WHIS_WEB) and
 // only for real signed-in users (googleId), so the desktop build and mock's own
 // saving are untouched.
@@ -8457,8 +8455,7 @@ const WhisSession = (() => {
 // Flow:
 //   • Session id: read ?sessionId=… from the URL (the dashboard passes it). If
 //     absent, create one lazily the first time the user starts listening OR a
-//     transcript segment is produced — POST /api/sessions {mode:'interview'} —
-//     exactly once per page session, and reflect it back into the URL.
+//     transcript segment is produced, POST /api/sessions {mode:'interview'}, //     exactly once per page session, and reflect it back into the URL.
 //   • Append: _appendTranscript() calls noteSegment(role,text). Segments are
 //     buffered and flushed (debounced ~5s, or immediately once ≥8 are queued)
 //     to /api/sessions/:id/transcript {entries:[{ts,speaker,text}]}. speaker is
@@ -8518,7 +8515,7 @@ const WhisTranscriptSync = (() => {
   }
 
   // Ensure we have a session id: prefer the URL, else create once. Returns a
-  // promise resolving to the id (or null if we can't — not signed in / failed).
+  // promise resolving to the id (or null if we can't, not signed in / failed).
   function ensureSession() {
     if (sessionId) return Promise.resolve(sessionId);
     if (!_googleId()) return Promise.resolve(null); // real signed-in users only
