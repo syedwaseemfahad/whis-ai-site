@@ -8013,11 +8013,24 @@ const WhisSession = (() => {
   let langSelect = null;
   let dotEl = null;
   let overlayTimer = null;
-  // 75/25 live view: the 25% right column previewing the shared tab/window.
-  let previewEl = null;      // <aside> wrapper
+  // Two-pane live view (LEFT = shared-tab stage + transcript, RIGHT = answers).
+  let previewEl = null;      // <aside> LEFT pane wrapper
   let previewVideoEl = null; // <video> playing the shared stream's video track
   let previewHintEl = null;  // inline "re-share with audio" hint
   let sharePromptEl = null;  // in-view "Share your interview tab" CTA (pre-share)
+  let leftPaneEl = null;     // full LEFT column wrapper
+  let rightPaneEl = null;    // full RIGHT column wrapper
+  let rightBodyEl = null;    // scroll host that adopts #messages
+  let rightFootEl = null;    // adopts the existing .input-row + action buttons
+  let transcriptPanelEl = null; // readable live transcript panel (replaces ticker)
+  let menuBtn = null;        // "⋮" session menu trigger
+  let menuPopoverEl = null;  // "⋮" popover
+  let exitModalEl = null;    // Leave-or-End modal
+  let timerMirrorEl = null;  // right-pane session timer mirror
+  let timerMirrorRaf = null; // rAF handle keeping the mirror in sync
+  // Where the adopted nodes came from, so exit() can restore the non-live view.
+  let _msgsHome = null, _msgsAnchor = null;
+  let _inputHome = null, _inputAnchor = null;
 
   const LANG_KEY = 'wh_session_lang';
 
@@ -8042,11 +8055,14 @@ const WhisSession = (() => {
     const content = document.getElementById('content-area');
     if (!content || !content.parentNode) return;
 
-    // ── Thin TOP BAR: mic Start/Stop, language, Answer, Screenshot, Exit ──────
-    // (Trial timer stays in the global header, which sits directly above this.)
+    // ── HIDDEN behavior source: the original focus top bar. It's no longer shown
+    //    on web (the new two-pane UI owns the visible controls) but its buttons stay
+    //    as the CANONICAL wiring for mic / Answer / Screenshot / language — the new
+    //    controls simply proxy clicks onto these, so the proven pipelines are reused
+    //    verbatim. Class .wf-hidden-source is display:none in CSS. ─────────────────
     topbarEl = document.createElement('div');
     topbarEl.id = 'web-focus-topbar';
-    topbarEl.className = 'web-focus-topbar no-drag';
+    topbarEl.className = 'web-focus-topbar wf-hidden-source no-drag';
     topbarEl.innerHTML = `
       <button type="button" id="wf-mic" class="wf-btn wf-mic" title="Start / stop listening">
         <i class="fa-solid fa-microphone" aria-hidden="true"></i><span class="wf-btn-label">Start</span>
@@ -8066,85 +8082,178 @@ const WhisSession = (() => {
         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span class="wf-btn-label">Exit</span>
       </button>`;
 
-    // ── TICKER strip: single-line crawl of the live transcript ────────────────
+    // ── HIDDEN transcript ticker: still built (its data source _tickerString feeds
+    //    the new readable panel via mirrorTranscript), but visually removed on web. ──
     tickerEl = document.createElement('div');
     tickerEl.id = 'web-focus-ticker';
-    tickerEl.className = 'web-focus-ticker no-drag';
-    tickerEl.setAttribute('role', 'button');
-    tickerEl.setAttribute('tabindex', '0');
-    tickerEl.setAttribute('aria-label', 'Live transcript, click to expand recent lines');
+    tickerEl.className = 'web-focus-ticker wf-hidden-source no-drag';
     tickerEl.innerHTML = `
       <span class="wf-tick-dot" id="wf-tick-dot" aria-hidden="true"></span>
-      <div class="wf-tick-viewport">
-        <div class="wf-tick-track" id="wf-tick-track"></div>
-      </div>
-      <button type="button" class="wf-tick-expand" id="wf-tick-expand" title="Expand recent transcript" aria-label="Expand recent transcript">
-        <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
-      </button>`;
+      <div class="wf-tick-viewport"><div class="wf-tick-track" id="wf-tick-track"></div></div>`;
 
-    // ── OVERLAY: temporary drop of the last ~6 transcript lines ───────────────
+    // ── HIDDEN overlay (kept inert; the new transcript panel replaces it). ────────
     overlayEl = document.createElement('div');
     overlayEl.id = 'wf-overlay';
-    overlayEl.className = 'wf-overlay no-drag';
+    overlayEl.className = 'wf-overlay wf-hidden-source no-drag';
     overlayEl.innerHTML = `<div class="wf-overlay-inner" id="wf-overlay-inner"></div>`;
 
-    // ── 25% LIVE PREVIEW column (ParakeetAI-style) ────────────────────────────
-    // A fixed-position aside on the right showing the shared tab/window video so the
-    // user can monitor exactly what they're sharing. CSS (body.whis-session-active)
-    // reserves the right 25% for this and pads #content-area's main column to 75%.
-    // Web-only: it's built inside WhisSession, which is a no-op on desktop Electron.
-    previewEl = document.createElement('aside');
-    previewEl.id = 'web-live-preview';
-    previewEl.className = 'web-live-preview no-drag';
-    previewEl.setAttribute('aria-label', 'Shared tab preview');
-    previewEl.innerHTML = `
-      <div class="wlp-head">
-        <span class="wlp-label">Shared tab</span>
-        <span class="wlp-live"><span class="wlp-live-dot"></span>Live</span>
+    // ── LEFT PANE (~40%): big shared-tab stage + control row + transcript panel ──
+    // Reuses id #web-live-preview so _attachPreview()/#wlp-video/#wlp-share are all
+    // unchanged; the pane just now also carries the controls and transcript below it.
+    leftPaneEl = document.createElement('aside');
+    leftPaneEl.id = 'web-live-preview';
+    leftPaneEl.className = 'web-live-preview web-live-pane no-drag';
+    leftPaneEl.setAttribute('aria-label', 'Live session — shared tab and transcript');
+    previewEl = leftPaneEl; // keep the historical name for _attach/_detachPreview
+    leftPaneEl.innerHTML = `
+      <div class="wlp-stagewrap">
+        <div class="wlp-stage">
+          <video id="wlp-video" class="wlp-video" autoplay muted playsinline></video>
+          <div class="wlp-stage-tools">
+            <button type="button" id="wlp-fullscreen" class="wlp-stage-btn" title="Fullscreen">
+              <i class="fa-solid fa-expand" aria-hidden="true"></i><span>Fullscreen</span>
+            </button>
+            <button type="button" id="wlp-changetab" class="wlp-stage-btn" title="Share a different tab or window">
+              <i class="fa-solid fa-repeat" aria-hidden="true"></i><span>Change Tab</span>
+            </button>
+          </div>
+          <div class="wlp-share" id="wlp-share">
+            <div class="wlp-share-icon"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></div>
+            <div class="wlp-share-title">Share your interview tab</div>
+            <div class="wlp-share-sub">Pick the meeting tab / window and tick <strong>Share tab audio</strong>. Whis hears the interviewer and reads the screen from here.</div>
+            <button type="button" class="wlp-share-btn" id="wlp-share-btn">
+              <i class="fa-solid fa-desktop" aria-hidden="true"></i> Share tab / window
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="wlp-stage">
-        <video id="wlp-video" class="wlp-video" autoplay muted playsinline></video>
-        <div class="wlp-share" id="wlp-share">
-          <div class="wlp-share-icon"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></div>
-          <div class="wlp-share-title">Share your interview tab</div>
-          <div class="wlp-share-sub">Pick the meeting tab / window and tick <strong>Share tab audio</strong>. Whis hears the interviewer and reads the screen from here.</div>
-          <button type="button" class="wlp-share-btn" id="wlp-share-btn">
-            <i class="fa-solid fa-desktop" aria-hidden="true"></i> Share tab / window
+
+      <div class="wlp-controls">
+        <button type="button" id="wlp-listen" class="wlp-ctl wlp-ctl--listen" title="Start / stop listening">
+          <span class="wlp-rec-dot" aria-hidden="true"></span>
+          <i class="fa-solid fa-microphone" aria-hidden="true"></i><span class="wlp-ctl-label">Start</span>
+        </button>
+        <button type="button" id="wlp-clear" class="wlp-ctl wlp-ctl--ghost" title="Clear the transcript">
+          <i class="fa-solid fa-eraser" aria-hidden="true"></i><span class="wlp-ctl-label">Clear</span>
+        </button>
+        <span class="wlp-ctl-spacer"></span>
+        <select id="wlp-lang" class="wlp-lang" title="Transcription language" aria-label="Transcription language">
+          ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="wlp-transcript" id="wlp-transcript" aria-label="Live transcript" aria-live="polite"></div>
+
+      <div class="wlp-hint" id="wlp-hint" style="display:none;"></div>`;
+
+    // ── RIGHT PANE (~60%): timer + menu + exit, answers, composer + actions ──────
+    rightPaneEl = document.createElement('section');
+    rightPaneEl.id = 'web-right-pane';
+    rightPaneEl.className = 'web-right-pane no-drag';
+    rightPaneEl.innerHTML = `
+      <div class="wrp-top">
+        <div class="wrp-timer" id="wrp-timer"><span class="wrp-timer-dot"></span><span id="wrp-timer-text">00:00</span></div>
+        <div class="wrp-top-actions">
+          <button type="button" id="wrp-menu-btn" class="wrp-icon-btn" title="Session options" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+          </button>
+          <button type="button" id="wrp-exit-btn" class="wrp-exit-btn" title="Leave or end this session">
+            <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Exit</span>
+          </button>
+        </div>
+        <div class="wrp-menu" id="wrp-menu" role="menu" hidden>
+          <div class="wrp-menu-row">
+            <span class="wrp-menu-label">Answer text size</span>
+            <div class="wrp-seg" id="wrp-size">
+              <button type="button" data-size="s" class="wrp-seg-btn">S</button>
+              <button type="button" data-size="m" class="wrp-seg-btn is-on">M</button>
+              <button type="button" data-size="l" class="wrp-seg-btn">L</button>
+            </div>
+          </div>
+          <div class="wrp-menu-row">
+            <span class="wrp-menu-label">Theme</span>
+            <div class="wrp-seg" id="wrp-theme">
+              <button type="button" data-theme="forest" class="wrp-seg-btn is-on">Forest</button>
+              <button type="button" data-theme="deep" class="wrp-seg-btn">Deep</button>
+            </div>
+          </div>
+          <div class="wrp-menu-row">
+            <span class="wrp-menu-label">Language</span>
+            <select id="wrp-lang" class="wrp-menu-select" aria-label="Transcription language">
+              ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+            </select>
+          </div>
+          <div class="wrp-menu-row">
+            <span class="wrp-menu-label">Auto Answer</span>
+            <button type="button" id="wrp-auto" class="wrp-switch" role="switch" aria-checked="false">
+              <span class="wrp-switch-knob"></span>
+            </button>
+          </div>
+          <button type="button" id="wrp-edit" class="wrp-menu-item">
+            <i class="fa-solid fa-pen" aria-hidden="true"></i> Edit session
           </button>
         </div>
       </div>
-      <div class="wlp-hint" id="wlp-hint" style="display:none;"></div>`;
 
-    // Insert ticker + topbar + overlay + preview as the first children of
-    // #content-area; CSS stacks the left column (topbar, ticker, overlay, msgs) and
-    // floats the preview into the reserved right 25%.
-    content.insertBefore(previewEl, content.firstChild);
+      <div class="wrp-body" id="wrp-body"></div>
+
+      <div class="wrp-foot" id="wrp-foot">
+        <button type="button" id="wrp-clearmsgs" class="wrp-clearlink">Clear messages</button>
+        <div class="wrp-foot-actions">
+          <button type="button" id="wrp-answer" class="wrp-action wrp-action--primary" title="Answer the current question now">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Answer
+          </button>
+          <button type="button" id="wrp-shot" class="wrp-action" title="Capture the shared frame and solve it">
+            <i class="fa-solid fa-crop-simple" aria-hidden="true"></i> Screenshot
+          </button>
+        </div>
+      </div>`;
+
+    // Mount both panes as the first children of #content-area. CSS turns
+    // #content-area into a two-column grid only when body.whis-session-active.
+    content.insertBefore(rightPaneEl, content.firstChild);
+    content.insertBefore(leftPaneEl, content.firstChild);
     content.insertBefore(overlayEl, content.firstChild);
     content.insertBefore(tickerEl, content.firstChild);
     content.insertBefore(topbarEl, content.firstChild);
 
-    previewVideoEl = previewEl.querySelector('#wlp-video');
-    previewHintEl  = previewEl.querySelector('#wlp-hint');
-    sharePromptEl  = previewEl.querySelector('#wlp-share');
-    const shareBtn = previewEl.querySelector('#wlp-share-btn');
-    if (shareBtn) shareBtn.addEventListener('click', () => { _startShare(true); });
+    // Cache the hidden-source refs + new elements.
+    previewVideoEl   = leftPaneEl.querySelector('#wlp-video');
+    previewHintEl    = leftPaneEl.querySelector('#wlp-hint');
+    sharePromptEl    = leftPaneEl.querySelector('#wlp-share');
+    transcriptPanelEl= leftPaneEl.querySelector('#wlp-transcript');
+    tickerTrackEl    = tickerEl.querySelector('#wf-tick-track');
+    micBtn           = topbarEl.querySelector('#wf-mic');
+    langSelect       = topbarEl.querySelector('#wf-lang');   // canonical language source
+    dotEl            = tickerEl.querySelector('#wf-tick-dot');
+    rightBodyEl      = rightPaneEl.querySelector('#wrp-body');
+    rightFootEl      = rightPaneEl.querySelector('#wrp-foot');
+    menuBtn          = rightPaneEl.querySelector('#wrp-menu-btn');
+    menuPopoverEl    = rightPaneEl.querySelector('#wrp-menu');
+    timerMirrorEl    = rightPaneEl.querySelector('#wrp-timer-text');
 
-    tickerTrackEl = tickerEl.querySelector('#wf-tick-track');
-    micBtn        = topbarEl.querySelector('#wf-mic');
-    langSelect    = topbarEl.querySelector('#wf-lang');
-    dotEl         = tickerEl.querySelector('#wf-tick-dot');
-
-    // Restore saved language choice (display-only preference; stored for continuity).
+    // Restore saved language choice; keep BOTH visible selects + the hidden canonical
+    // one in lockstep so the transcription language stays consistent everywhere.
+    const leftLang  = leftPaneEl.querySelector('#wlp-lang');
+    const menuLang  = rightPaneEl.querySelector('#wrp-lang');
     try {
       const saved = localStorage.getItem(LANG_KEY);
-      if (saved && langSelect) langSelect.value = saved;
+      if (saved) { if (langSelect) langSelect.value = saved; if (leftLang) leftLang.value = saved; if (menuLang) menuLang.value = saved; }
     } catch (_) {}
-    if (langSelect) langSelect.addEventListener('change', () => {
-      try { localStorage.setItem(LANG_KEY, langSelect.value); } catch (_) {}
-    });
+    const _syncLang = (val) => {
+      if (langSelect) langSelect.value = val;
+      if (leftLang) leftLang.value = val;
+      if (menuLang) menuLang.value = val;
+      try { localStorage.setItem(LANG_KEY, val); } catch (_) {}
+      // Fire the canonical select's change so any existing listener still runs.
+      try { if (langSelect) langSelect.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+    };
+    if (leftLang) leftLang.addEventListener('change', () => _syncLang(leftLang.value));
+    if (menuLang) menuLang.addEventListener('change', () => _syncLang(menuLang.value));
 
-    // Start/Stop mic → reuse the exact same capture pipeline as the desktop app.
-    micBtn.addEventListener('click', () => {
+    // LEFT control row: Start/Stop mic + Clear transcript.
+    const listenBtn = leftPaneEl.querySelector('#wlp-listen');
+    if (listenBtn) listenBtn.addEventListener('click', () => {
       if (typeof isListening !== 'undefined' && isListening) {
         try { stopAndCommitAudio(); } catch (_) {}
       } else {
@@ -8152,37 +8261,202 @@ const WhisSession = (() => {
       }
       setTimeout(_syncListenState, 60);
     });
+    const clearBtn2 = leftPaneEl.querySelector('#wlp-clear');
+    if (clearBtn2) clearBtn2.addEventListener('click', () => _clearTranscript());
 
-    // Answer → send the current transcript (finalizeAndSend folds liveTranscript in).
-    topbarEl.querySelector('#wf-answer').addEventListener('click', () => {
-      try { finalizeAndSend(); } catch (_) {}
-    });
-    // Screenshot → capture → OCR → answer (same path as the Snap btn).
-    topbarEl.querySelector('#wf-shot').addEventListener('click', () => {
-      try { handleScreenshotStage(); } catch (_) {}
-    });
-    // Exit → stop + leave focus mode → normal welcome.
-    topbarEl.querySelector('#wf-exit').addEventListener('click', () => exit());
+    // Share CTA + big-stage tools.
+    const shareBtn = leftPaneEl.querySelector('#wlp-share-btn');
+    if (shareBtn) shareBtn.addEventListener('click', () => { _startShare(true); });
+    const fsBtn = leftPaneEl.querySelector('#wlp-fullscreen');
+    if (fsBtn) fsBtn.addEventListener('click', () => _fullscreenPreview());
+    const changeBtn = leftPaneEl.querySelector('#wlp-changetab');
+    if (changeBtn) changeBtn.addEventListener('click', () => _changeTab());
 
-    // Ticker gestures: hover or click/keyboard drops the recent-lines overlay,
-    // which auto-collapses after a few seconds or on click-away.
-    const openOverlay = () => _showOverlay();
-    tickerEl.addEventListener('mouseenter', openOverlay);
-    tickerEl.addEventListener('click', openOverlay);
-    tickerEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOverlay(); }
-    });
-    tickerEl.querySelector('#wf-tick-expand').addEventListener('click', (e) => {
-      e.stopPropagation(); _showOverlay(true);
-    });
-    // Click-away collapses the overlay.
+    // RIGHT top bar: ⋮ menu + Exit.
+    if (menuBtn) menuBtn.addEventListener('click', (e) => { e.stopPropagation(); _toggleMenu(); });
+    const exitBtn = rightPaneEl.querySelector('#wrp-exit-btn');
+    if (exitBtn) exitBtn.addEventListener('click', () => _openExitModal());
+
+    // RIGHT bottom actions → proxy onto the canonical hidden buttons so the exact
+    // proven flows (finalizeAndSend / handleScreenshotStage) run unchanged.
+    const answerBtn = rightPaneEl.querySelector('#wrp-answer');
+    if (answerBtn) answerBtn.addEventListener('click', () => { try { finalizeAndSend(); } catch (_) {} });
+    const shotBtn = rightPaneEl.querySelector('#wrp-shot');
+    if (shotBtn) shotBtn.addEventListener('click', () => { try { handleScreenshotStage(); } catch (_) {} });
+    const clearMsgsBtn = rightPaneEl.querySelector('#wrp-clearmsgs');
+    if (clearMsgsBtn) clearMsgsBtn.addEventListener('click', () => { try { handleClear(); } catch (_) {} });
+
+    // ⋮ menu wiring.
+    _wireMenu();
+
+    // Click-away closes the ⋮ menu.
     document.addEventListener('click', (e) => {
-      if (!overlayEl || !overlayEl.classList.contains('wf-overlay-open')) return;
-      if (tickerEl.contains(e.target) || overlayEl.contains(e.target)) return;
-      _hideOverlay();
+      if (!menuPopoverEl || menuPopoverEl.hidden) return;
+      if (menuPopoverEl.contains(e.target) || (menuBtn && menuBtn.contains(e.target))) return;
+      _closeMenu();
     });
 
     built = true;
+  }
+
+  // ── Adopt / restore the shared #messages + .input-row into the right pane. ────
+  // On enter() we MOVE (not clone) these live nodes into the right column so their
+  // existing listeners/streaming keep working; on exit() we put them back exactly
+  // where they were, leaving the non-live web view byte-for-byte unchanged.
+  function _adoptRightPane() {
+    if (!rightBodyEl || !rightFootEl) return;
+    const msgs  = document.getElementById('messages');
+    const input = document.querySelector('.input-row');
+    if (msgs && msgs.parentNode !== rightBodyEl) {
+      _msgsHome = msgs.parentNode; _msgsAnchor = msgs.nextSibling;
+      rightBodyEl.appendChild(msgs);
+    }
+    if (input && input.parentNode !== rightFootEl) {
+      _inputHome = input.parentNode; _inputAnchor = input.nextSibling;
+      // Sit the composer just before the action buttons block.
+      const actions = rightFootEl.querySelector('.wrp-foot-actions');
+      rightFootEl.insertBefore(input, actions);
+    }
+  }
+  function _restoreRightPane() {
+    const msgs  = document.getElementById('messages');
+    const input = document.querySelector('.input-row');
+    if (msgs && _msgsHome) { try { _msgsHome.insertBefore(msgs, _msgsAnchor || null); } catch (_) {} }
+    if (input && _inputHome) { try { _inputHome.insertBefore(input, _inputAnchor || null); } catch (_) {} }
+    _msgsHome = _msgsAnchor = _inputHome = _inputAnchor = null;
+  }
+
+  // Clear ONLY the live transcript panel + ticker source (not the answers).
+  function _clearTranscript() {
+    try { if (typeof liveTranscript !== 'undefined' && Array.isArray(liveTranscript)) liveTranscript.length = 0; } catch (_) {}
+    try { if (typeof _rtPartialText !== 'undefined') _rtPartialText = ''; } catch (_) {}
+    try { _renderLiveTranscript(); } catch (_) {}
+    mirrorTranscript();
+  }
+
+  // Fullscreen the shared-tab video.
+  function _fullscreenPreview() {
+    try {
+      if (previewVideoEl && previewVideoEl.requestFullscreen) previewVideoEl.requestFullscreen();
+      else if (previewVideoEl && previewVideoEl.webkitRequestFullscreen) previewVideoEl.webkitRequestFullscreen();
+    } catch (_) {}
+  }
+
+  // Change Tab → stop the current live screen, then re-run the share picker so the
+  // user can pick a different tab/window (reuses _startShare's full bind+listen flow).
+  function _changeTab() {
+    try { if (window.electronAPI && window.electronAPI.stopLiveScreen) window.electronAPI.stopLiveScreen(); } catch (_) {}
+    _detachPreview();
+    // Give the previous stream a beat to release, then re-open the picker.
+    setTimeout(() => { _startShare(true); }, 120);
+  }
+
+  // ── ⋮ session menu ──────────────────────────────────────────────────────────
+  function _toggleMenu() {
+    if (!menuPopoverEl) return;
+    if (menuPopoverEl.hidden) _openMenu(); else _closeMenu();
+  }
+  function _openMenu() {
+    if (!menuPopoverEl) return;
+    menuPopoverEl.hidden = false;
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
+  }
+  function _closeMenu() {
+    if (!menuPopoverEl) return;
+    menuPopoverEl.hidden = true;
+    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+  }
+  function _wireMenu() {
+    if (!menuPopoverEl) return;
+    // Answer text size (S/M/L) → set a class on <body> the CSS reads.
+    const sizeSeg = menuPopoverEl.querySelector('#wrp-size');
+    if (sizeSeg) sizeSeg.addEventListener('click', (e) => {
+      const b = e.target.closest('.wrp-seg-btn'); if (!b) return;
+      sizeSeg.querySelectorAll('.wrp-seg-btn').forEach(x => x.classList.remove('is-on'));
+      b.classList.add('is-on');
+      document.body.classList.remove('wrp-size-s', 'wrp-size-m', 'wrp-size-l');
+      document.body.classList.add('wrp-size-' + (b.getAttribute('data-size') || 'm'));
+    });
+    // Theme (Forest / Deep) → toggle a body class the CSS reads (both green tones).
+    const themeSeg = menuPopoverEl.querySelector('#wrp-theme');
+    if (themeSeg) themeSeg.addEventListener('click', (e) => {
+      const b = e.target.closest('.wrp-seg-btn'); if (!b) return;
+      themeSeg.querySelectorAll('.wrp-seg-btn').forEach(x => x.classList.remove('is-on'));
+      b.classList.add('is-on');
+      document.body.classList.toggle('wrp-theme-deep', b.getAttribute('data-theme') === 'deep');
+    });
+    // Auto Answer → drive the EXISTING manual/auto mode (isAutoMode) via its checkbox
+    // so the real auto-answer behavior + routines toggle exactly as they do desktop.
+    const autoSwitch = menuPopoverEl.querySelector('#wrp-auto');
+    if (autoSwitch) {
+      const _reflect = () => {
+        const on = (typeof isAutoMode !== 'undefined' && isAutoMode);
+        autoSwitch.classList.toggle('is-on', on);
+        autoSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+      };
+      autoSwitch.addEventListener('click', () => {
+        const cb = document.getElementById('mode-toggle-checkbox');
+        if (cb) { cb.checked = !cb.checked; cb.dispatchEvent(new Event('change', { bubbles: true })); }
+        setTimeout(_reflect, 30);
+      });
+      _reflect();
+      window._whisSessionReflectAuto = _reflect;
+    }
+    // Edit session → dashboard's edit flow (best-effort); keep the session alive.
+    const editBtn = menuPopoverEl.querySelector('#wrp-edit');
+    if (editBtn) editBtn.addEventListener('click', () => {
+      _closeMenu();
+      try { whisToast('Edit session details from your dashboard.', 'info', 4000); } catch (_) {}
+    });
+  }
+
+  // ── Exit modal: Leave (keep session) vs End (finalize) ───────────────────────
+  function _openExitModal() {
+    _closeMenu();
+    if (!exitModalEl) {
+      exitModalEl = document.createElement('div');
+      exitModalEl.id = 'wf-exit-modal';
+      exitModalEl.className = 'wf-exit-modal no-drag';
+      exitModalEl.innerHTML = `
+        <div class="wf-exit-overlay" data-exit-dismiss></div>
+        <div class="wf-exit-card" role="dialog" aria-modal="true" aria-labelledby="wf-exit-title">
+          <button type="button" class="wf-exit-x" data-exit-dismiss aria-label="Stay in session">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+          <h2 class="wf-exit-title" id="wf-exit-title">Leave or End Session?</h2>
+          <div class="wf-exit-choices">
+            <button type="button" class="wf-exit-choice" id="wf-exit-leave">
+              <span class="wf-exit-choice-head"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Leave for now</span>
+              <span class="wf-exit-choice-sub">Return to the dashboard. Your session stays available and you can rejoin.</span>
+            </button>
+            <button type="button" class="wf-exit-choice wf-exit-choice--danger" id="wf-exit-end">
+              <span class="wf-exit-choice-head"><i class="fa-solid fa-circle-stop" aria-hidden="true"></i> End Session</span>
+              <span class="wf-exit-choice-sub">Wrap up and save this session's transcript. This can't be undone.</span>
+            </button>
+          </div>
+        </div>`;
+      document.body.appendChild(exitModalEl);
+      // Dismiss (X / overlay) → stay in session.
+      exitModalEl.querySelectorAll('[data-exit-dismiss]').forEach(el =>
+        el.addEventListener('click', () => _closeExitModal()));
+      exitModalEl.querySelector('#wf-exit-leave').addEventListener('click', () => _leaveForNow());
+      exitModalEl.querySelector('#wf-exit-end').addEventListener('click', () => _endSession());
+    }
+    exitModalEl.classList.add('wf-exit-open');
+  }
+  function _closeExitModal() {
+    if (exitModalEl) exitModalEl.classList.remove('wf-exit-open');
+  }
+  // Leave for now → do NOT end/finalize; just navigate to the dashboard.
+  function _leaveForNow() {
+    _closeExitModal();
+    try { window.location.href = '/dashboard3.html'; } catch (_) { window.location.href = 'dashboard3.html'; }
+  }
+  // End Session → finalize transcript + tear down the live view.
+  function _endSession() {
+    _closeExitModal();
+    try { if (typeof WhisTranscriptSync !== 'undefined') WhisTranscriptSync.end(true); } catch (_) {}
+    exit();
   }
 
   // Show the temporary recent-transcript overlay (last ~6 lines). Auto-collapses
@@ -8226,32 +8500,41 @@ const WhisSession = (() => {
     if (overlayEl) overlayEl.classList.remove('wf-overlay-open');
   }
 
-  // Stream the flattened transcript through the ticker. Auto-scroll so the newest
-  // words stay in view (translate the track left as it grows past the viewport).
+  // Render the diarized live transcript into the readable LEFT-pane panel (and keep
+  // the hidden ticker's data source consistent). Auto-scrolls to the newest line.
   // Called from _renderLiveTranscript() so it stays in lockstep with the source.
   function mirrorTranscript() {
     if (!active) return;
-    if (tickerTrackEl) {
-      const text = _tickerString();
-      const listening = (typeof isListening !== 'undefined' && isListening);
-      if (!text) {
-        tickerTrackEl.innerHTML = listening
-          ? `<span class="wf-tick-idle">Listening…</span>`
-          : `<span class="wf-tick-idle wf-tick-muted">Press Start to hear the interviewer and you.</span>`;
-        tickerTrackEl.style.transform = 'translateX(0)';
+    const listening = (typeof isListening !== 'undefined' && isListening);
+
+    if (transcriptPanelEl) {
+      const segs = (typeof liveTranscript !== 'undefined' && Array.isArray(liveTranscript)) ? liveTranscript : [];
+      const partial = (typeof _rtPartialText === 'string' && !isAutoMode) ? _rtPartialText.trim() : '';
+      if (segs.length === 0 && !partial) {
+        transcriptPanelEl.innerHTML = `<div class="wlp-tx-idle">${
+          listening ? 'Listening…' : 'Press Start to hear the interviewer and you.'
+        }</div>`;
       } else {
-        tickerTrackEl.textContent = text;
-        // Keep the last ~1 line visible: shift the track so its right edge shows.
-        const vp = tickerTrackEl.parentElement; // .wf-tick-viewport
-        requestAnimationFrame(() => {
-          if (!tickerTrackEl || !vp) return;
-          const over = tickerTrackEl.scrollWidth - vp.clientWidth;
-          tickerTrackEl.style.transform = over > 0 ? `translateX(${-over}px)` : 'translateX(0)';
-        });
+        let html = segs.map(seg => {
+          const isInt = seg.role === 'interviewer';
+          return `<div class="wlp-tx-line ${isInt ? 'wlp-tx-int' : 'wlp-tx-you'}">
+                    <span class="wlp-tx-role">${isInt ? 'Interviewer' : 'You'}</span>
+                    <span class="wlp-tx-text">${escapeHTML(seg.text)}</span>
+                  </div>`;
+        }).join('');
+        if (partial) {
+          html += `<div class="wlp-tx-line wlp-tx-int wlp-tx-partial">
+                     <span class="wlp-tx-role">Interviewer</span>
+                     <span class="wlp-tx-text">${escapeHTML(partial)}<span class="wlp-tx-caret"></span></span>
+                   </div>`;
+        }
+        transcriptPanelEl.innerHTML = html;
       }
+      transcriptPanelEl.scrollTop = transcriptPanelEl.scrollHeight;
     }
-    // If the overlay is open, keep its recent lines fresh in real time.
-    if (overlayEl && overlayEl.classList.contains('wf-overlay-open')) _showOverlay(true);
+
+    // Keep the hidden ticker's raw string in sync (harmless, cheap; kept for parity).
+    if (tickerTrackEl) tickerTrackEl.textContent = _tickerString();
   }
 
   // Keep the mic button + listening dot/badge in sync with isListening.
@@ -8263,6 +8546,14 @@ const WhisSession = (() => {
       const label = listening ? 'Stop' : 'Start';
       micBtn.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i><span class="wf-btn-label">${label}</span>`;
     }
+    // New LEFT-pane Start/Stop toggle (mic icon + red recording dot when listening).
+    const listenBtn = leftPaneEl && leftPaneEl.querySelector('#wlp-listen');
+    if (listenBtn) {
+      listenBtn.classList.toggle('is-listening', listening);
+      const icon = listening ? 'fa-stop' : 'fa-microphone';
+      const label = listening ? 'Stop' : 'Start';
+      listenBtn.innerHTML = `<span class="wlp-rec-dot" aria-hidden="true"></span><i class="fa-solid ${icon}" aria-hidden="true"></i><span class="wlp-ctl-label">${label}</span>`;
+    }
     if (dotEl) dotEl.classList.toggle('wf-tick-live', listening);
     const live = document.getElementById('wf-live');
     if (live) {
@@ -8270,6 +8561,8 @@ const WhisSession = (() => {
       const t = live.querySelector('.wf-live-text');
       if (t) t.textContent = listening ? 'Listening' : 'Idle';
     }
+    // Reflect the ⋮ Auto Answer switch (mode may have changed elsewhere).
+    try { window._whisSessionReflectAuto && window._whisSessionReflectAuto(); } catch (_) {}
     mirrorTranscript();
   }
   // Exposed so other listening-state changes (startListening/stop) can refresh us.
@@ -8382,6 +8675,12 @@ const WhisSession = (() => {
     if (!built) return;
     active = true;
     document.body.classList.add('whis-session-active');
+    if (!document.body.classList.contains('wrp-size-m')) document.body.classList.add('wrp-size-m');
+
+    // Move the shared answers list + composer into the RIGHT pane, and start the
+    // session-timer mirror in the right-pane top row.
+    _adoptRightPane();
+    _startTimerMirror();
 
     mirrorTranscript();
     _syncListenState();
@@ -8412,6 +8711,9 @@ const WhisSession = (() => {
   function exit() {
     active = false;
     _hideOverlay();
+    _closeMenu();
+    _closeExitModal();
+    _stopTimerMirror();
     // Stop capture cleanly (silent, no toast spam).
     try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
 
@@ -8421,12 +8723,40 @@ const WhisSession = (() => {
 
     // WEB: persist the end of this live session to the dashboard (flushes any
     // buffered transcript, then POSTs /end with durationSec). Best-effort.
+    // (End Session already called WhisTranscriptSync.end(true); this is idempotent.)
     try { if (typeof WhisTranscriptSync !== 'undefined') WhisTranscriptSync.end(false); } catch (_) {}
 
+    // Return the shared answers + composer to their original home before dropping
+    // the split class, so the non-live web view is byte-for-byte unchanged.
+    _restoreRightPane();
     document.body.classList.remove('whis-session-active');
     // Back to the normal welcome / empty state.
     try { renderMessages(); } catch (_) {}
     try { _trackFunnel && _trackFunnel('web_session_exit'); } catch (_) {}
+  }
+
+  // Mirror the header/interview timer into the right-pane top row. Reuses the same
+  // #interview-timer-display value when present; else derives from the trial timer.
+  function _startTimerMirror() {
+    _stopTimerMirror();
+    const tick = () => {
+      if (!active) return;
+      if (timerMirrorEl) {
+        let txt = null;
+        const iv = document.getElementById('interview-timer-display');
+        if (iv && iv.textContent && iv.textContent !== '00:00') txt = iv.textContent;
+        if (!txt) {
+          const tt = document.getElementById('trial-timer-text');
+          if (tt && tt.textContent) txt = tt.textContent;
+        }
+        timerMirrorEl.textContent = txt || '00:00';
+      }
+      timerMirrorRaf = setTimeout(tick, 500);
+    };
+    tick();
+  }
+  function _stopTimerMirror() {
+    if (timerMirrorRaf) { clearTimeout(timerMirrorRaf); timerMirrorRaf = null; }
   }
 
   function isActive() { return active; }
