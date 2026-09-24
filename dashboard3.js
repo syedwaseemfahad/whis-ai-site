@@ -202,14 +202,13 @@
 
   function filteredSessions() {
     return allSessions.filter((s) => {
-      const mode = String(s.mode || '').toLowerCase();
       if (currentFilter !== 'all') {
-        if (currentFilter === 'interview' && !/interview/.test(mode)) return false;
-        if (currentFilter === 'meeting' && !/meeting/.test(mode)) return false;
-        if (currentFilter === 'mock' && !/mock/.test(mode)) return false;
+        const label = stateLabel(s.state).toLowerCase();
+        if (currentFilter === 'live' && label !== 'live') return false;
+        if (currentFilter === 'ended' && label !== 'ended') return false;
       }
       if (currentSearch) {
-        const hay = `${s.company || ''} ${s.role || ''} ${s.mode || ''}`.toLowerCase();
+        const hay = `${s.company || ''} ${s.role || ''} ${s.mode || ''} ${sessionTitle(s)}`.toLowerCase();
         if (!hay.includes(currentSearch)) return false;
       }
       return true;
@@ -243,13 +242,27 @@
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>';
   }
 
-  function stateChip(state) {
-    if (isLiveState(state)) return '<span class="wv-badge chip state-live"><span class="d"></span>Live</span>';
-    return `<span class="wv-badge chip state-ended">${esc(state || 'Ended')}</span>`;
+  // Normalize a raw state value to one of three human words: Live, Ready, Ended.
+  function stateLabel(state) {
+    if (isLiveState(state)) return 'Live';
+    const t = String(state || '').toLowerCase();
+    if (/ready|scheduled|pending|draft|new|created|queued/.test(t)) return 'Ready';
+    return 'Ended';
   }
 
-  function badgesHTML(s) {
-    return `<span class="wv-badge chip mode">${esc(s.mode || 'Session')}</span>`;
+  function stateChip(state) {
+    const label = stateLabel(state);
+    if (label === 'Live') return '<span class="wv-badge chip state-live"><span class="d"></span>Live</span>';
+    if (label === 'Ready') return '<span class="wv-badge chip state-ready">Ready</span>';
+    return '<span class="wv-badge chip state-ended">Ended</span>';
+  }
+
+  // The default mode is an interview, so an "Interview" chip adds no information
+  // on a screen where every session is one. Only surface mode when it differs.
+  function modeChip(s) {
+    const mode = String(s.mode || '').trim().toLowerCase();
+    if (!mode || /interview/.test(mode)) return '';
+    return `<span class="wv-badge chip mode">${esc(titleCase(mode))}</span>`;
   }
 
   // Give every session a real, human name derived from whatever it carries
@@ -289,8 +302,11 @@
   function topicPhrase(raw) {
     let t = String(raw || '').trim();
     if (!t) return '';
-    // Strip common lead-ins so the meat of the question survives.
-    t = t.replace(/^(so\s+|okay,?\s+|alright,?\s+|let'?s\s+(start|begin)(\s+with)?\s+|can you\s+|could you\s+|please\s+|tell me\s+(about\s+)?|walk me through\s+|how (would|do|did) you\s+|what (is|are|was|were)\s+(your\s+)?|describe\s+|explain\s+(how\s+)?|implement\s+)/i, '');
+    // Strip common lead-ins so the meat of the question survives. Applied
+    // repeatedly so stacked openers ("can you walk me through how you would…")
+    // peel off one after another until only the real subject remains.
+    const LEADINS = /^(so,?\s+|okay,?\s+|alright,?\s+|well,?\s+|let'?s\s+(start|begin)(\s+with)?\s+|can you\s+|could you\s+|would you\s+|do you\s+|please\s+|maybe\s+|tell me\s+(a bit\s+)?(more\s+)?(about\s+)?|walk me through\s+|give me\s+(an\s+)?(example\s+of\s+)?|how (you\s+)?(would|could|do|did|does)\s+(you\s+|we\s+|i\s+)?|what (is|are|was|were)\s+(your\s+)?|why (is|are|would|do|did)\s+(you\s+)?|describe\s+|explain\s+(to me\s+)?(how\s+)?(why\s+)?|build\s+|implement\s+)/i;
+    for (let i = 0; i < 5 && LEADINS.test(t); i++) t = t.replace(LEADINS, '');
     // Behavioral prompts collapse to their subject.
     t = t.replace(/^(a\s+)?time (when |that )?you\s+/i, '');
     // First clause only, drop trailing punctuation and filler tails.
@@ -320,8 +336,8 @@
   }
 
   function sessionTitle(s) {
-    const co = (s.company || '').trim();
-    const role = (s.role || '').trim();
+    const co = realVal(s.company);
+    const role = realVal(s.role);
     if (co && role) return `${co} · ${role}`;
     if (co) return co;
     if (role) return role;
@@ -334,34 +350,73 @@
     return warmModeDate(s);
   }
 
+  // A short, meaningful secondary line under the title. Never repeats the title,
+  // never renders empty. Priority: role (when title is the company), a derived
+  // topic from the first question, a trimmed first-question snippet, else a warm
+  // plan line. Returns '' only when it would duplicate the title.
+  function sessionSubline(s, title) {
+    const co = realVal(s.company);
+    const role = realVal(s.role);
+    // Company-only title, show the role beneath it.
+    if (co && !role && realVal(s.role)) return realVal(s.role);
+    // Title already carries company + role, use a topic/snippet if we have one.
+    const q = firstQuestionText(s);
+    if (q) {
+      const phrase = topicPhrase(q);
+      if (phrase && phrase !== title && !title.startsWith(phrase)) return phrase;
+      const snippet = snippetOf(q);
+      if (snippet && snippet !== title) return `"${snippet}"`;
+    }
+    // Nothing derived, offer a calm plan line that is not the title.
+    const line = warmModeDate(s);
+    return line === title ? '' : line;
+  }
+
+  // Tidy a raw first question into a short readable snippet (no title-casing),
+  // clipped to a sensible length with an ellipsis.
+  function snippetOf(raw) {
+    let t = String(raw || '').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    if (t.length > 64) t = t.slice(0, 61).replace(/[\s,;:.-]+$/, '') + '…';
+    return t;
+  }
+
+  const CLOCK_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const CAL_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>';
+
   function cardHTML(s) {
     const title = sessionTitle(s);
-    const role = (s.company && s.role) ? '' : (s.role || '').trim();
+    const sub = sessionSubline(s, title);
+    const modeBadge = modeChip(s);
+    const dur = fmtDuration(s.durationSec);
     return `
       <div class="s-card" data-id="${esc(s.sessionId)}">
         <div class="sc-top">
           <div class="sc-ico">${modeIcon()}</div>
-          <span class="sc-date">${esc(fmtDate(s.createdAt))}</span>
+          <div class="sc-badges">${modeBadge}${stateChip(s.state)}</div>
         </div>
-        <div>
+        <div class="sc-main">
           <div class="sc-title">${esc(title)}</div>
-          ${role ? `<div class="sc-role">${esc(role)}</div>` : ''}
+          ${sub ? `<div class="sc-sub">${esc(sub)}</div>` : ''}
         </div>
-        <div class="sc-badges">${badgesHTML(s)} ${stateChip(s.state)}</div>
         <div class="sc-foot">
-          <span class="sc-dur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(fmtDuration(s.durationSec))}</span>
+          <span class="sc-meta">${CAL_ICO}${esc(fmtDate(s.createdAt))}</span>
+          ${dur ? `<span class="sc-meta">${CLOCK_ICO}${esc(dur)}</span>` : ''}
         </div>
       </div>`;
   }
 
   function rowHTML(s) {
+    const title = sessionTitle(s);
+    const sub = sessionSubline(s, title);
+    const modeBadge = modeChip(s);
     return `
       <tr data-id="${esc(s.sessionId)}">
         <td>${esc(fmtDate(s.createdAt))}</td>
-        <td><div class="td-co">${esc(sessionTitle(s))}</div>${(s.company && s.role) ? '' : (s.role ? `<div class="td-role">${esc(s.role)}</div>` : '')}</td>
-        <td><div class="td-badges">${badgesHTML(s)}</div></td>
+        <td><div class="td-co">${esc(title)}</div>${sub ? `<div class="td-role">${esc(sub)}</div>` : ''}</td>
+        <td>${modeBadge || '<span class="td-dim">Interview</span>'}</td>
         <td>${stateChip(s.state)}</td>
-        <td>${esc(fmtDuration(s.durationSec))}</td>
+        <td>${esc(fmtDuration(s.durationSec) || '·')}</td>
         <td></td>
       </tr>`;
   }
@@ -398,7 +453,7 @@
   function renderTranscript(s, degraded) {
     $('tvTitle').textContent = (s.company || 'Session') + (s.role ? `, ${s.role}` : '');
     $('tvSub').textContent = `${fmtDate(s.createdAt)} · ${fmtDuration(s.durationSec)}`;
-    $('tvMeta').innerHTML = `${badgesHTML(s)} ${stateChip(s.state)}`;
+    $('tvMeta').innerHTML = `${modeChip(s)} ${stateChip(s.state)}`;
 
     const content = $('tvContent');
     const turns = normalizeTranscript(s);
@@ -574,7 +629,7 @@
   async function openResume(id) {
     openModal('viewerModal');
     $('viewerTitle').textContent = 'Resume';
-    $('viewerSub').textContent = ', ';
+    $('viewerSub').textContent = 'Loading…';
     $('viewerContent').innerHTML = '<div class="wv-skeleton sk-line w70"></div><div class="wv-skeleton sk-line w55"></div><div class="wv-skeleton sk-line w40"></div>';
     try {
       const r = await fetch(`${BACKEND_URL}/api/resumes/${encodeURIComponent(id)}`, { headers: headers() });
@@ -601,7 +656,7 @@
     const bits = [];
     if (it.updatedAt || it.createdAt) bits.push(fmtDate(it.updatedAt || it.createdAt));
     if (content) bits.push(`${content.length} chars`);
-    $('viewerSub').textContent = bits.join(' · ') || ', ';
+    $('viewerSub').textContent = bits.join(' · ') || 'Saved resume';
     $('viewerContent').innerHTML = content
       ? `<div class="viewer-body">${esc(content)}</div>`
       : `<div class="viewer-empty">This resume has no saved text content.</div>`;
@@ -774,14 +829,14 @@
 
   // ═══════════ FORMATTERS ═══════════
   function fmtDate(v) {
-    if (!v) return ', ';
+    if (!v) return 'No date';
     const d = new Date(v);
-    if (isNaN(d)) return ', ';
+    if (isNaN(d)) return 'No date';
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   }
   function fmtDuration(sec) {
     sec = Number(sec) || 0;
-    if (sec <= 0) return ', ';
+    if (sec <= 0) return '';
     const m = Math.floor(sec / 60), s = sec % 60;
     if (m >= 60) { const h = Math.floor(m / 60); return `${h}h ${m % 60}m`; }
     if (m > 0) return `${m}m ${s}s`;
