@@ -138,12 +138,14 @@
   .livenow .d{width:8px;height:8px;border-radius:50%;background:#27c93f;box-shadow:0 0 0 0 rgba(39,201,63,.5);animation:beat 1.6s infinite}
   @keyframes beat{0%{box-shadow:0 0 0 0 rgba(39,201,63,.5)}70%{box-shadow:0 0 0 8px rgba(39,201,63,0)}100%{box-shadow:0 0 0 0 rgba(39,201,63,0)}}
 
-  .herospiral{position:absolute;top:88px;left:26px;width:min(300px,25vw);aspect-ratio:1;z-index:1;pointer-events:none;opacity:1}
+  .rings{position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:min(900px,124vw);height:900px;z-index:1;pointer-events:none;opacity:.2}
   .linklike{display:inline-flex;align-items:center;font-weight:600;font-size:15px;color:var(--ink-soft);padding:15px 6px;border-bottom:1.5px solid transparent;transition:.15s}
   .linklike:hover{color:var(--ink);border-color:var(--ink)}
-  .herospiral svg{width:100%;height:100%;display:block;overflow:visible}
-  .herospiral text{font-family:"Fraunces",Georgia,serif;font-style:italic;fill:var(--ink);opacity:.2;font-size:15px}
-  @media(max-width:1180px){.herospiral{display:none}}
+  .rings text{font-family:"JetBrains Mono",ui-monospace,monospace;font-style:normal;fill:var(--ink);opacity:.3;font-size:13px;letter-spacing:-.2px}
+  .ring-a{transform-origin:450px 450px;animation:spin 70s linear infinite}
+  .ring-b{transform-origin:450px 450px;animation:spin 95s linear infinite reverse}
+  .ring-c{transform-origin:450px 450px;animation:spin 120s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   .wave{display:inline-flex;align-items:center;gap:3px;height:26px}
   .wave i{width:3px;height:8px;border-radius:2px;background:currentColor;display:block;animation:eq 1s ease-in-out infinite}
@@ -316,14 +318,14 @@
   .gtrain-stage{position:relative;left:50%;transform:translateX(-50%);width:100vw;height:clamp(190px,17vw,250px);margin-top:-6px}
   .gtrain-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
   .gt-in{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:21px;fill:rgba(234,243,236,.24)}
-  .gt-line{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:17px;font-weight:500;fill:#f6f1e4;letter-spacing:-.2px}
+  .gt-out{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:18px;font-weight:500;fill:#f6f1e4;letter-spacing:-.2px}
   .gtrain-pill{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;background:var(--green-2);border:1px solid rgba(217,199,247,.55);border-radius:999px;padding:18px 30px;display:inline-flex;align-items:center;gap:14px;box-shadow:0 0 0 13px var(--green),0 28px 58px -18px rgba(0,0,0,.6),0 0 46px -2px rgba(217,199,247,.5);animation:pillglow 3.2s ease-in-out infinite}
   @keyframes pillglow{0%,100%{box-shadow:0 0 0 13px var(--green),0 28px 58px -18px rgba(0,0,0,.6),0 0 40px -4px rgba(217,199,247,.4)}50%{box-shadow:0 0 0 13px var(--green),0 28px 58px -18px rgba(0,0,0,.6),0 0 64px 2px rgba(217,199,247,.7)}}
   .gtrain-pill .gtw{display:inline-flex;align-items:center;gap:4px;height:34px;color:var(--lav)}
   .gtrain-pill .gtw i{width:5px;height:12px;border-radius:2px;background:currentColor;display:block;animation:eq 1s ease-in-out infinite}
   .gtrain-pill .gtw i:nth-child(2){animation-delay:.12s}.gtrain-pill .gtw i:nth-child(3){animation-delay:.24s}.gtrain-pill .gtw i:nth-child(4){animation-delay:.36s}.gtrain-pill .gtw i:nth-child(5){animation-delay:.15s}.gtrain-pill .gtw i:nth-child(6){animation-delay:.3s}.gtrain-pill .gtw i:nth-child(7){animation-delay:.2s}
   .gtrain-pill .gtl{font-size:17px;font-weight:700;letter-spacing:.01em;color:#fff}
-  @media(max-width:820px){.gtrain-stage{height:300px}.gt-line{font-size:15px}}
+  @media(max-width:820px){.gtrain-stage{height:300px}.gt-in{font-size:20px}.gt-out{font-size:18px}}
   @media (prefers-reduced-motion: reduce){.gtrain-svg animate{display:none}}
 
   /* trust */
@@ -541,7 +543,7 @@
 
   /* featured plan glow + pointer parallax easing */
   .plan.featured{box-shadow:0 0 0 1.5px rgba(195,169,239,.55), 0 30px 70px -30px rgba(26,23,18,.5)}
-  .herospiral{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+  .rings{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
   .demo{transition:transform .4s cubic-bezier(.2,.7,.2,1), box-shadow .4s}
   .demo:hover{box-shadow:0 50px 110px -34px rgba(26,23,18,.7)}
 
@@ -635,14 +637,16 @@
 
   <!-- HERO -->
   <header class="hero">
-    <div class="herospiral" aria-hidden="true">
-      <svg viewBox="0 0 480 480" preserveAspectRatio="xMidYMid meet">
-        <defs><path id="hsPath" d="M392,118 C206,92 92,214 138,342 C178,456 346,478 426,392 C496,318 462,210 350,224 C272,234 262,328 344,358"/></defs>
-        <text><textPath href="#hsPath" startOffset="-47.79%">how would you find the longest substring without repeating characters in a single pass · how would you find the longest substring without repeating characters in a single pass · how would you find the longest substring without repeating characters in a single pass ·
-          <animate attributeName="startOffset" from="-47.79%" to="0%" dur="34s" repeatCount="indefinite"/>
-        </textPath></text>
-      </svg>
-    </div>
+    <svg class="rings" viewBox="0 0 900 900" aria-hidden="true">
+      <defs>
+        <path id="rA" d="M450,450 m-330,0 a330,330 0 1,1 660,0 a330,330 0 1,1 -660,0"/>
+        <path id="rB" d="M450,450 m-250,0 a250,250 0 1,1 500,0 a250,250 0 1,1 -500,0"/>
+        <path id="rC" d="M450,450 m-410,0 a410,410 0 1,1 820,0 a410,410 0 1,1 -820,0"/>
+      </defs>
+      <g class="ring-a"><text><textPath href="#rA">vector&lt;int&gt; twoSum(vector&lt;int&gt;&amp; a,int t){ unordered_map&lt;int,int&gt; m; for(int i=0;i&lt;(int)a.size();++i){ if(m.count(t-a[i])) return {m[t-a[i]],i}; m[a[i]]=i; } return {}; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
+      <g class="ring-b"><text><textPath href="#rB">int lengthOfLIS(vector&lt;int&gt;&amp; a){ vector&lt;int&gt; t; for(int x:a){ auto it=lower_bound(t.begin(),t.end(),x); if(it==t.end()) t.push_back(x); else *it=x; } return t.size(); }&nbsp;&nbsp;&nbsp;</textPath></text></g>
+      <g class="ring-c"><text><textPath href="#rC">long long maxSubArray(vector&lt;int&gt;&amp; a){ long long best=a[0],cur=a[0]; for(int i=1;i&lt;(int)a.size();++i){ cur=max((long long)a[i],cur+a[i]); best=max(best,cur); } return best; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
+    </svg>
 
     <div class="wrap">
       <div class="eyebrow wv-eyebrow">Nail the interview. Name your salary.</div>
@@ -684,16 +688,16 @@
           <h2 class="serif gt-h2">They ask. Whis <span class="it">answers.</span></h2>
         </div>
         <div class="gtrain-stage">
-          <svg class="gtrain-svg" viewBox="0 0 1600 220" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <svg class="gtrain-svg" viewBox="0 0 1600 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
             <defs>
-              <path id="gtIn" d="M-300,110 C120,96 440,124 720,110" fill="none"/>
-              <path id="gtOut" d="M880,110 C1160,96 1480,124 1900,110" fill="none"/>
+              <path id="gtIn" d="M-140,120 C120,44 300,44 470,120 C600,178 660,150 760,122" fill="none"/>
+              <path id="gtOut" d="M840,120 C1080,40 1260,200 1480,110 S1700,80 1800,140" fill="none"/>
             </defs>
-            <text class="gt-line"><textPath href="#gtIn" startOffset="-90.18%">how would you find the longest substring without repeating characters in a single pass?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;how would you find the longest substring without repeating characters in a single pass?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;how would you find the longest substring without repeating characters in a single pass?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <animate attributeName="startOffset" from="-90.18%" to="0%" dur="8s" repeatCount="indefinite"/>
+            <text class="gt-in"><textPath href="#gtIn" startOffset="-30%">how would you find the longest substring without repeating characters in a single pass   ·   how would you find the longest substring without repeating characters in a single pass   ·   how would you find the longest substring without repeating characters in a single pass   ·   how would you find the longest substring without repeating characters in a single pass   ·
+              <animate attributeName="startOffset" from="-87.06%" to="0%" dur="17s" repeatCount="indefinite"/>
             </textPath></text>
-            <text class="gt-line"><textPath href="#gtOut" startOffset="-219.57%">int lengthOfLongestSubstring(string s){ unordered_map&lt;char,int&gt; last; int L=0, best=0; for(int R=0; R&lt;(int)s.size(); ++R){ if(last.count(s[R])) L=max(L,last[s[R]]+1); last[s[R]]=R; best=max(best,R-L+1); } return best; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int lengthOfLongestSubstring(string s){ unordered_map&lt;char,int&gt; last; int L=0, best=0; for(int R=0; R&lt;(int)s.size(); ++R){ if(last.count(s[R])) L=max(L,last[s[R]]+1); last[s[R]]=R; best=max(best,R-L+1); } return best; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int lengthOfLongestSubstring(string s){ unordered_map&lt;char,int&gt; last; int L=0, best=0; for(int R=0; R&lt;(int)s.size(); ++R){ if(last.count(s[R])) L=max(L,last[s[R]]+1); last[s[R]]=R; best=max(best,R-L+1); } return best; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <animate attributeName="startOffset" from="-219.57%" to="0%" dur="19s" repeatCount="indefinite"/>
+            <text class="gt-out"><textPath href="#gtOut" startOffset="-30%">int lengthOfLongestSubstring(string s){ unordered_map&lt;char,int&gt; last; int L=0, best=0; for(int R=0; R&lt;(int)s.size(); ++R){ if(last.count(s[R])) L=max(L,last[s[R]]+1); last[s[R]]=R; best=max(best,R-L+1); } return best; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int lengthOfLongestSubstring(string s){ unordered_map&lt;char,int&gt; last; int L=0, best=0; for(int R=0; R&lt;(int)s.size(); ++R){ if(last.count(s[R])) L=max(L,last[s[R]]+1); last[s[R]]=R; best=max(best,R-L+1); } return best; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <animate attributeName="startOffset" from="-238.19%" to="0%" dur="8s" repeatCount="indefinite"/>
             </textPath></text>
           </svg>
           <div class="gtrain-pill"><span class="gtw"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="gtl">Whis</span></div>
@@ -1078,11 +1082,12 @@
 
   // hero pointer parallax (fine pointer + motion allowed only), after RM is defined
   if(matchMedia('(pointer:fine)').matches && !RM){
-    const hero=document.querySelector('.hero'),rings=document.querySelector('.herospiral');
+    const hero=document.querySelector('.hero'),rings=document.querySelector('.rings'),demo=document.getElementById('demo');
     if(hero){
       hero.addEventListener('pointermove',e=>{ const r=hero.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-        if(rings)rings.style.transform=`translate(${x*22}px,${y*16}px)`; });
-      hero.addEventListener('pointerleave',()=>{ if(rings)rings.style.transform=''; });
+        if(rings)rings.style.transform=`translateX(-50%) translate(${x*20}px,${y*14}px)`;
+        if(demo)demo.style.transform=`perspective(1000px) rotateY(${x*3}deg) rotateX(${-y*3}deg)`; });
+      hero.addEventListener('pointerleave',()=>{ if(rings)rings.style.transform='translateX(-50%)'; if(demo)demo.style.transform=''; });
     }
   }
 
