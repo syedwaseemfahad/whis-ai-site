@@ -6888,6 +6888,9 @@ async function _doCommit() {
 
         const txHeaders = { "x-whis-auth": APP_AUTH_TOKEN };
         if (currentUser) txHeaders["x-google-id"] = currentUser.googleId || currentUser.id;
+        // Send the chosen transcription language so non-English interviews (e.g. Telugu)
+        // are transcribed in that language instead of being forced to English.
+        try { txHeaders["x-language"] = localStorage.getItem('wh_session_lang') || 'en'; } catch (_) {}
 
         const res = await fetch(`${BACKEND_URL}/api/transcribe`, {
             method: "POST",
@@ -7063,6 +7066,7 @@ async function startUserMicCapture() {
                 if (_mctx) fd.append('context', _mctx);
                 const headers = { 'x-whis-auth': APP_AUTH_TOKEN };
                 if (currentUser) headers['x-google-id'] = currentUser.googleId || currentUser.id;
+                try { headers['x-language'] = localStorage.getItem('wh_session_lang') || 'en'; } catch (_) {}
                 const res = await fetch(`${BACKEND_URL}/api/transcribe`, {
                     method: 'POST', headers, body: fd, signal: AbortSignal.timeout(8000)
                 });
@@ -7163,13 +7167,15 @@ async function stopAndCommitAudio(silentStop = false) {
         const _fctx = liveTranscript.slice(-2).map(s => s.text).join(' ').slice(0, 140);
         if (_fctx) formData.append("context", _fctx);
 
+        const _fHeaders = { "x-whis-auth": APP_AUTH_TOKEN };
+        try { _fHeaders["x-language"] = localStorage.getItem('wh_session_lang') || 'en'; } catch (_) {}
         const res = await fetch(`${BACKEND_URL}/api/transcribe`, {
             method: "POST",
-            headers: { "x-whis-auth": APP_AUTH_TOKEN },
+            headers: _fHeaders,
             body: formData,
             signal: controller.signal
         });
-        
+
         if (!res.ok) throw new Error("Transcription failed");
         const data = await res.json();
         const text = (data.text || "").trim();
