@@ -1072,12 +1072,15 @@ body.whis-web .tmb-cta {
 }
 body.whis-web .tmb-cta:hover { background: var(--wv-lav-deep) !important; }
 
-/* ── Relocate the trial nudge into the UNUSED right-side space of the wide single
-   column (non-two-pane) web view: a real, substantial Elite card instead of a thin
-   top strip. The rail is reserved on #messages via :has() so the answer never runs
-   under it. Below 1200px it stays the calm in-flow top bar (no fixed card). ─────── */
-@media (min-width: 1200px) {
-  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] {
+/* ── Relocate the trial nudge into the UNUSED right-side space, but ONLY in the
+   ANSWER view (a real .whis-message present), NEVER on the centered welcome. That
+   is critical: the welcome must stay perfectly centered, so we neither dock a
+   floating card over it nor reserve any rail on it. In the answer view we dock a
+   substantial Elite card on the right and reserve the rail via :has() so the answer
+   never runs under it. Only at >=1400px, where there is genuinely room beside the
+   answer; below that it stays the calm in-flow top bar. ───────────────────────── */
+@media (min-width: 1400px) {
+  body.whis-web:not(.whis-session-active) #content-area:has(#messages .whis-message) #trial-motivation-bar[style*="flex"] {
     position: fixed !important;
     top: 120px !important;
     right: 26px !important;
@@ -1097,7 +1100,7 @@ body.whis-web .tmb-cta:hover { background: var(--wv-lav-deep) !important; }
     animation: none !important;
     z-index: 240 !important;
   }
-  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"]::before {
+  body.whis-web:not(.whis-session-active) #content-area:has(#messages .whis-message) #trial-motivation-bar[style*="flex"]::before {
     content: "WHIS ELITE";
     font-family: var(--wv-font-ui);
     font-size: 10.5px;
@@ -1106,8 +1109,8 @@ body.whis-web .tmb-cta:hover { background: var(--wv-lav-deep) !important; }
     color: var(--wv-lav);
     text-transform: uppercase;
   }
-  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] .tmb-dot { display: none !important; }
-  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] .tmb-text {
+  body.whis-web:not(.whis-session-active) #content-area:has(#messages .whis-message) #trial-motivation-bar[style*="flex"] .tmb-dot { display: none !important; }
+  body.whis-web:not(.whis-session-active) #content-area:has(#messages .whis-message) #trial-motivation-bar[style*="flex"] .tmb-text {
     font-family: var(--wv-font-display) !important;
     font-size: 19px !important;
     line-height: 1.32 !important;
@@ -1115,7 +1118,7 @@ body.whis-web .tmb-cta:hover { background: var(--wv-lav-deep) !important; }
     white-space: normal !important;
     overflow: visible !important;
   }
-  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] .tmb-cta {
+  body.whis-web:not(.whis-session-active) #content-area:has(#messages .whis-message) #trial-motivation-bar[style*="flex"] .tmb-cta {
     width: 100% !important;
     justify-content: center !important;
     padding: 11px 14px !important;
@@ -1123,8 +1126,10 @@ body.whis-web .tmb-cta:hover { background: var(--wv-lav-deep) !important; }
     display: inline-flex !important;
     align-items: center !important;
   }
-  /* reserve the right rail so the answer column never slides under the card */
-  body.whis-web:not(.whis-session-active) #content-area:has(#trial-motivation-bar[style*="flex"]) #messages {
+  /* reserve the right rail ONLY in the answer view, so the answer never slides
+     under the card; the welcome (no .whis-message) is never padded, so it stays
+     perfectly centered. */
+  body.whis-web:not(.whis-session-active) #content-area:has(#messages .whis-message) #messages {
     padding-right: 306px !important;
   }
 }
