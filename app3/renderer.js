@@ -6773,7 +6773,20 @@ async function startListening() {
   } catch (err) {
     console.error("Mic error:", err);
     updateListeningUI(false);
-    showToastError("Capture failed");
+    if (window.WHIS_WEB) {
+      // WEB: never dead-end on a bare "Capture failed". If the browser lacks the
+      // Web Audio API entirely (very old/locked-down browsers), say so honestly and
+      // point to typing, which always works. Otherwise give a clear, recoverable line.
+      const noAudioApi = !(window.AudioContext || window.webkitAudioContext);
+      if (noAudioApi) {
+        whisToast('This browser can not capture live audio. Use the latest Chrome or Edge, or just type your question below, it works the same.', 'warning', 9000);
+      } else {
+        whisToast('We could not start listening. Press <strong>Start</strong> again, or type your question below any time.', 'warning', 8000);
+      }
+      try { _trackFunnel && _trackFunnel('mic_listen_error'); } catch (_) {}
+    } else {
+      showToastError("Capture failed");
+    }
   }
 }
 

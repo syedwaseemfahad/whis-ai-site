@@ -1808,3 +1808,225 @@ body.whis-web .wt-card {
   background: rgba(14, 53, 36, 0.95) !important;
   border-color: rgba(234, 243, 236, 0.16) !important;
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   10. LIVE-SESSION POLISH  (WEB ONLY, body.whis-web.whis-session-active)
+   --------------------------------------------------------------------------
+   Top-1% "feel" pass for the two-pane live view: a calm enter transition, an
+   alive-but-quiet transcript (pulsing idle dot + gentle newest-line emphasis),
+   a crisp streaming reveal for answers, and code slabs that scroll with an
+   obvious-yet-restrained affordance. Purely additive + web-gated: the non-live
+   web view and the DESKTOP Electron build never match these selectors, so both
+   are byte-for-byte unchanged. On-brand forest-green + lavender + gold, no blue.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Enter transition: the two panes settle in, they never "pop" ──────────── */
+@keyframes wv-live-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+body.whis-web.whis-session-active .web-live-pane,
+body.whis-web.whis-session-active #web-right-pane {
+  animation: wv-live-in var(--wv-dur-mid, .28s) var(--wv-ease, ease) both;
+}
+body.whis-web.whis-session-active #web-right-pane { animation-delay: .04s; }
+
+/* ── Left pane: when NOTHING is shared yet, give the transcript more room. The
+   pre-share stage does not need half the viewport, so shrink it until a stream
+   binds (.wlp-sharing) and let captions breathe. Smooth the size change. ───── */
+body.whis-web.whis-session-active .web-live-pane:not(.wlp-sharing) {
+  grid-template-rows: minmax(0, 34%) minmax(0, 1fr);
+}
+
+/* ── Transcript panel: alive but quiet ────────────────────────────────────── */
+/* Idle "Listening…" reads calm, with a soft pulsing dot so it is clearly live. */
+body.whis-web .web-live-pane .wlp-tx-idle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+body.whis-web .web-live-pane .wlp-tx-idle::before {
+  content: "";
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--wv-lav-deep);
+  box-shadow: 0 0 0 0 rgba(195, 169, 239, 0.5);
+  animation: wv-tx-pulse 1.8s ease-out infinite;
+  flex: 0 0 auto;
+}
+@keyframes wv-tx-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(195, 169, 239, 0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(195, 169, 239, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(195, 169, 239, 0); }
+}
+/* Each finalized line fades in as it lands, so the panel feels typed, not dumped. */
+body.whis-web .web-live-pane .wlp-tx-line {
+  animation: wv-live-in .22s var(--wv-ease, ease) both;
+}
+/* Gently emphasize the newest line + the in-progress partial so the eye tracks it. */
+body.whis-web .web-live-pane .wlp-tx-line:last-child .wlp-tx-text { color: var(--wv-text); }
+body.whis-web .web-live-pane .wlp-tx-line:not(:last-child) .wlp-tx-text { color: rgba(234, 243, 236, 0.72); }
+body.whis-web .web-live-pane .wlp-tx-partial .wlp-tx-text { color: var(--wv-text); }
+/* Smooth, contained scroll for the caption stream. */
+body.whis-web .web-live-pane .wlp-transcript {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(195, 169, 239, 0.28) transparent;
+}
+body.whis-web .web-live-pane .wlp-transcript::-webkit-scrollbar { width: 8px; }
+body.whis-web .web-live-pane .wlp-transcript::-webkit-scrollbar-track { background: transparent; }
+body.whis-web .web-live-pane .wlp-transcript::-webkit-scrollbar-thumb {
+  background: rgba(195, 169, 239, 0.22);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+body.whis-web .web-live-pane .wlp-transcript:hover::-webkit-scrollbar-thumb {
+  background: rgba(195, 169, 239, 0.34); background-clip: content-box;
+}
+
+/* ── Pre-share stage: quieter icon + a slow breathing ring so it invites, not shouts ── */
+body.whis-web .web-live-pane .wlp-share-icon {
+  box-shadow: 0 0 0 0 rgba(195, 169, 239, 0.35);
+  animation: wv-share-breathe 3.2s ease-in-out infinite;
+}
+@keyframes wv-share-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(195, 169, 239, 0.28); }
+  50%      { box-shadow: 0 0 0 10px rgba(195, 169, 239, 0); }
+}
+
+/* ── RIGHT PANE answers: crisp streaming reveal + comfortable reading rhythm ── */
+/* The answer scroll host gets a calm, contained scroll with a lavender thumb. */
+body.whis-web #web-right-pane .wrp-body {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(195, 169, 239, 0.28) transparent;
+}
+body.whis-web #web-right-pane .wrp-body::-webkit-scrollbar { width: 10px; }
+body.whis-web #web-right-pane .wrp-body::-webkit-scrollbar-track { background: transparent; }
+body.whis-web #web-right-pane .wrp-body::-webkit-scrollbar-thumb {
+  background: rgba(195, 169, 239, 0.22);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+body.whis-web #web-right-pane .wrp-body:hover::-webkit-scrollbar-thumb {
+  background: rgba(195, 169, 239, 0.34); background-clip: content-box;
+}
+
+/* First line of an answer reads as a confident one-liner: the leading heading /
+   strong lead sits a touch larger with tighter tracking (Fraunces display). */
+body.whis-web.whis-session-active #web-right-pane .whis-message-bubble h2,
+body.whis-web.whis-session-active #web-right-pane .whis-message-bubble h3 {
+  font-family: var(--wv-font-display, serif) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--wv-text) !important;
+}
+/* Bullets: a little more air + a lavender marker so scanning under pressure is easy. */
+body.whis-web.whis-session-active #web-right-pane .whis-message-bubble ul { margin: 0.35em 0 0.6em; }
+body.whis-web.whis-session-active #web-right-pane .whis-message-bubble ul li { margin-bottom: 0.3em; }
+body.whis-web.whis-session-active #web-right-pane .whis-message-bubble li::marker { color: var(--wv-lav-deep); }
+
+/* The streaming cursor (live session): a slim lavender caret that blinks calmly.
+   Drops the base glow so it reads crisp against the answer text under pressure. */
+body.whis-web.whis-session-active #web-right-pane .stream-cursor {
+  height: 1.05em;
+  background: var(--wv-lav-deep) !important;
+  box-shadow: none !important;
+  animation: wv-caret 1.05s steps(1) infinite !important;
+}
+@keyframes wv-caret { 50% { opacity: 0; } }
+
+/* Newly streamed answer bubble fades up once (the reveal), not on every re-render. */
+body.whis-web.whis-session-active #web-right-pane .whis-message.assistant {
+  animation: wv-live-in .26s var(--wv-ease, ease) both;
+}
+
+/* Inline "code" chips inside prose: readable pill, never clipped, on-brand. */
+body.whis-web.whis-session-active #web-right-pane .whis-message-bubble code:not(.whis-code-block):not(pre code) {
+  background: rgba(195, 169, 239, 0.10);
+  border: 1px solid rgba(195, 169, 239, 0.20);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+
+/* ── Primary actions: unmistakably the primary action, calm lift on hover ──── */
+body.whis-web #web-right-pane .wrp-action--primary {
+  box-shadow: 0 8px 22px -12px rgba(195, 169, 239, 0.85);
+  transition: background var(--wv-dur-fast) var(--wv-ease),
+              transform var(--wv-dur-fast) var(--wv-ease),
+              box-shadow var(--wv-dur-fast) var(--wv-ease);
+}
+body.whis-web #web-right-pane .wrp-action--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -12px rgba(195, 169, 239, 0.95);
+}
+body.whis-web #web-right-pane .wrp-action:active { transform: translateY(1px); }
+body.whis-web .web-live-pane .wlp-ctl:active,
+body.whis-web .web-live-pane .wlp-share-btn:active { transform: translateY(1px); }
+body.whis-web .web-live-pane .wlp-share-btn {
+  transition: background var(--wv-dur-fast) var(--wv-ease),
+              transform var(--wv-dur-fast) var(--wv-ease),
+              box-shadow var(--wv-dur-fast) var(--wv-ease);
+  box-shadow: 0 8px 22px -12px rgba(195, 169, 239, 0.8);
+}
+body.whis-web .web-live-pane .wlp-share-btn:hover { transform: translateY(-1px); }
+
+/* ── ⋮ menu popover: settle in gently instead of snapping ──────────────────── */
+body.whis-web #web-right-pane .wrp-menu:not([hidden]) {
+  animation: wv-menu-in .16s var(--wv-ease, ease) both;
+  transform-origin: top right;
+}
+@keyframes wv-menu-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Exit modal: card eases up, overlay fades ─────────────────────────────── */
+body.whis-web .wf-exit-modal.wf-exit-open .wf-exit-overlay { animation: wv-fade-in .18s ease both; }
+body.whis-web .wf-exit-modal.wf-exit-open .wf-exit-card { animation: wv-modal-in .22s var(--wv-ease, ease) both; }
+@keyframes wv-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wv-modal-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)) scale(0.985); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ── Timer dot: a slow live pulse so "recording" reads at a glance ─────────── */
+body.whis-web #web-right-pane .wrp-timer-dot {
+  animation: wv-timer-pulse 2s ease-in-out infinite;
+}
+@keyframes wv-timer-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+/* ── MOBILE (<=900 already stacks): tighten rhythm at 390 so nothing crowds ── */
+@media (max-width: 480px) {
+  body.whis-web.whis-session-active #content-area { padding: 10px !important; gap: 10px; }
+  body.whis-web .web-live-pane .wlp-stage { height: 30vh; min-height: 180px; }
+  body.whis-web .web-live-pane .wlp-lowerwrap { padding: 11px; }
+  body.whis-web .web-live-pane .wlp-controls { flex-wrap: wrap; }
+  body.whis-web .web-live-pane .wlp-lang { margin-left: auto; }
+  body.whis-web #web-right-pane .wrp-foot-actions { gap: 8px; }
+  body.whis-web #web-right-pane .wrp-action { padding: 12px 10px; font-size: 13px; }
+  body.whis-web .wf-exit-card { padding: 22px 18px 20px; }
+  body.whis-web .wf-exit-title { font-size: 20px; }
+}
+
+/* ── Respect reduced-motion: keep it dead-calm, no animation, for a11y ─────── */
+@media (prefers-reduced-motion: reduce) {
+  body.whis-web.whis-session-active .web-live-pane,
+  body.whis-web.whis-session-active #web-right-pane,
+  body.whis-web.whis-session-active #web-right-pane .whis-message.assistant,
+  body.whis-web .web-live-pane .wlp-tx-line,
+  body.whis-web #web-right-pane .wrp-menu:not([hidden]),
+  body.whis-web .wf-exit-modal.wf-exit-open .wf-exit-card,
+  body.whis-web .wf-exit-modal.wf-exit-open .wf-exit-overlay {
+    animation: none !important;
+  }
+  body.whis-web .web-live-pane .wlp-tx-idle::before,
+  body.whis-web .web-live-pane .wlp-share-icon,
+  body.whis-web #web-right-pane .wrp-timer-dot,
+  body.whis-web.whis-session-active #web-right-pane .stream-cursor { animation: none !important; }
+}
