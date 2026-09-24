@@ -1861,11 +1861,13 @@ async function handleUserPostLogin(user) {
                 // reached by genuinely non-entitled free users (active/trial users took the
                 // branch above and go straight into showApp()).
                 if (window.WHIS_WEB) {
-                    showSubscriptionLock(user, "Start your free trial to begin, full access, no card needed.");
-                    if (lockStartTrialBtn) lockStartTrialBtn.style.display = "block";
-                    if (!_trialModalAutoShown) {
-                        _trialModalAutoShown = true;
-                        setTimeout(() => openTrialModal(), 250);
+                    // Present ONE clear surface with a single button that starts the free
+                    // trial DIRECTLY (no second "start your trial" modal on top). The user
+                    // asked: clicking to begin should just start, not ask again.
+                    showSubscriptionLock(user, "Start your free session to begin. Full access, no card needed.");
+                    if (lockStartTrialBtn) {
+                        lockStartTrialBtn.style.display = "block";
+                        lockStartTrialBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Start free session`;
                     }
                     return;
                 }
@@ -3375,8 +3377,36 @@ function openTrialModal() {
     trialModal.style.display = "flex";
 }
 
-async function activateTrial() {
+// Free user is out of trials → clearly inform them (no modal that asks to "start" a
+// trial that no longer exists). Reuses the exhausted lock + Elite offer.
+function _informTrialsOver() {
+    try { if (typeof trialModal !== 'undefined' && trialModal) trialModal.style.display = "none"; } catch (_) {}
+    try { _showTrialsExhausted(currentUser); }
+    catch (_) {
+        whisToast("You've used all your free sessions for today. Go Elite for unlimited access.", 'warning', 7000,
+            { action: { label: 'See Plans', fn: () => { try { window.electronAPI.openSubscriptionPage(); } catch (_) {} } } });
+    }
+}
+
+// A free user clicked a start action (Go Live / Listen / Send / Screenshot): start the
+// trial DIRECTLY (no intermediate "start your trial" modal). Paid/trial users never
+// reach here. Out of trials → just inform.
+function startTrialOrInform(retryFn) {
+    if (currentTrialUsage < maxTrialSessions) activateTrial(retryFn);
+    else _informTrialsOver();
+}
+
+async function activateTrial(onSuccess) {
     if (!currentUser) return;
+
+    // Free user with no trials left → do NOT silently retry the server; tell them
+    // plainly and point at Elite. (The user asked: "if my trials are over, just let
+    // me know.") This is the only place a free user gets stopped.
+    if (currentTrialUsage >= maxTrialSessions) {
+        _informTrialsOver();
+        return;
+    }
+
     const googleId = currentUser.googleId || currentUser.id;
 
     trialErrorEl.textContent = "Activating...";
@@ -3416,6 +3446,9 @@ async function activateTrial() {
                 hasShownTourThisSession = true;
                 setTimeout(() => { try { openWhisTour(); } catch (_) {} }, 700);
             }
+            // Continue the exact action the user clicked (Go Live / Listen / Send /
+            // Screenshot) now that the trial is live, so it feels like one tap.
+            if (typeof onSuccess === 'function') { try { setTimeout(onSuccess, 200); } catch (_) {} }
         } else {
             // Clear, friendly next step, never a dead UI. If the trial is already used
             // up, point the user at the plans instead of leaving a bare error string.
@@ -3433,8 +3466,10 @@ async function activateTrial() {
     }
 }
 
-menuStartTrialBtn.addEventListener("click", openTrialModal);
-lockStartTrialBtn.addEventListener("click", openTrialModal);
+// Explicit "start free trial" affordances start the trial DIRECTLY (one tap, no
+// intermediate ask). Out of trials → clearly informed.
+menuStartTrialBtn.addEventListener("click", () => startTrialOrInform());
+lockStartTrialBtn.addEventListener("click", () => startTrialOrInform());
 
 // OPTIONAL resume personalization, opens the Context Manager over the trial modal.
 // Purely additive: they can add a resume for tailored answers, or just skip and start.
@@ -5305,13 +5340,8 @@ async function _sendStarterQuestion(text) {
     return;
   }
 
-  // Trial start failed / exhausted → graceful fallback to the existing paths.
-  if (typeof openTrialModal === 'function' &&
-      typeof currentTrialUsage !== 'undefined' &&
-      typeof maxTrialSessions !== 'undefined' &&
-      currentTrialUsage < maxTrialSessions) {
-    try { openTrialModal(); return; } catch (_) {}
-  }
+  // Trial start failed / exhausted → inform plainly (no "start your trial" modal).
+  try { _informTrialsOver(); return; } catch (_) {}
   try {
     whisToast('Start Elite to ask this, one tap.', 'info', 5000,
       { action: { label: 'See Plans', fn: () => { try { window.electronAPI.openSubscriptionPage(); } catch (_) {} } } });
@@ -5594,12 +5624,8 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
   // Instead of letting them type into a void and get no answer, route them
   // straight to the trial. This is the cleanest "start your trial" path.
   if (isFreeTier && !subscriptionIsActive && !subscriptionIsTrial) {
-      if (currentTrialUsage < maxTrialSessions) {
-          openTrialModal();
-      } else {
-          whisToast('Your free trials for today are used up, upgrade to keep going.', 'warning', 5000,
-              { action: { label: 'See Plans', fn: () => window.electronAPI.openSubscriptionPage() } });
-      }
+      // Start the free session directly, then send once it is live. No modal ask.
+      startTrialOrInform(() => { try { sendMessage({ screenshotDataURL, overrideText }); } catch (_) {} });
       return;
   }
 
@@ -5694,7 +5720,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
       if (errString.includes("trial_required") || errString.includes("trial required") || errString.includes("free trial")) {
            if (msg) msg.content = "";
            renderMessages();
-           openTrialModal();
+           startTrialOrInform();
       } else if (errString.includes("limit") || errString.includes("minutes")) {
            showSubscriptionLock(currentUser, "Usage limit reached. Please check your minutes/subscription.");
       } else {
@@ -6162,9 +6188,10 @@ async function getSystemAudioOutputDeviceID() {
 }
 
 async function startListening() {
-  // Hard block: free users outside an active trial cannot capture audio
+  // Free user starting a session → start the free trial DIRECTLY, then begin
+  // listening. No intermediate "start your trial" modal. Out of trials → inform.
   if (isFreeTier && !subscriptionIsActive && !subscriptionIsTrial) {
-      if (currentTrialUsage < maxTrialSessions) openTrialModal();
+      startTrialOrInform(() => { try { startListening(); } catch (_) {} });
       return;
   }
 
@@ -7333,12 +7360,8 @@ function _applyComposerLock() {
 inputEl.addEventListener("focus", () => {
     if (_isEntitledToUse()) return;
     inputEl.blur();
-    if (currentTrialUsage < maxTrialSessions) {
-        openTrialModal();
-    } else {
-        whisToast('Your free trials for today are used up, upgrade to keep going.', 'warning', 5000,
-            { action: { label: 'See Plans', fn: () => window.electronAPI.openSubscriptionPage() } });
-    }
+    // Focusing the box as a free user starts the free session directly.
+    startTrialOrInform(() => { try { inputEl && inputEl.focus(); } catch (_) {} });
 });
 
 // Update contextual hint as user types
