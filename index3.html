@@ -1098,8 +1098,10 @@
     const cl=document.getElementById('showCouponLink'); if(cl)cl.style.display='inline';
     const lbl=currentCycle==='monthly'?'Monthly · one charge each month':currentCycle==='quarterly'?'Quarterly · one payment for 3 months':'6-Month · one payment for 6 months';
     document.getElementById('payPlanCycle').textContent='Elite · '+lbl; refreshPayPrice();
-    const inf=document.getElementById('influencerDiscountMsg'),ref=localStorage.getItem('whisRef'),refName=localStorage.getItem('whisRefName')||ref;
-    if(inf){ if(ref){ inf.innerHTML=`<b>${refName} link active</b><br>Your 10% partner discount is applied automatically at checkout.`; inf.classList.remove('hidden'); } else inf.classList.add('hidden'); }
+    // Influencer links are TRACKING ONLY, they do not give the buyer a discount, so we
+    // never show a "partner discount applied" message (the backend charges full price).
+    // Attribution still flows silently via whisRef -> refCode in the order payload below.
+    const inf=document.getElementById('influencerDiscountMsg'); if(inf) inf.classList.add('hidden');
     applyUpiVisibility(); showM('paymentModal'); if(_urlCoupon) autoApplyUrlCoupon(); }
   function refreshPayPrice(){ const v=elitePrice(currentCycle,true),el=document.getElementById('payPlanPrice'); if(el)el.textContent=v!=null?`${sym()}${money(v)}`:'…'; }
   function closePaymentModal(){hideM('paymentModal');}

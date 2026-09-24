@@ -1861,14 +1861,13 @@ async function handleUserPostLogin(user) {
                 // reached by genuinely non-entitled free users (active/trial users took the
                 // branch above and go straight into showApp()).
                 if (window.WHIS_WEB) {
-                    // Present ONE clear surface with a single button that starts the free
-                    // trial DIRECTLY (no second "start your trial" modal on top). The user
-                    // asked: clicking to begin should just start, not ask again.
-                    showSubscriptionLock(user, "Start your free session to begin. Full access, no card needed.");
-                    if (lockStartTrialBtn) {
-                        lockStartTrialBtn.style.display = "block";
-                        lockStartTrialBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Start free session`;
-                    }
+                    // The user asked: a free user with a trial available should NOT see a
+                    // lock/limit page, the free session should open DIRECTLY. So we start
+                    // the trial right away (once per session); on success activateTrial()
+                    // re-checks auth and lands them straight in the running app. If they are
+                    // actually out of trials, activateTrial() shows the clear "trials over"
+                    // message instead of a dead lock. Desktop keeps its modal flow below.
+                    if (!_trialModalAutoShown) { _trialModalAutoShown = true; activateTrial(); }
                     return;
                 }
                 // Desktop: keep the original behaviour, show the app, auto-open the modal
