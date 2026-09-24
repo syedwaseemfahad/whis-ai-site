@@ -138,13 +138,13 @@
   .livenow .d{width:8px;height:8px;border-radius:50%;background:#27c93f;box-shadow:0 0 0 0 rgba(39,201,63,.5);animation:beat 1.6s infinite}
   @keyframes beat{0%{box-shadow:0 0 0 0 rgba(39,201,63,.5)}70%{box-shadow:0 0 0 8px rgba(39,201,63,0)}100%{box-shadow:0 0 0 0 rgba(39,201,63,0)}}
 
-  .rings{position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:min(900px,124vw);height:900px;z-index:1;pointer-events:none;opacity:.2}
+  .flowspiral{position:absolute;top:0;left:0;width:100%;height:960px;z-index:1;pointer-events:none}
+  .flowspiral text{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:16px;letter-spacing:.01em}
+  .hero .wrap{position:relative;z-index:2}
   .linklike{display:inline-flex;align-items:center;font-weight:600;font-size:15px;color:var(--ink-soft);padding:15px 6px;border-bottom:1.5px solid transparent;transition:.15s}
   .linklike:hover{color:var(--ink);border-color:var(--ink)}
-  .rings text{font-family:"JetBrains Mono",ui-monospace,monospace;font-style:normal;fill:var(--ink);opacity:.3;font-size:13px;letter-spacing:-.2px}
-  .ring-a{transform-origin:450px 450px;animation:spin 70s linear infinite}
-  .ring-b{transform-origin:450px 450px;animation:spin 95s linear infinite reverse}
-  .ring-c{transform-origin:450px 450px;animation:spin 120s linear infinite}
+  @media(max-width:1180px){.flowspiral{display:none}}
+  @media(min-width:1181px){.gt-in{display:none}}
   @keyframes spin{to{transform:rotate(360deg)}}
 
   .wave{display:inline-flex;align-items:center;gap:3px;height:26px}
@@ -233,7 +233,7 @@
   /* INVISIBILITY PROOF, green full-bleed block with real-footage side-by-side */
   .green{position:relative;background:var(--green);color:var(--green-ink);border-radius:0;margin:0;padding:60px 0 84px;overflow:hidden}
   .green .wrap{max-width:1240px;position:relative;z-index:1} .green h2{color:#fff} .green .sec-sub{color:rgba(234,243,236,.72)}
-  .green .gtrain{position:relative;z-index:1}
+  .green .gtrain{position:relative;z-index:2}
   /* ambient drifting spiral field, immersive faint technical questions behind everything */
   .green-field{position:absolute;inset:42% 0 0 0;z-index:0;pointer-events:none;overflow:hidden}
   .green-field svg{width:100%;height:100%;display:block}
@@ -637,15 +637,19 @@
 
   <!-- HERO -->
   <header class="hero">
-    <svg class="rings" viewBox="0 0 900 900" aria-hidden="true">
+    <svg class="flowspiral" viewBox="0 0 1440 960" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
       <defs>
-        <path id="rA" d="M450,450 m-330,0 a330,330 0 1,1 660,0 a330,330 0 1,1 -660,0"/>
-        <path id="rB" d="M450,450 m-250,0 a250,250 0 1,1 500,0 a250,250 0 1,1 -500,0"/>
-        <path id="rC" d="M450,450 m-410,0 a410,410 0 1,1 820,0 a410,410 0 1,1 -820,0"/>
+        <path id="fsPath" d="M96,300 C92,190 210,140 306,152 C392,163 396,300 300,334 C232,348 214,300 250,272 C300,236 346,330 352,442 C362,600 300,690 322,772 C348,852 520,882 702,898"/>
+        <linearGradient id="fsGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="960">
+          <stop offset="0" stop-color="#1f2b23" stop-opacity=".2"/>
+          <stop offset="0.635" stop-color="#1f2b23" stop-opacity=".2"/>
+          <stop offset="0.675" stop-color="#eaf3ec" stop-opacity=".34"/>
+          <stop offset="1" stop-color="#eaf3ec" stop-opacity=".34"/>
+        </linearGradient>
       </defs>
-      <g class="ring-a"><text><textPath href="#rA">vector&lt;int&gt; twoSum(vector&lt;int&gt;&amp; a,int t){ unordered_map&lt;int,int&gt; m; for(int i=0;i&lt;(int)a.size();++i){ if(m.count(t-a[i])) return {m[t-a[i]],i}; m[a[i]]=i; } return {}; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-      <g class="ring-b"><text><textPath href="#rB">int lengthOfLIS(vector&lt;int&gt;&amp; a){ vector&lt;int&gt; t; for(int x:a){ auto it=lower_bound(t.begin(),t.end(),x); if(it==t.end()) t.push_back(x); else *it=x; } return t.size(); }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-      <g class="ring-c"><text><textPath href="#rC">long long maxSubArray(vector&lt;int&gt;&amp; a){ long long best=a[0],cur=a[0]; for(int i=1;i&lt;(int)a.size();++i){ cur=max((long long)a[i],cur+a[i]); best=max(best,cur); } return best; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
+      <text fill="url(#fsGrad)"><textPath href="#fsPath" startOffset="-38.41%">how would you find the longest substring without repeating characters in a single pass&nbsp;·&nbsp;how would you find the longest substring without repeating characters in a single pass&nbsp;·&nbsp;how would you find the longest substring without repeating characters in a single pass&nbsp;·&nbsp;how would you find the longest substring without repeating characters in a single pass&nbsp;·&nbsp;
+        <animate attributeName="startOffset" from="-38.41%" to="0%" dur="26s" repeatCount="indefinite"/>
+      </textPath></text>
     </svg>
 
     <div class="wrap">
