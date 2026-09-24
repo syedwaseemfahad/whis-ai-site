@@ -6158,8 +6158,19 @@ function _applyTranscribedText(text) {
 // (so the AI knows YOU said it, not the interviewer) while still showing it in the box
 // so you can see your words landed. The diarised label is what gives the AI the
 // "who's speaking" intelligence when the conversation is sent on Send.
+let _recentUser = []; // [{ norm, ts }] recent finalized candidate lines, for de-dup
 function _applyUserVoiceText(text) {
     if (!text) return;
+    // Same guards as the interviewer path: drop hallucinations on silence/hum, collapse
+    // in-clip stutter, and de-dup repeats so your own mic never spams the transcript.
+    if (_isLikelyHallucination(text)) { try { console.debug('[whis] dropped user hallucination:', text); } catch (_) {} return; }
+    text = _collapseRepeats(text);
+    if (!text || _isLikelyHallucination(text)) return;
+    const _un = _normForDedup(text), _now = Date.now();
+    _recentUser = _recentUser.filter(e => _now - e.ts < 60000);
+    for (const e of _recentUser) { if (_now - e.ts < 45000 && (_un === e.norm || e.norm.includes(_un) || _un.includes(e.norm))) return; }
+    _recentUser.push({ norm: _un, ts: _now });
+    if (_recentUser.length > 12) _recentUser.shift();
     _appendTranscript('user', text); // ← labelled CANDIDATE in the transcript sent to the AI
     if (isAutoMode) {
         hiddenTranscription += (hiddenTranscription ? " " : "") + text;
