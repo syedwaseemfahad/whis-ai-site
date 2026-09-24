@@ -1862,14 +1862,18 @@ async function handleUserPostLogin(user) {
                 // branch above and go straight into showApp()).
                 if (window.WHIS_WEB) {
                     // The user asked: a free user with a trial available should NOT see a
-                    // lock/limit page, the free session should open DIRECTLY. So we start
-                    // the trial right away (once per session); on success activateTrial()
-                    // re-checks auth and lands them straight in the running app. If they are
-                    // actually out of trials, activateTrial() shows the clear "trials over"
-                    // message instead of a dead lock. Desktop keeps its modal flow below.
-                    if (!_trialModalAutoShown) { _trialModalAutoShown = true; activateTrial(); }
-                    return;
+                    // lock/limit page, the free session should open DIRECTLY. We show the
+                    // app immediately (fall through to showApp below, so the boot splash is
+                    // always dismissed and it can NEVER hang) and start the trial in the
+                    // BACKGROUND. If they're actually out of trials, activateTrial() shows
+                    // the clear "trials over" message. Desktop keeps its modal flow below.
+                    if (!_trialModalAutoShown) {
+                        _trialModalAutoShown = true;
+                        setTimeout(() => { try { activateTrial(); } catch (_) {} }, 60);
+                    }
+                    // NO return: fall through to showApp() so the UI is always shown.
                 }
+                else
                 // Desktop: keep the original behaviour, show the app, auto-open the modal
                 // ONCE per session (re-opening it on every status refresh is what made the
                 // app feel like it was glitching).
