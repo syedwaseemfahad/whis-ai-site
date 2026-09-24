@@ -308,32 +308,46 @@ body.whis-web.whis-session-active #content-area > *:not(#web-live-preview):not(#
 body.whis-web.whis-session-active #web-right-pane #messages,
 body.whis-web.whis-session-active #web-right-pane .input-row { display: flex !important; }
 
-/* ── LEFT PANE ─────────────────────────────────────────────────────────────── */
+/* ── LEFT COLUMN (~40% width) ──────────────────────────────────────────────────
+   Split into TWO rows: the shared-screen preview occupies the TOP-LEFT QUADRANT
+   (~48-52% of the viewport height, pinned top-left) and the transcript + control
+   row fill the remaining bottom-left height. The preview must NOT stretch the full
+   left height, only the top-left quadrant. */
 body.whis-web .web-live-pane {
   display: none;
   grid-column: 1;
+  grid-row: 1 / -1;
   min-height: 0;
   min-width: 0;
-  flex-direction: column;
+  /* Two rows: preview quadrant (top ~50vh) + transcript/controls (rest). */
+  grid-template-rows: minmax(0, 50%) minmax(0, 1fr);
   gap: 10px;
-  background: var(--wv-green-2);
-  border: 1px solid var(--wv-border);
-  border-radius: var(--wv-radius-lg);
-  box-shadow: var(--wv-shadow-card);
-  padding: 12px;
   overflow: hidden;
+  /* The pane itself is transparent; the two rows carry their own surfaces so the
+     preview reads as a distinct quadrant. */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
 }
-body.whis-web.whis-session-active .web-live-pane { display: flex; }
+body.whis-web.whis-session-active .web-live-pane { display: grid; }
 
-/* Big 16:9 shared-tab stage, the focus of the left column. */
-body.whis-web .web-live-pane .wlp-stagewrap { flex: 0 0 auto; }
+/* TOP-LEFT QUADRANT: the shared-tab stage. Fills its row (top ~50% of the viewport
+   height) rather than a width-driven 16:9 box, so it reliably reads as the quadrant. */
+body.whis-web .web-live-pane .wlp-stagewrap {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+}
 body.whis-web .web-live-pane .wlp-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--wv-radius-md);
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--wv-radius-lg);
   border: 1px solid var(--wv-border);
   background: #000;
+  box-shadow: var(--wv-shadow-card);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -345,6 +359,21 @@ body.whis-web .web-live-pane .wlp-video {
   object-fit: contain;
   background: #000;
   display: block;
+}
+
+/* Bottom-left row: transcript + control row + hint, on the deeper-green surface. */
+body.whis-web .web-live-pane .wlp-lowerwrap {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--wv-green-2);
+  border: 1px solid var(--wv-border);
+  border-radius: var(--wv-radius-lg);
+  box-shadow: var(--wv-shadow-card);
+  padding: 12px;
+  overflow: hidden;
 }
 
 /* Stage tools overlaid top-left: Fullscreen + Change Tab. */
@@ -813,7 +842,7 @@ body.whis-web.wrp-size-m.whis-session-active #web-right-pane #messages .whis-mes
 body.whis-web.wrp-size-l.whis-session-active #web-right-pane #messages .whis-message-bubble { font-size: 18.5px !important; line-height: 1.68 !important; }
 
 /* Theme (⋮ → Forest / Deep): Deep drops the panes onto the darker green tone. */
-body.whis-web.wrp-theme-deep .web-live-pane,
+body.whis-web.wrp-theme-deep .web-live-pane .wlp-lowerwrap,
 body.whis-web.wrp-theme-deep #web-right-pane .wrp-body { background: var(--wv-green); }
 
 /* ── EXIT MODAL: Leave vs End (dark editorial card) ──────────────────────────── */
@@ -905,14 +934,32 @@ body.whis-web .wf-exit-choice--danger:hover {
 body.whis-web .wf-exit-choice--danger .wf-exit-choice-head { color: #e7b8bf; }
 body.whis-web .wf-exit-choice--danger .wf-exit-choice-head i { color: #c9737f; }
 
-/* Responsive: stack the panes on narrow viewports (stage on top, answers below). */
+/* Responsive: on narrow / mobile widths stack as preview → AI answers → composer,
+   with no overflow or clipping. The whole grid can scroll; the composer keeps its
+   placeholder fully visible. */
 @media (max-width: 900px) {
   body.whis-web.whis-session-active #content-area {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto;
+    overflow-y: auto;
   }
-  body.whis-web .web-live-pane { grid-column: 1; grid-row: 1; }
-  body.whis-web.whis-session-active #web-right-pane { grid-column: 1; grid-row: 2; }
+  /* The left column no longer forces a 50%-height preview row; the preview takes a
+     fixed, comfortable height and the transcript flows beneath it. */
+  body.whis-web .web-live-pane {
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-rows: auto auto;
+  }
+  body.whis-web .web-live-pane .wlp-stage { height: 34vh; min-height: 200px; }
+  body.whis-web .web-live-pane .wlp-lowerwrap { max-height: 40vh; }
+  body.whis-web.whis-session-active #web-right-pane {
+    grid-column: 1;
+    grid-row: 2;
+    overflow: visible;
+    min-height: 60vh;
+  }
+  /* The adopted composer must never clip its placeholder when stacked. */
+  body.whis-web.whis-session-active #web-right-pane .input-row { overflow: visible; }
 }
 
 

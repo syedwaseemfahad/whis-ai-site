@@ -8128,23 +8128,25 @@ const WhisSession = (() => {
         </div>
       </div>
 
-      <div class="wlp-controls">
-        <button type="button" id="wlp-listen" class="wlp-ctl wlp-ctl--listen" title="Start / stop listening">
-          <span class="wlp-rec-dot" aria-hidden="true"></span>
-          <i class="fa-solid fa-microphone" aria-hidden="true"></i><span class="wlp-ctl-label">Start</span>
-        </button>
-        <button type="button" id="wlp-clear" class="wlp-ctl wlp-ctl--ghost" title="Clear the transcript">
-          <i class="fa-solid fa-eraser" aria-hidden="true"></i><span class="wlp-ctl-label">Clear</span>
-        </button>
-        <span class="wlp-ctl-spacer"></span>
-        <select id="wlp-lang" class="wlp-lang" title="Transcription language" aria-label="Transcription language">
-          ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
-        </select>
-      </div>
+      <div class="wlp-lowerwrap">
+        <div class="wlp-controls">
+          <button type="button" id="wlp-listen" class="wlp-ctl wlp-ctl--listen" title="Start / stop listening">
+            <span class="wlp-rec-dot" aria-hidden="true"></span>
+            <i class="fa-solid fa-microphone" aria-hidden="true"></i><span class="wlp-ctl-label">Start</span>
+          </button>
+          <button type="button" id="wlp-clear" class="wlp-ctl wlp-ctl--ghost" title="Clear the transcript">
+            <i class="fa-solid fa-eraser" aria-hidden="true"></i><span class="wlp-ctl-label">Clear</span>
+          </button>
+          <span class="wlp-ctl-spacer"></span>
+          <select id="wlp-lang" class="wlp-lang" title="Transcription language" aria-label="Transcription language">
+            ${_LANGS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
+          </select>
+        </div>
 
-      <div class="wlp-transcript" id="wlp-transcript" aria-label="Live transcript" aria-live="polite"></div>
+        <div class="wlp-transcript" id="wlp-transcript" aria-label="Live transcript" aria-live="polite"></div>
 
-      <div class="wlp-hint" id="wlp-hint" style="display:none;"></div>`;
+        <div class="wlp-hint" id="wlp-hint" style="display:none;"></div>
+      </div>`;
 
     // ── RIGHT PANE (~60%): timer + menu + exit, answers, composer + actions ──────
     rightPaneEl = document.createElement('section');
@@ -8251,40 +8253,52 @@ const WhisSession = (() => {
     if (leftLang) leftLang.addEventListener('change', () => _syncLang(leftLang.value));
     if (menuLang) menuLang.addEventListener('change', () => _syncLang(menuLang.value));
 
-    // LEFT control row: Start/Stop mic + Clear transcript.
-    const listenBtn = leftPaneEl.querySelector('#wlp-listen');
-    if (listenBtn) listenBtn.addEventListener('click', () => {
-      if (typeof isListening !== 'undefined' && isListening) {
-        try { stopAndCommitAudio(); } catch (_) {}
-      } else {
-        try { startListening(); } catch (_) {}
-      }
-      setTimeout(_syncListenState, 60);
+    // ── ROBUST CONTROL WIRING (delegation, keyed by button id) ─────────────────
+    // The live-session action buttons (#wlp-listen, #wrp-shot, #wrp-answer, …) live
+    // inside panes that _adoptRightPane/_restoreRightPane move and that _syncListenState
+    // rewrites via innerHTML on every sync. A directly-bound addEventListener can be
+    // lost when the host node is moved/re-created, which is exactly why the mic + capture
+    // controls silently stopped working. We instead delegate a SINGLE click handler on
+    // `document`, resolve the intent from the clicked button's id via closest(), and run
+    // the canonical proven pipelines. This survives every DOM move, rebuild and innerHTML
+    // rewrite, so the handlers can never be orphaned. Guarded by `active` so it is inert
+    // outside the live session and never touches the non-live web view.
+    const _sessionActions = {
+      // Mic toggle: startListening() ⇄ stopAndCommitAudio(true). Mic is the default input
+      // (shared-tab audio is used automatically when a share with audio exists).
+      'wlp-listen': () => {
+        if (typeof isListening !== 'undefined' && isListening) {
+          try { stopAndCommitAudio(true); } catch (_) {}
+        } else {
+          try { startListening(); } catch (_) {}
+        }
+        setTimeout(_syncListenState, 60);
+      },
+      'wlp-clear': () => _clearTranscript(),
+      // Share CTA + big-stage tools (must run inside this user gesture).
+      'wlp-share-btn': () => { _startShare(true); },
+      'wlp-fullscreen': () => _fullscreenPreview(),
+      'wlp-changetab': () => _changeTab(),
+      // RIGHT top bar.
+      'wrp-exit-btn': () => _openExitModal(),
+      // RIGHT bottom actions → canonical proven flows.
+      // Capture: handleScreenshotStage() → silentScreenshotCapture({fromLive:true}) →
+      // grabLiveFrame() → finalizeAndSend(); it also triggers the share first when nothing
+      // is shared yet, all inside this click gesture.
+      'wrp-shot': () => { try { handleScreenshotStage(); } catch (_) {} },
+      'wrp-answer': () => { try { finalizeAndSend(); } catch (_) {} },
+      'wrp-clearmsgs': () => { try { handleClear(); } catch (_) {} },
+    };
+    // The ⋮ menu button toggles the popover; it needs stopPropagation so the document
+    // click-away below doesn't immediately re-close it.
+    document.addEventListener('click', (e) => {
+      if (!active) return;
+      const t = e.target && e.target.closest ? e.target.closest('button') : null;
+      if (!t || !t.id) return;
+      if (t.id === 'wrp-menu-btn') { e.stopPropagation(); _toggleMenu(); return; }
+      const fn = _sessionActions[t.id];
+      if (fn) { e.preventDefault(); fn(); }
     });
-    const clearBtn2 = leftPaneEl.querySelector('#wlp-clear');
-    if (clearBtn2) clearBtn2.addEventListener('click', () => _clearTranscript());
-
-    // Share CTA + big-stage tools.
-    const shareBtn = leftPaneEl.querySelector('#wlp-share-btn');
-    if (shareBtn) shareBtn.addEventListener('click', () => { _startShare(true); });
-    const fsBtn = leftPaneEl.querySelector('#wlp-fullscreen');
-    if (fsBtn) fsBtn.addEventListener('click', () => _fullscreenPreview());
-    const changeBtn = leftPaneEl.querySelector('#wlp-changetab');
-    if (changeBtn) changeBtn.addEventListener('click', () => _changeTab());
-
-    // RIGHT top bar: ⋮ menu + Exit.
-    if (menuBtn) menuBtn.addEventListener('click', (e) => { e.stopPropagation(); _toggleMenu(); });
-    const exitBtn = rightPaneEl.querySelector('#wrp-exit-btn');
-    if (exitBtn) exitBtn.addEventListener('click', () => _openExitModal());
-
-    // RIGHT bottom actions → proxy onto the canonical hidden buttons so the exact
-    // proven flows (finalizeAndSend / handleScreenshotStage) run unchanged.
-    const answerBtn = rightPaneEl.querySelector('#wrp-answer');
-    if (answerBtn) answerBtn.addEventListener('click', () => { try { finalizeAndSend(); } catch (_) {} });
-    const shotBtn = rightPaneEl.querySelector('#wrp-shot');
-    if (shotBtn) shotBtn.addEventListener('click', () => { try { handleScreenshotStage(); } catch (_) {} });
-    const clearMsgsBtn = rightPaneEl.querySelector('#wrp-clearmsgs');
-    if (clearMsgsBtn) clearMsgsBtn.addEventListener('click', () => { try { handleClear(); } catch (_) {} });
 
     // ⋮ menu wiring.
     _wireMenu();
