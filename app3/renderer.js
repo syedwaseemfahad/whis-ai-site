@@ -5300,7 +5300,7 @@ function _renderWebLiveEmpty(container) {
   container.innerHTML = `
     <div class="web-live-empty">
       <div class="web-live-empty-icon"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></div>
-      <div class="web-live-empty-title">You're live. Answers will appear here.</div>
+      <div class="web-live-empty-title">You're live. Answers appear <em class="web-welcome-em">here.</em></div>
       <div class="web-live-empty-sub">Just talk, when the interviewer asks something, Whis answers here. You can also type a question below any time.</div>
     </div>`;
 }
@@ -5329,7 +5329,7 @@ function _renderWebWelcome(container) {
     <div class="web-welcome">
       <div class="web-welcome-head">
         <div class="web-welcome-eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Whis Elite</div>
-        <div class="web-welcome-title">Your interview co-pilot is ready</div>
+        <div class="web-welcome-title">Your interview co-pilot is <em class="web-welcome-em">ready.</em></div>
         <div class="web-welcome-sub">${_sub}</div>
       </div>
       <div class="web-starter-grid">${chips}</div>

@@ -92,6 +92,28 @@ body.whis-web .content-area {
   background: var(--wv-bg) !important;
 }
 
+/* ── Surface depth: give the forest-green real premium warmth, not a flat slab.
+   A soft lavender halo up top (like index3's hero radial) + a subtle green
+   vignette, painted onto #content-area so all app views sit on warm depth.
+   Fixed attachment so it doesn't scroll; pointer-events pass straight through. */
+body.whis-web #content-area,
+body.whis-web .content-area {
+  background-color: var(--wv-bg) !important;
+  background-image:
+    radial-gradient(900px 560px at 50% -4%, rgba(195,169,239,0.16), transparent 62%),
+    radial-gradient(1200px 900px at 82% 108%, rgba(10,127,79,0.12), transparent 60%),
+    radial-gradient(1100px 900px at 50% 50%, transparent 58%, rgba(0,0,0,0.28)) !important;
+  background-attachment: fixed, fixed, fixed !important;
+  background-repeat: no-repeat !important;
+}
+/* In the live two-pane the panes carry their own surfaces; keep the halo faint
+   so it reads as depth behind the cards, never as a wash over the transcript. */
+body.whis-web.whis-session-active #content-area {
+  background-image:
+    radial-gradient(1100px 800px at 50% -6%, rgba(195,169,239,0.10), transparent 60%),
+    radial-gradient(1100px 900px at 50% 50%, transparent 60%, rgba(0,0,0,0.3)) !important;
+}
+
 
 /* ══════════════════════════════════════════════════════════════════════════
    2. DYNAMIC CHROME, the few bits renderer.js injects that carry legacy
@@ -99,12 +121,21 @@ body.whis-web .content-area {
    Map them to shared type/tokens so they still read as one brand.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Welcome empty-state title (renderer-injected) → shared Fraunces display. */
+/* Welcome empty-state title (renderer-injected) → shared Fraunces display,
+   at index3's hero scale + tracking, with a roman/italic emphasis mix. */
 body.whis-web .web-welcome-title {
   font-family: var(--wv-font-display) !important;
   font-weight: 500 !important;
   letter-spacing: -0.035em !important;
-  color: var(--wv-text) !important;
+  color: #ffffff !important;
+}
+/* The emphasized last word: Fraunces italic, exactly like index3's ".it". */
+body.whis-web .web-welcome-em {
+  font-family: var(--wv-font-display) !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  color: var(--wv-lav) !important;
+  letter-spacing: -0.02em !important;
 }
 body.whis-web .web-welcome-sub,
 body.whis-web .web-welcome-guidance { color: var(--wv-text-muted) !important; }
@@ -113,24 +144,42 @@ body.whis-web .web-welcome-guidance { color: var(--wv-text-muted) !important; }
 body.whis-web .web-welcome-eyebrow {
   color: var(--wv-lav-deep) !important;
   background: rgba(195, 169, 239, 0.10) !important;
-  border: 1px solid var(--wv-border) !important;
+  border: 1px solid rgba(195, 169, 239, 0.24) !important;
 }
 
-/* Starter chips (renderer-injected) → shared surface + lavender hover. */
+/* Starter cards (renderer-injected) → premium hairline cards on green with a
+   raised icon chip, soft elevation and a smooth hover-lift, matching the card
+   craft of index3 / dashboard3 (never flat dark rectangles). */
 body.whis-web .web-starter-chip {
-  background: var(--wv-surface-2) !important;
-  border: 1px solid var(--wv-border) !important;
-  color: var(--wv-text) !important;
+  background: linear-gradient(180deg, rgba(234,243,236,0.05), rgba(234,243,236,0.02)) !important;
+  border: 1px solid rgba(234,243,236,0.12) !important;
+  color: #eaf3ec !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset,
+              0 10px 30px -22px rgba(0,0,0,0.7) !important;
 }
 body.whis-web .web-starter-chip:hover {
-  border-color: var(--wv-lav-deep) !important;
-  background: var(--wv-green-2) !important;
+  border-color: rgba(195, 169, 239, 0.55) !important;
+  background: linear-gradient(180deg, rgba(195,169,239,0.10), rgba(234,243,236,0.03)) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset,
+              0 22px 46px -26px rgba(0,0,0,0.8) !important;
 }
+/* Lavender-tinted rounded icon chip. */
 body.whis-web .web-starter-icon {
-  background: rgba(195, 169, 239, 0.12) !important;
-  color: var(--wv-lav-deep) !important;
+  background: rgba(195, 169, 239, 0.14) !important;
+  color: var(--wv-lav) !important;
+  border: 1px solid rgba(195, 169, 239, 0.22) !important;
 }
-body.whis-web .web-starter-chip:hover .web-starter-go { color: var(--wv-lav-deep) !important; }
+body.whis-web .web-starter-chip:hover .web-starter-icon {
+  background: var(--wv-lav) !important;
+  color: var(--wv-green) !important;
+  border-color: var(--wv-lav) !important;
+}
+body.whis-web .web-starter-text {
+  font-weight: 500 !important;
+  letter-spacing: -0.005em !important;
+}
+body.whis-web .web-starter-go { color: rgba(234,243,236,0.32) !important; }
+body.whis-web .web-starter-chip:hover .web-starter-go { color: var(--wv-lav) !important; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -1099,24 +1148,39 @@ body.whis-web .stream-caret { background: var(--wv-lav-deep) !important; }
    This file loads LAST, so these win. Result: NOTHING renders blue.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Upgrade FAB (the "money button") → clean lavender editorial pill ─────── */
+/* ── Upgrade pill: NOT an orphaned floating money-button in the middle of the
+   page. On web we dock it into the top-right header zone as a compact, refined
+   lavender pill so it reads as one of the header controls, matching index3's
+   nav CTA weight. The element/ID/JS (show-hide, trial-ending nudge, click) are
+   untouched, only its placement + finish change. ───────────────────────────── */
 body.whis-web .upgrade-fab,
 body.whis-web #upgrade-fab {
+  position: absolute !important;
+  top: 12px !important;
+  right: 20px !important;
+  left: auto !important;
+  transform: none !important;
+  z-index: 260 !important;
+  padding: 8px 16px !important;
+  font-size: 12.5px !important;
   background: var(--wv-lav) !important;
   color: var(--wv-ink) !important;
   font-weight: 700 !important;
   text-shadow: none !important;
   border: 1px solid var(--wv-lav) !important;
-  box-shadow: 0 10px 26px -10px rgba(195,169,239,0.75),
-              inset 0 1px 0 rgba(255,255,255,0.35) !important;
+  box-shadow: 0 8px 22px -12px rgba(195,169,239,0.65),
+              inset 0 1px 0 rgba(255,255,255,0.3) !important;
   animation: none !important;
 }
 body.whis-web .upgrade-fab:hover,
 body.whis-web #upgrade-fab:hover {
+  transform: translateY(-1px) !important;
   background: var(--wv-lav-deep) !important;
-  box-shadow: 0 14px 32px -10px rgba(195,169,239,0.9),
-              inset 0 1px 0 rgba(255,255,255,0.4) !important;
+  box-shadow: 0 12px 28px -12px rgba(195,169,239,0.85),
+              inset 0 1px 0 rgba(255,255,255,0.35) !important;
 }
+body.whis-web .upgrade-fab:active,
+body.whis-web #upgrade-fab:active { transform: scale(0.97) !important; }
 body.whis-web .upgrade-fab i,
 body.whis-web #upgrade-fab i {
   color: var(--wv-ink) !important;
@@ -1300,48 +1364,73 @@ body.whis-web .lt-cursor { background: var(--wv-lav) !important; }
    and slow, soft motion. Everything reads from shared --wv-* tokens.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Welcome empty-state: editorial masthead, not a centered SaaS blurb ───── */
-body.whis-web .web-welcome { padding: 9vh 24px 44px; }
-body.whis-web .web-welcome-head { margin-bottom: 34px; }
+/* ── Welcome empty-state: editorial masthead at index3's generous rhythm ──── */
+body.whis-web .web-welcome {
+  max-width: 780px !important;
+  padding: 7vh 24px 56px !important;
+  gap: 0 !important;
+}
+body.whis-web .web-welcome-head { margin-bottom: 40px !important; }
 
 body.whis-web .web-welcome-eyebrow {
   letter-spacing: 0.18em !important;
   text-transform: uppercase !important;
   font-weight: 600 !important;
-  padding: 5px 13px !important;
+  font-size: 11px !important;
+  padding: 6px 14px !important;
   border-radius: var(--wv-radius-pill) !important;
+  margin-bottom: 22px !important;
 }
 
+/* Large Fraunces display, index3 hero scale + tracking. */
 body.whis-web .web-welcome-title {
-  font-size: clamp(30px, 4.6vw, 42px) !important;
-  line-height: 1.02 !important;
-  margin-bottom: 14px !important;
+  font-size: clamp(40px, 6.4vw, 68px) !important;
+  line-height: 0.99 !important;
+  letter-spacing: -0.04em !important;
+  margin-bottom: 18px !important;
+  max-width: 15ch;
 }
 
 body.whis-web .web-welcome-sub {
   font-family: var(--wv-font-ui);
-  font-size: 16.5px !important;
+  font-size: 18px !important;
   line-height: 1.55 !important;
-  max-width: 480px;
+  max-width: 46ch;
+  color: rgba(234, 243, 236, 0.72) !important;
 }
 
-/* Starter cards, hairline surfaces with a slow lift + a lavender rail on hover. */
-body.whis-web .web-starter-grid { gap: 14px; }
+/* Starter cards: comfortable padding, hairline, soft elevation, hover-lift,
+   consistent grid rhythm, arrow that slides on hover. */
+body.whis-web .web-starter-grid { gap: 16px !important; margin-bottom: 30px !important; }
 body.whis-web .web-starter-chip {
-  min-height: 60px;
-  padding: 15px 17px !important;
-  border-radius: var(--wv-radius-md) !important;
-  box-shadow: var(--wv-shadow-hairline) !important;
-  transition: transform var(--wv-dur-slow) var(--wv-ease),
+  min-height: 70px !important;
+  padding: 18px 20px !important;
+  gap: 14px !important;
+  border-radius: var(--wv-radius-lg) !important;
+  font-size: 15px !important;
+  transition: transform var(--wv-dur-mid) var(--wv-ease),
               border-color var(--wv-dur-mid) var(--wv-ease),
               background var(--wv-dur-mid) var(--wv-ease),
-              box-shadow var(--wv-dur-slow) var(--wv-ease) !important;
+              box-shadow var(--wv-dur-mid) var(--wv-ease) !important;
 }
 body.whis-web .web-starter-chip:hover {
   transform: translateY(-3px) !important;
-  box-shadow: var(--wv-shadow-elevated) !important;
 }
-body.whis-web .web-starter-icon { border-radius: 10px !important; }
+body.whis-web .web-starter-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 11px !important;
+  font-size: 15px !important;
+  transition: background var(--wv-dur-mid) var(--wv-ease),
+              color var(--wv-dur-mid) var(--wv-ease),
+              border-color var(--wv-dur-mid) var(--wv-ease) !important;
+}
+body.whis-web .web-starter-go {
+  font-size: 13px !important;
+  transition: transform var(--wv-dur-mid) var(--wv-ease),
+              color var(--wv-dur-mid) var(--wv-ease) !important;
+}
+body.whis-web .web-starter-chip:hover .web-starter-go { transform: translateX(4px) !important; }
 
 /* ── Composer: a calm, tactile field on the green surface ─────────────────── */
 body.whis-web #input {
@@ -1636,6 +1725,19 @@ body.whis-web .web-live-empty-sub {
   body.whis-web .wh-answer-error-actions { width: 100%; }
   body.whis-web .wh-answer-error-btn { flex: 1 1 auto; text-align: center; }
   body.whis-web .web-live-empty { padding: 28px 16px; }
+
+  /* Welcome sits near the TOP on phones (no big empty gap above), still airy. */
+  body.whis-web #messages:has(.web-welcome) { justify-content: flex-start !important; }
+  body.whis-web .web-welcome { margin: 0 !important; padding: 5vh 6px 40px !important; }
+  body.whis-web .web-welcome-title { font-size: clamp(32px, 10vw, 44px) !important; letter-spacing: -0.035em !important; }
+  body.whis-web .web-welcome-sub { font-size: 15.5px !important; }
+  body.whis-web .web-starter-grid { gap: 12px !important; margin-bottom: 24px !important; }
+  body.whis-web .web-starter-chip { min-height: 60px !important; padding: 14px 15px !important; border-radius: var(--wv-radius-md) !important; }
+  body.whis-web .web-starter-icon { width: 32px !important; height: 32px !important; }
+
+  /* Upgrade pill: compact, top-right, out of the content flow. */
+  body.whis-web .upgrade-fab,
+  body.whis-web #upgrade-fab { top: 8px !important; right: 10px !important; padding: 7px 13px !important; font-size: 11.5px !important; }
 }
 
 /* ============================================================
@@ -2014,6 +2116,73 @@ body.whis-web #web-right-pane .wrp-timer-dot {
   body.whis-web .wf-exit-title { font-size: 20px; }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   PREMIUM CONSISTENCY PASS  (welcome + live two-pane, matched to index3)
+   Layered LAST so it refines the surfaces above without touching structure:
+   index3-grade card craft (hairline + soft elevation + a lavender reading rail
+   on the answer) and a consistent finish across the live session.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Live stage + transcript + answer body: refined hairline cards with the same
+   soft elevation index3 uses on its cards, so panes read as crafted, not flat. */
+body.whis-web .web-live-pane .wlp-stage {
+  box-shadow: 0 24px 60px -34px rgba(0,0,0,0.85),
+              0 1px 0 rgba(255,255,255,0.04) inset !important;
+}
+body.whis-web #web-right-pane .wrp-body {
+  background:
+    linear-gradient(180deg, rgba(234,243,236,0.03), rgba(0,0,0,0) 120px),
+    var(--wv-green-2) !important;
+  box-shadow: 0 22px 54px -36px rgba(0,0,0,0.8),
+              0 1px 0 rgba(255,255,255,0.03) inset !important;
+}
+
+/* The AI answer, index3's ".ans" reading rail: faint lavender wash + a lavender
+   left rule, so the answer reads as the hero of the pane. */
+body.whis-web.whis-session-active #web-right-pane #messages .whis-message.assistant .whis-message-bubble {
+  background: rgba(217, 199, 247, 0.06) !important;
+  border: 1px solid rgba(217, 199, 247, 0.16) !important;
+  border-left: 3px solid var(--wv-lav) !important;
+  border-radius: 14px !important;
+  padding: 16px 18px !important;
+}
+
+/* Timer + exit: quieter, boxless-timer + consistent control finish (recent fix). */
+body.whis-web #web-right-pane .wrp-timer {
+  background: rgba(234,243,236,0.05) !important;
+  border-color: rgba(234,243,236,0.14) !important;
+}
+
+/* Answer/Screenshot actions: consistent radius + smooth lift like index3 btns. */
+body.whis-web #web-right-pane .wrp-action {
+  border-radius: var(--wv-radius-md) !important;
+  transition: background var(--wv-dur-fast) var(--wv-ease),
+              border-color var(--wv-dur-fast) var(--wv-ease),
+              transform var(--wv-dur-fast) var(--wv-ease) !important;
+}
+body.whis-web #web-right-pane .wrp-action:hover { transform: translateY(-1px) !important; }
+body.whis-web #web-right-pane .wrp-action:active { transform: translateY(0) !important; }
+
+/* Left-pane share CTA + start-live CTA titles get the same italic-friendly
+   Fraunces finish as the welcome so nothing reverts to flat sans display. */
+body.whis-web .web-live-pane .wlp-share-title { font-size: 16px !important; color: #ffffff !important; }
+body.whis-web .web-live-empty-title em.web-welcome-em { color: var(--wv-lav) !important; }
+
+/* Start Live Session CTA: same radius + soft elevation as index3's lavender pill. */
+body.whis-web .web-session-enter-cta {
+  border-radius: var(--wv-radius-lg) !important;
+  box-shadow: 0 16px 36px -18px rgba(195,169,239,0.6),
+              inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  transition: transform var(--wv-dur-fast) var(--wv-ease),
+              box-shadow var(--wv-dur-mid) var(--wv-ease),
+              filter var(--wv-dur-fast) var(--wv-ease) !important;
+}
+body.whis-web .web-session-enter-cta:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 22px 46px -18px rgba(195,169,239,0.75),
+              inset 0 1px 0 rgba(255,255,255,0.35) !important;
+}
+
 /* ── Respect reduced-motion: keep it dead-calm, no animation, for a11y ─────── */
 @media (prefers-reduced-motion: reduce) {
   body.whis-web.whis-session-active .web-live-pane,
@@ -2029,4 +2198,6 @@ body.whis-web #web-right-pane .wrp-timer-dot {
   body.whis-web .web-live-pane .wlp-share-icon,
   body.whis-web #web-right-pane .wrp-timer-dot,
   body.whis-web.whis-session-active #web-right-pane .stream-cursor { animation: none !important; }
+  body.whis-web .web-session-enter-cta,
+  body.whis-web #web-right-pane .wrp-action { transition: none !important; }
 }
