@@ -723,6 +723,18 @@
     $('nsResume').addEventListener('change', onResumePickChange);
     $('nsResumeFile').addEventListener('change', (e) => onResumeFilePicked(e.target.files && e.target.files[0]));
 
+    // Keyboard: Enter in a single-line field (or Cmd/Ctrl+Enter anywhere) submits.
+    $('newSessionModal').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const inTextarea = e.target && e.target.tagName === 'TEXTAREA';
+      if (!inTextarea || e.metaKey || e.ctrlKey) { e.preventDefault(); createSession(); }
+    });
+    $('resumeModal').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const inTextarea = e.target && e.target.tagName === 'TEXTAREA';
+      if (!inTextarea || e.metaKey || e.ctrlKey) { e.preventDefault(); saveResume(); }
+    });
+
     // Nav items (screen switchers only; anchor nav items navigate natively)
     document.querySelectorAll('.nav-item[data-screen]').forEach((n) =>
       n.addEventListener('click', () => switchScreen(n.getAttribute('data-screen'))));

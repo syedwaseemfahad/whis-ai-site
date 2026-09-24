@@ -34,10 +34,17 @@ a{text-decoration:none;color:inherit}
 .btn-primary:hover{background:var(--lav);transform:translateY(-1px)}
 /* search */
 .tools{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:30px 0 18px}
-.count{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
-.search{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 16px;min-width:280px}
-.search input{border:0;outline:0;background:transparent;font-family:inherit;font-size:14.5px;color:var(--ink);width:100%}
+.count{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;white-space:nowrap}
+.search{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:11px 16px;min-width:300px;flex:1;max-width:440px;transition:border-color .16s,box-shadow .16s}
+.search:focus-within{border-color:var(--lav-deep);box-shadow:0 0 0 4px rgba(195,169,239,.22)}
+.search input{border:0;outline:0;background:transparent;font-family:inherit;font-size:15px;color:var(--ink);width:100%}
 .search svg{color:var(--ink-soft);flex:0 0 auto}
+.search .kbd{flex:0 0 auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);background:var(--cream-2);border:1px solid var(--line);border-radius:6px;padding:2px 6px;line-height:1.4}
+.search .clr{flex:0 0 auto;display:none;border:0;background:transparent;cursor:pointer;color:var(--ink-soft);padding:2px;border-radius:50%;line-height:0}
+.search .clr:hover{color:var(--ink)}
+.search.has-q .kbd{display:none}
+.search.has-q .clr{display:inline-flex}
+@media(max-width:600px){.search{max-width:none;width:100%}.search .kbd{display:none}}
 /* grid */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding-bottom:20px}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
@@ -84,9 +91,11 @@ footer a{color:var(--ink-soft)} footer a:hover{color:var(--ink)}
 <main class="wrap">
   <div class="tools">
     <div class="count" id="igCount">94 guides</div>
-    <label class="search">
+    <label class="search" id="igSearchBox">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" id="igSearch" placeholder="Search by company, e.g. Amazon, TCS, Stripe" autocomplete="off" aria-label="Search interview guides"/>
+      <input type="text" id="igSearch" placeholder="Search 94 companies, e.g. Amazon, TCS, Stripe" autocomplete="off" aria-label="Search interview guides"/>
+      <span class="kbd" aria-hidden="true">/</span>
+      <button class="clr" id="igClear" type="button" aria-label="Clear search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </label>
   </div>
   <div class="grid" id="igGrid">
@@ -207,13 +216,25 @@ footer a{color:var(--ink-soft)} footer a:hover{color:var(--ink)}
 
 <script>
 (function(){
-  var s=document.getElementById('igSearch'),grid=document.getElementById('igGrid'),empty=document.getElementById('igEmpty'),count=document.getElementById('igCount');
+  var s=document.getElementById('igSearch'),grid=document.getElementById('igGrid'),empty=document.getElementById('igEmpty'),count=document.getElementById('igCount'),box=document.getElementById('igSearchBox'),clr=document.getElementById('igClear');
   var cards=[].slice.call(grid.querySelectorAll('.ig-card'));
-  s.addEventListener('input',function(){
-    var q=s.value.trim().toLowerCase();var n=0;
-    cards.forEach(function(c){var hit=!q||c.getAttribute('data-name').indexOf(q)>-1;c.style.display=hit?'':'none';if(hit)n++;});
+  var TOTAL=cards.length;
+  // forgiving normalize: lowercase, drop punctuation/spaces so "d.e.shaw", "de shaw", "deshaw" all match
+  function norm(x){return String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+  cards.forEach(function(c){c.setAttribute('data-norm',norm(c.getAttribute('data-name')));});
+  function run(){
+    var raw=s.value.trim();var q=norm(raw);var n=0;
+    cards.forEach(function(c){var hit=!q||c.getAttribute('data-norm').indexOf(q)>-1;c.style.display=hit?'':'none';if(hit)n++;});
     empty.style.display=n?'none':'';
-    count.textContent=q?(n+' of 94 guides'):'94 guides';
+    count.textContent=raw?(n+' of '+TOTAL+' guides'):(TOTAL+' guides');
+    box.classList.toggle('has-q',!!raw);
+  }
+  s.addEventListener('input',run);
+  clr.addEventListener('click',function(){s.value='';run();s.focus();});
+  s.addEventListener('keydown',function(e){if(e.key==='Escape'){s.value='';run();s.blur();}});
+  // "/" anywhere focuses the search (unless already typing in a field)
+  document.addEventListener('keydown',function(e){
+    if(e.key==='/'&&!/^(input|textarea|select)$/i.test((e.target.tagName||''))){e.preventDefault();s.focus();}
   });
 })();
 </script>
