@@ -249,16 +249,25 @@
   }
 
   function badgesHTML(s) {
-    let out = `<span class="wv-badge chip mode">${esc(s.mode || 'Session')}</span>`;
-    if (s.hasTranscript) {
-      out += `<span class="wv-badge wv-badge--gold chip tr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Transcript</span>`;
-    }
-    return out;
+    return `<span class="wv-badge chip mode">${esc(s.mode || 'Session')}</span>`;
+  }
+
+  // Give every session a real, human name derived from its context (company, role,
+  // or mode + date) instead of "Untitled".
+  function sessionTitle(s) {
+    const co = (s.company || '').trim();
+    const role = (s.role || '').trim();
+    const mode = (s.mode || '').trim();
+    if (co && role) return `${co} · ${role}`;
+    if (co) return co;
+    if (role) return role;
+    const m = mode ? (mode.charAt(0).toUpperCase() + mode.slice(1)) : 'Interview';
+    return `${m} on ${fmtDate(s.createdAt)}`;
   }
 
   function cardHTML(s) {
-    const title = s.company || 'Untitled session';
-    const role = s.role || ', ';
+    const title = sessionTitle(s);
+    const role = (s.company && s.role) ? '' : (s.role || '').trim();
     return `
       <div class="s-card" data-id="${esc(s.sessionId)}">
         <div class="sc-top">
@@ -267,12 +276,11 @@
         </div>
         <div>
           <div class="sc-title">${esc(title)}</div>
-          <div class="sc-role">${esc(role)}</div>
+          ${role ? `<div class="sc-role">${esc(role)}</div>` : ''}
         </div>
         <div class="sc-badges">${badgesHTML(s)} ${stateChip(s.state)}</div>
         <div class="sc-foot">
           <span class="sc-dur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${esc(fmtDuration(s.durationSec))}</span>
-          <span class="sc-view">View transcript<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
       </div>`;
   }
@@ -281,18 +289,17 @@
     return `
       <tr data-id="${esc(s.sessionId)}">
         <td>${esc(fmtDate(s.createdAt))}</td>
-        <td><div class="td-co">${esc(s.company || 'Untitled session')}</div><div class="td-role">${esc(s.role || ', ')}</div></td>
+        <td><div class="td-co">${esc(sessionTitle(s))}</div>${(s.company && s.role) ? '' : (s.role ? `<div class="td-role">${esc(s.role)}</div>` : '')}</td>
         <td><div class="td-badges">${badgesHTML(s)}</div></td>
         <td>${stateChip(s.state)}</td>
         <td>${esc(fmtDuration(s.durationSec))}</td>
-        <td><span class="t-view">View<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></td>
+        <td></td>
       </tr>`;
   }
 
   function wireSessionClicks() {
-    document.querySelectorAll('.s-card[data-id], .session-table tbody tr[data-id]').forEach((el) => {
-      el.addEventListener('click', () => openTranscript(el.getAttribute('data-id')));
-    });
+    // Transcript viewing was removed (sessions are info-only cards now), so cards no
+    // longer open a transcript modal. Kept as a no-op so callers stay intact.
   }
 
   // ═══════════ TRANSCRIPT VIEWER ═══════════
