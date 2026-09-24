@@ -6116,10 +6116,10 @@ function _collapseRepeats(text) {
     return words.join(' ');
 }
 
-// Remembers the last finalized interviewer text so the two paths (realtime WS +
-// WAV-clip fallback) can never write the same segment twice during a reconnect window.
-let _lastAppliedInterviewer = '';
-let _lastAppliedInterviewerAt = 0;
+// Ring of recently finalized interviewer lines so repeats are collapsed even when they
+// arrive seconds apart (the model tends to re-emit the same hallucinated question on
+// silence). Time-pruned, so it self-clears between sessions.
+let _recentInterviewer = []; // [{ norm, ts }]
 function _normForDedup(s) {
     return (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
 }
@@ -6129,20 +6129,22 @@ function _applyTranscribedText(text) {
     // Collapse in-clip stutter loops before anything else sees the text.
     text = _collapseRepeats(text);
     if (!text || _isLikelyHallucination(text)) return;
-    // De-dup: drop a segment that is identical (or one-contains-the-other) to the last
-    // finalized interviewer segment within a short window. Guards against the realtime
-    // socket and the WAV fallback both emitting the same utterance across a reconnect,
-    // and against the model re-emitting a phrase it already returned.
+    // De-dup against any recent interviewer line (equal / one-contains-the-other) within a
+    // longer window. Catches the realtime + WAV paths double-writing across a reconnect AND
+    // the model repeating the same invented question several times on silence.
     const norm = _normForDedup(text);
-    const prev = _lastAppliedInterviewer;
-    if (norm && prev && (Date.now() - _lastAppliedInterviewerAt) < 8000) {
-        if (norm === prev || prev.includes(norm) || norm.includes(prev)) {
-            try { console.debug('[whis] dropped duplicate segment:', text); } catch (_) {}
-            return;
+    const now = Date.now();
+    _recentInterviewer = _recentInterviewer.filter(e => now - e.ts < 60000);
+    if (norm) {
+        for (const e of _recentInterviewer) {
+            if (now - e.ts < 45000 && (norm === e.norm || e.norm.includes(norm) || norm.includes(e.norm))) {
+                try { console.debug('[whis] dropped duplicate segment:', text); } catch (_) {}
+                return;
+            }
         }
     }
-    _lastAppliedInterviewer = norm;
-    _lastAppliedInterviewerAt = Date.now();
+    _recentInterviewer.push({ norm, ts: now });
+    if (_recentInterviewer.length > 12) _recentInterviewer.shift();
     _appendTranscript('interviewer', text);
     if (isAutoMode) {
         hiddenTranscription += (hiddenTranscription ? " " : "") + text;
