@@ -6678,10 +6678,13 @@ async function startListening() {
     _showPreflightChecklist();
     startChunkCommitTimer();
     openRealtimeTranscription(); // primary: real-time streaming (WAV commit is fallback)
-    // On mobile the PRIMARY stream is already the user's mic, so a second parallel mic
-    // capture would double-open the device and transcribe the same voice twice. Desktop
-    // still runs it (there the primary stream is the interviewer's system audio).
-    if (!window.WHIS_WEB) startUserMicCapture(); // parallel user-voice capture (desktop only; web's primary stream already covers it)
+    // Candidate-voice capture. The PRIMARY stream carries the INTERVIEWER: on desktop it
+    // is system audio, on web it is the shared tab/system audio. In BOTH those cases the
+    // user's own mic is a SEPARATE source and must be captured in parallel, otherwise the
+    // app only hears the interviewer and never hears you. We skip it only when the primary
+    // stream is itself the user's mic (web mic-only / mobile), where one mic covers both.
+    const _primaryIsUserMic = window.WHIS_WEB && (IS_MOBILE_WEB || window._whisUseMic) && !_usingSharedLiveAudio;
+    if (!_primaryIsUserMic) startUserMicCapture(); // parallel candidate-mic capture
 
     processor.onaudioprocess = (e) => {
         if (!isListening) return;
