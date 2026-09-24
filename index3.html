@@ -138,14 +138,11 @@
   .livenow .d{width:8px;height:8px;border-radius:50%;background:#27c93f;box-shadow:0 0 0 0 rgba(39,201,63,.5);animation:beat 1.6s infinite}
   @keyframes beat{0%{box-shadow:0 0 0 0 rgba(39,201,63,.5)}70%{box-shadow:0 0 0 8px rgba(39,201,63,0)}100%{box-shadow:0 0 0 0 rgba(39,201,63,0)}}
 
-  .rings{position:absolute;top:-70px;left:50%;transform:translateX(-50%);width:min(900px,124vw);height:900px;z-index:1;pointer-events:none;opacity:.2}
+  .herospiral{position:absolute;top:30px;left:-6%;width:min(820px,70vw);height:130%;z-index:1;pointer-events:none;opacity:1}
   .linklike{display:inline-flex;align-items:center;font-weight:600;font-size:15px;color:var(--ink-soft);padding:15px 6px;border-bottom:1.5px solid transparent;transition:.15s}
   .linklike:hover{color:var(--ink);border-color:var(--ink)}
-  .rings text{font-family:"JetBrains Mono",ui-monospace,monospace;font-style:normal;fill:var(--ink);opacity:.3;font-size:13px;letter-spacing:-.2px}
-  .ring-a{transform-origin:450px 450px;animation:spin 70s linear infinite}
-  .ring-b{transform-origin:450px 450px;animation:spin 95s linear infinite reverse}
-  .ring-c{transform-origin:450px 450px;animation:spin 120s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
+  .herospiral svg{width:100%;height:100%;display:block;overflow:visible}
+  .herospiral text{font-family:"Fraunces",Georgia,serif;font-style:italic;fill:var(--ink);opacity:.17;font-size:21px}
 
   .wave{display:inline-flex;align-items:center;gap:3px;height:26px}
   .wave i{width:3px;height:8px;border-radius:2px;background:currentColor;display:block;animation:eq 1s ease-in-out infinite}
@@ -543,7 +540,7 @@
 
   /* featured plan glow + pointer parallax easing */
   .plan.featured{box-shadow:0 0 0 1.5px rgba(195,169,239,.55), 0 30px 70px -30px rgba(26,23,18,.5)}
-  .rings{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+  .herospiral{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
   .demo{transition:transform .4s cubic-bezier(.2,.7,.2,1), box-shadow .4s}
   .demo:hover{box-shadow:0 50px 110px -34px rgba(26,23,18,.7)}
 
@@ -637,16 +634,14 @@
 
   <!-- HERO -->
   <header class="hero">
-    <svg class="rings" viewBox="0 0 900 900" aria-hidden="true">
-      <defs>
-        <path id="rA" d="M450,450 m-330,0 a330,330 0 1,1 660,0 a330,330 0 1,1 -660,0"/>
-        <path id="rB" d="M450,450 m-250,0 a250,250 0 1,1 500,0 a250,250 0 1,1 -500,0"/>
-        <path id="rC" d="M450,450 m-410,0 a410,410 0 1,1 820,0 a410,410 0 1,1 -820,0"/>
-      </defs>
-      <g class="ring-a"><text><textPath href="#rA">vector&lt;int&gt; twoSum(vector&lt;int&gt;&amp; a,int t){ unordered_map&lt;int,int&gt; m; for(int i=0;i&lt;(int)a.size();++i){ if(m.count(t-a[i])) return {m[t-a[i]],i}; m[a[i]]=i; } return {}; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-      <g class="ring-b"><text><textPath href="#rB">int lengthOfLIS(vector&lt;int&gt;&amp; a){ vector&lt;int&gt; t; for(int x:a){ auto it=lower_bound(t.begin(),t.end(),x); if(it==t.end()) t.push_back(x); else *it=x; } return t.size(); }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-      <g class="ring-c"><text><textPath href="#rC">long long maxSubArray(vector&lt;int&gt;&amp; a){ long long best=a[0],cur=a[0]; for(int i=1;i&lt;(int)a.size();++i){ cur=max((long long)a[i],cur+a[i]); best=max(best,cur); } return best; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-    </svg>
+    <div class="herospiral" aria-hidden="true">
+      <svg viewBox="0 0 760 1120" preserveAspectRatio="xMidYMin meet">
+        <defs><path id="hsPath" d="M430,60 C180,80 60,250 96,450 C120,600 300,662 424,566 C520,486 470,356 340,384 C236,406 236,556 356,614 C476,672 566,764 566,1080"/></defs>
+        <text><textPath href="#hsPath" startOffset="-28%">how would you find the longest substring without repeating characters in a single pass · how would you find the longest substring without repeating characters in a single pass · how would you find the longest substring without repeating characters in a single pass ·
+          <animate attributeName="startOffset" from="-28%" to="8%" dur="26s" repeatCount="indefinite"/>
+        </textPath></text>
+      </svg>
+    </div>
 
     <div class="wrap">
       <div class="eyebrow wv-eyebrow">Nail the interview. Name your salary.</div>
@@ -1082,12 +1077,11 @@
 
   // hero pointer parallax (fine pointer + motion allowed only), after RM is defined
   if(matchMedia('(pointer:fine)').matches && !RM){
-    const hero=document.querySelector('.hero'),rings=document.querySelector('.rings'),demo=document.getElementById('demo');
+    const hero=document.querySelector('.hero'),rings=document.querySelector('.herospiral');
     if(hero){
       hero.addEventListener('pointermove',e=>{ const r=hero.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
-        if(rings)rings.style.transform=`translateX(-50%) translate(${x*20}px,${y*14}px)`;
-        if(demo)demo.style.transform=`perspective(1000px) rotateY(${x*3}deg) rotateX(${-y*3}deg)`; });
-      hero.addEventListener('pointerleave',()=>{ if(rings)rings.style.transform='translateX(-50%)'; if(demo)demo.style.transform=''; });
+        if(rings)rings.style.transform=`translate(${x*22}px,${y*16}px)`; });
+      hero.addEventListener('pointerleave',()=>{ if(rings)rings.style.transform=''; });
     }
   }
 
