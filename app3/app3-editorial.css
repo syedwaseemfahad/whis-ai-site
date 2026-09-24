@@ -1224,15 +1224,31 @@ body.whis-web .login-btn-premium.wv-btn--ghost:hover {
 }
 body.whis-web .login-btn-premium.wv-btn--ghost i { color: var(--wv-text) !important; }
 
-/* ── Composer focus ring + footer hairline → lavender / editorial line ───── */
+/* ── Composer focus → calm subtle hairline (no pink/purple glow) ─────────────
+   The base styles.css lights the focused composer with a lavender ring
+   (#input:focus box-shadow rgba(195,169,239,...)), a gradient underline
+   (.input-container::after using #d9c7f7/#c3a9ef/#a855f7), and a one-shot
+   glow pulse (.input-container:focus-within::before / inputFocusPulse). On
+   web all of that reads as a pink/purple flare. Kill it: no colored
+   box-shadow, no gradient underline, no pulse. Just a quiet neutral border. */
 body.whis-web .input-container:focus-within {
-  border-color: var(--wv-lav-deep) !important;
-  box-shadow: 0 0 0 3px rgba(195,169,239,0.16) !important;
+  border-color: rgba(234, 243, 236, 0.18) !important;
+  box-shadow: none !important;
 }
 body.whis-web .input-row { border-top: 1px solid var(--wv-border) !important; }
 body.whis-web #input:focus {
-  border-color: var(--wv-lav-deep) !important;
-  box-shadow: 0 0 0 3px rgba(195,169,239,0.16) !important;
+  border-color: rgba(234, 243, 236, 0.18) !important;
+  box-shadow: none !important;
+}
+/* Disable the lavender/purple focus pseudo-elements on web. */
+body.whis-web .input-container::after,
+body.whis-web .input-container:focus-within::after,
+body.whis-web .input-container:focus-within::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  animation: none !important;
+  opacity: 0 !important;
 }
 
 /* ── Mode label + trial motivation bar → lavender / green (no blue tint) ──── */
@@ -1620,15 +1636,18 @@ body.whis-web .web-live-empty-sub {
 /* ============================================================
    TRIAL TIMER: the base overlay renders it as a loud RED box
    (rgba(255,77,77,.18) bg + red border + #ffb3b3 text). On the
-   editorial app that reads as an error. Retint to a calm gold
-   pill (matching the other status pills), no red box.
+   editorial app that reads as an error. Make it BOX-LESS on web:
+   no background, no border, no shadow. Just the stopwatch icon +
+   time (warm gold) + the small close (x).
    ============================================================ */
 body.whis-web .trial-timer-container {
-  background: rgba(201, 138, 26, 0.12) !important;
-  border: 1px solid rgba(201, 138, 26, 0.34) !important;
-  border-radius: 999px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-  padding: 4px 6px 4px 12px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 2px 2px 2px 4px !important;
   gap: 6px !important;
 }
 body.whis-web .timer-badge,
@@ -1646,15 +1665,61 @@ body.whis-web .end-trial-btn:hover {
   background: rgba(234, 243, 236, 0.06) !important;
 }
 
-/* Onboarding-tour tip callout: base text was lavender (rgba(195,169,239,.85)) which
-   reads as blue on the dark tour card. Warm it to neutral ink so it never looks blue;
-   keep the subtle lavender left-border as the only accent. */
+/* ============================================================
+   ONBOARDING TOUR: the base tour accents are cool lavender/violet
+   (#c3a9ef / #d9c7f7 / rgba(195,169,239,...)) which read as
+   periwinkle-BLUE on the dark tour card. Retune every accent to a
+   WARM gold/amber tone so the tour never reads blue. Gold is already
+   a brand accent (#c98a1a); amber #e2b25a for text-on-dark.
+   (Inline lavender styles on #wt-next set by renderer.js are also
+   overridden to gold there.)
+   ============================================================ */
+
+/* Tip callout: warm neutral ink + gold left-border accent (was lavender). */
 body.whis-web #wt-tip,
 body.whis-web .wt-tip {
   color: rgba(234, 243, 236, 0.86) !important;
   background: rgba(234, 243, 236, 0.04) !important;
-  border-color: rgba(195, 169, 239, 0.14) !important;
-  border-left-color: rgba(195, 169, 239, 0.5) !important;
+  border-color: rgba(201, 138, 26, 0.16) !important;
+  border-left-color: rgba(201, 138, 26, 0.6) !important;
+}
+
+/* "Step N of M" pill + its live dot → warm amber/gold (was lavender). */
+body.whis-web .wt-step-pill { color: rgba(226, 178, 90, 0.9) !important; }
+body.whis-web .wt-step-dot {
+  background: #c98a1a !important;
+  box-shadow: 0 0 5px rgba(201, 138, 26, 0.7) !important;
+}
+
+/* Progress bar fill → warm gold gradient (was #c3a9ef/#d9c7f7). */
+body.whis-web .wt-progress-bar,
+body.whis-web #wt-progress {
+  background: linear-gradient(90deg, #c98a1a, #e2b25a) !important;
+  box-shadow: 0 0 8px rgba(201, 138, 26, 0.5) !important;
+}
+
+/* Active step dot → warm gold (was lavender). */
+body.whis-web .wt-dot.active {
+  background: linear-gradient(90deg, #c98a1a, #e2b25a) !important;
+  box-shadow: 0 0 6px rgba(201, 138, 26, 0.5) !important;
+}
+
+/* Primary "Next" button → warm gold, dark ink (was lavender gradient). */
+body.whis-web .wt-btn-primary,
+body.whis-web #wt-next {
+  background: linear-gradient(140deg, #c98a1a 0%, #e2b25a 100%) !important;
+  color: #1b1204 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 3px 12px rgba(201, 138, 26, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+body.whis-web .wt-btn-primary:hover,
+body.whis-web #wt-next:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 5px 18px rgba(201, 138, 26, 0.5),
+    0 2px 5px rgba(0, 0, 0, 0.28) !important;
 }
 
 /* Only the TRIAL-remaining timer (#trial-timer-container) should show. Hide the
@@ -1665,3 +1730,74 @@ body.whis-web #wrp-timer { display: none !important; }
 
 /* Google "G" logo on the sign-in button: sit inline, never shrink. */
 body.whis-web .google-sign-in-btn .g-logo { flex: 0 0 auto; display: inline-block; vertical-align: middle; }
+
+/* ============================================================
+   WEB-ONLY screen-share visibility banner. Slim, on-brand (green
+   surface + gold hairline + subtle gold tint), unobtrusive but
+   clear. In normal flow above the relative header, so it pushes
+   content down and never overlaps header controls / two-pane.
+   Only ever shown when body.whis-web (revealed by renderer.js).
+   ============================================================ */
+.web-visibility-banner { display: none; }
+body.whis-web .web-visibility-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 42px 7px 16px;
+  position: relative;
+  z-index: 10001;
+  background: linear-gradient(180deg, rgba(201, 138, 26, 0.10), rgba(14, 53, 36, 0.6));
+  border-bottom: 1px solid rgba(201, 138, 26, 0.34);
+  color: var(--wv-text, #eaf3ec);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+body.whis-web .web-visibility-banner .wvb-text {
+  color: rgba(234, 243, 236, 0.9);
+}
+body.whis-web .web-visibility-banner .wvb-icon {
+  color: #e2b25a;
+  margin-right: 6px;
+  font-size: 12px;
+}
+body.whis-web .web-visibility-banner .wvb-link {
+  color: #e2b25a;
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(226, 178, 90, 0.4);
+  padding-bottom: 1px;
+  white-space: nowrap;
+}
+body.whis-web .web-visibility-banner .wvb-link:hover {
+  color: #f0c777;
+  border-bottom-color: rgba(240, 199, 119, 0.7);
+}
+body.whis-web .web-visibility-banner .wvb-close {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(234, 243, 236, 0.55);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+body.whis-web .web-visibility-banner .wvb-close:hover {
+  background: rgba(234, 243, 236, 0.08);
+  color: rgba(234, 243, 236, 0.9);
+}
+/* When dismissed, fully remove from flow so nothing shifts. */
+body.whis-web .web-visibility-banner.wvb-dismissed { display: none !important; }

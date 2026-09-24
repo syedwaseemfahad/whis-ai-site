@@ -779,9 +779,9 @@
     $('saveResumeBtn').addEventListener('click', saveResume);
     $('resFile').addEventListener('change', (e) => handleResumeFile(e.target.files && e.target.files[0]));
 
-    // Ask AI
-    $('askBtn').addEventListener('click', askAI);
-    $('askInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') askAI(); });
+    // Ask AI (its modal was removed with the transcript viewer; guard for absence)
+    { const _askBtn = $('askBtn'); if (_askBtn) _askBtn.addEventListener('click', askAI); }
+    { const _askInput = $('askInput'); if (_askInput) _askInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') askAI(); }); }
 
     // Profile / logout
     $('logoutBtn').addEventListener('click', (e) => { e.stopPropagation(); logout(); });

@@ -87,6 +87,28 @@ const IS_MOBILE_WEB = window.WHIS_IS_MOBILE;
             // Persistent honest CTA in the profile menu: web = practice, desktop = live.
             const _deskItem = document.getElementById('web-desktop-app-item');
             if (_deskItem) _deskItem.style.display = '';
+
+            // Screen-share visibility banner: show unless the user dismissed it before.
+            // Web-only; on desktop it stays display:none (never gets whis-web class).
+            try {
+                const _banner = document.getElementById('web-visibility-banner');
+                if (_banner) {
+                    let _dismissed = false;
+                    try { _dismissed = localStorage.getItem('whis_web_ss_banner_dismissed') === '1'; } catch (e) {}
+                    if (!_dismissed) {
+                        _banner.style.display = '';
+                        const _close = document.getElementById('web-visibility-banner-close');
+                        if (_close) {
+                            _close.addEventListener('click', () => {
+                                _banner.classList.add('wvb-dismissed');
+                                try { localStorage.setItem('whis_web_ss_banner_dismissed', '1'); } catch (e) {}
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('[whis-web] visibility banner init failed:', e && e.message);
+            }
         }
     };
     if (document.body) apply();
@@ -2237,7 +2259,39 @@ function lockAfterEntitlementEnd() {
     if (typeof _applyComposerLock === 'function') _applyComposerLock();
     if (typeof updateFreeTrialCTA === 'function') updateFreeTrialCTA();
 
-    _showTrialEndedOffer();
+    if (window.WHIS_WEB) {
+        // WEB: the free session is over. Blur + fully block the session behind a clean
+        // overlay (no action possible) and return to the homepage. Desktop keeps its
+        // in-app offer flow.
+        _webTrialEndedLockdown();
+    } else {
+        _showTrialEndedOffer();
+    }
+}
+
+// WEB-only: full blur + lockdown when the free session ends, then send the user back to
+// the main homepage. Nothing behind the overlay is clickable.
+function _webTrialEndedLockdown() {
+    if (document.getElementById('web-trial-ended')) return;
+    try { if (typeof WhisSession !== 'undefined' && WhisSession.isActive && WhisSession.isActive() && WhisSession.exit) WhisSession.exit(); } catch (_) {}
+    const ov = document.createElement('div');
+    ov.id = 'web-trial-ended';
+    ov.setAttribute('role', 'dialog');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,25,18,.74);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);';
+    ov.innerHTML = '<div style="max-width:420px;width:100%;text-align:center;background:#0e3524;border:1px solid rgba(234,243,236,.14);border-radius:20px;padding:34px 28px;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);font-family:Inter,system-ui,sans-serif;color:#eaf3ec;">'
+      + '<div style="font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;">Your free session has ended.</div>'
+      + '<div style="color:rgba(234,243,236,.72);font-size:15px;line-height:1.55;margin-bottom:22px;">Go Elite for unlimited live sessions, or head back to the homepage.</div>'
+      + '<a href="/index3.html#pricing" style="display:block;background:#c3a9ef;color:#1a1712;font-weight:700;text-decoration:none;border-radius:999px;padding:13px 20px;margin-bottom:10px;">Upgrade to Elite</a>'
+      + '<a href="/index3.html" style="display:block;background:transparent;color:#eaf3ec;border:1px solid rgba(234,243,236,.22);font-weight:600;text-decoration:none;border-radius:999px;padding:12px 20px;">Back to home</a>'
+      + '<div style="color:rgba(234,243,236,.5);font-size:12.5px;margin-top:16px;">Taking you back to the homepage...</div>'
+      + '</div>';
+    document.body.appendChild(ov);
+    try {
+        if (!window._trialEndRedirectScheduled) {
+            window._trialEndRedirectScheduled = true;
+            setTimeout(function () { try { window.location.href = '/index3.html'; } catch (_) {} }, 6000);
+        }
+    } catch (_) {}
 }
 
 // Premium "trial complete" reward: surface the quarterly discount the user has
@@ -8399,7 +8453,7 @@ const WhisSession = (() => {
     leftPaneEl = document.createElement('aside');
     leftPaneEl.id = 'web-live-preview';
     leftPaneEl.className = 'web-live-preview web-live-pane no-drag';
-    leftPaneEl.setAttribute('aria-label', 'Live session, shared tab and transcript');
+    leftPaneEl.setAttribute('aria-label', 'Live session, shared tab and live captions');
     previewEl = leftPaneEl; // keep the historical name for _attach/_detachPreview
     leftPaneEl.innerHTML = `
       <div class="wlp-stagewrap">
@@ -8741,7 +8795,7 @@ const WhisSession = (() => {
             </button>
             <button type="button" class="wf-exit-choice wf-exit-choice--danger" id="wf-exit-end">
               <span class="wf-exit-choice-head"><i class="fa-solid fa-circle-stop" aria-hidden="true"></i> End Session</span>
-              <span class="wf-exit-choice-sub">Wrap up and save this session's transcript. This can't be undone.</span>
+              <span class="wf-exit-choice-sub">Wrap up and end this session. This can't be undone.</span>
             </button>
           </div>
         </div>`;
