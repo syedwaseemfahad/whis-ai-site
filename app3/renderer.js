@@ -5314,10 +5314,13 @@ function _renderWebWelcome(container) {
     try { startListening(); } catch (_) {}
   });
 
-  // Welcome-screen "Go Live" entry (desktop web + Document PiP only).
+  // "Go Live" opens the SAME two-pane live session as "Start Live Session" (it reuses
+  // any existing share, so it never starts a second screen capture). Falls back to the
+  // Document-PiP path only if the two-pane session is unavailable.
   const golive = container.querySelector('#web-golive-cta');
   if (golive) golive.addEventListener('click', (e) => {
     e.preventDefault();
+    if (typeof WhisSession !== 'undefined' && WhisSession.enter) { try { WhisSession.enter(); return; } catch (_) {} }
     try { WhisLive.goLive(golive); } catch (_) {}
   });
 }
@@ -8133,7 +8136,12 @@ const WhisLive = (() => {
     btn.type = 'button';
     btn.title = 'Float a small live co-pilot over your interview (share your screen once)';
     btn.innerHTML = '<i class="fa-solid fa-tower-broadcast"></i><span class="btn-mini-label">Go Live</span>';
-    btn.addEventListener('click', () => goLive(btn));
+    btn.addEventListener('click', () => {
+      // Go Live opens the two-pane live session (same as Start Live Session) and reuses
+      // any existing share, so it never starts a second screen capture. PiP is fallback.
+      if (window.WHIS_WEB && typeof WhisSession !== 'undefined' && WhisSession.enter) { try { WhisSession.enter(); return; } catch (_) {} }
+      goLive(btn);
+    });
     if (anchor && anchor.nextSibling) row.insertBefore(btn, anchor.nextSibling);
     else row.appendChild(btn);
 
