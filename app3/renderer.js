@@ -5911,6 +5911,15 @@ let _speechEndFired       = false; // prevents double-firing per utterance
 // back word-by-word as the interviewer speaks. The WAV-clip _doCommit path stays
 // wired as an automatic fallback and takes over the instant the socket is down.
 const RT_TARGET_RATE = 24000; // OpenAI Realtime pcm16 expects 24 kHz mono
+// WEB-ONLY: the REAL rate the AudioContext is running at. Chrome frequently ignores
+// the requested `sampleRate: 16000` (especially for getDisplayMedia tab audio / a
+// shared track) and runs the context at the hardware rate, usually 48000 Hz. Every
+// frame delivered to onaudioprocess is therefore at THIS rate, not SAMPLE_RATE. If we
+// keep assuming 16 kHz, both transcription paths receive pitch/speed-distorted audio
+// (48 k data described as 16 k) and the model emits looping hallucinations
+// ("The taste of The taste of…"). We capture the true rate at graph-build time and
+// resample from IT to whatever each API expects. Desktop keeps using SAMPLE_RATE.
+let _captureSampleRate = SAMPLE_RATE;
 let _rtSocket = null;
 let _rtReady = false;              // true only between the server "ready" event and socket close
 let _rtManualClose = false;       // set when WE close it (stop listening), suppresses reconnect
@@ -5926,25 +5935,36 @@ function _wsTranscribeURL() {
     return `${base}/ws/transcribe?${qs.toString()}`;
 }
 
-// Linear resample a 16 kHz frame up to 24 kHz for the Realtime API.
-function _resample16to24(input) {
-    const ratio = RT_TARGET_RATE / SAMPLE_RATE; // 1.5
-    const outLen = Math.round(input.length * ratio);
+// Linear resample a Float32 frame from `fromRate` to `toRate`. When the two rates are
+// equal this is a fast copy. This replaces the old fixed-1.5x resampler so that audio
+// captured at the browser's REAL rate (often 48 kHz) is converted correctly to the
+// API's target rate instead of being mislabeled and distorted.
+function _resamplePcm(input, fromRate, toRate) {
+    if (!input || input.length === 0) return new Float32Array(0);
+    if (fromRate === toRate) return input;
+    const ratio = toRate / fromRate;
+    const outLen = Math.max(1, Math.round(input.length * ratio));
     const out = new Float32Array(outLen);
+    const last = input.length - 1;
     for (let i = 0; i < outLen; i++) {
         const pos = i / ratio;
         const i0 = Math.floor(pos);
-        const i1 = Math.min(i0 + 1, input.length - 1);
+        const i1 = Math.min(i0 + 1, last);
         const frac = pos - i0;
         out[i] = input[i0] * (1 - frac) + input[i1] * frac;
     }
     return out;
 }
 
+// Back-compat shim (desktop-safe): resample from the REAL capture rate up to 24 kHz.
+function _resample16to24(input) {
+    return _resamplePcm(input, _captureSampleRate, RT_TARGET_RATE);
+}
+
 // Resample → PCM16 → send as a binary frame. No-op unless the socket is open.
 function _sendPcmFrame(float32) {
     if (!_rtSocket || _rtSocket.readyState !== 1) return;
-    const up = _resample16to24(float32);
+    const up = _resamplePcm(float32, _captureSampleRate, RT_TARGET_RATE);
     const pcm = new Int16Array(up.length);
     for (let i = 0; i < up.length; i++) {
         const s = Math.max(-1, Math.min(1, up[i]));
@@ -5987,12 +6007,88 @@ function _isLikelyHallucination(text) {
     // same word repeated (e.g. "you you you", "thank you thank you")
     const w = t.split(' ');
     if (w.length >= 2 && new Set(w).size === 1) return true;
+    // Immediate phrase-loop hallucination on music/noise, the classic
+    // "so it tastes like so it tastes like so" / "the taste of the taste of".
+    // If a short n-gram (2-6 words) repeats back-to-back 3+ times, it's junk.
+    if (w.length >= 6 && _hasRepeatedNgram(w)) return true;
+    // Otherwise, if the SAME token accounts for most of the words, it's a loop.
+    if (w.length >= 4) {
+        const counts = {};
+        let top = 0;
+        for (const word of w) { counts[word] = (counts[word] || 0) + 1; if (counts[word] > top) top = counts[word]; }
+        if (top / w.length >= 0.6) return true;
+    }
     return false;
 }
 
+// True if some n-gram (length 2..6) repeats consecutively 3 or more times.
+function _hasRepeatedNgram(words) {
+    for (let n = 2; n <= 6; n++) {
+        if (words.length < n * 3) continue;
+        for (let i = 0; i + n * 3 <= words.length; i++) {
+            const a = words.slice(i, i + n).join(' ');
+            const b = words.slice(i + n, i + 2 * n).join(' ');
+            const c = words.slice(i + 2 * n, i + 3 * n).join(' ');
+            if (a === b && b === c) return true;
+        }
+    }
+    return false;
+}
+
+// Collapse immediate repeated phrases inside a single transcript segment, e.g.
+// "So it tastes like So it tastes like So" → "So it tastes like". Runs before append
+// so the live transcript reads like speech even if the model stutters mid-clip.
+function _collapseRepeats(text) {
+    const raw = (text || '').trim();
+    if (!raw) return raw;
+    const words = raw.split(/\s+/);
+    if (words.length < 4) return raw;
+    for (let n = Math.min(6, Math.floor(words.length / 2)); n >= 1; n--) {
+        for (let i = 0; i + 2 * n <= words.length; i++) {
+            const first = words.slice(i, i + n).join(' ').toLowerCase();
+            let reps = 1;
+            let j = i + n;
+            while (j + n <= words.length &&
+                   words.slice(j, j + n).join(' ').toLowerCase() === first) {
+                reps++; j += n;
+            }
+            if (reps >= 2) {
+                // keep one copy of the phrase, drop the rest of the run
+                words.splice(i + n, (reps - 1) * n);
+                return _collapseRepeats(words.join(' '));
+            }
+        }
+    }
+    return words.join(' ');
+}
+
+// Remembers the last finalized interviewer text so the two paths (realtime WS +
+// WAV-clip fallback) can never write the same segment twice during a reconnect window.
+let _lastAppliedInterviewer = '';
+let _lastAppliedInterviewerAt = 0;
+function _normForDedup(s) {
+    return (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+}
 function _applyTranscribedText(text) {
     if (!text) return;
     if (_isLikelyHallucination(text)) { try { console.debug('[whis] dropped hallucination:', text); } catch (_) {} return; }
+    // Collapse in-clip stutter loops before anything else sees the text.
+    text = _collapseRepeats(text);
+    if (!text || _isLikelyHallucination(text)) return;
+    // De-dup: drop a segment that is identical (or one-contains-the-other) to the last
+    // finalized interviewer segment within a short window. Guards against the realtime
+    // socket and the WAV fallback both emitting the same utterance across a reconnect,
+    // and against the model re-emitting a phrase it already returned.
+    const norm = _normForDedup(text);
+    const prev = _lastAppliedInterviewer;
+    if (norm && prev && (Date.now() - _lastAppliedInterviewerAt) < 8000) {
+        if (norm === prev || prev.includes(norm) || norm.includes(prev)) {
+            try { console.debug('[whis] dropped duplicate segment:', text); } catch (_) {}
+            return;
+        }
+    }
+    _lastAppliedInterviewer = norm;
+    _lastAppliedInterviewerAt = Date.now();
     _appendTranscript('interviewer', text);
     if (isAutoMode) {
         hiddenTranscription += (hiddenTranscription ? " " : "") + text;
@@ -6483,6 +6579,15 @@ async function startListening() {
     }
     if (audioCtx.state === "suspended") await audioCtx.resume();
 
+    // WEB: Chrome commonly ignores the requested 16 kHz and runs the context at the
+    // hardware rate (48 kHz for tab/system audio). Read the TRUE rate now so both
+    // transcription paths resample correctly from it. Desktop honors the request, so
+    // this stays 16000 there and nothing about the desktop pipeline changes.
+    _captureSampleRate = (window.WHIS_WEB && audioCtx && audioCtx.sampleRate)
+        ? audioCtx.sampleRate
+        : SAMPLE_RATE;
+    try { console.debug('[whis] AudioContext real sampleRate =', audioCtx && audioCtx.sampleRate, '→ capture rate', _captureSampleRate); } catch (_) {}
+
     // Auto-resume if the OS suspends the AudioContext (power-save / focus loss)
     audioCtx.addEventListener('statechange', () => {
         if (isListening && audioCtx && audioCtx.state === 'suspended') {
@@ -6511,6 +6616,8 @@ async function startListening() {
     isVadActive = false;
 
     liveTranscript = [];
+    _lastAppliedInterviewer = '';
+    _lastAppliedInterviewerAt = 0;
     _renderLiveTranscript();
 
     updateListeningUI(true);
@@ -6704,7 +6811,15 @@ async function _doCommit() {
         return;
     }
 
-    const wavBlob = encodeWAV(fullBuffer, SAMPLE_RATE);
+    // WEB: `fullBuffer` is at the REAL capture rate (often 48 kHz). Resample down to
+    // the 16 kHz the /api/transcribe backend expects, then encode a WAV whose header
+    // matches the data. Without this the WAV claims 16 kHz over 48 kHz samples and the
+    // clip plays 3x too slow → garbled/looping transcription. Desktop capture rate is
+    // already SAMPLE_RATE, so this is a no-op copy there.
+    const wavSamples = (_captureSampleRate === SAMPLE_RATE)
+        ? fullBuffer
+        : _resamplePcm(fullBuffer, _captureSampleRate, SAMPLE_RATE);
+    const wavBlob = encodeWAV(wavSamples, SAMPLE_RATE);
     const controller = new AbortController();
     // 12 s ceiling: the backend races two providers and answers in ~2 s p99, so this
     // is a safety net, not a normal path. On timeout we re-queue below rather than drop.
