@@ -252,17 +252,77 @@
     return `<span class="wv-badge chip mode">${esc(s.mode || 'Session')}</span>`;
   }
 
-  // Give every session a real, human name derived from its context (company, role,
-  // or mode + date) instead of "Untitled".
+  // Give every session a real, human name derived from whatever it carries
+  // (company, role, a captured question/topic, or a warm mode + date) so a card
+  // never reads as a bland "Untitled".
+  function titleCase(str) {
+    const small = /^(a|an|and|the|of|to|for|in|on|at|by|with|vs|via|or|as)$/i;
+    const words = String(str).trim().split(/\s+/).filter(Boolean);
+    return words.map((w, i) => {
+      const lower = w.toLowerCase();
+      if (i > 0 && small.test(lower)) return lower;
+      if (/^[A-Z0-9]{2,}$/.test(w)) return w; // keep acronyms (API, SQL, URL)
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    }).join(' ');
+  }
+
+  // Pull the first human sentence out of whatever transcript/question shape exists.
+  function firstQuestionText(s) {
+    const direct = firstText(s.firstQuestion, s.topic, s.title);
+    if (direct) return direct;
+    const turns = normalizeTranscript(s);
+    const asked = turns.find((t) => !t.you && t.text) || turns[0];
+    return asked ? asked.text : '';
+  }
+
+  // Turn a raw question/topic into a tidy 3-5 word Title-Cased phrase, no
+  // trailing punctuation. Returns '' when nothing useful can be salvaged.
+  function topicPhrase(raw) {
+    let t = String(raw || '').trim();
+    if (!t) return '';
+    // Strip common lead-ins so the meat of the question survives.
+    t = t.replace(/^(so\s+|okay,?\s+|alright,?\s+|let'?s\s+(start|begin)(\s+with)?\s+|can you\s+|could you\s+|please\s+|tell me\s+(about\s+)?|walk me through\s+|how (would|do|did) you\s+|what (is|are|was|were)\s+(your\s+)?|describe\s+|explain\s+(how\s+)?|implement\s+)/i, '');
+    // Behavioral prompts collapse to their subject.
+    t = t.replace(/^(a\s+)?time (when |that )?you\s+/i, '');
+    // First clause only, drop trailing punctuation and filler tails.
+    t = t.split(/[.?!;:\n,]/)[0];
+    // Drop a leading article now that lead-ins are gone.
+    t = t.replace(/^(a|an|the)\s+/i, '');
+    // "design a/an X" -> "X Design" reads more like a topic.
+    t = t.replace(/^design\s+(a\s+|an\s+)?(.*)$/i, '$2 Design');
+    t = t.replace(/\b(please|for me|to me|in detail|step by step|from scratch)\b/gi, '');
+    t = t.replace(/[^\w\s+#.-]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!t) return '';
+    const words = t.split(' ').filter(Boolean).slice(0, 5);
+    if (words.length < 1) return '';
+    return titleCase(words.join(' '));
+  }
+
+  // A warm, intentional label for sessions that only have a timestamp.
+  function warmModeDate(s) {
+    const mode = (s.mode || '').trim();
+    const m = mode ? titleCase(mode) : 'Interview';
+    const d = s.createdAt ? new Date(s.createdAt) : null;
+    if (!d || isNaN(d)) return `${m} Session`;
+    const hr = d.getHours();
+    const partOfDay = hr < 12 ? 'Morning' : hr < 17 ? 'Afternoon' : 'Evening';
+    const nice = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    return `${partOfDay} ${m} · ${nice}`;
+  }
+
   function sessionTitle(s) {
     const co = (s.company || '').trim();
     const role = (s.role || '').trim();
-    const mode = (s.mode || '').trim();
     if (co && role) return `${co} · ${role}`;
     if (co) return co;
     if (role) return role;
-    const m = mode ? (mode.charAt(0).toUpperCase() + mode.slice(1)) : 'Interview';
-    return `${m} on ${fmtDate(s.createdAt)}`;
+    const phrase = topicPhrase(firstQuestionText(s));
+    if (phrase) {
+      const mode = (s.mode || '').trim().toLowerCase();
+      if (/interview/.test(mode) && !/interview/i.test(phrase)) return `${phrase} Interview`;
+      return phrase;
+    }
+    return warmModeDate(s);
   }
 
   function cardHTML(s) {
