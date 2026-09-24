@@ -198,13 +198,9 @@
   .green .wrap{max-width:1240px;position:relative;z-index:1} .green h2{color:#fff} .green .sec-sub{color:rgba(234,243,236,.72)}
   .green .gtrain{position:relative;z-index:1}
   /* ambient drifting spiral field, immersive faint technical questions behind everything */
-  .green-field{position:absolute;inset:-10% -5%;z-index:0;pointer-events:none;opacity:1}
+  .green-field{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
   .green-field svg{width:100%;height:100%;display:block}
-  .green-field text{font-family:"JetBrains Mono",ui-monospace,monospace;font-style:normal;fill:rgba(234,243,236,.13);font-size:16px;letter-spacing:-.2px}
-  .gf-a{transform-origin:600px 600px;animation:gfspin 150s linear infinite}
-  .gf-b{transform-origin:600px 600px;animation:gfspin 110s linear infinite reverse}
-  .gf-c{transform-origin:600px 600px;animation:gfspin 80s linear infinite}
-  @keyframes gfspin{to{transform:rotate(360deg)}}
+  .green-field text{font-family:"JetBrains Mono",ui-monospace,monospace;fill:rgba(234,243,236,.09);font-size:15px;letter-spacing:-.2px}
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:28px}
   .card-cmp{border:1px solid rgba(255,255,255,.16);border-radius:26px;padding:30px;background:rgba(255,255,255,.03)}
   .card-cmp .tag{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(234,243,236,.6)}
@@ -234,6 +230,16 @@
   .dwnote{display:flex;gap:12px;align-items:flex-start;max-width:760px;margin:24px auto 0;background:rgba(217,199,247,.08);border:1px solid rgba(217,199,247,.28);border-radius:16px;padding:16px 18px;color:rgba(234,243,236,.86)}
   .dwnote svg{color:var(--lav-deep);flex:0 0 auto;margin-top:2px}
   .dwnote p{margin:0;font-size:13.5px;line-height:1.6} .dwnote b{color:#fff;font-weight:600}
+  /* invisibility proof, two columns: text left, videos right (compact, brought up) */
+  .proof-cols{display:grid;grid-template-columns:0.82fr 1.18fr;gap:46px;align-items:center;margin-top:22px}
+  .proof-left{text-align:left}
+  .proof-left .sec-head{text-align:left;max-width:none;margin:0}
+  .proof-left .sec-head h2{font-size:clamp(30px,3.6vw,46px)}
+  .proof-left .sec-sub{text-align:left;margin:16px 0 0;max-width:46ch}
+  .proof-left .invis3{justify-content:flex-start;margin-top:22px}
+  .proof-left .dwnote{margin:18px auto 0 0}
+  .proof-right .compare{margin:0}
+  @media(max-width:900px){.proof-cols{grid-template-columns:1fr;gap:26px}.proof-left{text-align:center}.proof-left .sec-head,.proof-left .sec-sub{text-align:center}.proof-left .sec-sub{margin-left:auto;margin-right:auto}.proof-left .invis3{justify-content:center}}
   @media(max-width:820px){.compare{grid-template-columns:1fr}}
 
   /* try free in browser (dashboard highlight) */
@@ -611,7 +617,7 @@
     <div class="wrap">
       <div class="eyebrow wv-eyebrow">Stealth interview copilot</div>
       <h1 class="serif wv-display">Nail the interview.<br><span class="it wv-italic">Name your salary.</span></h1>
-      <p class="sub">Whis hears the interviewer and puts the perfect answer on your screen, live and invisible.</p>
+      <p class="sub">Your invisible copilot for live technical interviews. It hears the question and shows you the answer.</p>
       <div class="cta">
         <a class="btn btn-primary btn-lg wv-btn wv-btn--primary wv-btn--lg" href="/app3/" onclick="openDownloadModal();return false;">Download the desktop app <span class="arw wv-arw">→</span></a>
         <a class="linklike" href="/dashboard3.html">Try free in your browser</a>
@@ -627,15 +633,17 @@
   <section style="padding:0 0 8px">
     <div class="green">
       <div class="green-field" aria-hidden="true">
-        <svg viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid slice">
+        <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
           <defs>
-            <path id="gf1" d="M600,600 m-540,0 a540,540 0 1,1 1080,0 a540,540 0 1,1 -1080,0"/>
-            <path id="gf2" d="M600,600 m-400,0 a400,400 0 1,1 800,0 a400,400 0 1,1 -800,0"/>
-            <path id="gf3" d="M600,600 m-260,0 a260,260 0 1,1 520,0 a260,260 0 1,1 -520,0"/>
+            <path id="gf1" d="M-180,150 C300,70 740,240 1140,140 S1780,120 1980,190" fill="none"/>
+            <path id="gf2" d="M-180,880 C300,800 740,970 1140,850 S1780,880 1980,820" fill="none"/>
           </defs>
-          <g class="gf-a"><text><textPath href="#gf1">int lengthOfLongestSubstring(string s){ unordered_map&lt;char,int&gt; last; int L=0, best=0; for(int R=0; R&lt;(int)s.size(); ++R){ if(last.count(s[R])) L=max(L,last[s[R]]+1); last[s[R]]=R; best=max(best,R-L+1); } return best; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-          <g class="gf-b"><text><textPath href="#gf2">priority_queue&lt;int,vector&lt;int&gt;,greater&lt;int&gt;&gt; pq; for(int x:nums){ pq.push(x); if((int)pq.size()&gt;k) pq.pop(); } return pq.top();&nbsp;&nbsp;&nbsp;ListNode* reverse(ListNode* h){ ListNode* p=nullptr; while(h){ auto n=h-&gt;next; h-&gt;next=p; p=h; h=n; } return p; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
-          <g class="gf-c"><text><textPath href="#gf3">bool hasCycle(ListNode* h){ auto s=h,f=h; while(f&amp;&amp;f-&gt;next){ s=s-&gt;next; f=f-&gt;next-&gt;next; if(s==f) return true; } return false; }&nbsp;&nbsp;&nbsp;</textPath></text></g>
+          <text class="gfl"><textPath href="#gf1">for(int R=0;R&lt;n;++R){ if(seen.count(s[R])) L=max(L,seen[s[R]]+1); seen[s[R]]=R; best=max(best,R-L+1); }&nbsp;&nbsp;&nbsp;&nbsp;for(int R=0;R&lt;n;++R){ if(seen.count(s[R])) L=max(L,seen[s[R]]+1); seen[s[R]]=R; best=max(best,R-L+1); }&nbsp;&nbsp;&nbsp;&nbsp;for(int R=0;R&lt;n;++R){ if(seen.count(s[R])) L=max(L,seen[s[R]]+1); seen[s[R]]=R; best=max(best,R-L+1); }&nbsp;&nbsp;&nbsp;&nbsp;
+            <animate attributeName="startOffset" from="0%" to="-33.33%" dur="60s" repeatCount="indefinite"/>
+          </textPath></text>
+          <text class="gfl"><textPath href="#gf2">ListNode* reverse(ListNode* h){ ListNode* p=nullptr; while(h){ auto n=h-&gt;next; h-&gt;next=p; p=h; h=n; } return p; }&nbsp;&nbsp;&nbsp;&nbsp;ListNode* reverse(ListNode* h){ ListNode* p=nullptr; while(h){ auto n=h-&gt;next; h-&gt;next=p; p=h; h=n; } return p; }&nbsp;&nbsp;&nbsp;&nbsp;ListNode* reverse(ListNode* h){ ListNode* p=nullptr; while(h){ auto n=h-&gt;next; h-&gt;next=p; p=h; h=n; } return p; }&nbsp;&nbsp;&nbsp;&nbsp;
+            <animate attributeName="startOffset" from="-33.33%" to="0%" dur="78s" repeatCount="indefinite"/>
+          </textPath></text>
         </svg>
       </div>
       <div class="wrap">
@@ -662,33 +670,39 @@
         </div>
       </div>
 
-      <div class="sec-head" style="max-width:24ch"><h2 class="serif">Your interviewer <span class="it">sees nothing.</span></h2></div>
-      <p class="sec-sub">Whis is blocked at the OS level, not just hidden. It cannot be captured by any recording software. Even a screenshot taken mid-interview comes back completely clean.</p>
-      <div class="compare">
-        <div class="card-cmp">
-          <div class="tag">Their screen · screen-share</div><div class="big serif">Nothing</div>
-          <div class="screen theirs">
-            <div class="mock" aria-hidden="true"><div class="top"><i></i><i></i><i></i><span>main.py, shared</span></div><div class="lines"><b class="k" style="width:38%"></b><b style="width:64%"></b><b class="s" style="width:52%"></b><b style="width:30%"></b><b class="k" style="width:58%"></b><b style="width:44%"></b><b class="s" style="width:70%"></b><b style="width:34%"></b></div></div>
-            <video class="vid" autoplay loop muted playsinline preload="auto" aria-label="Interviewer's shared screen showing no overlay"><source src="interviewer_view_best.mp4" type="video/mp4"></video>
-            <div class="scanline"></div>
-            <span class="lbl-tl">Interviewer view</span>
-            <span class="scr-badge"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> no overlay found</span>
-          </div>
+      <div class="proof-cols">
+        <div class="proof-left">
+          <div class="sec-head"><h2 class="serif">Your interviewer <span class="it">sees nothing.</span></h2></div>
+          <p class="sec-sub">Whis is blocked at the OS level, not just hidden. No recording software can capture it, and a screenshot taken mid-interview comes back completely clean.</p>
+          <div class="invis3"><span>✓ Invisible in screen-share</span><span>✓ Invisible in recordings</span><span>✓ Invisible in screenshots</span><span>✓ No recording · No data stored</span></div>
+          <div class="dwnote"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><p><b>Only the desktop app is truly invisible.</b> The <b>web app</b> runs in your browser for practice. For a real, undetectable live interview, use the desktop app.</p></div>
         </div>
-        <div class="card-cmp">
-          <div class="tag">Your screen · Ghost Mode</div><div class="big serif">Whis-AI</div>
-          <div class="screen yours">
-            <div class="mock" aria-hidden="true"><div class="top"><i></i><i></i><i></i><span>main.py, shared</span></div><div class="lines"><b class="k" style="width:38%"></b><b style="width:64%"></b><b class="s" style="width:52%"></b><b style="width:30%"></b><b class="p" style="width:58%"></b><b style="width:44%"></b><b class="s" style="width:70%"></b><b style="width:34%"></b></div></div>
-            <video class="vid" autoplay loop muted playsinline preload="auto" aria-label="Your screen with Whis-AI answering live"><source src="interviewee_view_best.mp4" type="video/mp4"></video>
-            <span class="lbl-tl">Your view</span>
-            <span class="scr-badge lav" style="top:12px;left:auto;right:12px;bottom:auto"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> only you</span>
-            <div class="cap">“Design a rate limiter.” → <b>Token bucket</b>: refill R tokens/sec, cap B. If tokens ≥ 1, decrement &amp; allow; else reject. O(1) per request.</div>
+        <div class="proof-right">
+          <div class="compare">
+            <div class="card-cmp">
+              <div class="tag">Their screen · screen-share</div><div class="big serif">Nothing</div>
+              <div class="screen theirs">
+                <div class="mock" aria-hidden="true"><div class="top"><i></i><i></i><i></i><span>main.py, shared</span></div><div class="lines"><b class="k" style="width:38%"></b><b style="width:64%"></b><b class="s" style="width:52%"></b><b style="width:30%"></b><b class="k" style="width:58%"></b><b style="width:44%"></b><b class="s" style="width:70%"></b><b style="width:34%"></b></div></div>
+                <video class="vid" autoplay loop muted playsinline preload="auto" aria-label="Interviewer's shared screen showing no overlay"><source src="interviewer_view_best.mp4" type="video/mp4"></video>
+                <div class="scanline"></div>
+                <span class="lbl-tl">Interviewer view</span>
+                <span class="scr-badge"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> no overlay found</span>
+              </div>
+            </div>
+            <div class="card-cmp">
+              <div class="tag">Your screen · Ghost Mode</div><div class="big serif">Whis-AI</div>
+              <div class="screen yours">
+                <div class="mock" aria-hidden="true"><div class="top"><i></i><i></i><i></i><span>main.py, shared</span></div><div class="lines"><b class="k" style="width:38%"></b><b style="width:64%"></b><b class="s" style="width:52%"></b><b style="width:30%"></b><b class="p" style="width:58%"></b><b style="width:44%"></b><b class="s" style="width:70%"></b><b style="width:34%"></b></div></div>
+                <video class="vid" autoplay loop muted playsinline preload="auto" aria-label="Your screen with Whis-AI answering live"><source src="interviewee_view_best.mp4" type="video/mp4"></video>
+                <span class="lbl-tl">Your view</span>
+                <span class="scr-badge lav" style="top:12px;left:auto;right:12px;bottom:auto"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> only you</span>
+                <div class="cap">“Design a rate limiter.” → <b>Token bucket</b>: refill R tokens/sec, cap B. If tokens ≥ 1, decrement &amp; allow; else reject. O(1) per request.</div>
+              </div>
+            </div>
           </div>
+          <p style="text-align:center;color:rgba(234,243,236,.6);font-size:13px;margin-top:14px">Real footage from a live session, same call, same shared screen.</p>
         </div>
       </div>
-      <p style="text-align:center;color:rgba(234,243,236,.6);font-size:13px;margin-top:16px">Real footage from a live session, same call, same shared screen.</p>
-      <div class="invis3"><span>✓ Invisible in screen-share</span><span>✓ Invisible in recordings</span><span>✓ Invisible in screenshots</span><span>✓ No recording · No data stored</span></div>
-      <div class="dwnote"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><p><b>Only the desktop app is truly invisible.</b> It hides at the operating-system level, so screen-share, recording and screenshots come back clean. The <b>web app</b> runs in your browser and is for practice, to show you exactly how Whis works before your interview. For a real, undetectable live interview, use the desktop app.</p></div>
     </div></div>
   </section>
 
