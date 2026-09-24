@@ -266,9 +266,18 @@
     }).join(' ');
   }
 
+  // Treat backend placeholders ("Untitled", "Untitled Session", "New Session", etc.)
+  // as no value, so a stored placeholder title never leaks through as the card name.
+  function realVal(v) {
+    const t = String(v || '').trim();
+    if (!t) return '';
+    if (/^(untitled|new session|session|untitled session|no title)$/i.test(t)) return '';
+    return t;
+  }
+
   // Pull the first human sentence out of whatever transcript/question shape exists.
   function firstQuestionText(s) {
-    const direct = firstText(s.firstQuestion, s.topic, s.title);
+    const direct = firstText(realVal(s.firstQuestion), realVal(s.topic), realVal(s.title));
     if (direct) return direct;
     const turns = normalizeTranscript(s);
     const asked = turns.find((t) => !t.you && t.text) || turns[0];

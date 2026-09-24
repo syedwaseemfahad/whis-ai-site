@@ -2279,8 +2279,8 @@ function _webTrialEndedLockdown() {
     ov.setAttribute('role', 'dialog');
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,25,18,.74);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);';
     ov.innerHTML = '<div style="max-width:420px;width:100%;text-align:center;background:#0e3524;border:1px solid rgba(234,243,236,.14);border-radius:20px;padding:34px 28px;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);font-family:Inter,system-ui,sans-serif;color:#eaf3ec;">'
-      + '<div style="font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;">Your free session has ended.</div>'
-      + '<div style="color:rgba(234,243,236,.72);font-size:15px;line-height:1.55;margin-bottom:22px;">Go Elite for unlimited live sessions, or head back to the homepage.</div>'
+      + '<div style="font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;">Your free trial is over.</div>'
+      + '<div style="color:rgba(234,243,236,.72);font-size:15px;line-height:1.55;margin-bottom:22px;">You have used your free live session. Go Elite for unlimited live sessions, or head back to the homepage.</div>'
       + '<a href="/index3.html#pricing" style="display:block;background:#c3a9ef;color:#1a1712;font-weight:700;text-decoration:none;border-radius:999px;padding:13px 20px;margin-bottom:10px;">Upgrade to Elite</a>'
       + '<a href="/index3.html" style="display:block;background:transparent;color:#eaf3ec;border:1px solid rgba(234,243,236,.22);font-weight:600;text-decoration:none;border-radius:999px;padding:12px 20px;">Back to home</a>'
       + '<div style="color:rgba(234,243,236,.5);font-size:12.5px;margin-top:16px;">Taking you back to the homepage...</div>'
@@ -6357,10 +6357,27 @@ async function getSystemAudioStreamViaElectron() {
     if (IS_MOBILE_WEB || !navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
         throw new Error('getDisplayMedia unavailable (mobile / no screen-capture)');
     }
-    const displayStream = await navigator.mediaDevices.getDisplayMedia({
-        audio: true,
-        video: _isWeb ? true : { width: 1, height: 1, frameRate: 1 }
-    });
+    // On web, steer the browser's screen-picker toward a BROWSER TAB (that is what
+    // carries the interviewer's audio) and away from full-screen sharing: default the
+    // picker to the "Chrome tab" pane (displaySurface:"browser"), drop the "Entire
+    // screen" pane (monitorTypeSurfaces:"exclude"), and don't offer the Whis tab
+    // itself (selfBrowserSurface:"exclude") so users never share us back into a loop.
+    // (Chrome has no standard flag to remove the "Window" pane, so it may still show.)
+    const displayStream = await navigator.mediaDevices.getDisplayMedia(
+        _isWeb
+            ? {
+                audio: true,
+                video: { displaySurface: 'browser' },
+                selfBrowserSurface: 'exclude',
+                monitorTypeSurfaces: 'exclude',
+                surfaceSwitching: 'include',
+                systemAudio: 'include'
+            }
+            : {
+                audio: true,
+                video: { width: 1, height: 1, frameRate: 1 }
+            }
+    );
 
     const audioTracks = displayStream.getAudioTracks();
 

@@ -1072,6 +1072,63 @@ body.whis-web .tmb-cta {
 }
 body.whis-web .tmb-cta:hover { background: var(--wv-lav-deep) !important; }
 
+/* ── Relocate the trial nudge into the UNUSED right-side space of the wide single
+   column (non-two-pane) web view: a real, substantial Elite card instead of a thin
+   top strip. The rail is reserved on #messages via :has() so the answer never runs
+   under it. Below 1200px it stays the calm in-flow top bar (no fixed card). ─────── */
+@media (min-width: 1200px) {
+  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] {
+    position: fixed !important;
+    top: 120px !important;
+    right: 26px !important;
+    left: auto !important;
+    width: 262px !important;
+    margin: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 22px 20px !important;
+    background: var(--wv-green-2) !important;
+    border: 1px solid var(--wv-border-strong) !important;
+    border-radius: var(--wv-radius-lg) !important;
+    box-shadow: var(--wv-shadow-elevated) !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    animation: none !important;
+    z-index: 240 !important;
+  }
+  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"]::before {
+    content: "WHIS ELITE";
+    font-family: var(--wv-font-ui);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    color: var(--wv-lav);
+    text-transform: uppercase;
+  }
+  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] .tmb-dot { display: none !important; }
+  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] .tmb-text {
+    font-family: var(--wv-font-display) !important;
+    font-size: 19px !important;
+    line-height: 1.32 !important;
+    color: var(--wv-text) !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+  body.whis-web:not(.whis-session-active) #trial-motivation-bar[style*="flex"] .tmb-cta {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 11px 14px !important;
+    font-size: 13.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  /* reserve the right rail so the answer column never slides under the card */
+  body.whis-web:not(.whis-session-active) #content-area:has(#trial-motivation-bar[style*="flex"]) #messages {
+    padding-right: 306px !important;
+  }
+}
+
 /* Trial timer: NO boxy border. A calm, boxless warm-gold time readout, not a
    pink-bordered chip. Faint rounded warm wash only, never a hard outline. */
 body.whis-web .timer-badge {
@@ -1211,14 +1268,21 @@ body.whis-web .upgrade-fab.ending {
 }
 
 /* ── Header "Try Free" trial button → lavender primary ───────────────────── */
+/* "Try Free" is the primary in-app CTA for free users: make it POP against the
+   dark-green header (a flat lavender pill was reading as low-contrast). Solid bright
+   lavender, dark ink text, bold, with a soft lavender glow ring so it stands out. */
 body.whis-web .header-trial-btn {
   background: var(--wv-lav) !important;
   color: var(--wv-ink) !important;
-  border: 1px solid var(--wv-lav) !important;
-  box-shadow: none !important;
+  border: 1px solid #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 0 2px rgba(195,169,239,0.35), 0 8px 20px -8px rgba(195,169,239,0.85) !important;
   text-shadow: none !important;
 }
-body.whis-web .header-trial-btn:hover { background: var(--wv-lav-deep) !important; }
+body.whis-web .header-trial-btn:hover {
+  background: var(--wv-lav-deep) !important;
+  box-shadow: 0 0 0 2px rgba(195,169,239,0.5), 0 10px 24px -8px rgba(195,169,239,0.95) !important;
+}
 body.whis-web .header-trial-btn i { color: var(--wv-ink) !important; }
 
 /* ── Send button → lavender fill + lavender glow (kills royal-blue gradient) ─ */
