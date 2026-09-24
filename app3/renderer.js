@@ -5734,6 +5734,9 @@ let audioCtx = null;
 let processor = null;
 let inputStream = null;
 let isListening = false;
+// WEB-only, harmless read-only accessor so headless tests can confirm the real
+// listening state (module-scoped) without changing any behavior. Gated to the web build.
+try { if (window.WHIS_WEB) window.__getListening = () => isListening; } catch (_) {}
 let audioChunks = [];
 let currentLength = 0;
 const SAMPLE_RATE = 16000;
@@ -6190,17 +6193,36 @@ async function startListening() {
     // the system-audio cascade below (it would throw and dead-end the UI). A one-time
     // note explains the honest tradeoff. Typed questions remain the primary path.
     // We acquire the stream here, then fall through to the shared audio pipeline.
-    if (window.WHIS_WEB && (IS_MOBILE_WEB || window._whisUseMic)) {
-        // MIC path, only on mobile (no getDisplayMedia) or when the user explicitly
-        // chose "use my mic". The mic hears the interviewer only if the call is on the
-        // laptop speaker; it also picks up room noise, so it's the fallback, not default.
+    // AUTO-UPGRADE guard: even on the mic path, if a persistent screen share is already
+    // live AND carries clean interviewer audio, reuse THAT track instead of the mic.
+    // This makes the "share a tab with audio" upgrade seamless from anywhere.
+    let _preferSharedNow = false;
+    try {
+        if (window.WHIS_WEB && !IS_MOBILE_WEB &&
+            window.electronAPI && window.electronAPI.hasLiveScreen &&
+            window.electronAPI.hasLiveScreen() &&
+            window.electronAPI.liveHasAudio && window.electronAPI.liveHasAudio()) {
+            _preferSharedNow = true;
+            window._whisUseMic = false;
+            window._whisTabAudio = true;
+        }
+    } catch (_) {}
+
+    if (window.WHIS_WEB && !_preferSharedNow && (IS_MOBILE_WEB || window._whisUseMic)) {
+        // MIC path (the DEFAULT on web now): decoupled from screen share so audio works
+        // instantly on enter with zero clicks. VAD (VAD_MIN_SEND_PEAK) + the
+        // hallucination guard keep quiet room noise from producing junk transcript. If
+        // the user later shares a tab with audio, _startShare() upgrades to that clean
+        // track. The mic is also the only option on mobile (no getDisplayMedia).
         if (IS_MOBILE_WEB) _showMobileCaptureNoteOnce();
+        window._whisTabAudio = false; // honest label: "Listening · your mic"
         try {
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (eMic) {
             console.warn('Web mic capture failed:', eMic);
             updateListeningUI(false);
-            whisToast('Whis needs microphone access. Enable the mic for this site (address-bar icon), then click Listen again, or just type your question below.', 'warning', 8000);
+            // ONE clear line on how to enable it, and typed questions keep working.
+            whisToast('Whis needs your microphone. Click the mic icon in the address bar and allow it, then press Start again. You can also type your question below any time.', 'warning', 9000);
             return;
         }
     } else if (window.WHIS_WEB) {
@@ -8119,10 +8141,10 @@ const WhisSession = (() => {
           </div>
           <div class="wlp-share" id="wlp-share">
             <div class="wlp-share-icon"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></div>
-            <div class="wlp-share-title">Share your interview tab</div>
-            <div class="wlp-share-sub">Pick the meeting tab / window and tick <strong>Share tab audio</strong>. Whis hears the interviewer and reads the screen from here.</div>
+            <div class="wlp-share-title">Share your screen so Whis can read the coding question</div>
+            <div class="wlp-share-sub">Whis is already listening on your mic. Share your screen when you want it to read the question or take a screenshot. Sharing a Chrome tab with <strong>Share tab audio</strong> also lets it hear the interviewer more clearly.</div>
             <button type="button" class="wlp-share-btn" id="wlp-share-btn">
-              <i class="fa-solid fa-desktop" aria-hidden="true"></i> Share tab / window
+              <i class="fa-solid fa-desktop" aria-hidden="true"></i> Share your screen
             </button>
           </div>
         </div>
@@ -8569,11 +8591,22 @@ const WhisSession = (() => {
       listenBtn.innerHTML = `<span class="wlp-rec-dot" aria-hidden="true"></span><i class="fa-solid ${icon}" aria-hidden="true"></i><span class="wlp-ctl-label">${label}</span>`;
     }
     if (dotEl) dotEl.classList.toggle('wf-tick-live', listening);
+    // Honest, obvious source label: "Listening · interviewer's tab" (clean shared audio)
+    // vs "Listening · your mic" (the default). Uses a plain middot, never an em-dash.
+    const _srcLabel = (window._whisTabAudio === true)
+      ? 'Listening · interviewer’s tab'
+      : 'Listening · your mic';
     const live = document.getElementById('wf-live');
     if (live) {
       live.classList.toggle('wf-live-on', listening);
       const t = live.querySelector('.wf-live-text');
-      if (t) t.textContent = listening ? 'Listening' : 'Idle';
+      if (t) t.textContent = listening ? _srcLabel : 'Idle';
+    }
+    // Mirror the same source in the left-pane listen control label when listening.
+    const listenBtn2 = leftPaneEl && leftPaneEl.querySelector('#wlp-listen .wlp-ctl-label');
+    if (listenBtn2 && listening) {
+      listenBtn2.textContent = 'Stop';
+      listenBtn2.setAttribute('title', _srcLabel);
     }
     // Reflect the ⋮ Auto Answer switch (mode may have changed elsewhere).
     try { window._whisSessionReflectAuto && window._whisSessionReflectAuto(); } catch (_) {}
@@ -8612,20 +8645,25 @@ const WhisSession = (() => {
     if (!html) { previewHintEl.style.display = 'none'; previewHintEl.innerHTML = ''; return; }
     previewHintEl.innerHTML = html;
     previewHintEl.style.display = 'block';
+    // Subtle, dismissible: the one-line hint can always be closed, so it never nags.
+    const x = previewHintEl.querySelector('#wlp-hint-dismiss');
+    if (x) x.addEventListener('click', (e) => { e.preventDefault(); _showPreviewHint(''); });
   }
 
-  // Share the interview tab/window ONCE (persistent stream, video + audio). Must run
-  // inside a user gesture (both getDisplayMedia and the picker require it). Then bind
-  // the preview and start listening (which reuses the shared audio as PRIMARY). If the
-  // share carries no audio, hint to re-share with audio and fall back to the mic so the
-  // user is never stuck.
+  // Share the interview tab/window (persistent stream, video + audio). OPTIONAL: the
+  // mic is already listening from enter(), so a share is never required for audio. This
+  // exists to (a) let Whis READ the screen (preview + Screenshot / vision) and (b) as a
+  // nice-to-have AUTO-UPGRADE to clean interviewer audio when the user shares a Chrome
+  // tab with "Share tab audio" ticked. Must run inside a user gesture. If the share
+  // carries no audio we stay on the mic SILENTLY (one subtle, dismissible hint at most);
+  // we never nag or block. If the user cancels the picker, the mic keeps working.
   async function _startShare(fromGesture) {
     if (!(window.electronAPI && window.electronAPI.startLiveScreen)) {
-      // No screen-capture on this device (mobile) → mic-only fallback.
-      try { startListening(); } catch (_) {}
+      // No screen-capture on this device (mobile) → the mic is already the audio path.
+      if (!(typeof isListening !== 'undefined' && isListening)) { try { startListening(); } catch (_) {} }
       return;
     }
-    // Already sharing → just make sure preview + listening are wired.
+    // Already sharing → just make sure the preview is wired (audio is already going).
     if (window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen()) {
       _attachPreview();
       if (!(typeof isListening !== 'undefined' && isListening)) { try { startListening(); } catch (_) {} }
@@ -8641,43 +8679,63 @@ const WhisSession = (() => {
     }
 
     if (!res || res.error) {
-      // User cancelled the picker → keep the pre-share CTA and let them retry (or type).
+      // User cancelled the picker → NOT a dead end. The mic keeps listening; the preview
+      // just keeps its calm "Share your screen" CTA. No warning, no nag.
       _detachPreview();
-      try { whisToast('Screen share cancelled. Click <strong>Share tab / window</strong> to capture the interviewer, or just type your question.', 'warning', 6000); } catch (_) {}
       return;
     }
 
     _attachPreview();
 
-    // No audio in the share → hint to re-share with audio, and fall back to the mic so
-    // Listen still works (never stuck).
+    // Does this share carry clean interviewer audio (Chrome tab + "Share tab audio")?
     const hasAudio = !!res.hasAudio ||
       (window.electronAPI.liveHasAudio && window.electronAPI.liveHasAudio());
-    if (!hasAudio) {
-      window._whisUseMic = true; // route startListening to the mic fallback
-      _showPreviewHint('No tab audio detected. For the cleanest interviewer capture, click <strong>Share tab / window</strong> again and tick <strong>“Share tab audio.”</strong> Using your mic for now.');
-      try { whisToast('No tab audio in that share. Re-share and tick <strong>“Share tab audio”</strong> for the cleanest capture, using your mic for now.', 'info', 8000); } catch (_) {}
-    } else {
-      window._whisUseMic = false;   // prefer the clean shared audio
-      window._whisTabAudio = true;  // reflect the honest "listening, interviewer's tab" label
-      _showPreviewHint('');
-    }
 
-    // Begin listening, startListening() reuses the shared audio track as PRIMARY.
-    if (!(typeof isListening !== 'undefined' && isListening)) {
+    if (hasAudio) {
+      // AUTO-UPGRADE to the clean interviewer track. Seamlessly switch listening from
+      // the mic to the shared-audio track: commit whatever the mic captured, flip the
+      // audio path, and restart listening (startListening() reuses getLiveAudioStream()).
+      window._whisUseMic = false;
+      window._whisTabAudio = true;
+      _showPreviewHint('');
+      try {
+        if (typeof isListening !== 'undefined' && isListening) {
+          await stopAndCommitAudio(true);
+        }
+      } catch (_) {}
       try { startListening(); } catch (_) {}
+    } else {
+      // NO audio in this share (whole screen / window on macOS). Stay on the mic
+      // SILENTLY. Offer ONE subtle, dismissible one-line hint, never a modal or toast.
+      window._whisUseMic = true;
+      window._whisTabAudio = false;
+      _showPreviewHint('Whis is reading your screen. To hear the interviewer more clearly, share a Chrome tab with <strong>Share tab audio</strong> ticked. <a href="#" id="wlp-hint-dismiss" class="wlp-hint-x">Dismiss</a>');
+      // Keep the mic listening (already running from enter()); start if somehow stopped.
+      if (!(typeof isListening !== 'undefined' && isListening)) { try { startListening(); } catch (_) {} }
     }
     setTimeout(_syncListenState, 120);
   }
 
   // The browser "Stop sharing" fired while the 75/25 view is open → drop the preview,
   // stop listening, and reset back to the pre-share CTA (session stays open).
-  function _onShareEnded() {
+  async function _onShareEnded() {
     if (!active) return;
     _detachPreview();
-    try { if (typeof isListening !== 'undefined' && isListening) stopAndCommitAudio(true); } catch (_) {}
-    setTimeout(_syncListenState, 60);
-    try { whisToast('Screen sharing stopped. Click <strong>Share tab / window</strong> to resume live capture.', 'info', 6000); } catch (_) {}
+    // Audio is decoupled from the share: when sharing stops we DO NOT go silent. If we
+    // were on the clean shared-audio track, seamlessly fall back to the mic so the user
+    // keeps being heard. If we were already on the mic, nothing changes.
+    const wasTabAudio = (window._whisTabAudio === true);
+    window._whisUseMic = true;
+    window._whisTabAudio = false;
+    if (wasTabAudio) {
+      try {
+        if (typeof isListening !== 'undefined' && isListening) await stopAndCommitAudio(true);
+      } catch (_) {}
+      try { startListening(); } catch (_) {}
+    } else if (!(typeof isListening !== 'undefined' && isListening)) {
+      try { startListening(); } catch (_) {}
+    }
+    setTimeout(_syncListenState, 120);
   }
   window._whisSessionOnShareEnded = _onShareEnded;
   // Exposed so Snap (handleScreenshotStage) can trigger the share via the session's
@@ -8699,25 +8757,36 @@ const WhisSession = (() => {
     mirrorTranscript();
     _syncListenState();
 
-    // WEB (ParakeetAI-style): the PRIMARY input is the shared tab/window. On desktop
-    // web, prompt the share right away (inside the enter() click gesture) so audio +
-    // video + Snap all come from one share. If the user cancels, the preview column
-    // keeps a "Share tab / window" CTA so they can start whenever they're ready.
-    const canShare = !IS_MOBILE_WEB && window.electronAPI && window.electronAPI.startLiveScreen;
-    if (canShare) {
-      if (window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen()) {
-        // Reuse an already-live share (e.g. from Go Live / Snap).
+    // AUDIO IS DECOUPLED FROM SCREEN SHARE. The moment the user enters the live
+    // session we START LISTENING ON THE MICROPHONE automatically, on every platform,
+    // so audio works instantly with zero clicks. The VAD + hallucination guards
+    // (VAD_MIN_SEND_PEAK, _isLikelyHallucination) keep quiet room noise from turning
+    // into junk transcript. Screen share is OPTIONAL and only for READING the screen
+    // (the preview + Screenshot / vision); it is NOT a prerequisite for hearing audio.
+    //
+    // If the user later shares a Chrome tab WITH audio, _startShare() seamlessly
+    // upgrades listening to that clean interviewer track. Until then, the left quadrant
+    // shows a calm "Share your screen so Whis can read the coding question" CTA.
+    window._whisUseMic  = true;   // default audio path: the mic
+    window._whisTabAudio = false; // honest label: "Listening · your mic"
+
+    // If a screen share is somehow already live with audio (e.g. reused from Go Live),
+    // prefer that clean track from the start; otherwise the mic is the default.
+    try {
+      if (window.electronAPI && window.electronAPI.hasLiveScreen && window.electronAPI.hasLiveScreen()) {
         _attachPreview();
-        if (!(typeof isListening !== 'undefined' && isListening)) { try { startListening(); } catch (_) {} }
-      } else {
-        _startShare(true);
+        if (window.electronAPI.liveHasAudio && window.electronAPI.liveHasAudio()) {
+          window._whisUseMic = false;
+          window._whisTabAudio = true;
+        }
       }
-    } else {
-      // Mobile / no screen-capture: mic-first, no preview column.
-      if (!(typeof isListening !== 'undefined' && isListening)) {
-        try { startListening(); } catch (_) {}
-      }
+    } catch (_) {}
+
+    // Start hearing the user immediately (mic-first). Never blocks on a share picker.
+    if (!(typeof isListening !== 'undefined' && isListening)) {
+      try { startListening(); } catch (_) {}
     }
+
     setTimeout(_syncListenState, 120);
     try { _trackFunnel && _trackFunnel('web_session_enter'); } catch (_) {}
   }
