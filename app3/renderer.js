@@ -5237,6 +5237,17 @@ function _liveListenLabel() {
   return window._whisTabAudio ? 'Listening, interviewer’s tab' : 'Listening (mic), you & interviewer on speaker';
 }
 
+// WEB: the answers-pane empty state DURING a live session. No competing CTAs, just a
+// short line telling the user exactly what happens next (talk, or type). Web-gated.
+function _renderWebLiveEmpty(container) {
+  container.innerHTML = `
+    <div class="web-live-empty">
+      <div class="web-live-empty-icon"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></div>
+      <div class="web-live-empty-title">You're live. Answers will appear here.</div>
+      <div class="web-live-empty-sub">Just talk, when the interviewer asks something, Whis answers here. You can also type a question below any time.</div>
+    </div>`;
+}
+
 function _renderWebWelcome(container) {
   // Honest framing: on a phone, live meeting/interviewer capture isn't possible, // it's practice by voice/text. On desktop web, the mic hears you and your
   // interviewer on speaker; true screenshare-invisible live capture is the desktop app.
@@ -5272,11 +5283,9 @@ function _renderWebWelcome(container) {
       </button>
       <div class="web-welcome-guidance">${guidance}</div>
       ${(typeof WhisLive !== 'undefined' && WhisLive.supported())
-        ? `<button type="button" class="web-golive-cta wl-golive-btn" id="web-golive-cta">
-             <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
-             Go Live, float a co-pilot over your interview
-             <i class="fa-solid fa-arrow-right" aria-hidden="true" style="font-size:11px;"></i>
-           </button>`
+        ? `<a href="#" class="web-golive-link wl-golive-btn" id="web-golive-cta">
+             Prefer a small floating panel instead?
+           </a>`
         : ''}
       <a href="https://whis-ai.com/#download" target="_blank" rel="noopener" class="web-desktop-cta" id="web-desktop-cta">
         <i class="fa-solid fa-desktop" aria-hidden="true"></i> Get the desktop app for live interviews
@@ -5380,6 +5389,12 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
     // welcome, one-tap starter questions that send immediately for the fastest
     // possible time-to-value (the "aha"). Guarded so desktop Electron is untouched.
     if (window.WHIS_WEB) {
+      // Inside a live session the starter-chip welcome is wrong (the user is already
+      // live). Show a calm, single-message live empty state so the next step is obvious.
+      if (typeof WhisSession !== 'undefined' && WhisSession.isActive()) {
+        _renderWebLiveEmpty(messagesContainer);
+        return;
+      }
       _renderWebWelcome(messagesContainer);
       return;
     }
@@ -5438,7 +5453,16 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
     bubbleEl.className = "whis-message-bubble";
     const isStreaming = activeMessageId && msg.id === activeMessageId;
     if (isStreaming && !msg.content) {
-        bubbleEl.innerHTML = '<div class="thinking-dots"><span></span><span></span><span></span></div>';
+        // WEB: pair the animated dots with a plain word so the user always knows the
+        // app is working (never a silent blank bubble). Desktop keeps the bare dots.
+        bubbleEl.innerHTML = window.WHIS_WEB
+            ? '<div class="thinking-dots"><span></span><span></span><span></span></div><span class="wh-thinking-label">Thinking…</span>'
+            : '<div class="thinking-dots"><span></span><span></span><span></span></div>';
+    } else if (msg.errorHtml) {
+        // WEB: a failed answer, render the clear Retry / type-your-question card
+        // (never the raw "Error: ..." string). msg.content holds the plain reason.
+        bubbleEl.innerHTML = _renderAnswerErrorCard(msg.content);
+        bubbleEl.classList.add('whis-message-bubble--error');
     } else if (msg.role === 'user') {
         // Never show the raw transcribed words, show a refined, concise cue of what was
         // asked (pulled from the answer's ASSIST_CUE line), falling back to "Assist" until
@@ -5452,8 +5476,9 @@ function renderMessages(activeMessageId = null, isFirstChunk = false) {
     }
     wrapper.appendChild(bubbleEl);
 
-    // Action buttons for assistant messages (copy + thumbs)
-    if (msg.role === 'assistant' && !isStreaming) {
+    // Action buttons for assistant messages (copy + thumbs). Skip error cards, they
+    // carry their own Retry / type-your-question actions.
+    if (msg.role === 'assistant' && !isStreaming && !msg.errorHtml) {
       const actions = document.createElement('div');
       actions.className = 'msg-actions';
       actions.dataset.msgId = msg.id;
@@ -5619,6 +5644,71 @@ async function finalizeAndSend() {
   }
 }
 
+// WEB: the last answer attempt's inputs, so the inline error card's "Retry" can
+// re-run the exact same turn. Desktop never reads this.
+let _lastAnswerAttempt = null;
+
+// WEB: surface a chat-stream failure LOUDLY and helpfully inside the answer bubble.
+// The user must never be left staring at a blank/spinning bubble: we render a plain
+// one-line reason, a Retry button, and a "type your question" fallback that focuses
+// the composer. Fully web-gated; on desktop the existing bare-string error path runs.
+function _showWebAnswerError(assistantId, rawError) {
+  const msg = state.messages.find((m) => m.id === assistantId);
+  if (msg) {
+    msg.content = _friendlyAnswerError(rawError); // plain text (also copyable)
+    msg.errorHtml = true;                         // render as the error card, not markdown
+  }
+  renderMessages();
+}
+
+// Build the inline error card (Retry + type-your-question) for an errored answer.
+function _renderAnswerErrorCard(reason) {
+  return (
+    '<div class="wh-answer-error" role="alert">' +
+      '<div class="wh-answer-error-msg">' + escapeHTML(reason) + '</div>' +
+      '<div class="wh-answer-error-actions">' +
+        '<button type="button" class="wh-answer-error-btn wh-answer-retry">Retry</button>' +
+        '<button type="button" class="wh-answer-error-btn wh-answer-type">Type your question</button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+// Turn a raw backend/network error into one warm, plain line the user can act on.
+function _friendlyAnswerError(rawError) {
+  const s = String(rawError || '').toLowerCase();
+  if (s.includes('too long') || s.includes('timeout') || s.includes('timed out'))
+    return 'That took too long to answer. Tap Retry, or type your question below.';
+  if (s.includes('network') || s.includes('failed to fetch') || s.includes('load failed') || s.includes('no response'))
+    return 'We could not reach the server. Check your connection, then tap Retry.';
+  if (s.includes('429') || s.includes('rate'))
+    return 'The server is busy right now. Wait a moment, then tap Retry.';
+  if (s.includes('500') || s.includes('502') || s.includes('503') || s.includes('backend'))
+    return 'The server had a problem answering. Tap Retry, or type your question below.';
+  return 'We could not get an answer. Tap Retry, or type your question below.';
+}
+
+// Delegated handler for the inline answer-error buttons (survives every re-render).
+if (window.WHIS_WEB) {
+  document.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest ? e.target.closest('.wh-answer-error-btn') : null;
+    if (!t) return;
+    e.preventDefault();
+    if (t.classList.contains('wh-answer-retry')) {
+      const a = _lastAnswerAttempt;
+      // Drop the error bubble, then re-run the same turn.
+      try {
+        state.messages = state.messages.filter((m) => !m.errorHtml);
+        renderMessages();
+      } catch (_) {}
+      if (a) sendMessage({ overrideText: a.overrideText, screenshotDataURL: a.screenshotDataURL });
+      else if (typeof finalizeAndSend === 'function') finalizeAndSend();
+    } else if (t.classList.contains('wh-answer-type')) {
+      try { if (inputEl) { inputEl.focus(); inputEl.scrollIntoView({ block: 'center' }); } } catch (_) {}
+    }
+  });
+}
+
 async function sendMessage({ screenshotDataURL, overrideText } = {}) {
   // Trial-only model: a free user (no active trial / paid plan) cannot send.
   // Instead of letting them type into a void and get no answer, route them
@@ -5630,6 +5720,11 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
   }
 
   const googleId = currentUser ? (currentUser.googleId || currentUser.id) : null;
+
+  // WEB: remember exactly what this send tried, so an inline "Retry" after a failed
+  // answer can re-run the SAME turn (typed text + any staged screenshot). Web-gated so
+  // the desktop flow is untouched.
+  try { if (window.WHIS_WEB) _lastAnswerAttempt = { overrideText, screenshotDataURL }; } catch (_) {}
 
   let textToSend = overrideText !== undefined ? overrideText : "";
   
@@ -5723,6 +5818,13 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
            startTrialOrInform();
       } else if (errString.includes("limit") || errString.includes("minutes")) {
            showSubscriptionLock(currentUser, "Usage limit reached. Please check your minutes/subscription.");
+      } else if (window.WHIS_WEB) {
+           // WEB: never leave a bare "Error: ..." string in the bubble. Show a clear
+           // reason with Retry + type-your-question, unless we already salvaged a long
+           // partial answer below (in which case keeping the partial is more useful).
+           if (!(_partialAnswerBuffer && _partialAnswerBuffer.length > 40)) {
+               _showWebAnswerError(assistantId, result.error);
+           }
       } else {
            if (msg) msg.content = "Error: " + result.error;
       }
@@ -5730,6 +5832,7 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
       if (_partialAnswerBuffer && _partialAnswerBuffer.length > 40) {
           const partialMsg = state.messages.find((m) => m.id === assistantId);
           if (partialMsg) { partialMsg.content = _partialAnswerBuffer + '\n\n*, Connection dropped, partial answer, *'; }
+          if (window.WHIS_WEB) { try { renderMessages(); } catch (_) {} }
       }
 
       cleanupStreamState();
@@ -5739,11 +5842,16 @@ async function sendMessage({ screenshotDataURL, overrideText } = {}) {
     if (_partialAnswerBuffer && _partialAnswerBuffer.length > 40) {
         const partialMsg = state.messages.find((m) => m.id === assistantId);
         if (partialMsg) { partialMsg.content = _partialAnswerBuffer + '\n\n*, Connection dropped, partial answer, *'; }
+        if (window.WHIS_WEB) { try { renderMessages(); } catch (_) {} }
     }
     const isNetworkErr = err instanceof TypeError || (err.message && (err.message.toLowerCase().includes('fetch') || err.message.toLowerCase().includes('network')));
     if (isNetworkErr) {
         const retryPayload = { content: overrideText || '', screenshot: screenshotDataURL };
         _queueRetry(retryPayload, currentUser ? (currentUser.googleId || currentUser.id) : null);
+    } else if (window.WHIS_WEB && !(_partialAnswerBuffer && _partialAnswerBuffer.length > 40)) {
+        // WEB: a non-network throw (parse/abort/etc.) still must not leave a blank
+        // spinning bubble. Surface a clear, retryable error inline.
+        _showWebAnswerError(assistantId, (err && err.message) || 'unknown error');
     }
     cleanupStreamState();
     resetStreamControllerId();
@@ -5773,6 +5881,7 @@ let activeMediaStream = null;
 let _usingSharedLiveAudio = false;
 
 // ── Reliability: stream auto-recovery + stuck-guard ──
+let _transcribeTroubleAt = 0; // WEB: throttle for the honest "voice trouble" note
 let _streamRestartAttempts = 0;
 let _bgCommitStartedAt     = 0;  // epoch ms when isBackgroundCommitting was last set
 
@@ -6388,6 +6497,7 @@ async function startListening() {
     _audioDetectedOnce = false;
     _speechEndAt    = 0;
     _speechEndFired = false;
+    _transcribeTroubleAt = 0; // fresh listening spell → allow one honest trouble note again
     _logHealth('listen_start');
     _trackFunnel('mic_listen_start');
 
@@ -6634,6 +6744,10 @@ async function _doCommit() {
             }
         } else {
             _commitFailStreak = 0;
+            // WEB: we've now dropped an utterance we could not transcribe after retries.
+            // Never fail silently, tell the user ONCE (per listening spell) that voice
+            // is struggling and typing always works. Throttled so it can't nag.
+            if (window.WHIS_WEB && isListening) { try { _noteTranscribeTrouble(); } catch (_) {} }
         }
     } finally {
         clearTimeout(timeoutId);
@@ -7475,6 +7589,17 @@ function _showTabShareHintOnce() {
     setTimeout(() => { const a = document.getElementById('wh-use-mic'); if (a) a.addEventListener('click', (e) => { e.preventDefault(); window._whisUseMic = true; whisToast('Switched to microphone. Click Listen again.', 'info', 4000); }); }, 100);
 }
 
+// WEB: honest heads-up when voice transcription keeps failing (bad network, server
+// hiccup, or undecodable audio). Shown at most once per ~90s so it never nags, and it
+// always points at the reliable fallback: typing. Web-gated.
+// (_transcribeTroubleAt is declared with the reliability state above.)
+function _noteTranscribeTrouble() {
+    const now = Date.now();
+    if (now - _transcribeTroubleAt < 90000) return;
+    _transcribeTroubleAt = now;
+    whisToast('Trouble turning speech into text right now. Keep talking, or just type your question below, that always works.', 'warning', 7000);
+}
+
 function _showMobileCaptureNoteOnce() {
     if (_mobileCaptureNoteShown) return;
     if (localStorage.getItem('wh_mobile_capture_note') === '1') { _mobileCaptureNoteShown = true; return; }
@@ -8164,8 +8289,8 @@ const WhisSession = (() => {
           </div>
           <div class="wlp-share" id="wlp-share">
             <div class="wlp-share-icon"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></div>
-            <div class="wlp-share-title">Share your screen so Whis can read the coding question</div>
-            <div class="wlp-share-sub">Whis is already listening on your mic. Share your screen when you want it to read the question or take a screenshot. Sharing a Chrome tab with <strong>Share tab audio</strong> also lets it hear the interviewer more clearly.</div>
+            <div class="wlp-share-title">Whis is listening. Share your screen so it can read the question too.</div>
+            <div class="wlp-share-sub">Your mic is already on, so you can start talking now. Share your screen when you want Whis to read a question or take a screenshot. Sharing a Chrome tab with <strong>Share tab audio</strong> also lets it hear the interviewer more clearly.</div>
             <button type="button" class="wlp-share-btn" id="wlp-share-btn">
               <i class="fa-solid fa-desktop" aria-hidden="true"></i> Share your screen
             </button>
