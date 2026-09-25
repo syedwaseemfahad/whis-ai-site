@@ -608,6 +608,9 @@
     .progress{display:none}
   }
 
+  /* mobile conversion elements are hidden on desktop/tablet by default */
+  .mchips,.mtrust,.mbar{display:none}
+
   /* ============================================================
      MOBILE REFINEMENTS - phones only (max-width:600px).
      Laptop/tablet (>=601px) is intentionally left untouched.
@@ -649,6 +652,24 @@
     /* panels */
     .panel{padding:32px 18px}
     .cta-panel{padding:52px 24px;border-radius:30px}
+
+    /* ---- mobile conversion layer: #56's mechanics, on-brand (cream/green/lavender) ---- */
+    /* feature chips: the core loop, scannable at a glance */
+    .mchips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px auto 0;max-width:340px}
+    .mchips span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink);background:var(--cream-2);border:1px solid var(--line);border-radius:999px;padding:7px 13px}
+    .mchips span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lav-deep)}
+    /* trust badges */
+    .mtrust{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin:14px auto 0;max-width:340px;color:var(--ink-soft);font-size:11.5px;font-weight:600}
+    .mtrust span::before{content:"\2713";color:var(--green);font-weight:800;margin-right:5px}
+    /* sticky bottom CTA bar (persistent = the biggest mobile conversion win) */
+    .mbar{display:flex;gap:10px;align-items:center;position:fixed;left:0;right:0;bottom:0;z-index:90;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(250,246,233,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);box-shadow:0 -14px 34px -20px rgba(26,23,18,.5)}
+    .mbar-primary{flex:1;text-align:center;font-size:15px;font-weight:700;color:var(--ink);background:var(--lav);border-radius:12px;padding:14px 16px;text-decoration:none}
+    .mbar-primary:active{background:var(--lav-deep)}
+    .mbar-app{flex:0 0 auto;font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    /* leave room for the bar; drop the decorative mic; lift the chat button above the bar */
+    body{padding-bottom:74px}
+    .mic-widget{display:none}
+    .chat-fab{bottom:84px}
   }
 </style>
 </head>
@@ -699,11 +720,13 @@
       <div class="eyebrow wv-eyebrow">Nail the interview. Name your salary.</div>
       <h1 class="serif wv-display">Ace any interview with answers <span class="it wv-italic">only you</span> can see.</h1>
       <p class="sub">Your invisible copilot for live technical interviews. It hears the question and shows you the answer.</p>
+      <div class="mchips" aria-hidden="true"><span>Hears the question</span><span>Reads your screen</span><span>Shows the answer</span></div>
       <div class="cta">
         <a class="btn btn-primary btn-lg wv-btn wv-btn--primary wv-btn--lg" href="/app3/" onclick="openDownloadModal();return false;">Download the desktop app <span class="arw wv-arw">→</span></a>
         <a class="linklike" href="/workspace">Try free in your browser</a>
       </div>
       <div class="proof"><span class="stars">★★★★★</span> <b>4.9/5</b> · 7,000+ engineers hired</div>
+      <div class="mtrust" aria-hidden="true"><span>100% undetectable</span><span>No recording</span><span>No data stored</span></div>
 
     </div>
 
@@ -1445,6 +1468,12 @@
         <button class="chat-send" onclick="sendChat()" aria-label="Send message"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg></button>
       </div>
     </div>
+  </div>
+
+  <!-- MOBILE STICKY CTA BAR (phones only) -->
+  <div class="mbar" aria-label="Get started with Whis">
+    <a class="mbar-primary" href="/workspace">Try free in your browser</a>
+    <a class="mbar-app" href="/app3/" onclick="openDownloadModal();return false;">Get app</a>
   </div>
 </body>
 </html>
