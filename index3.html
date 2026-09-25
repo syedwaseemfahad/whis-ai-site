@@ -608,8 +608,9 @@
     .progress{display:none}
   }
 
-  /* mobile conversion elements are hidden on desktop/tablet by default */
-  .mchips,.mtrust,.mbar{display:none}
+  /* mobile conversion elements (chips, trust, sticky bar, pricing link) are hidden
+     on desktop/tablet; shown only in the phones (<=600px) block below */
+  .mchips,.mtrust,.mbar,.mplans{display:none}
 
   /* ============================================================
      MOBILE REFINEMENTS - phones only (max-width:600px).
@@ -670,6 +671,11 @@
     body{padding-bottom:74px}
     .mic-widget{display:none}
     .chat-fab{bottom:84px}
+    /* first-screen pricing access (centered via the hero's text-align:center) */
+    .mplans{display:inline-block;margin:16px auto 2px;font-size:13.5px;font-weight:600;color:var(--green);text-decoration:none;border-bottom:1.5px solid rgba(18,67,47,.35);padding-bottom:2px}
+    /* sticky bar slides in only after the hero scrolls away (toggled via JS) */
+    .mbar{transition:transform .38s cubic-bezier(.2,.7,.2,1)}
+    .mbar.tuck{transform:translateY(130%)}
   }
 </style>
 </head>
@@ -727,6 +733,7 @@
       </div>
       <div class="proof"><span class="stars">★★★★★</span> <b>4.9/5</b> · 7,000+ engineers hired</div>
       <div class="mtrust" aria-hidden="true"><span>100% undetectable</span><span>No recording</span><span>No data stored</span></div>
+      <a class="mplans" href="#pricing">See plans &amp; pricing →</a>
 
     </div>
 
@@ -1470,10 +1477,20 @@
     </div>
   </div>
 
-  <!-- MOBILE STICKY CTA BAR (phones only) -->
-  <div class="mbar" aria-label="Get started with Whis">
+  <!-- MOBILE STICKY CTA BAR (phones only; slides in after the hero scrolls away) -->
+  <div class="mbar tuck" aria-label="Get started with Whis">
     <a class="mbar-primary" href="/workspace">Try free in your browser</a>
     <a class="mbar-app" href="/app3/" onclick="openDownloadModal();return false;">Get app</a>
   </div>
+  <script>
+  (function(){
+    var bar=document.querySelector('.mbar'), hero=document.querySelector('.hero');
+    if(!bar||!hero) return;
+    function upd(){ bar.classList.toggle('tuck', hero.getBoundingClientRect().bottom > 140); }
+    upd();
+    window.addEventListener('scroll', upd, {passive:true});
+    window.addEventListener('resize', upd);
+  })();
+  </script>
 </body>
 </html>
