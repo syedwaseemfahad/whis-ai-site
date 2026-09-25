@@ -11,7 +11,7 @@
   'use strict';
 
   const BACKEND_URL = 'https://api.whis-ai.com';
-  const RETURN_PATH = '/dashboard3.html';   // v3 dashboard
+  const RETURN_PATH = '/workspace';   // v3 dashboard
   const APP_PATH = '/app3/';                 // v3 (editorial) live app
 
   // Google client id is served by /api/config on the live site.
