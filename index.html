@@ -3258,6 +3258,17 @@ body { overscroll-behavior-y:none; }
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 .pm-pay-btn:active { transform: translateY(0); }
+/* Highlight the UPI option after a card decline so the recovery path is impossible to miss. */
+.pm-upi-highlight {
+    border-color: rgba(77,244,177,0.55) !important;
+    background: rgba(77,244,177,0.08) !important;
+    box-shadow: 0 0 0 3px rgba(77,244,177,0.15);
+    animation: pmUpiPulse 1.6s ease-in-out 2;
+}
+@keyframes pmUpiPulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(77,244,177,0.12); }
+    50%     { box-shadow: 0 0 0 6px rgba(77,244,177,0.22); }
+}
 .pm-icon-wrap {
     width: 44px; height: 44px;
     border-radius: 12px;
@@ -3345,6 +3356,13 @@ body { overscroll-behavior-y:none; }
         <!-- International: Credit / Debit Card (USD) — powered by Razorpay -->
         <div id="paypalWrapper" class="hidden" style="flex-direction:column;gap:10px;">
 
+            <!-- Card-decline recovery nudge. Many international cards get blocked by the issuer/3DS,
+                 so on a failed attempt we point the buyer to the UPI path that clears instantly.
+                 Hidden until a card actually fails (see _emphasizeUpiAfterFailure). -->
+            <div id="cardFailMsg" style="display:none;background:rgba(77,244,177,0.08);border:1px solid rgba(77,244,177,0.25);font-size:12px;line-height:1.5;padding:11px 13px;border-radius:12px;text-align:left;">
+                <strong style="color:#4df4b1;">Card declined?</strong> <span style="color:rgba(255,255,255,0.78);">Some international cards get blocked by the bank. If you have an Indian bank account, pay in ₹ via UPI below — it clears in seconds.</span>
+            </div>
+
             <!-- Credit / Debit Card -->
             <button onclick="triggerCardPayment(event)" class="pm-pay-btn">
                 <div class="pm-icon-wrap" style="gap:5px;">
@@ -3359,9 +3377,10 @@ body { overscroll-behavior-y:none; }
             </button>
 
             <!-- International: settle the USD price in ₹ via UPI (Indian bank account). Card
-                 keeps failing on 3DS/issuer risk for many; UPI clears near-instantly.
-                 Hidden by default — revealed only after a failed card attempt (see
-                 _applyUpiVisibility) so non-India users first see just the USD card. -->
+                 keeps failing on 3DS/issuer risk for many; UPI clears near-instantly. Shown to
+                 EVERY international visitor from the first attempt (see _applyUpiVisibility) because
+                 most buyers hold an Indian bank account — hiding it until a failure lost the sale.
+                 Starts display:none for India; JS reveals it for non-India on modal open. -->
             <button id="upiInrOption" onclick="triggerUpiInrPayment(event)" class="pm-pay-btn" style="display:none;">
                 <div class="pm-icon-wrap">
                     <i class="fa-solid fa-indian-rupee-sign" style="color:#4df4b1;font-size:16px;"></i>
@@ -4211,14 +4230,27 @@ body { overscroll-behavior-y:none; }
         document.documentElement.style.overflow = '';
     }
 
-    // International "Pay in ₹ via UPI" is a FALLBACK: shown only to non-India visitors who
-    // have already hit ≥1 failed card payment. Before that they see just the USD card, so an
-    // unexpected ₹ option never worries them. India is unaffected (uses the ₹ Razorpay sheet).
+    // "Pay in ₹ via UPI" is shown to EVERY international visitor from the first attempt (not
+    // gated behind a failed card anymore). Most of our buyers hold an Indian bank account and
+    // clear instantly via UPI, while USD cards frequently fail on 3DS / cross-border issuer
+    // risk — hiding UPI until a failure meant people abandoned before ever seeing it. Genuine
+    // foreigners simply ignore it and use the card. India is unaffected (full ₹ Razorpay sheet).
     window._hasFailedPayment = window._hasFailedPayment || false;
     function _applyUpiVisibility() {
         const upiBtn = document.getElementById('upiInrOption');
         if (!upiBtn) return;
-        upiBtn.style.display = (!IS_INDIA && window._hasFailedPayment) ? '' : 'none';
+        upiBtn.style.display = IS_INDIA ? 'none' : '';
+    }
+    // After a card decline, make the UPI escape hatch impossible to miss: show a friendly
+    // recovery banner and visually highlight the UPI button. India never hits this path.
+    function _emphasizeUpiAfterFailure() {
+        if (IS_INDIA) return;
+        window._hasFailedPayment = true;
+        _applyUpiVisibility();
+        const banner = document.getElementById('cardFailMsg');
+        if (banner) banner.style.display = 'block';
+        const upiBtn = document.getElementById('upiInrOption');
+        if (upiBtn) { upiBtn.classList.add('pm-upi-highlight'); try { upiBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch(_){} }
     }
 
     function openPaymentModal() {
@@ -4229,7 +4261,11 @@ body { overscroll-behavior-y:none; }
         document.getElementById('couponRow').style.display = 'none';
         document.getElementById('showCouponLink').style.display = 'inline';
         paymentModal.classList.remove('hidden'); paymentModal.classList.add('flex');
-        
+
+        // Reset any card-failure recovery UI from a previous open.
+        const _cf = document.getElementById('cardFailMsg'); if (_cf) _cf.style.display = 'none';
+        const _upiReset = document.getElementById('upiInrOption'); if (_upiReset) _upiReset.classList.remove('pm-upi-highlight');
+
         const rzWrapper = document.getElementById('razorpayWrapper');
         const ppWrapper = document.getElementById('paypalWrapper');
 
@@ -4242,7 +4278,9 @@ body { overscroll-behavior-y:none; }
         } else {
             if(rzWrapper) { rzWrapper.classList.add('hidden'); rzWrapper.style.display = 'none'; }
             if(ppWrapper) { ppWrapper.classList.remove('hidden'); ppWrapper.style.display = 'flex'; }
-            _applyUpiVisibility();   // reveal ₹/UPI only after a failed card attempt
+            _applyUpiVisibility();   // UPI shown to all international visitors, from the first attempt
+            // If the server (or this session) already knows a card failed, surface the nudge on open.
+            if (window._hasFailedPayment) _emphasizeUpiAfterFailure();
         }
 
         // Influencer links are pure tracking — never surface any "link active" or
@@ -4507,9 +4545,9 @@ body { overscroll-behavior-y:none; }
                     },
                     "theme": { "color": "#0284c7" }, "modal": { "ondismiss": function(){ btn.innerHTML = orig; } }
                 });
-                // Card declined → reveal the international "Pay in ₹ via UPI" fallback for the
-                // rest of this session (non-India only). Matches the "show ₹ after ≥1 failure" rule.
-                rzp1.on('payment.failed', function(){ window._hasFailedPayment = true; _applyUpiVisibility(); });
+                // Card declined → surface the UPI recovery banner + highlight (non-India only),
+                // so the buyer immediately sees the instant ₹/UPI path instead of leaving.
+                rzp1.on('payment.failed', function(){ _emphasizeUpiAfterFailure(); });
                 rzp1.open();
             } else {
                 alert(data.error || "Could not start checkout. Please try again.");
