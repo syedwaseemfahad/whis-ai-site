@@ -662,6 +662,17 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
+        // Format a date/timestamp as "YYYY-MM-DD HH:MM" in IST (Asia/Kolkata)
+        function fmtIST(val) {
+            const d = parseDateSafely(val);
+            if (!d) return '--';
+            return d.toLocaleString('sv-SE', {
+                timeZone: 'Asia/Kolkata',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+        }
+
         function getLicenseIntegrity(subscription) {
             if (!subscription || (!subscription.tier || subscription.tier === 'free')) {
                 return { isPaid: false, isActive: false, validUntil: null, ttlStr: "Lifetime Free" };
@@ -809,7 +820,7 @@
                         <div class="p-4 border-b border-[#1e293b] hover:bg-slate-800/20">
                             <div class="flex justify-between items-start mb-1">
                                 <span class="text-[10px] text-brand-400 font-mono">${r.userEmail || 'Anon'}</span>
-                                <span class="text-[9px] text-slate-600 font-mono">${new Date(r.createdAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                                <span class="text-[9px] text-slate-600 font-mono">${new Date(r.createdAt).toLocaleTimeString('en-GB', {timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit'})}</span>
                             </div>
                             <p class="text-xs text-white leading-relaxed">${r.message}</p>
                         </div>`;
@@ -876,7 +887,7 @@
                     let validHtml = `<span class="text-slate-600">--</span>`;
                     if (integrity.isPaid && integrity.validUntil) {
                         validHtml = `
-                            <div class="${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}">${integrity.validUntil.toISOString().slice(0,16).replace('T',' ')}</div>
+                            <div class="${integrity.isActive ? 'text-emerald-400' : 'text-red-400'}">${fmtIST(integrity.validUntil)}</div>
                             <div class="text-[9px] text-slate-500 mt-0.5">${integrity.ttlStr}</div>`;
                     }
 
@@ -913,8 +924,8 @@
                 document.getElementById('mod-email').innerText = u.email || 'No email';
                 document.getElementById('mod-gid').innerText = u.googleId;
                 document.getElementById('mod-phone').innerText = u.phone || 'No phone';
-                document.getElementById('mod-joined').innerText = u.createdAt ? u.createdAt.substring(0,16).replace('T',' ') : '--';
-                document.getElementById('mod-active').innerText = u.lastLogin ? u.lastLogin.substring(0,16).replace('T',' ') : '--';
+                document.getElementById('mod-joined').innerText = u.createdAt ? fmtIST(u.createdAt) : '--';
+                document.getElementById('mod-active').innerText = u.lastLogin ? fmtIST(u.lastLogin) : '--';
                 
                 const integrity = getLicenseIntegrity(u.subscription);
                 let barColor = integrity.isActive ? 'bg-emerald-500' : 'bg-red-500';
@@ -929,7 +940,7 @@
                 const tBody = document.getElementById('mod-orders-body');
                 tBody.innerHTML = u.orders?.length ? '' : '<tr><td colspan="5" class="py-6 text-center text-slate-600 italic">No ledger entries.</td></tr>';
                 u.orders?.forEach(o => {
-                    tBody.innerHTML += `<tr><td class="py-2 px-3">${o.date.substring(0,16).replace('T',' ')}</td><td class="px-3">${o.orderId.substring(0,8)}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
+                    tBody.innerHTML += `<tr><td class="py-2 px-3">${fmtIST(o.date)}</td><td class="px-3">${o.orderId.substring(0,8)}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
                 });
             } catch (e) { console.error(e); }
         }
