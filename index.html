@@ -2185,11 +2185,19 @@ body { overscroll-behavior-y:none; }
         <button id="heroDownloadBtn" onclick="openDownloadModal()" class="btn-premium w-full md:w-auto px-10 py-4 rounded-2xl text-sm font-bold flex justify-center items-center gap-2.5 shadow-xl">
           <span><i class="fa-solid fa-download mr-1"></i> Try Free — No Credit Card. No Setup.</span>
         </button>
+        <button onclick="openDemoModal()" class="w-full md:w-auto px-8 py-4 rounded-2xl text-sm font-bold flex justify-center items-center gap-2.5 text-white border border-white/15 bg-white/5 hover:bg-white/10 active:scale-[.98] transition backdrop-blur-sm">
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-500/20"><i class="fa-solid fa-play text-[10px] text-sky-300 ml-0.5"></i></span> Watch 2-min demo
+        </button>
       </div>
-      <!-- Mobile-only quick jump to pricing (the hero button above is desktop-only; sticky bar carries the download CTA) -->
-      <a href="#pricing-anchor" class="md:hidden mt-5 inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-[13px] font-bold text-white/90 border border-white/15 bg-white/5 active:scale-95 transition backdrop-blur-sm">
-        <i class="fa-solid fa-tag text-[11px] text-sky-300"></i> See plans &amp; pricing <i class="fa-solid fa-arrow-right text-[10px]"></i>
-      </a>
+      <!-- Mobile-only quick actions: watch demo + jump to pricing -->
+      <div class="md:hidden mt-5 flex flex-col gap-3 w-full px-6">
+        <button onclick="openDemoModal()" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-[13px] font-bold text-white border border-sky-400/30 bg-sky-500/10 active:scale-95 transition backdrop-blur-sm">
+          <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-sky-500/25"><i class="fa-solid fa-play text-[9px] text-sky-300 ml-0.5"></i></span> Watch 2-min demo
+        </button>
+        <a href="#pricing-anchor" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl text-[13px] font-bold text-white/90 border border-white/15 bg-white/5 active:scale-95 transition backdrop-blur-sm">
+          <i class="fa-solid fa-tag text-[11px] text-sky-300"></i> See plans &amp; pricing <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </a>
+      </div>
 
       <!-- Trust — live counter + security chips -->
       <div class="mt-7 md:mt-8 flex flex-col items-center lg:items-start gap-3 fh6">
@@ -3455,6 +3463,28 @@ body { overscroll-behavior-y:none; }
     </div>
   </div>
 
+  <!-- ── Demo video modal — plays the product demo inline, with an "open on YouTube" fallback ── -->
+  <div id="demoModal" class="fixed inset-0 z-[120] hidden items-center justify-center p-4" style="background:rgba(2,6,16,0.82);backdrop-filter:blur(6px);" onclick="if(event.target===this)closeDemoModal()">
+    <div class="w-full max-w-3xl">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center gap-2.5 text-white">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full" style="background:rgba(14,165,233,0.2);"><i class="fa-solid fa-play text-[11px] text-sky-300 ml-0.5"></i></span>
+          <span class="text-[14px] md:text-[15px] font-bold tracking-tight">Whis-AI — Full Demo</span>
+        </div>
+        <button onclick="closeDemoModal()" class="w-9 h-9 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition"><i class="fa-solid fa-times text-base"></i></button>
+      </div>
+      <div class="relative w-full overflow-hidden rounded-2xl shadow-2xl bg-black" style="aspect-ratio:16/9;border:1px solid rgba(255,255,255,0.1);">
+        <div id="demoVideoMount" class="absolute inset-0 w-full h-full"></div>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 px-1">
+        <p class="text-[12px] text-slate-400 text-center sm:text-left">See how Whis listens, reads your screen, and fires the answer — live and invisible.</p>
+        <a id="demoYoutubeLink" href="#" target="_blank" rel="noopener" class="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-bold text-white border border-white/15 bg-white/5 hover:bg-white/10 transition active:scale-95">
+          <i class="fa-brands fa-youtube text-red-500 text-base"></i> Open on YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div id="profileModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-slate-900/60">
     <div class="perf-card p-6 md:p-8 max-w-sm w-full text-center border border-slate-200 bg-white shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
         <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
@@ -4712,6 +4742,44 @@ body { overscroll-behavior-y:none; }
         }
     }
     function closeDownloadModal(){downloadModal.classList.add('hidden');downloadModal.classList.remove('flex');unlockScroll();}
+
+    // ── Demo video ───────────────────────────────────────────────────────────
+    // URL comes from /api/config (youtubeDemoUrl); fall back to the known demo link
+    // so the button always works even if config hasn't loaded yet.
+    let DEMO_VIDEO_URL = 'https://www.youtube.com/watch?v=O86MQlGezI4';
+    function _ytId(url){
+        try {
+            const u = new URL(url);
+            if (u.hostname.includes('youtu.be')) return u.pathname.slice(1);
+            if (u.pathname.startsWith('/embed/') || u.pathname.startsWith('/shorts/')) return u.pathname.split('/')[2];
+            return u.searchParams.get('v') || '';
+        } catch(_) { return ''; }
+    }
+    function openDemoModal(){
+        const url = (SITE_CONFIG && SITE_CONFIG.youtubeDemoUrl) || DEMO_VIDEO_URL;
+        const id  = _ytId(url);
+        const link = document.getElementById('demoYoutubeLink');
+        if (link) link.href = url;
+        const mount = document.getElementById('demoVideoMount');
+        if (mount) {
+            // Inject the player only on open (autoplay + no load cost until needed).
+            mount.innerHTML = id
+                ? `<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="Whis-AI Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+                : `<a href="${url}" target="_blank" rel="noopener" class="absolute inset-0 flex items-center justify-center text-white font-bold">Watch the demo on YouTube →</a>`;
+        }
+        lockScroll();
+        const m = document.getElementById('demoModal');
+        m.classList.remove('hidden'); m.classList.add('flex');
+    }
+    function closeDemoModal(){
+        const m = document.getElementById('demoModal');
+        m.classList.add('hidden'); m.classList.remove('flex');
+        const mount = document.getElementById('demoVideoMount');
+        if (mount) mount.innerHTML = '';   // stop playback
+        unlockScroll();
+    }
+    // Esc closes the demo
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('demoModal'); if (m && !m.classList.contains('hidden')) closeDemoModal(); } });
     function openProfileModal(){lockScroll();if(currentUser)fetchUserStatus();profileModal.classList.remove('hidden');profileModal.classList.add('flex');}
     function closeProfileModal(){profileModal.classList.add('hidden');profileModal.classList.remove('flex');unlockScroll();}
 
