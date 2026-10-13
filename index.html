@@ -2096,7 +2096,12 @@ body { overscroll-behavior-y:none; }
     @keyframes demoGlowPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.40),0 14px 50px -8px rgba(255,255,255,0.30);}50%{box-shadow:0 0 0 12px rgba(255,255,255,0),0 16px 60px -6px rgba(125,211,252,0.55);}}
     @keyframes demoRingSpin{to{transform:rotate(360deg);}}
     @keyframes demoShine{0%{background-position:-120% 0;}60%,100%{background-position:220% 0;}}
-    .demo-hero-wrap{position:relative;z-index:20;width:100%;display:flex;flex-direction:column;align-items:center;padding:0 16px;margin:10px 0 6px;}
+    /* Mobile: compact, in-flow, centered — minimal vertical footprint */
+    .demo-hero-wrap{position:relative;z-index:30;width:100%;display:flex;flex-direction:column;align-items:center;padding:0 16px;margin:6px 0 2px;}
+    /* Desktop (lg+): FLOAT it in the empty top-left space so it costs zero vertical height */
+    @media(min-width:1024px){
+      .demo-hero-wrap{position:absolute;top:126px;left:clamp(24px,4vw,72px);right:auto;width:auto;margin:0;padding:0;align-items:flex-start;}
+    }
     .demo-hero-btn{position:relative;display:inline-flex;align-items:center;gap:15px;padding:13px 30px 13px 15px;border-radius:999px;background:#ffffff;color:#0b1220;font-weight:800;font-size:16px;letter-spacing:-0.01em;cursor:pointer;border:0;overflow:hidden;animation:demoGlowPulse 2.6s ease-in-out infinite;transition:transform .16s ease,filter .16s ease;}
     .demo-hero-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(125,211,252,0.35) 50%,transparent 80%);background-size:220% 100%;animation:demoShine 3.4s ease-in-out infinite;pointer-events:none;}
     .demo-hero-btn:hover{transform:translateY(-2px) scale(1.025);filter:brightness(1.02);}
