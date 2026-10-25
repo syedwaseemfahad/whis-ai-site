@@ -3378,21 +3378,6 @@ body { overscroll-behavior-y:none; }
                 <i class="fa-solid fa-chevron-right pay-btn-icon" style="color:rgba(255,255,255,0.2);font-size:11px;flex-shrink:0;"></i>
             </button>
 
-            <!-- Dodo Payments — global cards / wallets (Apple Pay, Google Pay). Merchant of
-                 Record; billed in the buyer's local currency. Shown only when the server
-                 reports dodoEnabled (see openPaymentModal). Additive alternate to the card
-                 button above; a clean fallback when an international card gets 3DS-blocked. -->
-            <button id="dodoOption" onclick="payDodoWeb(event)" class="pm-pay-btn" style="display:none;">
-                <div class="pm-icon-wrap">
-                    <i class="fa-solid fa-globe" style="color:#8b5cf6;font-size:16px;"></i>
-                </div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-size:14px;font-weight:700;color:#fff;">Pay with Card / Wallet (Global)</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">Visa · Mastercard · Amex · Apple&nbsp;Pay · Google&nbsp;Pay</div>
-                </div>
-                <i class="fa-solid fa-chevron-right pay-btn-icon" style="color:rgba(255,255,255,0.2);font-size:11px;flex-shrink:0;"></i>
-            </button>
-
             <!-- International: settle the USD price in ₹ via UPI (Indian bank account) — the SAME
                  USD amount converted to ₹, no discount. POST-FAILURE RECOVERY ONLY: stays
                  display:none until the visitor's card actually declines (see _applyUpiVisibility /
@@ -4324,9 +4309,6 @@ body { overscroll-behavior-y:none; }
             // If the server (or this session) already knows a card failed, surface the recovery on open
             // — this is the returning failed-card buyer, exactly who UPI is for; never a browsing visitor.
             if (window._hasFailedPayment) _emphasizeUpiAfterFailure();
-            // Dodo (global cards/wallets) — alternate international option, shown when enabled server-side.
-            const _dodoOpt = document.getElementById('dodoOption');
-            if (_dodoOpt) _dodoOpt.style.display = (SITE_CONFIG && SITE_CONFIG.dodoEnabled) ? 'flex' : 'none';
         }
 
         // Influencer links are pure tracking — never surface any "link active" or
@@ -4482,58 +4464,6 @@ body { overscroll-behavior-y:none; }
     }
 
     function closePaymentModal() { paymentModal.classList.add('hidden'); paymentModal.classList.remove('flex'); unlockScroll(); }
-
-    // ── Dodo Payments (global cards / wallets · Merchant of Record) ──
-    // Creates a hosted Dodo checkout on our backend and redirects. Buyer returns to this
-    // same page with ?dodo=1&payment_id=… , which handleDodoReturn() confirms on load.
-    async function payDodoWeb(event) {
-        if (!currentUser) { openLoginModal(); return; }
-        const btn = event.currentTarget; const orig = btn.innerHTML;
-        btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold" style="color:rgba(255,255,255,0.85)"><i class="fa-solid fa-circle-notch fa-spin"></i> Opening secure checkout…</div>';
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-dodo-checkout`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    googleId: currentUser.googleId, tier: selectedTierForPayment,
-                    cycle: currentCycle, couponCode: currentCoupon,
-                    refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource'),
-                    returnUrl: location.origin + location.pathname
-                })
-            });
-            const data = await res.json();
-            if (data.url) { window.location.href = data.url; return; }
-            alert(data.error || 'Could not start checkout. Please try again.');
-            btn.innerHTML = orig;
-        } catch (e) {
-            console.error('Dodo checkout error', e);
-            alert('Could not start checkout. Please try again.');
-            btn.innerHTML = orig;
-        }
-    }
-
-    // On return from Dodo: confirm the payment, then show the success modal. The webhook
-    // is the source of truth and will finalize even if this call is slow/blocked.
-    async function handleDodoReturn() {
-        const p = new URLSearchParams(location.search);
-        if (!p.get('dodo') && !p.get('payment_id')) return;
-        const st = (p.get('status') || '').toLowerCase();
-        // Clean the query so a refresh doesn't re-trigger this.
-        try { history.replaceState({}, '', location.origin + location.pathname); } catch(_) {}
-        if (st && !['succeeded','active','processing','paid',''].includes(st)) return; // cancelled/failed → stay on page
-        try {
-            await fetch(`${BACKEND_URL}/api/payment/dodo-confirm`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ payment_id: p.get('payment_id'), whisOrderId: p.get('whisOrderId') })
-            });
-        } catch(_) {}
-        const successModal = document.getElementById('successModal');
-        if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
-        try { checkUser(); } catch(_) {}
-        if (typeof gtag !== 'undefined' && SITE_CONFIG && SITE_CONFIG.googleAdsConversionTag) {
-            gtag('event', 'conversion', { 'send_to': SITE_CONFIG.googleAdsConversionTag });
-        }
-    }
-    try { window.addEventListener('load', handleDodoReturn); } catch(_) {}
 
     async function handlePayPalRedirect() {
         if (!currentUser) { openLoginModal(); return; }
