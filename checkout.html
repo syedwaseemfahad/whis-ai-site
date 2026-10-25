@@ -59,7 +59,9 @@
       <div id="view-error" class="state hidden">
         <div class="big">🔒</div>
         <h1 id="err-title">Session expired</h1>
-        <p class="sub" id="err-msg">Please reopen checkout from the Whis-AI app so we can verify your account securely.</p>
+        <p class="sub" id="err-msg">Tap Try again, or close this window and reopen from the app.</p>
+        <button id="err-retry" class="pay" style="margin-top:4px;">Try again</button>
+        <div style="margin-top:12px;"><a href="#" id="err-close" class="link" style="font-size:12.5px;font-weight:700;">Close</a></div>
       </div>
 
       <!-- Checkout -->
@@ -91,7 +93,17 @@
       <div id="view-success" class="state hidden">
         <div class="big">✅</div>
         <h1>You're all set!</h1>
-        <p class="sub">Your <b id="ok-tier">Elite</b> access is active. <br><b>Return to the Whis-AI app and restart it</b> to sync your new license.</p>
+        <p class="sub">Your <b id="ok-tier">Elite</b> access is active.</p>
+        <button id="ok-return" class="pay" style="margin-top:4px;">Return to Whis-AI</button>
+        <p class="foot" style="margin-top:12px;">Not synced yet? Restart the Whis-AI app.</p>
+      </div>
+
+      <!-- Finalizing (confirm pending / no subscription id) -->
+      <div id="view-pending" class="state hidden">
+        <div class="big">⏳</div>
+        <h1>Finalizing your subscription</h1>
+        <p class="sub">We're confirming your payment. Your access will activate shortly and you'll get a confirmation email. You can close this window.</p>
+        <button id="pending-return" class="pay" style="margin-top:4px;">Return to Whis-AI</button>
       </div>
     </div>
   </div>
@@ -110,8 +122,9 @@
     };
 
     let CONF = null, USER = null, REGION = 'IN', CUR = 'INR', CUR_SYM = '₹';
+    let _payStarted = false; // guards against double-fire (auto-click injector + Dodo→Razorpay fallback)
     const $ = id => document.getElementById(id);
-    const show = id => { ['view-loading','view-error','view-pay','view-success'].forEach(v => $(v).classList.add('hidden')); $(id).classList.remove('hidden'); };
+    const show = id => { ['view-loading','view-error','view-pay','view-success','view-pending'].forEach(v => $(v).classList.add('hidden')); $(id).classList.remove('hidden'); };
 
     function fmt(n) { return CUR === 'INR' ? Math.round(n).toLocaleString('en-IN') : n.toFixed(2); }
     function tierKey() { return P.tier === 'pro' ? 'pro' : 'pro_plus'; }
@@ -194,6 +207,8 @@
 
     // ── Razorpay (India / INR) — reuses the existing create-order + verify path ──
     async function payRazorpay(payInInr) {
+      if (_payStarted) return;
+      _payStarted = true;
       const btn = $('pay-btn'); const orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Starting secure payment…';
       try {
@@ -202,7 +217,7 @@
           body: JSON.stringify({ googleId: USER.googleId, tier: P.tier, cycle: P.cycle, couponCode: P.coupon || undefined, currency: CUR, payInInr: payInInr === true })
         });
         const d = await r.json();
-        if (!d.order_id) { show('view-pay'); btn.disabled=false; btn.textContent=orig; return alert(d.error || 'Could not start checkout. Please try again.'); }
+        if (!d.order_id) { _payStarted=false; show('view-pay'); btn.disabled=false; btn.textContent=orig; return alert(d.error || 'Could not start checkout. Please try again.'); }
         const rzp = new Razorpay({
           key: d.key_id, name: 'Whis AI', description: ($('plan-name').textContent) + ' ' + P.cycle,
           order_id: d.order_id, amount: d.amount, currency: d.currency,
@@ -219,10 +234,10 @@
               alert('We received your payment and are confirming it. You will get a confirmation email shortly.');
             } catch (_) { alert('Payment received — we are confirming it. You will get a confirmation email shortly.'); }
           },
-          modal: { ondismiss: function(){ show('view-pay'); btn.disabled=false; btn.textContent=orig; } }
+          modal: { ondismiss: function(){ _payStarted=false; show('view-pay'); btn.disabled=false; btn.textContent=orig; } }
         });
         rzp.open();
-      } catch (e) { show('view-pay'); btn.disabled=false; btn.textContent=orig; alert('Network error. Please try again.'); }
+      } catch (e) { _payStarted=false; show('view-pay'); btn.disabled=false; btn.textContent=orig; alert('Network error. Please try again.'); }
     }
 
     // ── PayPal (International / USD) — reuses create-paypal-order + verify-paypal ──
@@ -264,31 +279,39 @@
     // Redirect this window to the Dodo hosted checkout; the buyer returns here with
     // ?dodosub=1&subscription_id=… , which confirmDodoSub() finalizes on load.
     async function startDodoSub() {
+      if (_payStarted) return;
+      _payStarted = true;
       show('view-loading');
       try {
         const r = await fetch(API + '/api/payment/create-dodo-subscription', {
           method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ googleId: USER.googleId, tier: P.tier, cycle: P.cycle, couponCode: P.coupon || undefined, returnUrl: location.origin + location.pathname })
+          body: JSON.stringify({ googleId: USER.googleId, tier: P.tier, cycle: P.cycle, couponCode: P.coupon || undefined, returnUrl: 'https://whis-ai.com/checkout.html' })
         });
         const d = await r.json();
         if (d.url) { window.location.href = d.url; return; }
       } catch (_) {}
       // Dodo couldn't start — fall back to the Razorpay sheet so the sale isn't lost.
+      _payStarted = false; // release so the Razorpay fallback can start
       show('view-pay'); payRazorpay(false);
     }
     async function confirmDodoSub(subscriptionId, orderId) {
       const st = (qs.get('status') || '').toLowerCase();
       if (st && !['succeeded','active','trialing','processing','paid',''].includes(st)) {
-        return failSession('Payment not completed', 'No charge was made. Reopen checkout from the Whis-AI app to try again.');
+        return failSession('Payment not completed', 'No charge was made. Tap Try again, or close this window and reopen from the app.');
       }
       show('view-loading');
+      // No subscription id to confirm → we can't assert success; show the soft "finalizing" state.
+      if (!subscriptionId) { return show('view-pending'); }
       try {
-        await fetch(API + '/api/payment/dodo-subscription-confirm', {
+        const cr = await fetch(API + '/api/payment/dodo-subscription-confirm', {
           method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ subscription_id: subscriptionId, whisOrderId: orderId })
         });
+        const cd = await cr.json().catch(() => ({}));
+        // Only declare definitive success when the backend confirms it.
+        if (cr.ok && (cd.success || cd.active || cd.ok)) { return show('view-success'); }
       } catch (_) {}
-      show('view-success');
+      show('view-pending');
     }
 
     // Cycle toggle
@@ -296,6 +319,12 @@
       b.addEventListener('click', () => { P.cycle = b.dataset.cycle; renderPlan(); }));
     $('pay-btn').addEventListener('click', () => { payRazorpay(false); });
     $('upi-link').addEventListener('click', (e) => { e.preventDefault(); payRazorpay(true); });
+    // Error view: retry re-runs the Dodo subscription start; close dismisses the window.
+    $('err-retry').addEventListener('click', () => { _payStarted = false; startDodoSub(); });
+    $('err-close').addEventListener('click', (e) => { e.preventDefault(); window.close(); });
+    // Success / finalizing: closing triggers the app's checkAuth entitlement refresh.
+    $('ok-return').addEventListener('click', () => { window.close(); });
+    $('pending-return').addEventListener('click', () => { window.close(); });
 
     boot();
   </script>

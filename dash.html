@@ -673,6 +673,8 @@
             });
         }
 
+        function fmtLedger(cur, amt){ const n=Number(amt)||0; if(String(cur).toUpperCase()==='INR') return '₹'+Math.round(n).toLocaleString('en-IN'); return '$'+n.toFixed(2); }
+
         function getLicenseIntegrity(subscription) {
             if (!subscription || (!subscription.tier || subscription.tier === 'free')) {
                 return { isPaid: false, isActive: false, validUntil: null, ttlStr: "Lifetime Free" };
@@ -943,7 +945,7 @@
                 u.orders?.forEach(o => {
                     const _m = o.method ? ` · ${o.method}` : '';
                     const _sub = (o.notes && o.notes.kind === 'subscription') ? ' <span class="text-[8px] text-sky-400 font-bold">SUB</span>' : '';
-                    tBody.innerHTML += `<tr><td class="py-2 px-3">${fmtIST(o.date)}</td><td class="px-3">${o.orderId.substring(0,8)}<span class="text-[9px] text-slate-500">${_m}</span>${_sub}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
+                    tBody.innerHTML += `<tr><td class="py-2 px-3">${fmtIST(o.date)}</td><td class="px-3">${o.orderId.substring(0,8)}<span class="text-[9px] text-slate-500">${_m}</span>${_sub}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${fmtLedger(o.currency, o.amount)}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
                 });
             } catch (e) { console.error(e); }
         }

@@ -2691,7 +2691,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
-            <button onclick="buyElite('monthly')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
+            <button data-dodo-cta onclick="buyElite('monthly')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
             <div style="text-align:center;margin-top:7px;"><a href="#" onclick="event.preventDefault();payViaRazorpay('monthly')" style="font-size:10px;color:rgba(255,255,255,0.4);text-decoration:underline;">Prefer UPI or another method?</a></div>
           </div>
 
@@ -2721,7 +2721,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
-            <button id="ctaQuarterly" onclick="buyElite('quarterly')" class="btn-elite-cta relative z-10">Get Started →</button>
+            <button id="ctaQuarterly" data-dodo-cta onclick="buyElite('quarterly')" class="btn-elite-cta relative z-10">Get Started →</button>
             <div style="text-align:center;margin-top:7px;"><a href="#" onclick="event.preventDefault();payViaRazorpay('quarterly')" style="font-size:10px;color:rgba(255,255,255,0.4);text-decoration:underline;">Prefer UPI or another method?</a></div>
           </div>
 
@@ -2751,7 +2751,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(14,165,233,0.2);color:#38bdf8;"><i class="fa-solid fa-bolt-lightning text-[9px]"></i></div><span class="text-slate-200 js-hours">10 hrs usage / mo</span></div>
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
-            <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="w-full py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
+            <button id="ctaSemiannual" data-dodo-cta onclick="buyElite('semiannual')" class="w-full py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
             <div style="text-align:center;margin-top:7px;"><a href="#" onclick="event.preventDefault();payViaRazorpay('semiannual')" style="font-size:10px;color:rgba(255,255,255,0.4);text-decoration:underline;">Prefer UPI or another method?</a></div>
           </div>
 
@@ -3172,8 +3172,8 @@ body { overscroll-behavior-y:none; }
           <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4 md:mb-6">
               <i class="fa-solid fa-check text-xl md:text-2xl text-green-500"></i>
           </div>
-          <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-2">Upgrade Complete</h3>
-          <p class="text-slate-600 text-[13px] md:text-sm mb-6 md:mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
+          <h3 id="successModalTitle" class="text-lg md:text-xl font-bold text-slate-900 mb-2">Upgrade Complete</h3>
+          <p id="successModalBody" class="text-slate-600 text-[13px] md:text-sm mb-6 md:mb-8">Your account has been successfully upgraded. Systems are now fully operational.</p>
           <button onclick="window.location.reload()" class="w-full py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600 shadow transition active:scale-95 text-sm">Initialize System</button>
       </div>
   </div>
@@ -3804,6 +3804,7 @@ body { overscroll-behavior-y:none; }
     let currentCoupon = "";
     let currentCouponDiscount = 0;
     let _urlCoupon = "";   // coupon passed via ?coupon= when the app opens the pricing page
+    let _dodoStarting = false;  // in-flight guard: block double/triple "Get Started" clicks from spawning duplicate Dodo subscriptions
     let SITE_CONFIG = {};
 
     // ── Charm pricing (client-side) ──────────────────────────────────────────
@@ -4255,7 +4256,12 @@ body { overscroll-behavior-y:none; }
     }
 
     function initiatePayment(targetTier) {
-        if(!currentUser){ openLoginModal(); return; }
+        if(!currentUser){
+            // Stash purchase intent so we can auto-resume checkout after login (otherwise the
+            // click is lost and the user has to find "Get Started" again).
+            try { sessionStorage.setItem('pendingBuy', JSON.stringify({ cycle: currentCycle, tier: targetTier })); } catch(_) {}
+            openLoginModal(); return;
+        }
         if(currentTier === 'pro_plus') return;
         if(currentTier === 'pro' && targetTier === 'pro') return;
         selectedTierForPayment = targetTier;
@@ -4269,8 +4275,28 @@ body { overscroll-behavior-y:none; }
     // One tap from "Get Started" to the Dodo hosted checkout. Carries any targeted
     // coupon from the win-back link (?coupon=CODE); no modal, no coupon box, no method picker.
     async function startDodoCheckout() {
-        if (!currentUser) { openLoginModal(); return; }
-        const coupon = currentCoupon || _urlCoupon || '';
+        if (!currentUser) {
+            // Stash purchase intent so we can auto-resume checkout after login.
+            try { sessionStorage.setItem('pendingBuy', JSON.stringify({ cycle: currentCycle, tier: selectedTierForPayment })); } catch(_) {}
+            openLoginModal(); return;
+        }
+        // In-flight guard: a slow create-dodo-subscription round trip was letting users
+        // double/triple-click and spawn multiple subscriptions/orders (5+ per user).
+        if (_dodoStarting) return;
+        _dodoStarting = true;
+        // Only forward a coupon that was actually validated (currentCoupon is set by the
+        // validate path). A stale/invalid deep-link coupon (_urlCoupon) can make the backend
+        // reject the whole call and dead-drop the user, so never forward it unvalidated.
+        const coupon = currentCoupon || '';
+        // Visually mark every "Get Started" CTA as busy and pointer-disabled.
+        const _ctas = Array.from(document.querySelectorAll('[data-dodo-cta]'));
+        const _ctaState = _ctas.map(el => ({ el, html: el.innerHTML }));
+        _ctas.forEach(el => { el.dataset.busy = '1'; el.style.pointerEvents = 'none'; el.style.opacity = '0.7'; el.innerHTML = 'Starting…'; });
+        const _reset = () => {
+            _dodoStarting = false;
+            _ctaState.forEach(s => { s.el.innerHTML = s.html; delete s.el.dataset.busy; s.el.style.pointerEvents = ''; s.el.style.opacity = ''; });
+            try { document.body.style.cursor = ''; } catch(_) {}
+        };
         try { document.body.style.cursor = 'progress'; } catch(_) {}
         try {
             const res = await fetch(`${BACKEND_URL}/api/payment/create-dodo-subscription`, {
@@ -4279,15 +4305,15 @@ body { overscroll-behavior-y:none; }
                     googleId: currentUser.googleId, tier: selectedTierForPayment,
                     cycle: currentCycle, couponCode: coupon,
                     refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource'),
-                    returnUrl: location.origin + location.pathname
+                    returnUrl: 'https://whis-ai.com/'
                 })
             });
             const data = await res.json();
-            if (data.url) { window.location.href = data.url; return; }
-            try { document.body.style.cursor = ''; } catch(_) {}
+            if (data.url) { window.location.href = data.url; return; }  // redirecting away; guard stays set intentionally
+            _reset();
             openPaymentModal(); // graceful fallback to the full method sheet
         } catch (e) {
-            try { document.body.style.cursor = ''; } catch(_) {}
+            _reset();
             openPaymentModal();
         }
     }
@@ -4531,7 +4557,14 @@ body { overscroll-behavior-y:none; }
     // Creates a hosted Dodo checkout on our backend and redirects. Buyer returns to this
     // same page with ?dodo=1&payment_id=… , which handleDodoReturn() confirms on load.
     async function payDodoWeb(event) {
-        if (!currentUser) { openLoginModal(); return; }
+        if (!currentUser) {
+            try { sessionStorage.setItem('pendingBuy', JSON.stringify({ cycle: currentCycle, tier: selectedTierForPayment })); } catch(_) {}
+            openLoginModal(); return;
+        }
+        // Share the in-flight guard with startDodoCheckout so a second CTA can't start a
+        // parallel session and spawn a duplicate subscription.
+        if (_dodoStarting) return;
+        _dodoStarting = true;
         const btn = event.currentTarget; const orig = btn.innerHTML;
         btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold" style="color:rgba(255,255,255,0.85)"><i class="fa-solid fa-circle-notch fa-spin"></i> Opening secure checkout…</div>';
         try {
@@ -4549,10 +4582,12 @@ body { overscroll-behavior-y:none; }
                 })
             });
             const data = await res.json();
-            if (data.url) { window.location.href = data.url; return; }
+            if (data.url) { window.location.href = data.url; return; }  // redirecting away; guard stays set intentionally
+            _dodoStarting = false;
             alert(data.error || 'Could not start checkout. Please try again.');
             btn.innerHTML = orig;
         } catch (e) {
+            _dodoStarting = false;
             console.error('Dodo checkout error', e);
             alert('Could not start checkout. Please try again.');
             btn.innerHTML = orig;
@@ -4569,21 +4604,36 @@ body { overscroll-behavior-y:none; }
         // Clean the query so a refresh doesn't re-trigger this.
         try { history.replaceState({}, '', location.origin + location.pathname); } catch(_) {}
         if (st && !['succeeded','active','trialing','processing','paid',''].includes(st)) return; // cancelled/failed → stay on page
+        // Only claim definitive success when a real subscription came back AND the confirm
+        // call succeeded. Otherwise show a soft "finalizing" state — the webhook is the
+        // source of truth and will finalize shortly — rather than a false "You're all set!".
+        const subId = p.get('subscription_id') || '';
+        let confirmed = false;
         try {
             if (isSub) {
-                await fetch(`${BACKEND_URL}/api/payment/dodo-subscription-confirm`, {
+                const r = await fetch(`${BACKEND_URL}/api/payment/dodo-subscription-confirm`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ subscription_id: p.get('subscription_id'), whisOrderId: p.get('whisOrderId') })
+                    body: JSON.stringify({ subscription_id: subId, whisOrderId: p.get('whisOrderId') })
                 });
+                confirmed = !!subId && r.ok;
             } else {
-                await fetch(`${BACKEND_URL}/api/payment/dodo-confirm`, {
+                const r = await fetch(`${BACKEND_URL}/api/payment/dodo-confirm`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ payment_id: p.get('payment_id'), whisOrderId: p.get('whisOrderId') })
                 });
+                confirmed = r.ok;
             }
-        } catch(_) {}
+        } catch(_) { confirmed = false; }
         const successModal = document.getElementById('successModal');
-        if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
+        if (successModal) {
+            if (!confirmed) {
+                const _t = document.getElementById('successModalTitle');
+                const _b = document.getElementById('successModalBody');
+                if (_t) _t.innerText = "We're finalizing your subscription";
+                if (_b) _b.innerText = "Almost there — we're finalizing your subscription. Check your email in a minute for confirmation.";
+            }
+            successModal.classList.remove('hidden'); successModal.classList.add('flex');
+        }
         try { checkUser(); } catch(_) {}
         if (typeof gtag !== 'undefined' && SITE_CONFIG && SITE_CONFIG.googleAdsConversionTag) {
             gtag('event', 'conversion', { 'send_to': SITE_CONFIG.googleAdsConversionTag });
@@ -5232,6 +5282,21 @@ body { overscroll-behavior-y:none; }
         typeHeroSequence();
         initSliderAutoPlay();
         checkUser();
+        // Auto-resume a purchase the user kicked off before logging in: initiatePayment/
+        // startDodoCheckout stashed the intent and sent them to Google OAuth. Now that
+        // checkUser() has set currentUser, pick the checkout back up instead of losing it.
+        if (authSuccess === 'true' && currentUser) {
+            try {
+                const _pb = sessionStorage.getItem('pendingBuy');
+                if (_pb) {
+                    const { cycle, tier } = JSON.parse(_pb);
+                    sessionStorage.removeItem('pendingBuy');
+                    if (cycle) currentCycle = cycle;
+                    selectedTierForPayment = tier || 'pro_plus';
+                    startDodoCheckout();
+                }
+            } catch(_) { try { sessionStorage.removeItem('pendingBuy'); } catch(__) {} }
+        }
         fetchPricingConfig();
         initStatsCountUp();
         initLiveCounter();
