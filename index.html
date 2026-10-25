@@ -4256,7 +4256,37 @@ body { overscroll-behavior-y:none; }
         if(currentTier === 'pro_plus') return;
         if(currentTier === 'pro' && targetTier === 'pro') return;
         selectedTierForPayment = targetTier;
+        // Direct-to-Dodo: once subscription products are live, "Get Started" skips the
+        // payment modal and goes straight to the Dodo checkout. Falls back to the modal
+        // (Razorpay etc.) if Dodo isn't configured or the call fails.
+        if (SITE_CONFIG && SITE_CONFIG.dodoSubscriptions) { startDodoCheckout(); return; }
         openPaymentModal();
+    }
+
+    // One tap from "Get Started" to the Dodo hosted checkout. Carries any targeted
+    // coupon from the win-back link (?coupon=CODE); no modal, no coupon box, no method picker.
+    async function startDodoCheckout() {
+        if (!currentUser) { openLoginModal(); return; }
+        const coupon = currentCoupon || _urlCoupon || '';
+        try { document.body.style.cursor = 'progress'; } catch(_) {}
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/payment/create-dodo-subscription`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    googleId: currentUser.googleId, tier: selectedTierForPayment,
+                    cycle: currentCycle, couponCode: coupon,
+                    refCode: localStorage.getItem('whisRef'), utmSource: localStorage.getItem('whisSource'),
+                    returnUrl: location.origin + location.pathname
+                })
+            });
+            const data = await res.json();
+            if (data.url) { window.location.href = data.url; return; }
+            try { document.body.style.cursor = ''; } catch(_) {}
+            openPaymentModal(); // graceful fallback to the full method sheet
+        } catch (e) {
+            try { document.body.style.cursor = ''; } catch(_) {}
+            openPaymentModal();
+        }
     }
 
     let _scrollY = 0;
@@ -4491,7 +4521,11 @@ body { overscroll-behavior-y:none; }
         const btn = event.currentTarget; const orig = btn.innerHTML;
         btn.innerHTML = '<div class="w-full flex items-center justify-center gap-2 text-[14px] font-bold" style="color:rgba(255,255,255,0.85)"><i class="fa-solid fa-circle-notch fa-spin"></i> Opening secure checkout…</div>';
         try {
-            const res = await fetch(`${BACKEND_URL}/api/payment/create-dodo-checkout`, {
+            // Recurring subscription when the server has subscription products wired; else one-time.
+            const _dodoEndpoint = (SITE_CONFIG && SITE_CONFIG.dodoSubscriptions)
+                ? '/api/payment/create-dodo-subscription'
+                : '/api/payment/create-dodo-checkout';
+            const res = await fetch(`${BACKEND_URL}${_dodoEndpoint}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     googleId: currentUser.googleId, tier: selectedTierForPayment,
@@ -4515,16 +4549,24 @@ body { overscroll-behavior-y:none; }
     // is the source of truth and will finalize even if this call is slow/blocked.
     async function handleDodoReturn() {
         const p = new URLSearchParams(location.search);
-        if (!p.get('dodo') && !p.get('payment_id')) return;
+        const isSub = p.get('dodosub') || p.get('subscription_id');
+        if (!p.get('dodo') && !p.get('payment_id') && !isSub) return;
         const st = (p.get('status') || '').toLowerCase();
         // Clean the query so a refresh doesn't re-trigger this.
         try { history.replaceState({}, '', location.origin + location.pathname); } catch(_) {}
-        if (st && !['succeeded','active','processing','paid',''].includes(st)) return; // cancelled/failed → stay on page
+        if (st && !['succeeded','active','trialing','processing','paid',''].includes(st)) return; // cancelled/failed → stay on page
         try {
-            await fetch(`${BACKEND_URL}/api/payment/dodo-confirm`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ payment_id: p.get('payment_id'), whisOrderId: p.get('whisOrderId') })
-            });
+            if (isSub) {
+                await fetch(`${BACKEND_URL}/api/payment/dodo-subscription-confirm`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscription_id: p.get('subscription_id'), whisOrderId: p.get('whisOrderId') })
+                });
+            } else {
+                await fetch(`${BACKEND_URL}/api/payment/dodo-confirm`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payment_id: p.get('payment_id'), whisOrderId: p.get('whisOrderId') })
+                });
+            }
         } catch(_) {}
         const successModal = document.getElementById('successModal');
         if (successModal) { successModal.classList.remove('hidden'); successModal.classList.add('flex'); }
