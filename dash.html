@@ -932,6 +932,7 @@
                 document.getElementById('mod-integrity-bar').className = `absolute right-0 top-0 h-full w-1 ${barColor}`;
                 document.getElementById('mod-tier-badge').innerHTML = `<span class="font-mono text-xs font-bold text-white uppercase">${u.subscription?.tier || 'FREE'}</span>`;
                 document.getElementById('mod-ttl-countdown').innerText = integrity.ttlStr;
+                document.getElementById('mod-valid-until-text').innerText = integrity.validUntil ? ('Valid Until: ' + fmtIST(integrity.validUntil)) : 'Valid Until: --';
 
                 document.getElementById('mod-free').innerHTML = `${u.freeUsage?.count || 0}<span class="text-[10px] text-slate-600">/10</span>`;
                 document.getElementById('mod-trial').innerHTML = `${u.trialUsage?.count || 0}<span class="text-[10px] text-slate-600">/3</span>`;
@@ -940,7 +941,9 @@
                 const tBody = document.getElementById('mod-orders-body');
                 tBody.innerHTML = u.orders?.length ? '' : '<tr><td colspan="5" class="py-6 text-center text-slate-600 italic">No ledger entries.</td></tr>';
                 u.orders?.forEach(o => {
-                    tBody.innerHTML += `<tr><td class="py-2 px-3">${fmtIST(o.date)}</td><td class="px-3">${o.orderId.substring(0,8)}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
+                    const _m = o.method ? ` · ${o.method}` : '';
+                    const _sub = (o.notes && o.notes.kind === 'subscription') ? ' <span class="text-[8px] text-sky-400 font-bold">SUB</span>' : '';
+                    tBody.innerHTML += `<tr><td class="py-2 px-3">${fmtIST(o.date)}</td><td class="px-3">${o.orderId.substring(0,8)}<span class="text-[9px] text-slate-500">${_m}</span>${_sub}</td><td class="px-3 uppercase">${o.tier}</td><td class="px-3">${o.currency} ${o.amount}</td><td class="px-3 text-emerald-400 uppercase font-bold text-[9px]">${o.status}</td></tr>`;
                 });
             } catch (e) { console.error(e); }
         }
