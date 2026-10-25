@@ -154,6 +154,8 @@
 
     async function boot() {
       try {
+        // Returning from Dodo's hosted checkout (no gid/sid on this URL) — confirm + show result.
+        if (qs.get('dodosub') || qs.get('subscription_id')) { return confirmDodoSub(qs.get('subscription_id'), qs.get('whisOrderId')); }
         if (!P.gid) return failSession();
         // 1) validate session (auto-login, no website password)
         const vr = await fetch(API + '/api/checkout/validate', {
@@ -176,8 +178,9 @@
         $('who').textContent = v.email || v.name || 'your account';
         if (v.isActive) { $('pay-h').textContent = 'Upgrade / extend your plan'; }
         renderPlan();
-        // Go straight to the secure payment sheet — no extra confirm page.
-        payRazorpay(false);
+        // Recurring subscription via Dodo when it's configured; otherwise the Razorpay sheet.
+        if (CONF && CONF.dodoSubscriptions) { startDodoSub(); }
+        else { payRazorpay(false); }
 
         /* International now checks out via Razorpay USD — PayPal disabled. */
       } catch (e) { failSession('Something went wrong', 'Please reopen checkout from the Whis-AI app.'); }
@@ -255,6 +258,37 @@
           } catch (_) { alert('Payment received — we are confirming it. You will get a confirmation email shortly.'); }
         }
       }).render('#paypal-box');
+    }
+
+    // ── Dodo (recurring subscription · Merchant of Record) — primary path ──
+    // Redirect this window to the Dodo hosted checkout; the buyer returns here with
+    // ?dodosub=1&subscription_id=… , which confirmDodoSub() finalizes on load.
+    async function startDodoSub() {
+      show('view-loading');
+      try {
+        const r = await fetch(API + '/api/payment/create-dodo-subscription', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ googleId: USER.googleId, tier: P.tier, cycle: P.cycle, couponCode: P.coupon || undefined, returnUrl: location.origin + location.pathname })
+        });
+        const d = await r.json();
+        if (d.url) { window.location.href = d.url; return; }
+      } catch (_) {}
+      // Dodo couldn't start — fall back to the Razorpay sheet so the sale isn't lost.
+      show('view-pay'); payRazorpay(false);
+    }
+    async function confirmDodoSub(subscriptionId, orderId) {
+      const st = (qs.get('status') || '').toLowerCase();
+      if (st && !['succeeded','active','trialing','processing','paid',''].includes(st)) {
+        return failSession('Payment not completed', 'No charge was made. Reopen checkout from the Whis-AI app to try again.');
+      }
+      show('view-loading');
+      try {
+        await fetch(API + '/api/payment/dodo-subscription-confirm', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ subscription_id: subscriptionId, whisOrderId: orderId })
+        });
+      } catch (_) {}
+      show('view-success');
     }
 
     // Cycle toggle

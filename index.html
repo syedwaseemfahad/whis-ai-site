@@ -2692,6 +2692,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
             <button onclick="buyElite('monthly')" class="w-full py-3.5 rounded-xl text-white font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-white/10 hover:bg-white/10" style="background:rgba(255,255,255,0.07);">Get Started →</button>
+            <div style="text-align:center;margin-top:7px;"><a href="#" onclick="event.preventDefault();payViaRazorpay('monthly')" style="font-size:10px;color:rgba(255,255,255,0.4);text-decoration:underline;">Prefer UPI or another method?</a></div>
           </div>
 
           <!-- ELITE · QUARTERLY (hero for India; demoted to "Best Value" for non-India) -->
@@ -2721,6 +2722,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
             <button id="ctaQuarterly" onclick="buyElite('quarterly')" class="btn-elite-cta relative z-10">Get Started →</button>
+            <div style="text-align:center;margin-top:7px;"><a href="#" onclick="event.preventDefault();payViaRazorpay('quarterly')" style="font-size:10px;color:rgba(255,255,255,0.4);text-decoration:underline;">Prefer UPI or another method?</a></div>
           </div>
 
           <!-- ELITE · 6-MONTH ("Best Value" for India; promoted to "Most Popular" hero for non-India) -->
@@ -2750,6 +2752,7 @@ body { overscroll-behavior-y:none; }
               <div class="feat-row"><div class="feat-row-icon" style="background:rgba(34,211,238,0.18);color:#22d3ee;"><i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i></div><span class="text-slate-400 text-[11px]">Powered by GPT-4o + Gemini 2.0</span></div>
             </div>
             <button id="ctaSemiannual" onclick="buyElite('semiannual')" class="w-full py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all active:scale-95 text-white" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">Get Started →</button>
+            <div style="text-align:center;margin-top:7px;"><a href="#" onclick="event.preventDefault();payViaRazorpay('semiannual')" style="font-size:10px;color:rgba(255,255,255,0.4);text-decoration:underline;">Prefer UPI or another method?</a></div>
           </div>
 
         </div>
@@ -4287,6 +4290,17 @@ body { overscroll-behavior-y:none; }
             try { document.body.style.cursor = ''; } catch(_) {}
             openPaymentModal();
         }
+    }
+
+    // Manual escape hatch for the direct-to-Dodo flow: open the full payment sheet
+    // (Razorpay / UPI / card) instead of Dodo. For price-sensitive India (no-GST UPI)
+    // or a buyer whose card keeps declining. Never blocks the fast path.
+    function payViaRazorpay(cycle) {
+        if (cycle) currentCycle = cycle;
+        if (!currentUser) { openLoginModal(); return; }
+        if (currentTier === 'pro_plus') return;
+        selectedTierForPayment = 'pro_plus';
+        openPaymentModal();
     }
 
     let _scrollY = 0;
