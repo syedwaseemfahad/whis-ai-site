@@ -3511,6 +3511,16 @@ body { overscroll-behavior-y:none; }
             </div>
             <div id="modalPlanValidity" class="text-[9px] md:text-[10px] text-slate-500 mt-1.5 md:mt-2"></div>
             <div id="modalRenewInfo" class="text-[9px] md:text-[10px] text-slate-500 mt-1"></div>
+            <div id="modalUsageWrap" class="hidden mt-4 pt-4 border-t border-slate-200">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-widest font-bold">Usage this month</span>
+                <span id="modalUsageText" class="text-[11px] md:text-xs font-bold text-slate-800"></span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                <div id="modalUsageBar" class="h-full rounded-full transition-all duration-500" style="width:0%;background:linear-gradient(90deg,#10b981,#0ea5e9);"></div>
+              </div>
+              <div id="modalUsageLeft" class="text-[9px] md:text-[10px] font-semibold mt-1.5"></div>
+            </div>
         </div>
         <button id="cancelSubBtn" onclick="cancelSubscription()" class="hidden w-full py-2.5 md:py-3 mb-3 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 text-[11px] md:text-xs font-bold uppercase transition active:scale-95">Cancel Auto-Renew</button>
         <button onclick="logout()" class="w-full py-2.5 md:py-3 rounded-lg bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 text-[11px] md:text-xs font-bold uppercase transition active:scale-95">Sign Out</button>
@@ -4199,6 +4209,27 @@ body { overscroll-behavior-y:none; }
                 if (renewEl) renewEl.innerText = "";
                 if (cancelBtn) cancelBtn.classList.add('hidden');
             }
+            // ── Usage meter: hours used / left this month (any active paid plan) ──
+            try {
+              const uWrap = document.getElementById('modalUsageWrap');
+              if (uWrap) {
+                const lim = Number(d.micLimitSeconds) || 0;
+                const rem = Math.max(0, Number(d.micRemainingSeconds) || 0);
+                if (d.active && !d.isTrial && lim > 0) {
+                  const used = Math.max(0, lim - rem);
+                  const fmtH = (s) => { const h = s / 3600; return h >= 10 ? String(Math.round(h)) : (Math.round(h * 10) / 10).toFixed(1); };
+                  const pct = Math.min(100, Math.round((used / lim) * 100));
+                  document.getElementById('modalUsageText').innerText = `${fmtH(used)} / ${fmtH(lim)} hrs`;
+                  const bar = document.getElementById('modalUsageBar');
+                  bar.style.width = pct + '%';
+                  bar.style.background = pct >= 85 ? 'linear-gradient(90deg,#f59e0b,#ef4444)' : 'linear-gradient(90deg,#10b981,#0ea5e9)';
+                  const leftEl = document.getElementById('modalUsageLeft');
+                  leftEl.innerText = `${fmtH(rem)} hrs left this month`;
+                  leftEl.className = `text-[9px] md:text-[10px] font-semibold mt-1.5 ${pct >= 85 ? 'text-amber-600' : 'text-emerald-600'}`;
+                  uWrap.classList.remove('hidden');
+                } else { uWrap.classList.add('hidden'); }
+              }
+            } catch(_) {}
             document.getElementById('modalUserName').innerText = currentUser.name;
             document.getElementById('modalUserAvatar').src = currentUser.avatarUrl;
         } catch(e){}
