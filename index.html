@@ -3527,6 +3527,22 @@ body { overscroll-behavior-y:none; }
     </div>
   </div>
 
+  <!-- Cancel retention modal (type-to-confirm) -->
+  <div id="cancelModal" class="fixed inset-0 z-[200] items-center justify-center p-4" style="display:none;background:rgba(2,6,23,0.65);backdrop-filter:blur(4px);" onclick="document.getElementById('cancelModal').style.display='none'">
+    <div class="bg-white rounded-2xl p-6 md:p-7 max-w-md w-full shadow-2xl text-left" onclick="event.stopPropagation()">
+      <div class="text-3xl mb-2">🥺</div>
+      <h3 class="text-lg md:text-xl font-bold text-slate-900 mb-2">Wait, you're so close.</h3>
+      <p class="text-[13px] md:text-sm text-slate-600 mb-3 leading-relaxed">We're genuinely sorry to see you go before you've cracked the job. So many people cancel right before the one interview that changes everything. Your edge will be here the moment you need it.</p>
+      <p class="text-[13px] md:text-sm text-slate-700 mb-4 leading-relaxed">If you cancel, you <strong>keep full access until <span id="cancelModalUntil">your period ends</span></strong>, and <strong>you won't be charged again</strong>.</p>
+      <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Type <span class="text-slate-900">CANCEL</span> to confirm</label>
+      <input id="cancelConfirmInput" type="text" autocomplete="off" spellcheck="false" oninput="_onCancelInput(this.value)" class="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 mb-4 focus:outline-none focus:border-sky-500" placeholder="CANCEL" />
+      <div class="flex gap-3">
+        <button onclick="document.getElementById('cancelModal').style.display='none'" class="flex-1 py-2.5 rounded-lg bg-sky-500 text-white font-bold text-[13px] md:text-sm hover:bg-sky-600 transition active:scale-95">Keep my plan</button>
+        <button id="cancelConfirmBtn" disabled onclick="_doCancelConfirmed()" class="flex-1 py-2.5 rounded-lg bg-slate-100 text-slate-400 font-bold text-[13px] md:text-sm cursor-not-allowed transition">Cancel plan</button>
+      </div>
+    </div>
+  </div>
+
   <div id="liveChatWidget" class="fixed inset-0 md:inset-auto md:bottom-24 md:right-8 z-[100] w-full h-[100dvh] md:w-[380px] md:h-[600px] md:rounded-2xl flex-col hidden overflow-hidden transition-all duration-300 opacity-0 translate-y-10 md:translate-y-0 md:scale-95 origin-bottom-right" style="background:#050f1e;border:1px solid rgba(14,165,233,0.2);box-shadow:0 40px 100px rgba(0,0,0,0.8),0 0 0 1px rgba(14,165,233,0.08),0 0 60px rgba(14,165,233,0.05);">
 
       <!-- Header -->
@@ -4182,23 +4198,26 @@ body { overscroll-behavior-y:none; }
                     const dateStr = new Date(d.expiry || d.validUntil).toLocaleDateString();
                     validityEl.innerText = "Valid until: " + dateStr;
                 } else { validityEl.innerText = "Active Subscription"; }
-                // Auto-renew state + cancel button
+                // Payment method + renewal state + universal cancel button (all active paid plans)
                 if (renewEl && cancelBtn) {
-                    if (d.autoRenew && !d.cancelledAt) {
-                        const next = d.nextBillingDate || d.validUntil;
-                        renewEl.innerText = next ? `🔄 Auto-renews on ${new Date(next).toLocaleDateString()}` : '🔄 Auto-renew on';
-                        renewEl.className = "text-[9px] md:text-[10px] text-emerald-600 font-semibold mt-1";
-                        cancelBtn.classList.remove('hidden');
-                    } else if (d.cancelledAt) {
-                        renewEl.innerText = `Auto-renew cancelled — access until ${new Date(d.validUntil).toLocaleDateString()}`;
+                    window._subValidUntil = d.validUntil || null;
+                    const pm = (d.paymentMethod || '').toLowerCase();
+                    const pmLabel = { dodo:'Dodo', razorpay:'Razorpay', upi:'UPI', card:'Card', paypal:'PayPal', manual:'Complimentary' }[pm] || (d.paymentMethod || '');
+                    if (d.cancelAtPeriodEnd || d.cancelledAt) {
+                        renewEl.innerText = `Cancelled. Access until ${new Date(d.validUntil).toLocaleDateString()}.`;
                         renewEl.className = "text-[9px] md:text-[10px] text-amber-600 font-semibold mt-1";
                         cancelBtn.classList.add('hidden');
+                    } else if (d.autoRenew) {
+                        const next = d.nextBillingDate || d.validUntil;
+                        renewEl.innerText = `🔄 Auto-renews on ${new Date(next).toLocaleDateString()}${pmLabel ? ' · ' + pmLabel : ''}`;
+                        renewEl.className = "text-[9px] md:text-[10px] text-emerald-600 font-semibold mt-1";
+                        cancelBtn.innerText = 'Cancel Auto-Renew';
+                        cancelBtn.classList.remove('hidden');
                     } else {
-                        // Active but not auto-renewing (one-time / Razorpay) — there is no next charge
-                        // to cancel, so reassure the customer instead of showing a misleading button.
-                        renewEl.innerText = "One-time plan. Does not auto-renew, you won't be charged again.";
+                        renewEl.innerText = `Does not auto-renew. Access until ${new Date(d.validUntil).toLocaleDateString()}${pmLabel ? ' · paid via ' + pmLabel : ''}.`;
                         renewEl.className = "text-[9px] md:text-[10px] text-slate-500 font-medium mt-1";
-                        cancelBtn.classList.add('hidden');
+                        cancelBtn.innerText = 'Cancel Plan';
+                        if (d.cancellable) cancelBtn.classList.remove('hidden'); else cancelBtn.classList.add('hidden');
                     }
                 }
                 const btnPro = document.getElementById('btnPro'); const btnElite = document.getElementById('btnElite');
@@ -4238,11 +4257,34 @@ body { overscroll-behavior-y:none; }
         } catch(e){}
     }
 
-    async function cancelSubscription() {
+    // Opens the retention modal. The real cancel only fires once the user types CANCEL to confirm.
+    function cancelSubscription() {
         if (!currentUser) return;
-        const ok = confirm("Cancel auto-renewal?\n\nYour access continues until the end of your current billing period — you won't be charged again.");
-        if (!ok) return;
-        const btn = document.getElementById('cancelSubBtn');
+        const m = document.getElementById('cancelModal');
+        const untilEl = document.getElementById('cancelModalUntil');
+        if (untilEl) untilEl.innerText = window._subValidUntil ? new Date(window._subValidUntil).toLocaleDateString() : 'your period ends';
+        const input = document.getElementById('cancelConfirmInput');
+        if (input) input.value = '';
+        _onCancelInput('');   // reset the confirm button to disabled
+        if (m) m.style.display = 'flex';
+        if (input) setTimeout(() => input.focus(), 60);
+    }
+
+    // Enable the red "Cancel plan" button only when the user has typed CANCEL.
+    function _onCancelInput(v) {
+        const btn = document.getElementById('cancelConfirmBtn');
+        if (!btn) return;
+        const ok = String(v || '').trim().toUpperCase() === 'CANCEL';
+        btn.disabled = !ok;
+        btn.className = ok
+            ? 'flex-1 py-2.5 rounded-lg bg-red-500 text-white font-bold text-[13px] md:text-sm hover:bg-red-600 transition active:scale-95'
+            : 'flex-1 py-2.5 rounded-lg bg-slate-100 text-slate-400 font-bold text-[13px] md:text-sm cursor-not-allowed transition';
+    }
+
+    // Fires the actual cancellation after confirmation.
+    async function _doCancelConfirmed() {
+        if (!currentUser) return;
+        const btn = document.getElementById('cancelConfirmBtn');
         const orig = btn.innerHTML;
         btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Cancelling...';
         try {
@@ -4251,16 +4293,18 @@ body { overscroll-behavior-y:none; }
                 body: JSON.stringify({ googleId: currentUser.googleId })
             });
             const d = await r.json();
+            document.getElementById('cancelModal').style.display = 'none';
             if (d.success) {
-                alert(`Auto-renew cancelled. You keep full access until ${new Date(d.accessUntil).toLocaleDateString()}.`);
+                alert(`Your plan is cancelled. You keep full access until ${new Date(d.accessUntil).toLocaleDateString()}, and you won't be charged again.`);
                 fetchUserStatus();
             } else {
-                alert(d.error || "Could not cancel. Please contact support.");
+                alert(d.error || "Could not cancel. Please email support@whis-ai.com.");
             }
         } catch(e) {
+            document.getElementById('cancelModal').style.display = 'none';
             alert("Network error. Please try again.");
         }
-        btn.disabled = false; btn.innerHTML = orig;
+        btn.innerHTML = orig;
     }
 
     let selectedTierForPayment = null; 
