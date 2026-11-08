@@ -2130,7 +2130,12 @@ body { overscroll-behavior-y:none; }
 
   <!-- Announcement banner -->
   <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4 fh1">
-    <div class="hero-badge">
+    <!-- Personalized greeting for visitors arriving from InterviewGuides (hidden until matched) -->
+    <div class="hero-badge" id="ig-greet" style="display:none;background:rgba(124,108,240,0.14);border-color:rgba(124,108,240,0.38)">
+      <i class="fa-solid fa-bolt text-[10px]" style="color:#a78bfa;"></i>
+      <span id="ig-greet-text"></span>
+    </div>
+    <div class="hero-badge" id="hero-badge-default">
       <div class="relative flex shrink-0">
         <span class="w-2 h-2 rounded-full" style="background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
         <span class="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping opacity-60"></span>
@@ -2139,6 +2144,24 @@ body { overscroll-behavior-y:none; }
       <i class="fa-solid fa-star text-[8px]" style="color:#fbbf24;margin-left:2px;"></i>
     </div>
   </div>
+  <script>
+  /* Continuity greeting for visitors coming from InterviewGuides. Reads ?ig_company (and remembers it),
+     swaps the generic badge for a personalized one, and tunes the primary CTA copy. Runs inline to avoid a flash. */
+  (function(){
+    try{
+      var p = new URLSearchParams(location.search);
+      var co = p.get('ig_company') || p.get('utm_content');
+      if(co){ try{ localStorage.setItem('igCompany', co); localStorage.setItem('igCompanyAt', String(Date.now())); }catch(e){} }
+      else { try{ var at=+(localStorage.getItem('igCompanyAt')||0); if(Date.now()-at < 14*864e5) co = localStorage.getItem('igCompany'); }catch(e){} }
+      if(!co) return;
+      co = co.replace(/[<>&"]/g,'').slice(0,40).trim();
+      if(!co) return;
+      var g = document.getElementById('ig-greet'), t = document.getElementById('ig-greet-text'), d = document.getElementById('hero-badge-default');
+      if(g && t){ t.innerHTML = 'Prepping for your <strong>'+co+'</strong> interview? Whis is your copilot for the day.'; g.style.display=''; if(d) d.style.display='none';
+        var m = document.querySelector('.hero-motiv-wrap'); if(m) m.style.display='none'; }  // show only the personalized line
+    }catch(e){}
+  })();
+  </script>
 
   <!-- ── SPLIT HERO — left: story + live demo · right: proof sliders ── -->
   <div class="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-x-12 lg:gap-y-6 lg:items-start mb-8 md:mb-10">
