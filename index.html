@@ -2130,8 +2130,8 @@ body { overscroll-behavior-y:none; }
 
   <!-- Announcement banner -->
   <div class="relative z-10 mb-6 md:mb-8 mt-6 md:mt-8 px-4 fh1">
-    <!-- Personalized greeting for visitors arriving from InterviewGuides (hidden until matched) -->
-    <div class="hero-badge" id="ig-greet" style="display:none;background:rgba(124,108,240,0.14);border-color:rgba(124,108,240,0.38)">
+    <!-- Personalized greeting for visitors arriving from InterviewGuides (hidden until matched; gated on ?ig_company which only interviewguides.in sets) -->
+    <div class="hero-badge" id="ig-greet" role="button" tabindex="0" style="display:none;cursor:pointer;background:rgba(124,108,240,0.14);border-color:rgba(124,108,240,0.38)">
       <i class="fa-solid fa-bolt text-[10px]" style="color:#a78bfa;"></i>
       <span id="ig-greet-text"></span>
     </div>
@@ -2157,8 +2157,12 @@ body { overscroll-behavior-y:none; }
       co = co.replace(/[<>&"]/g,'').slice(0,40).trim();
       if(!co) return;
       var g = document.getElementById('ig-greet'), t = document.getElementById('ig-greet-text'), d = document.getElementById('hero-badge-default');
-      if(g && t){ t.innerHTML = 'Prepping for your <strong>'+co+'</strong> interview? Whis is your copilot for the day.'; g.style.display=''; if(d) d.style.display='none';
-        var m = document.querySelector('.hero-motiv-wrap'); if(m) m.style.display='none'; }  // show only the personalized line
+      if(g && t){ t.innerHTML = 'Prepping for your <strong>'+co+'</strong> interview? Set up Whis for the day, free &rarr;'; g.style.display=''; if(d) d.style.display='none';
+        var m = document.querySelector('.hero-motiv-wrap'); if(m) m.style.display='none';  // show only the personalized line
+        // make the greeting a conversion driver: open the existing download/try flow (no new flow, no pricing change)
+        var act = function(){ try{ if(typeof openDownloadModal==='function'){ openDownloadModal(); return; } }catch(e){} var c=document.getElementById('heroDownloadBtn'); if(c){ c.scrollIntoView({behavior:'smooth',block:'center'}); } };
+        g.addEventListener('click', act); g.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } });
+      }
     }catch(e){}
   })();
   </script>
